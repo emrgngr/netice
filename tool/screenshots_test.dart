@@ -1,0 +1,65 @@
+// Ekran görüntüsü üretir: flutter test tool/screenshots_test.dart
+import 'dart:io';
+import 'dart:ui' as ui;
+
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:netice/core/store.dart';
+import 'package:netice/main.dart';
+import 'package:netice/ui/exam_screen.dart';
+import 'package:netice/ui/theme.dart';
+
+Future<void> loadFonts() async {
+  final loader = FontLoader('PlusJakartaSans');
+  for (final w in ['400Regular', '500Medium', '600SemiBold', '700Bold', '800ExtraBold']) {
+    loader.addFont(Future.value(ByteData.sublistView(File('assets/fonts/PlusJakartaSans_$w.ttf').readAsBytesSync())));
+  }
+  await loader.load();
+  final icons = FontLoader('MaterialIcons');
+  final iconFile = File('${Platform.environment['FLUTTER_ROOT'] ?? '/opt/sdk/flutter'}/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf');
+  if (iconFile.existsSync()) {
+    icons.addFont(Future.value(ByteData.sublistView(iconFile.readAsBytesSync())));
+    await icons.load();
+  }
+}
+
+Future<void> shot(WidgetTester tester, Widget app, Size size, String name, {Future<void> Function()? then}) async {
+  tester.view.physicalSize = size * 2;
+  tester.view.devicePixelRatio = 2;
+  await tester.pumpWidget(RepaintBoundary(key: const ValueKey('shot'), child: app));
+  await tester.pumpAndSettle();
+  if (then != null) {
+    await then();
+    await tester.pumpAndSettle();
+  }
+  await tester.runAsync(() async {
+    final boundary = tester.renderObject<RenderRepaintBoundary>(find.byKey(const ValueKey('shot')));
+    final image = await boundary.toImage(pixelRatio: 2);
+    final data = await image.toByteData(format: ui.ImageByteFormat.png);
+    Directory('build/screenshots').createSync(recursive: true);
+    File('build/screenshots/$name.png').writeAsBytesSync(data!.buffer.asUint8List());
+  });
+}
+
+void main() {
+  testWidgets('ekran görüntüleri', (tester) async {
+    await tester.runAsync(loadFonts);
+    final store = AppStore();
+    await tester.runAsync(() => store.load(dir: Directory.systemTemp.createTempSync('shots')));
+    final app = NeticeApp(store: store);
+
+    await shot(tester, app, const Size(390, 844), 'mobil_ana_sayfa');
+    await shot(tester, app, const Size(1366, 820), 'masaustu_pano');
+    await shot(tester, StoreScope(store: store, child: _themed(const ExamScreen(examId: 'demo_exam'))), const Size(390, 844), 'mobil_sinav_sonuclari');
+    await shot(tester, StoreScope(store: store, child: _themed(const ExamScreen(examId: 'demo_exam'))), const Size(1366, 820), 'masaustu_madde_analizi',
+        then: () async => tester.tap(find.text('Analiz')));
+  });
+}
+
+Widget _themed(Widget home) => MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: NTheme.light(),
+      home: home,
+    );
