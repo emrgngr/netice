@@ -11,6 +11,7 @@ import 'school_screen.dart';
 import 'settings_screen.dart';
 import 'illustrations.dart';
 import 'help_screen.dart';
+import 'rate_share.dart';
 import 'term_screen.dart';
 import 'exam_screen.dart';
 import 'logo.dart';
@@ -33,6 +34,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _tab = 0;
   bool _guideShown = false;
+  bool _rateShown = false;
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +48,12 @@ class _HomeScreenState extends State<HomeScreen> {
         if (mounted) {
           Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OnboardingScreen()));
         }
+      });
+    }
+    if (store.onboardingDone && store.shouldAskRating && !_rateShown) {
+      _rateShown = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) showRateDialog(context);
       });
     }
     final wide = MediaQuery.sizeOf(context).width >= 900;

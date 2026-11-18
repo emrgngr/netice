@@ -6,6 +6,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:printing/printing.dart';
 
 import '../core/import_export.dart';
+import '../core/legal.dart';
 import '../core/term.dart';
 import '../main.dart';
 import '../reports/pdf_documents.dart';
@@ -118,7 +119,8 @@ class _TermScreenState extends State<TermScreen> {
           body:
               'Sayın Velimiz,\n\n${r.student.fullName} adlı öğrencimizin ${_term.label} kazanım karnesi ektedir.\n'
               'Dönem ortalaması: ${r.grade} · Sınıf ortalaması: ${fmt1(report.classAverage)}\n\nSaygılarımızla,\n'
-              '${store.school.teacher.trim().isEmpty ? 'Ders öğretmeni' : store.school.teacher.trim()}',
+              '${store.school.teacher.trim().isEmpty ? 'Ders öğretmeni' : store.school.teacher.trim()}'
+              '$downloadSignature',
         );
       } catch (e) {
         if (context.mounted) toast(context, 'Karne paylaşılamadı: $e');

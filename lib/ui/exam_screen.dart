@@ -7,6 +7,7 @@ import 'package:printing/printing.dart';
 
 import '../core/analysis.dart';
 import '../core/import_export.dart';
+import '../core/legal.dart';
 import '../core/models.dart';
 import '../core/report.dart';
 import '../core/scoring.dart';
@@ -1041,7 +1042,8 @@ Future<void> shareStudentCard(BuildContext context, Exam exam, String studentId)
         '${st.fullName} adlı öğrencimizin "${exam.name}" (${dmy(exam.date)}) sınav karnesi ektedir.\n'
         'Puanı: ${fmt1(r.score)} / ${fmt1(exam.rule.maxScore)} · Sınıf ortalaması: ${fmt1(rep.stats.mean)}\n\n'
         'Saygılarımızla,\n${store.school.teacher.trim().isEmpty ? 'Ders öğretmeni' : store.school.teacher.trim()}'
-        '${school.isEmpty ? '' : '\n$school'}';
+        '${school.isEmpty ? '' : '\n$school'}'
+        '$downloadSignature';
     await Printing.sharePdf(
       bytes: bytes,
       filename: '${_safe(st.fullName)}_${_safe(exam.name)}_karne.pdf',

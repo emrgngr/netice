@@ -5,6 +5,27 @@ const appVersion = '1.0.0';
 /// metinlerde iletişim satırı gösterilmez.
 const contactEmail = '';
 
+/// Mağaza bağlantıları. Uygulama yayımlanınca [storePublished] true yapılır;
+/// o zamana kadar paylaşım metni bağlantısız gider, yıldızlar uygulamada kalır.
+const storePublished = false;
+const androidPackage = 'com.netice.netice';
+const playStoreUrl = 'https://play.google.com/store/apps/details?id=$androidPackage';
+
+/// Belgelerin ve paylaşım mesajlarının altındaki indirme bağlantısı:
+/// tanıtım sayfası varsa o, yoksa Google Play sayfası.
+String get downloadUrl => websiteUrl.isNotEmpty ? websiteUrl : playStoreUrl;
+String get downloadLabel => downloadUrl.replaceFirst(RegExp(r'^https?://'), '');
+
+/// Mesajların sonuna eklenen kısa imza.
+String get downloadSignature => '\n\n— Netice ile hazırlandı. Siz de deneyin: $downloadUrl';
+
+/// Tanıtım sayfasının adresi (yayımlanınca doldurulur).
+const websiteUrl = '';
+
+String get shareText => 'Optik kâğıtları telefonla okutup puan, analiz ve karneyi saniyeler içinde hazırlayan '
+    'Netice\'yi kullanıyorum, sana da öneririm. İnternetsiz çalışıyor, veriler telefonda kalıyor.'
+    '\n\nİndir: $downloadUrl';
+
 String _contact(String prefix) => contactEmail.isEmpty ? '' : '\n\n$prefix $contactEmail';
 
 /// Uygulama içi gizlilik politikası (mağazadaki metnin kısa hâli).

@@ -10,6 +10,7 @@ import '../core/progress.dart';
 import '../core/report.dart';
 import '../core/scoring.dart';
 import '../core/term.dart';
+import '../core/legal.dart';
 import '../omr/form_code.dart';
 import '../omr/form_layout.dart';
 
@@ -586,14 +587,17 @@ class _Kit {
     ),
   );
 
-  pw.Widget footer(pw.Context ctx) => pw.Row(
-    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-    children: [
-      pw.Text('Netice ile hazırlandı', style: const pw.TextStyle(color: _emerald, fontSize: 8)),
-      pw.Text('Rapor tarihi: $created', style: const pw.TextStyle(color: _muted, fontSize: 8)),
-      pw.Text('Sayfa ${ctx.pageNumber} / ${ctx.pagesCount}', style: const pw.TextStyle(color: _muted, fontSize: 8)),
-    ],
-  );
+  pw.Widget footer(pw.Context ctx) => pw.Column(children: [
+    pw.Row(
+      mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+      children: [
+        pw.Text('Netice ile hazırlandı', style: const pw.TextStyle(color: _emerald, fontSize: 8)),
+        pw.Text('Rapor tarihi: $created', style: const pw.TextStyle(color: _muted, fontSize: 8)),
+        pw.Text('Sayfa ${ctx.pageNumber} / ${ctx.pagesCount}', style: const pw.TextStyle(color: _muted, fontSize: 8)),
+      ],
+    ),
+    downloadNote(),
+  ]);
 
   pw.Widget title(String t, [String? sub]) => pw.Padding(
     padding: const pw.EdgeInsets.only(top: 6, bottom: 8),
@@ -1561,6 +1565,22 @@ Future<Uint8List> buildLabelsPdf({
   if (sorted.isEmpty) doc.addPage(pw.Page(build: (_) => pw.Center(child: pw.Text('Henüz okunan kâğıt yok.'))));
   return doc.save();
 }
+
+/// Paylaşılan her belgenin altındaki uygulama ve indirme bilgisi.
+pw.Widget downloadNote() => pw.Padding(
+      padding: const pw.EdgeInsets.only(top: 3),
+      child: pw.UrlLink(
+        destination: downloadUrl,
+        child: pw.RichText(
+          textAlign: pw.TextAlign.center,
+          text: pw.TextSpan(style: const pw.TextStyle(fontSize: 7, color: _muted), children: [
+            pw.TextSpan(text: 'Netice', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: _ink)),
+            const pw.TextSpan(text: ' · Optik kâğıtları telefonla okutun, sonuç ve karne saniyeler içinde · Ücretsiz indirin: '),
+            pw.TextSpan(text: downloadLabel, style: const pw.TextStyle(color: _emerald, decoration: pw.TextDecoration.underline)),
+          ]),
+        ),
+      ),
+    );
 
 String _short(String s, [int n = 14]) => s.length <= n ? s : '${s.substring(0, n - 1)}…';
 

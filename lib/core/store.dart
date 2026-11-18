@@ -30,6 +30,13 @@ class AppStore extends ChangeNotifier {
   /// İlk açılış rehberi gösterildi mi?
   bool onboardingDone = false;
 
+  /// Öğretmenin verdiği yıldız (0: henüz vermedi) ve otomatik sorulup sorulmadığı.
+  int rating = 0;
+  bool ratePrompted = false;
+
+  /// Yeterince kullanıldıysa (30+ kâğıt) bir kez yıldız istenir.
+  bool get shouldAskRating => !ratePrompted && rating == 0 && sheets.length >= 30;
+
   File? _file;
   bool loaded = false;
 
@@ -90,6 +97,8 @@ class AppStore extends ChangeNotifier {
         'sheets': sheets.map((s) => s.toJson()).toList(),
         'school': school.toJson(),
         'onboardingDone': onboardingDone,
+        'rating': rating,
+        'ratePrompted': ratePrompted,
       };
 
   void _apply(Map<String, dynamic> j) {
@@ -107,6 +116,19 @@ class AppStore extends ChangeNotifier {
       ..addAll(sh);
     school = j['school'] is Map ? SchoolInfo.fromJson((j['school'] as Map).cast<String, dynamic>()) : const SchoolInfo();
     onboardingDone = j['onboardingDone'] as bool? ?? onboardingDone;
+    rating = (j['rating'] as num?)?.toInt() ?? rating;
+    ratePrompted = j['ratePrompted'] as bool? ?? ratePrompted;
+  }
+
+  void setRating(int stars) {
+    rating = stars;
+    ratePrompted = true;
+    _changed();
+  }
+
+  void markRatePrompted() {
+    ratePrompted = true;
+    _changed();
   }
 
   void finishOnboarding() {

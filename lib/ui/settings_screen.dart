@@ -9,6 +9,7 @@ import '../core/legal.dart';
 import '../main.dart';
 import 'logo.dart';
 import 'onboarding_screen.dart';
+import 'rate_share.dart';
 import 'help_screen.dart';
 import 'school_screen.dart';
 import 'theme.dart';
@@ -235,6 +236,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
               ]),
             ),
+          const SectionTitle('Netice\'yi yayın'),
+          Card(
+            clipBehavior: Clip.antiAlias,
+            child: Column(children: [
+              tile(Icons.share_rounded, NColors.emerald, 'Uygulamayı paylaş', 'Meslektaşlarınıza WhatsApp veya e-postayla önerin',
+                  () => shareApp(context)),
+              const Divider(height: 1),
+              tile(Icons.star_rounded, NColors.amber, 'Yıldız ver',
+                  StoreScope.of(context).rating == 0 ? 'Görüşünüz bizim için değerli' : 'Verdiğiniz puan: ${StoreScope.of(context).rating} yıldız',
+                  () => showRateDialog(context, onFeedback: _feedback)),
+            ]),
+          ),
           const SectionTitle('Yardım ve gizlilik'),
           Card(
             clipBehavior: Clip.antiAlias,
