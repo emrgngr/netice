@@ -32,10 +32,13 @@ String _contact(String prefix) => contactEmail.isEmpty ? '' : '\n\n$prefix $cont
 final privacyPolicy = '''Netice, öğretmenlerin optik cevap kâğıtlarını okutup sonuçları analiz etmesi için tasarlanmıştır.
 
 Çevrimdışı çalışır, veriler cihazınızda kalır
-Netice internet bağlantısı olmadan çalışır. Girdiğiniz ve okuttuğunuz tüm bilgiler yalnızca uygulamayı kullandığınız telefonda (veya bilgisayarda), uygulamaya ait klasörde saklanır. Uygulama reklam göstermez, hesap açmayı zorunlu tutmaz ve hiçbir veriyi geliştiriciye ya da üçüncü kişilere göndermez.
+Netice internet bağlantısı olmadan çalışır. Girdiğiniz ve okuttuğunuz tüm bilgiler yalnızca uygulamayı kullandığınız telefonda (veya bilgisayarda), uygulamaya ait klasörde saklanır. Uygulama hesap açmayı zorunlu tutmaz ve hiçbir veriyi geliştiriciye ya da üçüncü kişilere göndermez.
 
 İsteğe bağlı Google hesabı
 Ayarlar > Hesap bölümünden dilerseniz Google hesabınızla giriş yapıp yedeğinizi kendi Google Drive alanınıza kaydedebilirsiniz. Bu özellik yalnızca siz açtığınızda internete bağlanır; yedek, Drive'ınızda yalnızca Netice'nin görebildiği gizli uygulama klasöründe tutulur ve geliştiriciye ulaşmaz. Kullanmazsanız uygulama tamamen çevrimdışı kalır.
+
+Ürün önerileri
+Ana sayfanın altında, geliştiricinin kendi mağazasından (SepetMix) kapatılabilir bir ürün öneri kartı yer alır. Reklam ağı kullanılmaz, reklam kimliği okunmaz, kullanıcı izlenmez. İnternet varsa günde en çok bir kez yalnızca herkese açık ürün listesi indirilir; bu istekte size ya da öğrencilerinize ait hiçbir bilgi bulunmaz. Bir ürüne dokunduğunuzda mağaza sayfası tarayıcınızda açılır ve o sitenin kendi kuralları geçerli olur.
 
 Tutulan bilgiler
 Öğrenci adı, soyadı, okul numarası ve sınıfı; sınav adı, tarihi, cevap anahtarı ve kazanımları; okutulan kâğıtlardaki işaretler, puanlar ve istatistikler; okul ve öğretmen bilgileri. Bu bilgiler yalnızca bu cihazda, uygulamaya ait klasörde saklanır; hiçbir sunucuya yüklenmez.

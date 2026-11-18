@@ -46,6 +46,15 @@ class AppStore extends ChangeNotifier {
   Future<void> Function()? onDailyBackup;
   bool ratePrompted = false;
 
+  /// Ana sayfadaki öneri kartı bu tarihe kadar gizli.
+  DateTime? promoHiddenUntil;
+  bool get showPromo => promoHiddenUntil == null || DateTime.now().isAfter(promoHiddenUntil!);
+
+  void hidePromo([Duration d = const Duration(days: 7)]) {
+    promoHiddenUntil = DateTime.now().add(d);
+    _changed();
+  }
+
   /// Yeterince kullanıldıysa (30+ kâğıt) bir kez yıldız istenir.
   bool get shouldAskRating => !ratePrompted && rating == 0 && sheets.length >= 30;
 
@@ -115,6 +124,7 @@ class AppStore extends ChangeNotifier {
         'googleName': googleName,
         'lastCloudBackup': lastCloudBackup?.toIso8601String(),
         'cloudAuto': cloudAuto,
+        'promoHiddenUntil': promoHiddenUntil?.toIso8601String(),
       };
 
   void _apply(Map<String, dynamic> j) {
@@ -133,6 +143,7 @@ class AppStore extends ChangeNotifier {
     school = j['school'] is Map ? SchoolInfo.fromJson((j['school'] as Map).cast<String, dynamic>()) : const SchoolInfo();
     onboardingDone = j['onboardingDone'] as bool? ?? onboardingDone;
     rating = (j['rating'] as num?)?.toInt() ?? rating;
+    promoHiddenUntil = DateTime.tryParse('${j['promoHiddenUntil'] ?? ''}') ?? promoHiddenUntil;
     ratePrompted = j['ratePrompted'] as bool? ?? ratePrompted;
     if (j.containsKey('googleEmail')) {
       googleEmail = j['googleEmail'] as String?;

@@ -19,6 +19,7 @@ import 'new_exam_screen.dart';
 import 'camera_scan_screen.dart';
 import 'student_detail_screen.dart';
 import 'students_screen.dart';
+import 'promo_card.dart';
 import 'theme.dart';
 import 'widgets.dart';
 
@@ -363,6 +364,11 @@ class _Dashboard extends StatelessWidget {
             },
           ),
         ),
+        if (store.showPromo)
+          SliverPadding(
+            padding: EdgeInsets.fromLTRB(wide ? 28 : 16, 8, wide ? 28 : 16, 24),
+            sliver: const SliverToBoxAdapter(child: PromoCard()),
+          ),
       ]),
     );
   }
