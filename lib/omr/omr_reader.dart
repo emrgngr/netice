@@ -187,10 +187,18 @@ class OmrReader {
     for (var d = 0; d < FormLayout.studentDigits; d++) {
       final fills = [for (var v = 0; v < 10; v++) fillAt(layout.studentBubble(d, v))];
       final a = classify(fills);
-      if (a.state == MarkState.filled) {
+      if (a.state == MarkState.filled && a.marked.length == 1) {
         digits.write(a.marked.first);
       } else {
-        numberOk = false;
+        // Her sütunda tam bir rakam beklenir: açık kalemle ya da gölgede
+        // eşiğin altında kalsa da diğerlerinden belirgin koyu olanı kabul et.
+        final order = [for (var v = 0; v < 10; v++) v]..sort((x, y) => fills[y].compareTo(fills[x]));
+        final best = fills[order[0]], second = fills[order[1]];
+        if (best >= 0.25 && best - second >= 0.18 && second < thresholds.empty) {
+          digits.write(order[0]);
+        } else {
+          numberOk = false;
+        }
       }
     }
 
@@ -289,7 +297,17 @@ class OmrReader {
   // Köşe işareti tespiti
 
   /// Dört köşe işaretinin merkezini (sol üst, sağ üst, sağ alt, sol alt) bulur.
+  /// Köşe karelerini bulur. Önce tek eşikle dener; güçlü gölge ya da
+  /// dengesiz ışıkta başarısız olursa yerel (uyarlamalı) eşikle yeniden dener.
   static List<Pt> findMarkers(GrayImage image) {
+    try {
+      return _findMarkers(image, adaptive: false);
+    } on OmrException {
+      return _findMarkers(image, adaptive: true);
+    }
+  }
+
+  static List<Pt> _findMarkers(GrayImage image, {required bool adaptive}) {
     // Hız için küçült.
     const target = 900;
     final f = math.max(1, (math.max(image.width, image.height) / target).ceil());
@@ -308,10 +326,33 @@ class OmrReader {
       }
     }
 
-    final t = _otsu(small);
     final dark = Uint8List(w * h);
-    for (var i = 0; i < small.length; i++) {
-      dark[i] = small[i] < t ? 1 : 0;
+    if (!adaptive) {
+      final t = _otsu(small);
+      for (var i = 0; i < small.length; i++) {
+        dark[i] = small[i] < t ? 1 : 0;
+      }
+    } else {
+      // Her pikseli çevresinin ortalamasıyla karşılaştır (integral görüntü).
+      final integ = Int64List((w + 1) * (h + 1));
+      for (var y = 0; y < h; y++) {
+        var row = 0;
+        for (var x = 0; x < w; x++) {
+          row += small[y * w + x];
+          integ[(y + 1) * (w + 1) + x + 1] = integ[y * (w + 1) + x + 1] + row;
+        }
+      }
+      final r = math.max(8, math.max(w, h) ~/ 12);
+      for (var y = 0; y < h; y++) {
+        final y0 = math.max(0, y - r), y1 = math.min(h, y + r + 1);
+        for (var x = 0; x < w; x++) {
+          final x0 = math.max(0, x - r), x1 = math.min(w, x + r + 1);
+          final sum = integ[y1 * (w + 1) + x1] - integ[y0 * (w + 1) + x1] - integ[y1 * (w + 1) + x0] + integ[y0 * (w + 1) + x0];
+          final mean = sum / ((y1 - y0) * (x1 - x0));
+          final v = small[y * w + x];
+          dark[y * w + x] = v < mean * 0.62 && v < mean - 30 ? 1 : 0;
+        }
+      }
     }
 
     final labels = Int32List(w * h);
