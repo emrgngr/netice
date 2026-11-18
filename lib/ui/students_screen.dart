@@ -8,6 +8,7 @@ import '../core/models.dart';
 import '../main.dart';
 import 'student_detail_screen.dart';
 import 'theme.dart';
+import 'illustrations.dart';
 import 'widgets.dart';
 
 /// Sınıflar ve öğrenciler; Excel/CSV'den aktarma.
@@ -233,7 +234,11 @@ class _StudentsScreenState extends State<StudentsScreen> {
                     builder: (_) => StudentDetailScreen(studentId: s.id, onEdit: (st) => _edit(existing: st)))),
               ),
             if (list.isEmpty)
-              const Padding(padding: EdgeInsets.all(24), child: Text('Bu sınıfta öğrenci yok.')),
+              const EmptyState(
+                kind: IllustrationKind.students,
+                title: 'Bu sınıfta öğrenci yok',
+                message: 'e-Okul\'dan aldığınız Excel listesini "Excel aktar" ile yükleyin ya da öğrencileri tek tek ekleyin.',
+              ),
           ]),
         ),
       ]),

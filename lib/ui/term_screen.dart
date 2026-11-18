@@ -10,6 +10,7 @@ import '../core/term.dart';
 import '../main.dart';
 import '../reports/pdf_documents.dart';
 import 'report_preview_screen.dart';
+import 'illustrations.dart';
 import 'theme.dart';
 import 'widgets.dart';
 
@@ -140,10 +141,10 @@ class _TermScreenState extends State<TermScreen> {
             const SizedBox(height: 14),
             if (classes.isEmpty)
               const Card(
-                child: ListTile(
-                  leading: IconBadge(Icons.info_outline, color: NColors.amber),
-                  title: Text('Henüz sonucu olan sınav yok'),
-                  subtitle: Text('Kâğıt okuttuğunuz sınavlar burada dönem notuna dönüşür.'),
+                child: EmptyState(
+                  kind: IllustrationKind.term,
+                  title: 'Henüz sonucu olan sınav yok',
+                  message: 'Kâğıt okuttuğunuz sınavlar burada dönem sonu notuna ve kazanım karnesine dönüşür.',
                 ),
               )
             else ...[
@@ -227,7 +228,7 @@ class _TermScreenState extends State<TermScreen> {
                     children: [
                       Expanded(
                         child: StatCard(
-                          label: 'Sınıf ortalaması',
+                          label: 'Ortalama',
                           value: fmt1(report.classAverage),
                           icon: Icons.insights_rounded,
                         ),

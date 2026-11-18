@@ -9,6 +9,7 @@ import '../core/legal.dart';
 import '../main.dart';
 import 'logo.dart';
 import 'onboarding_screen.dart';
+import 'help_screen.dart';
 import 'school_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
@@ -238,7 +239,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Card(
             clipBehavior: Clip.antiAlias,
             child: Column(children: [
-              tile(Icons.school_outlined, NColors.emerald, 'Kullanım rehberi', 'Netice\'yi 4 adımda tanıyın',
+              tile(Icons.menu_book_outlined, NColors.emerald, 'Kullanma kılavuzu', 'Adım adım anlatım',
+                  () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const HelpScreen()))),
+              const Divider(height: 1),
+              tile(Icons.quiz_outlined, NColors.emerald, 'Sık sorulan sorular', 'Aranabilir cevaplar',
+                  () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const HelpScreen(initialTab: 1)))),
+              const Divider(height: 1),
+              tile(Icons.play_circle_outline, NColors.ink, 'Tanıtımı yeniden izle', 'Netice\'yi 4 adımda tanıyın',
                   () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OnboardingScreen()))),
               const Divider(height: 1),
               tile(Icons.lock_outline_rounded, NColors.ink, 'Gizlilik politikası',

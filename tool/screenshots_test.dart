@@ -18,6 +18,8 @@ import 'package:netice/ui/settings_screen.dart';
 import 'package:netice/core/models.dart';
 import 'package:netice/ui/exam_settings_screen.dart';
 import 'package:netice/ui/theme.dart';
+import 'package:netice/ui/help_screen.dart';
+import 'package:netice/ui/term_screen.dart';
 
 Future<void> loadFonts() async {
   final loader = FontLoader('PlusJakartaSans');
@@ -112,6 +114,19 @@ void main() {
           await tester.pumpAndSettle();
           await tester.tap(find.text('Form yazdır').last);
         });
+    await shot(tester, StoreScope(store: store, child: _themed(const HelpScreen())), const Size(390, 1400), 'mobil_kilavuz');
+    await shot(tester, StoreScope(store: store, child: _themed(const HelpScreen(initialTab: 1))), const Size(390, 1400),
+        'mobil_sss');
+    await shot(tester, StoreScope(store: store, child: _themed(const TermScreen())), const Size(390, 1900), 'mobil_donem_raporu');
+    await shot(tester, StoreScope(store: store, child: _themed(const ExamScreen(examId: 'demo_exam'))), const Size(390, 900),
+        'mobil_veliye_gonder', then: () async {
+          await tester.tap(find.text('Deniz Arslan').first);
+        });
+    final empty = AppStore();
+    await tester.runAsync(() => empty.load(dir: Directory.systemTemp.createTempSync('bos')));
+    empty.clearDemo();
+    empty.onboardingDone = true;
+    await shot(tester, NeticeApp(store: empty), const Size(390, 1100), 'mobil_bos_ana_sayfa');
     debugDisableShadows = true;
   });
 }

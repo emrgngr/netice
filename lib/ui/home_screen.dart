@@ -9,6 +9,8 @@ import 'compare_screen.dart';
 import 'onboarding_screen.dart';
 import 'school_screen.dart';
 import 'settings_screen.dart';
+import 'illustrations.dart';
+import 'help_screen.dart';
 import 'term_screen.dart';
 import 'exam_screen.dart';
 import 'logo.dart';
@@ -176,6 +178,7 @@ class _Dashboard extends StatelessWidget {
     final greeting = hour < 11 ? 'Günaydın' : (hour < 18 ? 'İyi günler' : 'İyi akşamlar');
     void newExam() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NewExamScreen()));
     void openSettings() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsScreen()));
+    void openHelp() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const HelpScreen()));
 
     final hero = HeroPanel(
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -189,6 +192,13 @@ class _Dashboard extends StatelessWidget {
                   style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800, letterSpacing: -0.5)),
             ]),
           ),
+          IconButton.filledTonal(
+            style: IconButton.styleFrom(backgroundColor: Colors.white.withValues(alpha: 0.12), foregroundColor: Colors.white),
+            tooltip: 'Yardım ve SSS',
+            onPressed: openHelp,
+            icon: const Icon(Icons.help_outline_rounded),
+          ),
+          const SizedBox(width: 8),
           IconButton.filledTonal(
             style: IconButton.styleFrom(backgroundColor: Colors.white.withValues(alpha: 0.12), foregroundColor: Colors.white),
             tooltip: 'Ayarlar',
@@ -234,6 +244,7 @@ class _Dashboard extends StatelessWidget {
                 const Spacer(),
                 const LiveClock(),
                 const SizedBox(width: 8),
+                IconButton(tooltip: 'Yardım ve SSS', onPressed: openHelp, icon: const Icon(Icons.help_outline_rounded)),
                 IconButton(tooltip: 'Ayarlar', onPressed: openSettings, icon: const Icon(Icons.settings_outlined)),
                 const SizedBox(width: 8),
                 OutlinedButton.icon(
@@ -276,9 +287,15 @@ class _Dashboard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             sliver: SliverToBoxAdapter(
               child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Text('Henüz sınav yok. "Yeni sınav" ile başlayın.', style: t.textTheme.bodyLarge),
+                child: EmptyState(
+                  kind: IllustrationKind.exams,
+                  title: 'İlk sınavınızı oluşturun',
+                  message: 'Cevap anahtarını girin, formları yazdırın ve kâğıtları okutun. Sonuçlar burada listelenir.',
+                  action: FilledButton.icon(
+                    onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NewExamScreen())),
+                    icon: const Icon(Icons.add_rounded),
+                    label: const Text('Yeni sınav'),
+                  ),
                 ),
               ),
             ),

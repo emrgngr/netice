@@ -20,6 +20,7 @@ import 'report_preview_screen.dart';
 import 'student_detail_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
+import 'illustrations.dart';
 
 class ExamScreen extends StatelessWidget {
   final String examId;
@@ -301,7 +302,16 @@ class _ResultsTab extends StatelessWidget {
     final st = Analysis.examStats(exam, results);
     final t = Theme.of(context);
     if (results.isEmpty) {
-      return const Center(child: Text('Henüz okunan kâğıt yok. "Okut" ile başlayın.'));
+      return const Center(
+        child: SingleChildScrollView(
+          child: EmptyState(
+            kind: IllustrationKind.scan,
+            title: 'Henüz okunan kâğıt yok',
+            message: 'Aşağıdaki "Okut" düğmesine dokunun ve kâğıtları sırayla kameraya gösterin. '
+                'Formları henüz basmadıysanız önce "Form yazdır"ı kullanın.',
+          ),
+        ),
+      );
     }
     final wide = MediaQuery.sizeOf(context).width >= 900;
     final openMissing = exam.hasOpen ? results.where((r) => r.openMissing).length : 0;
@@ -432,7 +442,7 @@ void showSheetDetail(BuildContext context, Exam exam, Result r) {
               child: TextButton.icon(
                 onPressed: () => shareStudentCard(context, exam, st.id),
                 icon: const Icon(Icons.send_outlined, size: 18),
-                label: const Text('Karneyi veliye gönder (WhatsApp, e-posta…)'),
+                label: const Text('Karneyi veliye gönder'),
               ),
             ),
           const SizedBox(height: 12),
@@ -516,7 +526,17 @@ class _AnalysisTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (results.isEmpty) return const Center(child: Text('Analiz için önce kâğıt okutun.'));
+    if (results.isEmpty) {
+      return const Center(
+        child: SingleChildScrollView(
+          child: EmptyState(
+            kind: IllustrationKind.results,
+            title: 'Analiz kâğıtları bekliyor',
+            message: 'Kâğıtları okuttuğunuzda başarı dağılımı, soru analizi ve kazanım başarısı burada belirir.',
+          ),
+        ),
+      );
+    }
     final rep = ExamReport.build(exam, results);
     final s = rep.stats;
     final items = rep.items;

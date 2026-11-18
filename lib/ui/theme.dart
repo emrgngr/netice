@@ -131,7 +131,92 @@ class NTheme {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         ),
       ),
+      pageTransitionsTheme: const PageTransitionsTheme(builders: {
+        TargetPlatform.android: FadeForwardsPageTransitionsBuilder(),
+        TargetPlatform.windows: FadeForwardsPageTransitionsBuilder(),
+        TargetPlatform.linux: FadeForwardsPageTransitionsBuilder(),
+      }),
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: isDark ? const Color(0xFFE9ECF5) : NColors.ink,
+        contentTextStyle: TextStyle(
+            fontFamily: _font, fontWeight: FontWeight.w600, color: isDark ? NColors.ink : Colors.white),
+        actionTextColor: NColors.emerald,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        elevation: 6,
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: surface,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        titleTextStyle: TextStyle(fontFamily: _font, fontSize: 20, fontWeight: FontWeight.w800, color: onSurface),
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: surface,
+        surfaceTintColor: Colors.transparent,
+        showDragHandle: true,
+        dragHandleColor: scheme.outline,
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
+      ),
+      listTileTheme: ListTileThemeData(
+        iconColor: onSurface.withValues(alpha: 0.75),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      ),
+      dividerTheme: DividerThemeData(color: scheme.outlineVariant, thickness: 1, space: 1),
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.selected) ? Colors.white : null),
+        trackColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.selected) ? NColors.emerald : null),
+        trackOutlineColor: WidgetStateProperty.resolveWith(
+            (s) => s.contains(WidgetState.selected) ? NColors.emerald : scheme.outline),
+      ),
+      checkboxTheme: CheckboxThemeData(
+        fillColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.selected) ? NColors.emerald : null),
+        checkColor: const WidgetStatePropertyAll(Colors.white),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+      ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          backgroundColor: WidgetStateProperty.resolveWith(
+              (s) => s.contains(WidgetState.selected) ? NColors.emerald.withValues(alpha: isDark ? 0.28 : 0.16) : surface),
+          foregroundColor: WidgetStatePropertyAll(onSurface),
+          side: WidgetStatePropertyAll(BorderSide(color: scheme.outlineVariant)),
+          textStyle: const WidgetStatePropertyAll(TextStyle(fontFamily: _font, fontWeight: FontWeight.w600)),
+          shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+        ),
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: surface,
+        selectedColor: NColors.emerald.withValues(alpha: isDark ? 0.28 : 0.16),
+        side: BorderSide(color: scheme.outlineVariant),
+        labelStyle: TextStyle(fontFamily: _font, fontWeight: FontWeight.w600, color: onSurface),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        color: NColors.emerald,
+        linearTrackColor: scheme.surfaceContainerHighest,
+        circularTrackColor: Colors.transparent,
+      ),
+      tooltipTheme: TooltipThemeData(
+        decoration: BoxDecoration(color: NColors.ink.withValues(alpha: 0.94), borderRadius: BorderRadius.circular(8)),
+        textStyle: const TextStyle(fontFamily: _font, color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: isDark ? NColors.emerald : NColors.ink,
+          textStyle: const TextStyle(fontFamily: _font, fontWeight: FontWeight.w700),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      ),
+      textTheme: base.textTheme.copyWith(
+        headlineMedium: base.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800, letterSpacing: -0.6),
+        titleLarge: base.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700, letterSpacing: -0.3),
+      ),
       inputDecorationTheme: InputDecorationTheme(
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: NColors.emerald, width: 1.6),
+        ),
+        floatingLabelStyle: TextStyle(fontFamily: _font, fontWeight: FontWeight.w600, color: isDark ? NColors.emerald : NColors.ink),
         filled: true,
         fillColor: surface,
         border: OutlineInputBorder(

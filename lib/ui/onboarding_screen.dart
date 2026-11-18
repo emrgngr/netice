@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../main.dart';
+import 'illustrations.dart';
 import 'school_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
@@ -14,7 +15,7 @@ class OnboardingScreen extends StatefulWidget {
 }
 
 class _Step {
-  final IconData icon;
+  final IllustrationKind icon;
   final String title;
   final String body;
   final List<String> points;
@@ -22,25 +23,25 @@ class _Step {
 }
 
 const _steps = [
-  _Step(Icons.auto_awesome_rounded, 'Netice\'ye hoş geldiniz',
+  _Step(IllustrationKind.welcome, 'Netice\'ye hoş geldiniz',
       'Optik kâğıtları telefonunuzla okutun; puanlar, analizler ve raporlar kendiliğinden hazırlansın.', [
     'İnternet gerekmez, veriler yalnızca bu cihazda kalır',
     'Bir kâğıt ortalama 2 saniyede okunur',
     'Emin olunamayan işaretler size sorulur, sessizce karar verilmez',
   ]),
-  _Step(Icons.account_balance_outlined, '1. Okul bilgileri',
+  _Step(IllustrationKind.school, '1. Okul bilgileri',
       'Okul adı, il/ilçe, müdür ve öğretmen adını bir kez girin. Tüm raporlar resmi yazı başlığıyla çıkar.', [
     'T.C. / Kaymakamlık / Okul Müdürlüğü başlığı',
     'Öğretmen ve müdür imza alanı',
     'İstediğiniz zaman Ayarlar\'dan değiştirebilirsiniz',
   ]),
-  _Step(Icons.groups_outlined, '2. Sınıflarınızı aktarın',
+  _Step(IllustrationKind.students, '2. Sınıflarınızı aktarın',
       'Sınıflar sekmesinden e-Okul\'dan aldığınız Excel listesini seçin. Tüm şubeler tek dosyadan ayrılır.', [
     'Gerekli sütunlar: Okul No, Adı, Soyadı, Sınıf',
     'Tek tek öğrenci de ekleyebilirsiniz',
     'Örnek sınıf ve sınavla hemen deneyebilirsiniz',
   ]),
-  _Step(Icons.document_scanner_outlined, '3. Sınav, form, okut',
+  _Step(IllustrationKind.scan, '3. Sınav, form, okut',
       'Yeni sınav oluşturun, cevap anahtarını girin, Form yazdır ile isimli formları basın ve Okut\'a dokunun.', [
     'Kâğıtları art arda kameraya gösterin, okuma kendiliğinden olur',
     'Sonuçlar, madde analizi ve karneler anında hazır',
@@ -147,19 +148,16 @@ class _StepView extends StatelessWidget {
   Widget build(BuildContext context) => SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(28, 12, 28, 12),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          if (first)
-            const AppLogo(size: 72)
-          else
-            Container(
-              width: 72,
-              height: 72,
-              decoration: BoxDecoration(
-                color: NColors.emerald.withValues(alpha: 0.16),
-                borderRadius: BorderRadius.circular(22),
-              ),
-              child: Icon(step.icon, color: NColors.emerald, size: 36),
-            ),
-          const SizedBox(height: 28),
+          if (first) ...[
+            const Row(children: [
+              AppLogo(size: 40),
+              SizedBox(width: 10),
+              Text('Netice', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800)),
+            ]),
+            const SizedBox(height: 8),
+          ],
+          Center(child: Illustration(kind: step.icon, size: 190, onDark: true)),
+          const SizedBox(height: 20),
           Text(step.title,
               style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w800, height: 1.15)),
           const SizedBox(height: 12),
