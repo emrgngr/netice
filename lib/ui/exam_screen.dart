@@ -22,6 +22,7 @@ import 'student_detail_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
 import 'illustrations.dart';
+import 'charts.dart';
 
 class ExamScreen extends StatelessWidget {
   final String examId;
@@ -702,6 +703,39 @@ class _AnalysisTab extends StatelessWidget {
           ]),
         ),
       ),
+      const SectionTitle('Grafikler'),
+      _ChartsPanel(rep: rep),
+      const SectionTitle('Puanların yayılımı'),
+      Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: BoxPlot(
+              min: s.min, q1: rep.q1, median: s.median, q3: rep.q3, max: s.max, mean: s.mean, scaleMax: exam.rule.maxScore),
+        ),
+      ),
+      const SectionTitle('Madde haritası'),
+      Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: ItemMap(items: [
+            for (final it in items)
+              if (!exam.questions[it.no - 1].cancelled) (it.no, it.p, it.d)
+          ]),
+        ),
+      ),
+      if (rep.outcomes.length >= 3) ...[
+        const SectionTitle('Kazanım radarı'),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(children: [
+              RadarChart(axes: [for (final o in rep.outcomes) (o.code, o.rate)]),
+              Text('Yeşil alan: sınıfın doğru oranı · sarı çizgi: %70 hedef',
+                  style: t.textTheme.bodySmall?.copyWith(color: muted)),
+            ]),
+          ),
+        ),
+      ],
       const SectionTitle('Başarı düzeyleri'),
       Card(
         child: Padding(
@@ -877,6 +911,77 @@ class _AnalysisTab extends StatelessWidget {
     qs[no - 1] = qs[no - 1].copyWith(cancelled: true);
     store.upsertExam(exam.copyWith(questions: qs));
     toast(context, '$no. soru iptal edildi; tüm puanlar yeniden hesaplandı.');
+  }
+}
+
+/// Dokunmatik pasta/halka grafikler: düzeyler, cevaplar, geçme, güçlük.
+class _ChartsPanel extends StatefulWidget {
+  final ExamReport rep;
+  const _ChartsPanel({required this.rep});
+  @override
+  State<_ChartsPanel> createState() => _ChartsPanelState();
+}
+
+class _ChartsPanelState extends State<_ChartsPanel> {
+  int _tab = 0;
+  static const _tabs = ['Düzeyler', 'Cevaplar', 'Geçme', 'Güçlük'];
+  static const _levelColors = [NColors.emerald, Color(0xFF34D399), NColors.amber, Color(0xFFF59E0B), NColors.coral];
+
+  @override
+  Widget build(BuildContext context) {
+    final rep = widget.rep;
+    final n = rep.results.length;
+    final passed = rep.standings.where((x) => x.result.score >= rep.exam.rule.pass).length;
+    final c = rep.results.fold<int>(0, (a, r) => a + r.correct);
+    final w = rep.results.fold<int>(0, (a, r) => a + r.wrong);
+    final b = rep.results.fold<int>(0, (a, r) => a + r.blank);
+    final chart = switch (_tab) {
+      0 => DonutChart(key: const ValueKey(0), pie: true, centerLabel: 'öğrenci', unit: ' kişi', slices: [
+          for (var i = 0; i < Level.all.length; i++)
+            Slice(Level.all[i].name, rep.levelCounts[i].toDouble(), _levelColors[i],
+                detail: '${Level.all[i].name}: tam puanın %${Level.all[i].minPct.round()} ve üzeri'),
+        ]),
+      1 => DonutChart(key: const ValueKey(1), centerLabel: 'cevap', slices: [
+          Slice('Doğru', c.toDouble(), NColors.emerald, detail: 'Öğrenci başına ${fmt1(n == 0 ? 0 : c / n)} doğru'),
+          Slice('Yanlış', w.toDouble(), NColors.coral, detail: 'Öğrenci başına ${fmt1(n == 0 ? 0 : w / n)} yanlış'),
+          Slice('Boş', b.toDouble(), NColors.gray, detail: 'Öğrenci başına ${fmt1(n == 0 ? 0 : b / n)} boş'),
+        ]),
+      2 => DonutChart(key: const ValueKey(2), centerLabel: 'öğrenci', unit: ' kişi', slices: [
+          Slice('Geçti', passed.toDouble(), NColors.emerald, detail: 'Geçme puanı ${rep.exam.rule.pass.round()}'),
+          Slice('Geçemedi', (n - passed).toDouble(), NColors.coral),
+        ]),
+      _ => DonutChart(key: const ValueKey(3), centerLabel: 'soru', unit: ' soru', slices: [
+          Slice('Kolay', (rep.difficultyCounts['Kolay'] ?? 0).toDouble(), NColors.emerald, detail: 'Doğru oranı %80 üzeri'),
+          Slice('Orta', (rep.difficultyCounts['Orta'] ?? 0).toDouble(), NColors.ink, detail: 'Doğru oranı %30–80'),
+          Slice('Zor', (rep.difficultyCounts['Zor'] ?? 0).toDouble(), NColors.coral, detail: 'Doğru oranı %30 altı'),
+        ]),
+    };
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(children: [
+              for (var i = 0; i < _tabs.length; i++)
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: ChoiceChip(
+                    label: Text(_tabs[i]),
+                    selected: _tab == i,
+                    onSelected: (_) => setState(() => _tab = i),
+                  ),
+                ),
+            ]),
+          ),
+          const SizedBox(height: 14),
+          AnimatedSwitcher(duration: const Duration(milliseconds: 250), child: chart),
+          const SizedBox(height: 6),
+          Text('Dilime veya açıklamaya dokunarak ayrıntıyı görün.',
+              style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.55))),
+        ]),
+      ),
+    );
   }
 }
 

@@ -858,6 +858,39 @@ Future<Uint8List> buildResultsPdf({
           k.statBox('Üst %27 ortalaması', _f1(r.upperMean), color: _emerald),
           k.statBox('Alt %27 ortalaması', _f1(r.lowerMean), color: _coral),
         ]),
+        k.title('Grafik özeti'),
+        () {
+          final c = results.fold<int>(0, (a, x) => a + x.correct);
+          final w = results.fold<int>(0, (a, x) => a + x.wrong);
+          final b = results.fold<int>(0, (a, x) => a + x.blank);
+          final passed = results.where((x) => x.score >= exam.rule.pass).length;
+          return pw.Row(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
+            pw.Expanded(
+                child: _pieBox('Başarı düzeyleri', [
+              for (var i = 0; i < Level.all.length; i++) (Level.all[i].name, r.levelCounts[i].toDouble(), _levelColors[i]),
+            ])),
+            pw.SizedBox(width: 6),
+            pw.Expanded(
+                child: _pieBox('Cevaplar', [
+              ('Doğru', c.toDouble(), _emerald),
+              ('Yanlış', w.toDouble(), _coral),
+              ('Boş', b.toDouble(), _gray),
+            ], donut: true)),
+            pw.SizedBox(width: 6),
+            pw.Expanded(
+                child: _pieBox('Geçme durumu', [
+              ('Geçti', passed.toDouble(), _emerald),
+              ('Geçemedi', (results.length - passed).toDouble(), _coral),
+            ], donut: true)),
+            pw.SizedBox(width: 6),
+            pw.Expanded(
+                child: _pieBox('Soru güçlüğü', [
+              ('Kolay', (r.difficultyCounts['Kolay'] ?? 0).toDouble(), _emerald),
+              ('Orta', (r.difficultyCounts['Orta'] ?? 0).toDouble(), _ink),
+              ('Zor', (r.difficultyCounts['Zor'] ?? 0).toDouble(), _coral),
+            ], donut: true)),
+          ]);
+        }(),
         k.title('Otomatik değerlendirme'),
         pw.Container(
           padding: const pw.EdgeInsets.all(10),
@@ -1564,6 +1597,50 @@ Future<Uint8List> buildLabelsPdf({
   }
   if (sorted.isEmpty) doc.addPage(pw.Page(build: (_) => pw.Center(child: pw.Text('Henüz okunan kâğıt yok.'))));
   return doc.save();
+}
+
+/// Küçük pasta/halka grafik kutusu (dilim yüzdeleri açıklamada).
+pw.Widget _pieBox(String title, List<(String, double, PdfColor)> data, {bool donut = false}) {
+  final total = data.fold<double>(0, (a, d) => a + d.$2);
+  final nonZero = data.where((d) => d.$2 > 0).toList();
+  return pw.Container(
+    padding: const pw.EdgeInsets.all(8),
+    decoration: pw.BoxDecoration(border: pw.Border.all(color: _line), borderRadius: pw.BorderRadius.circular(6)),
+    child: pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
+      pw.Text(title, style: pw.TextStyle(fontSize: 8.5, fontWeight: pw.FontWeight.bold, color: _ink)),
+      pw.SizedBox(height: 6),
+      pw.SizedBox(
+        height: 78,
+        child: total == 0
+            ? pw.Center(child: pw.Text('–'))
+            : pw.Chart(
+                grid: pw.PieGrid(),
+                datasets: [
+                  for (final d in nonZero)
+                    pw.PieDataSet(
+                      value: d.$2,
+                      color: d.$3,
+                      legend: nonZero.length == 1 ? null : '',
+                      legendPosition: pw.PieLegendPosition.none,
+                      innerRadius: donut ? 22 : 0,
+                    ),
+                ],
+              ),
+      ),
+      pw.SizedBox(height: 6),
+      for (final d in data)
+        pw.Padding(
+          padding: const pw.EdgeInsets.only(bottom: 1.5),
+          child: pw.Row(children: [
+            pw.Container(width: 6, height: 6, decoration: pw.BoxDecoration(color: d.$3, borderRadius: pw.BorderRadius.circular(1.5))),
+            pw.SizedBox(width: 4),
+            pw.Expanded(child: pw.Text(d.$1, style: const pw.TextStyle(fontSize: 7))),
+            pw.Text('${d.$2.round()} · ${total == 0 ? '%0' : '%${(d.$2 / total * 100).round()}'}',
+                style: pw.TextStyle(fontSize: 7, fontWeight: pw.FontWeight.bold)),
+          ]),
+        ),
+    ]),
+  );
 }
 
 /// Paylaşılan her belgenin altındaki uygulama ve indirme bilgisi.
