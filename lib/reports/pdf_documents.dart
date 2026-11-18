@@ -33,90 +33,353 @@ class _Fonts {
   }
 }
 
-/// Basılı optik formlar. Her öğrenci için adı yazılı bir sayfa üretir;
-/// [students] boşsa tek bir genel form üretir.
-Future<Uint8List> buildFormsPdf(Exam exam, List<Student> students) async {
+/// Basılı optik formlar. Her öğrenci için adı ve numarası yazılı bir sayfa
+/// üretir; [students] boşsa [blankCopies] adet boş form üretir.
+Future<Uint8List> buildFormsPdf(Exam exam, List<Student> students, {int blankCopies = 1}) async {
   final fonts = await _Fonts.load();
   final layout = FormLayout(questionCount: exam.questionCount, choiceCount: exam.choiceCount);
   final doc = pw.Document(title: '${exam.name} · optik form', author: 'Netice');
-  final pages = students.isEmpty ? <Student?>[null] : students.cast<Student?>();
+  final pages = students.isEmpty
+      ? List<Student?>.filled(math.max(1, blankCopies), null)
+      : students.cast<Student?>();
   for (final s in pages) {
-    doc.addPage(
-      pw.Page(
-        pageFormat: PdfPageFormat.a4,
-        margin: pw.EdgeInsets.zero,
-        build: (ctx) => pw.CustomPaint(
-          size: PdfPoint(PdfPageFormat.a4.width, PdfPageFormat.a4.height),
-          painter: (canvas, size) =>
-              _paintForm(canvas, size, layout, exam, s, (fonts.regular.getFont(ctx), fonts.bold.getFont(ctx))),
-        ),
-      ),
-    );
+    doc.addPage(_formPage(layout, exam, fonts, student: s));
   }
   return doc.save();
 }
 
-void _paintForm(PdfGraphics g, PdfPoint size, FormLayout layout, Exam exam, Student? s, (PdfFont, PdfFont) fonts) {
+/// Cevap anahtarı formu. [filled] ise doğru şıklar karartılmış basılır ve
+/// ikinci sayfada okunaklı bir anahtar listesi yer alır; değilse öğretmenin
+/// elle dolduracağı boş bir anahtar formu üretilir.
+Future<Uint8List> buildAnswerKeyPdf(Exam exam, {bool filled = true}) async {
+  final fonts = await _Fonts.load();
+  final layout = FormLayout(questionCount: exam.questionCount, choiceCount: exam.choiceCount);
+  final doc = pw.Document(title: '${exam.name} · cevap anahtarı', author: 'Netice');
+  doc.addPage(_formPage(layout, exam, fonts, key: true, keyFilled: filled));
+  if (filled) {
+    final k = _Kit(exam, '');
+    final theme = pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold);
+    final qs = exam.questions;
+    String ans(Question q) => q.cancelled ? 'İptal' : (q.correct.isEmpty ? '–' : q.correct.map(_letter).join(' / '));
+    String pts(double v) => v == v.roundToDouble() ? '${v.round()}' : _f1(v);
+    final possible = qs.where((q) => !q.cancelled).fold<double>(0, (a, q) => a + q.points);
+    // Sorunun puan tablosundaki gerçek değeri (ağırlık, toplam puana ölçeklenir).
+    double worth(Question q) => possible == 0 ? 0 : q.points / possible * exam.rule.maxScore;
+    doc.addPage(pw.MultiPage(
+      theme: theme,
+      pageFormat: PdfPageFormat.a4,
+      margin: const pw.EdgeInsets.fromLTRB(36, 32, 36, 28),
+      header: k.header,
+      footer: k.footer,
+      build: (ctx) => [
+        k.title('Cevap anahtarı', '${exam.questionCount} soru · ${exam.choiceCount} şık · sınav tarihi ${_date(exam.date)}'),
+        pw.Text('Hızlı okuma (beşli gruplar)', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 9, color: _ink)),
+        pw.SizedBox(height: 6),
+        pw.Wrap(spacing: 6, runSpacing: 6, children: [
+          for (var i = 0; i < qs.length; i += 5)
+            pw.Container(
+              padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+              decoration: pw.BoxDecoration(color: _ivory, borderRadius: pw.BorderRadius.circular(4)),
+              child: pw.Row(mainAxisSize: pw.MainAxisSize.min, children: [
+                pw.Text('${i + 1}–${math.min(i + 5, qs.length)}  ',
+                    style: const pw.TextStyle(color: _muted, fontSize: 8)),
+                pw.Text(
+                  [for (final q in qs.skip(i).take(5)) q.cancelled ? '×' : (q.correct.isEmpty ? '–' : q.correct.map(_letter).join('/'))]
+                      .join(' '),
+                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10, color: _ink, letterSpacing: 1),
+                ),
+              ]),
+            ),
+        ]),
+        pw.SizedBox(height: 14),
+        pw.TableHelper.fromTextArray(
+          headers: ['Soru', 'Doğru cevap', 'Puan', 'Kazanım'],
+          data: [
+            for (final q in qs) ['${q.no}', ans(q), q.cancelled ? '–' : _f1(worth(q)).replaceAll(',0', ''), q.outcomeCode ?? ''],
+          ],
+          border: null,
+          headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 8, color: PdfColors.white),
+          headerDecoration: const pw.BoxDecoration(color: _ink),
+          cellStyle: const pw.TextStyle(fontSize: 8.5),
+          oddRowDecoration: const pw.BoxDecoration(color: _ivory),
+          cellAlignments: {0: pw.Alignment.center, 1: pw.Alignment.center, 2: pw.Alignment.center, 3: pw.Alignment.centerLeft},
+          columnWidths: {
+            0: const pw.FixedColumnWidth(40),
+            1: const pw.FixedColumnWidth(80),
+            2: const pw.FixedColumnWidth(50),
+            3: const pw.FlexColumnWidth(),
+          },
+          cellPadding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+        ),
+        pw.SizedBox(height: 10),
+        pw.Text(
+          'Toplam puan: ${pts(exam.rule.maxScore)} · Geçme puanı: ${pts(exam.rule.pass)}'
+          '${qs.any((q) => q.cancelled) ? ' · İptal edilen sorular herkese doğru sayılır.' : ''}',
+          style: const pw.TextStyle(color: _muted, fontSize: 8),
+        ),
+      ],
+    ));
+  }
+  return doc.save();
+}
+
+pw.Page _formPage(FormLayout layout, Exam exam, _Fonts fonts,
+        {Student? student, bool key = false, bool keyFilled = false}) =>
+    pw.Page(
+      pageFormat: PdfPageFormat.a4,
+      margin: pw.EdgeInsets.zero,
+      build: (ctx) => pw.CustomPaint(
+        size: PdfPoint(PdfPageFormat.a4.width, PdfPageFormat.a4.height),
+        painter: (canvas, size) => _paintForm(canvas, size, layout, exam, student,
+            (fonts.regular.getFont(ctx), fonts.bold.getFont(ctx)),
+            key: key, keyFilled: keyFilled),
+      ),
+    );
+
+const _frame = PdfColor.fromInt(0xFFB9B3A6);
+const _tint = PdfColor.fromInt(0xFFF3F1EB);
+
+/// Optik formu çizer. Daireler ve köşe kareleri [FormLayout]'taki yerlerinde
+/// kalır (okuma motoru onları orada arar); süslemeler dairelerden en az
+/// 2,5 mm uzakta tutulur ve koyu dolgulu büyük şekil kullanılmaz.
+void _paintForm(PdfGraphics g, PdfPoint size, FormLayout layout, Exam exam, Student? s, (PdfFont, PdfFont) fonts,
+    {bool key = false, bool keyFilled = false}) {
   const mm = PdfPageFormat.mm;
   // PDF koordinatları sol alttan başlar; form mm koordinatları sol üstten.
   double x(double v) => v * mm;
   double y(double v) => size.y - v * mm;
 
+  double width(String t, double pt, {bool bold = false}) =>
+      (bold ? fonts.$2 : fonts.$1).stringMetrics(t).width * pt / mm;
+
+  void text(String t, double px, double py, double pt,
+      {bool bold = false, PdfColor color = _ink, bool right = false, bool center = false}) {
+    final w = width(t, pt, bold: bold);
+    final left = right ? px - w : (center ? px - w / 2 : px);
+    g.setFillColor(color);
+    g.drawString(bold ? fonts.$2 : fonts.$1, pt, t, x(left), y(py));
+  }
+
+  void box(double x0, double y0, double x1, double y1,
+      {PdfColor? stroke = _frame, PdfColor? fill, double radius = 1.6, double line = 0.5}) {
+    if (fill != null) {
+      g.setFillColor(fill);
+      g.drawRRect(x(x0), y(y1), (x1 - x0) * mm, (y1 - y0) * mm, radius * mm, radius * mm);
+      g.fillPath();
+    }
+    if (stroke != null) {
+      g.setStrokeColor(stroke);
+      g.setLineWidth(line);
+      g.drawRRect(x(x0), y(y1), (x1 - x0) * mm, (y1 - y0) * mm, radius * mm, radius * mm);
+      g.strokePath();
+    }
+  }
+
+  void field(String label, String value, double x0, double y0, double x1,
+      {double h = 9, PdfColor valueColor = _ink, bool bold = true}) {
+    box(x0, y0, x1, y0 + h);
+    text(label, x0 + 2, y0 + 3.1, 5.6, bold: true, color: _muted);
+    if (value.isNotEmpty) {
+      var v = value;
+      var pt = 10.0;
+      while (pt > 6.5 && width(v, pt, bold: bold) > x1 - x0 - 4) {
+        pt -= 0.5;
+      }
+      text(v, x0 + 2, y0 + 7.4, pt, bold: bold, color: valueColor);
+    }
+  }
+
+  // ---- Köşe kareleri (okuma için) ----
   g.setFillColor(PdfColors.black);
   for (final o in FormLayout.markerOrigins) {
     g.drawRect(x(o.x), y(o.y + FormLayout.markerSize), FormLayout.markerSize * mm, FormLayout.markerSize * mm);
   }
   g.fillPath();
 
-  void text(String t, double px, double py, double sizePt, {bool bold = false, PdfColor color = _ink}) {
-    g.setFillColor(color);
-    g.drawString(bold ? fonts.$2 : fonts.$1, sizePt, t, x(px), y(py));
+  // ---- Üst bant ----
+  g.setFillColor(_emerald);
+  g.drawEllipse(x(25.8), y(13.6), 1.5 * mm, 1.5 * mm);
+  g.fillPath();
+  g.setFillColor(_ink);
+  g.drawEllipse(x(29.4), y(13.6), 1.0 * mm, 1.0 * mm);
+  g.fillPath();
+  text('Netice', 32, 15.4, 12, bold: true);
+  text('Kâğıttan sonuca, saniyeler içinde.', 24.3, 19.4, 6, color: _muted);
+  text(key ? 'CEVAP ANAHTARI' : 'OPTİK CEVAP KÂĞIDI', 186, 15.2, 11.5,
+      bold: true, right: true, color: key ? _coral : _ink);
+  text('${exam.questionCount} soru · ${exam.choiceCount} şık', 186, 19.2, 6.5, right: true, color: _muted);
+
+  // ---- Bilgi alanları (sol blok) ----
+  const l = 24.0, r = 128.0;
+  if (key) {
+    field('BU KÂĞIT', 'CEVAP ANAHTARIDIR · öğrenciye dağıtmayın', l, 22, r, valueColor: _coral);
+  } else {
+    field('ADI SOYADI', s?.fullName ?? '', l, 22, r);
+  }
+  field('SINIFI / ŞUBESİ', key ? exam.className : (s?.className ?? ''), l, 32.5, 60);
+  field('OKUL NO', key ? '—' : (s?.number ?? ''), 62, 32.5, 92);
+  field('SINAV TARİHİ', _date(exam.date), 94, 32.5, r, bold: false);
+  field('SINAV', exam.name, l, 43, r);
+  field('OKUL', '', l, 53.5, 92);
+  field('DERS', '', 94, 53.5, r);
+
+  // Öğretmen kutucukları.
+  final cells = key
+      ? [
+          ('SORU', '${exam.questionCount}'),
+          ('ŞIK', '${exam.choiceCount}'),
+          ('TOPLAM PUAN', exam.rule.maxScore == exam.rule.maxScore.roundToDouble()
+              ? '${exam.rule.maxScore.round()}'
+              : _f1(exam.rule.maxScore)),
+          ('İPTAL', '${exam.questions.where((q) => q.cancelled).length}'),
+          ('KAZANIM', '${exam.questions.map((q) => q.outcomeCode).whereType<String>().toSet().length}'),
+        ]
+      : [('DOĞRU', ''), ('YANLIŞ', ''), ('BOŞ', ''), ('NET', ''), ('PUAN', '')];
+  text(key ? 'SINAV BİLGİSİ' : 'ÖĞRETMEN DOLDURUR', l, 66.2, 5.6, bold: true, color: _muted);
+  const cw = (r - l - 4 * 1.5) / 5;
+  for (var i = 0; i < cells.length; i++) {
+    final x0 = l + i * (cw + 1.5);
+    box(x0, 67.5, x0 + cw, 76, fill: key ? null : _tint);
+    text(cells[i].$1, x0 + 1.6, 70.4, 5, bold: true, color: _muted);
+    if (cells[i].$2.isNotEmpty) text(cells[i].$2, x0 + cw - 2, 74.6, 9, bold: true, right: true);
   }
 
-  text('Netice', 26, 17, 14, bold: true);
-  text('Kâğıttan sonuca, saniyeler içinde.', 26, 22, 7, color: _muted);
-  text(exam.name, 26, 33, 13, bold: true);
-  text('${exam.className} · ${exam.questionCount} soru · ${exam.choiceCount} şık', 26, 39, 9, color: _muted);
+  // Doldurma örneği ve kısa yönerge.
+  text(key ? 'ÖĞRETMEN İÇİN' : 'NASIL DOLDURULUR?', l, 81, 5.6, bold: true, color: _muted);
+  if (key) {
+    final lines = keyFilled
+        ? [
+            'Doğru şıklar Netice tarafından karartıldı. Bu sayfa kontrol ve arşiv içindir;',
+            'ikinci sayfada okunaklı anahtar listesi var. Anahtarı değiştirmek için',
+            'Sınav ayarları ekranını kullanın.',
+          ]
+        : [
+            'Her sorunun doğru şıkkını karartın (birden çok doğru varsa hepsini).',
+            'Sonra uygulamada Sınav ayarları › Anahtarı fotoğraftan oku ile çekin;',
+            'anahtar otomatik girilir. Öğrenci numarası alanını boş bırakın.',
+          ];
+    for (var i = 0; i < lines.length; i++) {
+      text(lines[i], l, 85.4 + i * 3.4, 6.6, color: _ink);
+    }
+  } else {
+    // Örnek daireler küçük çizilir (okuma motorunun köşe arayışına karışmasın).
+    const er = 1.7;
+    void sample(double cx, double cy, {bool fill = false}) {
+      g.setStrokeColor(PdfColors.grey600);
+      g.setLineWidth(0.5);
+      g.drawEllipse(x(cx), y(cy), er * mm, er * mm);
+      g.strokePath();
+      if (fill) {
+        g.setFillColor(const PdfColor.fromInt(0xFF1F1F1F));
+        g.drawEllipse(x(cx), y(cy), er * 0.95 * mm, er * 0.95 * mm);
+        g.fillPath();
+      }
+    }
 
-  text('Ad Soyad', 26, 52, 8, color: _muted);
-  g.setStrokeColor(PdfColors.grey500);
-  g.setLineWidth(0.6);
-  g.drawLine(x(26), y(62), x(120), y(62));
-  g.strokePath();
-  if (s != null) text(s.fullName, 27, 60, 12, bold: true);
-  text('Sınıf / şube', 26, 70, 8, color: _muted);
-  g.drawLine(x(26), y(80), x(120), y(80));
-  g.strokePath();
-  if (s != null) text(s.className, 27, 78, 12);
+    text('Doğru:', l, 86.3, 6.6, bold: true, color: _emerald);
+    sample(l + 11.4, 85.4, fill: true);
+    text('Yanlış:', l + 17, 86.3, 6.6, bold: true, color: _coral);
+    final wx = [l + 28, l + 33.5, l + 39, l + 44.5];
+    for (final cx in wx) {
+      sample(cx, 85.4);
+    }
+    g.setStrokeColor(const PdfColor.fromInt(0xFF1F1F1F));
+    g.setLineWidth(0.6);
+    // ✓
+    g.moveTo(x(wx[0] - 0.9), y(85.4));
+    g.lineTo(x(wx[0] - 0.2), y(86.2));
+    g.lineTo(x(wx[0] + 1.0), y(84.5));
+    // ×
+    g.moveTo(x(wx[1] - 0.9), y(84.5));
+    g.lineTo(x(wx[1] + 0.9), y(86.3));
+    g.moveTo(x(wx[1] + 0.9), y(84.5));
+    g.lineTo(x(wx[1] - 0.9), y(86.3));
+    // —
+    g.moveTo(x(wx[3] - 1.0), y(85.4));
+    g.lineTo(x(wx[3] + 1.0), y(85.4));
+    g.strokePath();
+    // nokta
+    g.setFillColor(const PdfColor.fromInt(0xFF1F1F1F));
+    g.drawEllipse(x(wx[2]), y(85.4), 0.45 * mm, 0.45 * mm);
+    g.fillPath();
+    text('Daireyi tamamen karartın.', l + 49, 86.3, 6.6, color: _muted);
+    text('Kurşun kalem ya da koyu tükenmez kullanın. Değiştirirken eski işareti iyice silin.', l, 91, 6.6);
+    text('Köşedeki siyah karelere yazı yazmayın, kâğıdı katlamayın.', l, 94.4, 6.6);
+  }
 
-  text('Doldurma: dairenin içini kurşun ya da tükenmez kalemle tamamen karartın.', 26, 92, 7, color: _muted);
-  text('Değiştirmek için önceki işareti iyice silin. Köşedeki siyah karelere dokunmayın.', 26, 96, 7, color: _muted);
-
-  // Öğrenci numarası.
-  text('Öğrenci no', FormLayout.studentOrigin.x - 3, 30, 8, color: _muted);
-  final number = s?.number.padLeft(FormLayout.studentDigits, '0');
-  final r = FormLayout.bubbleRadius * mm;
+  // ---- Öğrenci numarası ----
+  final rad = FormLayout.bubbleRadius * mm;
+  final first = layout.studentBubble(0, 0);
+  final last = layout.studentBubble(FormLayout.studentDigits - 1, 9);
+  box(first.x - 6, 22, last.x + 6, last.y + 5.2, radius: 2);
+  text('ÖĞRENCİ NUMARASI', (first.x + last.x) / 2, 25.6, 5.6, bold: true, color: _muted, center: true);
+  final number = key ? null : s?.number.padLeft(FormLayout.studentDigits, '0');
   for (var d = 0; d < FormLayout.studentDigits; d++) {
     final top = layout.studentBubble(d, 0);
+    box(top.x - 3, 27.4, top.x + 3, 34.2, radius: 0.8, stroke: PdfColors.grey500);
     if (number != null && number.length == FormLayout.studentDigits) {
-      text(number[d], top.x - 1.1, top.y - 4.2, 9, bold: true);
+      text(number[d], top.x, 32.8, 10, bold: true, center: true);
     }
     for (var v = 0; v < 10; v++) {
       final b = layout.studentBubble(d, v);
-      _bubble(g, x(b.x), y(b.y), r, '$v', fonts);
+      _bubble(g, x(b.x), y(b.y), rad, '$v', fonts);
     }
   }
 
-  // Cevaplar.
-  for (var q = 0; q < layout.questionCount; q++) {
-    final l = layout.questionLabel(q);
-    text('${q + 1}'.padLeft(3), l.x - 3, l.y + 1.2, 8, bold: true);
+  // ---- Cevaplar ----
+  final per = FormLayout.questionsPerColumn;
+  for (var col = 0; col < layout.columnCount; col++) {
+    final firstQ = col * per;
+    final rows = math.min(per, layout.questionCount - firstQ);
+    final a0 = layout.answerBubble(firstQ, 0);
+    final aN = layout.answerBubble(firstQ, layout.choiceCount - 1);
+    final x0 = a0.x - 10, x1 = aN.x + 5;
+    final y0 = FormLayout.answersTop - 8.2;
+    final y1 = FormLayout.answersTop + (rows - 1) * FormLayout.rowPitch + 5;
+    // Beşli grupları ayırt etmek için her ikinci grup hafif renkli.
+    for (var gr = 1; gr * 5 < rows; gr += 2) {
+      final top = FormLayout.answersTop + (gr * 5) * FormLayout.rowPitch - FormLayout.rowPitch / 2;
+      final bottom = math.min(top + 5 * FormLayout.rowPitch, y1 - 0.4);
+      box(x0 + 0.4, top, x1 - 0.4, bottom, stroke: null, fill: _tint, radius: 0.8);
+    }
+    box(x0, y0, x1, y1, radius: 2);
     for (var c = 0; c < layout.choiceCount; c++) {
-      final b = layout.answerBubble(q, c);
-      _bubble(g, x(b.x), y(b.y), r, String.fromCharCode(65 + c), fonts);
+      final b = layout.answerBubble(firstQ, c);
+      text(_letter(c), b.x, y0 + 2.9, 6, bold: true, center: true, color: _muted);
+    }
+    for (var row = 0; row < rows; row++) {
+      final q = firstQ + row;
+      final b0 = layout.answerBubble(q, 0);
+      text('${q + 1}', b0.x - 4.3, b0.y + 1.1, 7.5, bold: true, right: true);
+      final question = exam.questions[q];
+      for (var c = 0; c < layout.choiceCount; c++) {
+        final b = layout.answerBubble(q, c);
+        _bubble(g, x(b.x), y(b.y), rad, _letter(c), fonts);
+        if (key && keyFilled && !question.cancelled && question.correct.contains(c)) {
+          g.setFillColor(const PdfColor.fromInt(0xFF151515));
+          g.drawEllipse(x(b.x), y(b.y), rad * 0.95, rad * 0.95);
+          g.fillPath();
+        }
+      }
     }
   }
-  text('Netice · ${exam.id}', 26, 285, 6, color: _muted);
+
+  // Tek sütunlu formda boş kalan sağ tarafa not ve imza alanları.
+  if (!key && layout.columnCount == 1) {
+    final nx = layout.answerBubble(0, layout.choiceCount - 1).x + 13;
+    final y0 = FormLayout.answersTop - 8.2;
+    box(nx, y0, 186, y0 + 40, radius: 2);
+    text('NOTLAR / AÇIKLAMA', nx + 2.5, y0 + 4, 5.6, bold: true, color: _muted);
+    final mid = (nx + 186) / 2;
+    box(nx, y0 + 44, mid - 1.5, y0 + 62, radius: 2);
+    text('ÖĞRENCİ İMZASI', nx + 2.5, y0 + 48, 5.6, bold: true, color: _muted);
+    box(mid + 1.5, y0 + 44, 186, y0 + 62, radius: 2);
+    text('ÖĞRETMEN İMZASI', mid + 4, y0 + 48, 5.6, bold: true, color: _muted);
+  }
+
+  // ---- Alt bilgi ----
+  text('Sınav kodu: ${exam.id}', 24, 271.5, 5.6, color: _muted);
+  text('Formu %100 ölçekle yazdırın; fotokopiyle çoğaltabilirsiniz.', 186, 271.5, 5.6, right: true, color: _muted);
 }
 
 void _bubble(PdfGraphics g, double cx, double cy, double r, String label, (PdfFont, PdfFont) fonts) {

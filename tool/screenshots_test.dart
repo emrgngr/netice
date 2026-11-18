@@ -80,6 +80,12 @@ void main() {
         const Size(390, 1100), 'mobil_sinav_ayarlari');
     await shot(tester, app, const Size(390, 1500), 'mobil_ana_sayfa_uzun');
     await shot(tester, app, const Size(412, 915), 'mobil_siniflar', then: () async => tester.tap(find.text('Sınıflar')));
+    await shot(tester, StoreScope(store: store, child: _themed(const ExamScreen(examId: 'demo_exam'))), const Size(390, 844),
+        'mobil_form_yazdir', then: () async {
+          await tester.tap(find.byIcon(Icons.more_vert).first);
+          await tester.pumpAndSettle();
+          await tester.tap(find.text('Form yazdır').last);
+        });
     debugDisableShadows = true;
   });
 }

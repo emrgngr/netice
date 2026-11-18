@@ -33,10 +33,105 @@ class ExamScreen extends StatelessWidget {
     final wide = MediaQuery.sizeOf(context).width >= 900;
 
     Future<void> printForms() async {
-      await ReportPreviewScreen.open(context,
-          title: 'Optik formlar',
-          fileName: '${_safe(exam.name)}_optik_form.pdf',
-          build: () => buildFormsPdf(exam, store.studentsOf(exam.className)));
+      final cls = store.studentsOf(exam.className);
+      var copies = 10;
+      final choice = await showModalBottomSheet<String>(
+        context: context,
+        showDragHandle: true,
+        isScrollControlled: true,
+        builder: (ctx) => StatefulBuilder(
+          builder: (ctx, setSheet) => SafeArea(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const ListTile(
+                    title: Text('Optik form yazdır', style: TextStyle(fontWeight: FontWeight.w800)),
+                    subtitle: Text('A4, %100 ölçekle yazdırın. Önce önizleme açılır.'),
+                  ),
+                  ListTile(
+                    enabled: cls.isNotEmpty,
+                    leading: const Icon(Icons.badge_outlined),
+                    title: const Text('İsimli öğrenci formları'),
+                    subtitle: Text(
+                      cls.isEmpty
+                          ? 'Bu sınıfta kayıtlı öğrenci yok'
+                          : '${cls.length} öğrenci · ad, sınıf ve numara basılı gelir',
+                    ),
+                    onTap: () => Navigator.pop(ctx, 'named'),
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.description_outlined),
+                    title: const Text('Boş öğrenci formu'),
+                    subtitle: Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: [
+                          for (final n in const [1, 10, 20, 30, 40])
+                            ChoiceChip(
+                              label: Text('$n adet'),
+                              selected: copies == n,
+                              onSelected: (_) => setSheet(() => copies = n),
+                            ),
+                        ],
+                      ),
+                    ),
+                    onTap: () => Navigator.pop(ctx, 'blank'),
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.key_outlined),
+                    title: const Text('Cevap anahtarı'),
+                    subtitle: const Text('Doğru şıklar karartılmış form ve anahtar listesi'),
+                    onTap: () => Navigator.pop(ctx, 'key'),
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.edit_note_outlined),
+                    title: const Text('Boş cevap anahtarı formu'),
+                    subtitle: const Text('Elle doldurup Sınav ayarlarından fotoğrafla okutun'),
+                    onTap: () => Navigator.pop(ctx, 'keyBlank'),
+                  ),
+                  const SizedBox(height: 8),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+      if (choice == null || !context.mounted) return;
+      final name = _safe(exam.name);
+      switch (choice) {
+        case 'named':
+          await ReportPreviewScreen.open(
+            context,
+            title: 'Öğrenci formları',
+            fileName: '${name}_optik_form.pdf',
+            build: () => buildFormsPdf(exam, cls),
+          );
+        case 'blank':
+          await ReportPreviewScreen.open(
+            context,
+            title: 'Boş optik form ($copies adet)',
+            fileName: '${name}_bos_form_$copies.pdf',
+            build: () => buildFormsPdf(exam, const [], blankCopies: copies),
+          );
+        case 'key':
+          await ReportPreviewScreen.open(
+            context,
+            title: 'Cevap anahtarı',
+            fileName: '${name}_cevap_anahtari.pdf',
+            build: () => buildAnswerKeyPdf(exam),
+          );
+        case 'keyBlank':
+          await ReportPreviewScreen.open(
+            context,
+            title: 'Boş cevap anahtarı formu',
+            fileName: '${name}_bos_anahtar.pdf',
+            build: () => buildAnswerKeyPdf(exam, filled: false),
+          );
+      }
     }
 
     Future<void> pdfReport() async {
