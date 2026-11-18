@@ -83,4 +83,15 @@ void main() {
     File('${out.path}/sinif_raporu.pdf').writeAsBytesSync(report);
     File('${out.path}/ogrenci_karneleri.pdf').writeAsBytesSync(cards);
   });
+
+  test('Excel (.xlsx) listesi, başlıktan önceki satırlar atlanarak aktarılır', () {
+    final bytes = File('test/fixtures/ogrenci_listesi.xlsx').readAsBytesSync();
+    final list = StudentImport.parseXlsx(bytes);
+    expect(list.length, 3);
+    expect(list[0].number, '1042');
+    expect(list[0].firstName, 'Şule');
+    expect(list[1].firstName, 'Mert Can');
+    expect(list[2].className, '10-B');
+    expect(list[2].lastName, 'Öztürk');
+  });
 }

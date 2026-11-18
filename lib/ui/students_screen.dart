@@ -6,6 +6,7 @@ import 'package:material_ui/material_ui.dart';
 import '../core/import_export.dart';
 import '../core/models.dart';
 import '../main.dart';
+import 'theme.dart';
 import 'widgets.dart';
 
 /// Sınıflar ve öğrenciler; Excel/CSV'den aktarma.
@@ -23,22 +24,35 @@ class _StudentsScreenState extends State<StudentsScreen> {
 
   Future<void> _import() async {
     final files = await FilePicker.pickFiles(
-      dialogTitle: 'Öğrenci listesi (CSV)',
+      dialogTitle: 'Öğrenci listesi (Excel veya CSV)',
       type: FileType.custom,
-      allowedExtensions: ['csv', 'txt'],
+      allowedExtensions: ['xlsx', 'csv', 'txt', 'xls'],
     );
     if (files.isEmpty || !mounted) return;
-    final bytes = await files.first.readAsBytes();
-    String text;
-    try {
-      text = utf8.decode(bytes);
-    } on FormatException {
-      // Eski Excel sürümleri Windows-1254 kaydeder; Türkçe harfleri dönüştür.
-      text = _cp1254(bytes);
-    }
+    final file = files.first;
+    final bytes = await file.readAsBytes();
     if (!mounted) return;
+    final name = file.name.toLowerCase();
+    List<Student> parsed;
+    if (name.endsWith('.xls')) {
+      return toast(context, 'Eski .xls biçimi okunamıyor. Excel\'de "Farklı Kaydet" ile .xlsx olarak kaydedip tekrar deneyin.');
+    } else if (name.endsWith('.xlsx')) {
+      try {
+        parsed = StudentImport.parseXlsx(bytes);
+      } catch (_) {
+        return toast(context, 'Excel dosyası okunamadı. Dosyayı .xlsx veya CSV olarak yeniden kaydedin.');
+      }
+    } else {
+      String text;
+      try {
+        text = utf8.decode(bytes);
+      } on FormatException {
+        // Eski Excel sürümleri Windows-1254 kaydeder; Türkçe harfleri dönüştür.
+        text = _cp1254(bytes);
+      }
+      parsed = StudentImport.parse(text);
+    }
     final classCtl = TextEditingController(text: _class ?? '');
-    final parsed = StudentImport.parse(text);
     final needsClass = parsed.any((s) => s.className.isEmpty);
     final ok = await showDialog<bool>(
       context: context,
@@ -69,8 +83,94 @@ class _StudentsScreenState extends State<StudentsScreen> {
             ? s
             : Student(id: s.id, firstName: s.firstName, lastName: s.lastName, number: s.number, className: cls)
     ];
-    StoreScope.of(context).addStudents(list);
-    toast(context, '${list.length} öğrenci aktarıldı.');
+    final store = StoreScope.of(context);
+    final before = store.students.length;
+    store.addStudents(list);
+    final added = store.students.length - before;
+    final classes = list.map((s) => s.className).toSet().length;
+    toast(
+        context,
+        '$added öğrenci, $classes sınıfa aktarıldı.'
+        '${added < list.length ? ' ${list.length - added} kişi zaten kayıtlı olduğu için atlandı.' : ''}');
+  }
+
+  /// Elle öğrenci ekleme veya düzenleme. [existing] varsa düzenler.
+  Future<void> _edit({Student? existing}) async {
+    final store = StoreScope.of(context);
+    final first = TextEditingController(text: existing?.firstName ?? '');
+    final last = TextEditingController(text: existing?.lastName ?? '');
+    final no = TextEditingController(text: existing?.number ?? '');
+    final cls = TextEditingController(text: existing?.className ?? _class ?? store.classNames.firstOrNull ?? '');
+    final result = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(existing == null ? 'Öğrenci ekle' : 'Öğrenciyi düzenle'),
+        content: SizedBox(
+          width: 380,
+          child: SingleChildScrollView(
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              TextField(controller: first, autofocus: true, textCapitalization: TextCapitalization.words,
+                  decoration: const InputDecoration(labelText: 'Adı')),
+              const SizedBox(height: 10),
+              TextField(controller: last, textCapitalization: TextCapitalization.words,
+                  decoration: const InputDecoration(labelText: 'Soyadı')),
+              const SizedBox(height: 10),
+              TextField(controller: no, keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: 'Okul no', helperText: 'Optik formdaki numarayla eşleşir')),
+              const SizedBox(height: 10),
+              TextField(controller: cls, textCapitalization: TextCapitalization.characters,
+                  decoration: const InputDecoration(labelText: 'Sınıf / şube', hintText: 'ör. 9-A')),
+              if (store.classNames.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Wrap(spacing: 6, runSpacing: 6, children: [
+                    for (final c in store.classNames)
+                      ActionChip(label: Text(c), onPressed: () => cls.text = c),
+                  ]),
+                ),
+              ],
+            ]),
+          ),
+        ),
+        actions: [
+          if (existing != null)
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, 'delete'),
+              style: TextButton.styleFrom(foregroundColor: NColors.coral),
+              child: const Text('Sil'),
+            ),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Vazgeç')),
+          FilledButton(onPressed: () => Navigator.pop(ctx, 'save'), child: const Text('Kaydet')),
+        ],
+      ),
+    );
+    if (!mounted || result == null) return;
+    if (result == 'delete') {
+      store.deleteStudent(existing!.id);
+      return toast(context, '${existing.fullName} silindi.');
+    }
+    final number = no.text.replaceAll(RegExp(r'\D'), '');
+    final className = cls.text.trim();
+    if (first.text.trim().isEmpty) return toast(context, 'Öğrencinin adını yazın.');
+    if (className.isEmpty) return toast(context, 'Sınıf / şube yazın.');
+    final clash = store.students.any((s) =>
+        s.id != existing?.id && s.className == className && number.isNotEmpty && s.number == number);
+    if (clash) return toast(context, '$className sınıfında $number numaralı bir öğrenci zaten var.');
+    final st = Student(
+      id: existing?.id ?? 's${DateTime.now().microsecondsSinceEpoch}',
+      firstName: first.text.trim(),
+      lastName: last.text.trim(),
+      number: number,
+      className: className,
+    );
+    if (existing == null) {
+      store.addStudents([st]);
+    } else {
+      store.updateStudent(st);
+    }
+    setState(() => _class = className);
+    toast(context, existing == null ? '${st.fullName} eklendi.' : 'Kaydedildi.');
   }
 
   @override
@@ -91,16 +191,21 @@ class _StudentsScreenState extends State<StudentsScreen> {
           runSpacing: 12,
           children: [
             Text('Sınıflar ve öğrenciler', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
-            FilledButton.icon(onPressed: _import, icon: const Icon(Icons.upload_file), label: const Text('Excel / CSV aktar')),
+            Wrap(spacing: 8, runSpacing: 8, children: [
+              FilledButton.icon(onPressed: _import, icon: const Icon(Icons.upload_file), label: const Text('Excel aktar')),
+              OutlinedButton.icon(
+                  onPressed: () => _edit(), icon: const Icon(Icons.person_add_alt), label: const Text('Öğrenci ekle')),
+            ]),
           ],
         ),
         const SizedBox(height: 6),
-        Text('Excel\'de listeyi "CSV (noktalı virgülle ayrılmış)" olarak kaydedip seçin. '
-            'Ad, soyad, okul no ve sınıf sütunları otomatik tanınır.',
+        Text('Tüm sınıfları tek Excel dosyasında (.xlsx veya CSV) aktarabilirsiniz: okul no, ad, soyad ve sınıf '
+            'sütunları otomatik tanınır, öğrenciler sınıflarına kendiliğinden ayrılır. '
+            'Bir öğrenciyi düzenlemek veya silmek için üstüne dokunun.',
             style: Theme.of(context).textTheme.bodySmall),
         const SizedBox(height: 16),
         if (classes.isNotEmpty)
-          Wrap(spacing: 8, children: [
+          Wrap(spacing: 8, runSpacing: 8, children: [
             for (final c in classes)
               ChoiceChip(label: Text('$c (${store.studentsOf(c).length})'), selected: c == current, onSelected: (_) => setState(() => _class = c)),
           ]),
@@ -118,6 +223,8 @@ class _StudentsScreenState extends State<StudentsScreen> {
                 leading: CircleAvatar(child: Text(s.firstName.isEmpty ? '?' : s.firstName.characters.first)),
                 title: Text(s.fullName),
                 subtitle: Text('No ${s.number}'),
+                trailing: const Icon(Icons.edit_outlined, size: 18),
+                onTap: () => _edit(existing: s),
               ),
             if (list.isEmpty)
               const Padding(padding: EdgeInsets.all(24), child: Text('Bu sınıfta öğrenci yok.')),

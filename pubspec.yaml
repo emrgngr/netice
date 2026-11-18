@@ -40,6 +40,8 @@ dependencies:
   printing: ^5.15.1
   file_picker: ^13.4.0
   csv: ^8.0.0
+  archive: ^4.0.7
+  xml: ^7.0.0
   path_provider: ^2.1.6
   camera: ^0.12.2
 

@@ -1,6 +1,8 @@
 import 'dart:convert';
 
+import 'package:archive/archive.dart';
 import 'package:csv/csv.dart';
+import 'package:xml/xml.dart';
 
 import 'models.dart';
 import 'report.dart';
@@ -39,10 +41,111 @@ class StudentImport {
   /// [defaultClass] sınıf sütunu yoksa kullanılır.
   static List<Student> parse(String text, {String defaultClass = ''}) {
     if (text.startsWith('﻿')) text = text.substring(1);
-    final rows = _rows(text);
-    if (rows.isEmpty) return [];
+    return parseRows(_rows(text), defaultClass: defaultClass);
+  }
+
+  /// Excel (.xlsx) dosyasının ilk sayfasını okur.
+  static List<Student> parseXlsx(List<int> bytes, {String defaultClass = ''}) =>
+      parseRows(xlsxRows(bytes), defaultClass: defaultClass);
+
+  /// .xlsx içindeki ilk çalışma sayfasını satır listesine çevirir.
+  static List<List<String>> xlsxRows(List<int> bytes) {
+    final zip = ZipDecoder().decodeBytes(bytes);
+    String? read(String name) {
+      final f = zip.findFile(name);
+      return f == null ? null : utf8.decode(f.content as List<int>, allowMalformed: true);
+    }
+
+    final shared = <String>[];
+    final ss = read('xl/sharedStrings.xml');
+    if (ss != null) {
+      for (final si in XmlDocument.parse(ss).findAllElements('si')) {
+        shared.add(si.findAllElements('t').map((t) => t.innerText).join());
+      }
+    }
+    // İlk sayfanın dosya adını workbook ilişkilerinden bul; yoksa sheet1.
+    var sheetPath = 'xl/worksheets/sheet1.xml';
+    final wb = read('xl/workbook.xml');
+    final rels = read('xl/_rels/workbook.xml.rels');
+    if (wb != null && rels != null) {
+      final first = XmlDocument.parse(wb).findAllElements('sheet').firstOrNull;
+      final rid = first?.attributes.where((a) => a.name.local == 'id').firstOrNull?.value;
+      final target = XmlDocument.parse(rels)
+          .findAllElements('Relationship')
+          .where((r) => r.getAttribute('Id') == rid)
+          .firstOrNull
+          ?.getAttribute('Target');
+      if (target != null) {
+        sheetPath = target.startsWith('/') ? target.substring(1) : 'xl/${target.replaceFirst(RegExp(r'^\./'), '')}';
+      }
+    }
+    final sheet = read(sheetPath);
+    if (sheet == null) return [];
+
+    int colIndex(String ref) {
+      var n = 0;
+      for (final ch in ref.codeUnits) {
+        if (ch < 65 || ch > 90) break;
+        n = n * 26 + (ch - 64);
+      }
+      return n - 1;
+    }
+
+    final rows = <List<String>>[];
+    for (final row in XmlDocument.parse(sheet).findAllElements('row')) {
+      final cells = <String>[];
+      var next = 0;
+      for (final c in row.findElements('c')) {
+        final ref = c.getAttribute('r');
+        final idx = ref == null ? next : colIndex(ref);
+        final type = c.getAttribute('t');
+        String v;
+        if (type == 's') {
+          final k = int.tryParse(c.getElement('v')?.innerText ?? '');
+          v = k != null && k < shared.length ? shared[k] : '';
+        } else if (type == 'inlineStr') {
+          v = c.findAllElements('t').map((t) => t.innerText).join();
+        } else {
+          v = c.getElement('v')?.innerText ?? '';
+          // 1042.0 gibi sayıları tam sayıya çevir.
+          final d = double.tryParse(v);
+          if (d != null && d == d.roundToDouble() && d.abs() < 1e15) v = d.toInt().toString();
+        }
+        while (cells.length < idx) {
+          cells.add('');
+        }
+        cells.add(v.trim());
+        next = idx + 1;
+      }
+      if (cells.any((x) => x.isNotEmpty)) rows.add(cells);
+    }
+    return rows;
+  }
+
+  static bool _isHeader(List<String> row) {
+    final h = row.map(_norm).toList();
+    return h.any((x) => x == 'ad' || x == 'adi' || x == 'isim' || x.contains('soyad') || x.contains('okulno') ||
+        x.contains('ogrencino') || x == 'no' || x == 'numara' || x.contains('adsoyad'));
+  }
+
+  static List<Student> parseRows(List<List<String>> allRows, {String defaultClass = ''}) {
+    if (allRows.isEmpty) return [];
+    // e-Okul gibi dökümlerde başlıktan önce okul adı vb. satırlar olabilir.
+    final hi = allRows.take(15).toList().indexWhere(_isHeader);
+    final rows = hi > 0 ? allRows.sublist(hi) : allRows;
     final header = rows.first.map(_norm).toList();
-    int find(List<String> keys) => header.indexWhere((h) => keys.any((k) => h == k || h.contains(k)));
+    // Anahtarlar öncelik sırasıyla aranır; önce tam eşleşme, sonra içerme.
+    int find(List<String> keys) {
+      for (final k in keys) {
+        final i = header.indexWhere((h) => h == k);
+        if (i >= 0) return i;
+      }
+      for (final k in keys) {
+        final i = header.indexWhere((h) => h.contains(k) && !(k == 'no' && h.length > 4));
+        if (i >= 0) return i;
+      }
+      return -1;
+    }
 
     var iNo = find(['okulno', 'ogrencino', 'numara', 'no']);
     var iFirst = header.indexWhere((h) => h == 'ad' || h == 'adi' || h == 'isim');

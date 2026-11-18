@@ -84,6 +84,18 @@ class AppStore extends ChangeNotifier {
     _changed();
   }
 
+  void updateStudent(Student st) {
+    final i = students.indexWhere((s) => s.id == st.id);
+    if (i >= 0) students[i] = st;
+    _changed();
+  }
+
+  /// Öğrenciyi siler; okunmuş kâğıtları "eşleşmeyen" olarak kalır.
+  void deleteStudent(String id) {
+    students.removeWhere((s) => s.id == id);
+    _changed();
+  }
+
   void upsertExam(Exam exam) {
     final i = exams.indexWhere((e) => e.id == exam.id);
     if (i >= 0) {
