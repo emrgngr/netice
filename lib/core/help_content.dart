@@ -116,6 +116,11 @@ const guideSections = <GuideSection>[
       'Uygulama her gün kendiliğinden bir yedek alır (son 14 gün).',
       'Telefon değiştirirken veya bilgisayara geçerken Ayarlar > "Yedeği dosyaya kaydet" ile yedek alın, yeni cihazda "Yedekten geri yükle" ile açın.',
     ], tip: 'Uygulamayı silmeden önce mutlaka yedeği dosyaya kaydedin; aksi hâlde veriler silinir.'),
+    GuideTopic('Verileri silme', [
+      'Tek bir öğrenciyi, sınavı veya kâğıdı kendi ekranından silebilirsiniz.',
+      'Ayarlar > "Tüm verileri sil" bu cihazdaki bütün bilgileri siler; onay için "SİL" yazmanız istenir.',
+      'Google Drive yedeğini Ayarlar > Hesap > "Drive\'daki yedeği sil" ile kaldırabilirsiniz.',
+    ]),
   ]),
 ];
 
@@ -158,6 +163,8 @@ const faqs = <Faq>[
       'Eski telefonda Ayarlar > "Yedeği dosyaya kaydet" ile yedek alın, dosyayı yeni cihaza aktarın ve "Yedekten geri yükle"yi seçin.'),
   Faq('Veriler', 'Telefon ve bilgisayar birbirini görüyor mu?',
       'Hayır, her cihazın verisi ayrıdır. Bir cihazdaki yedeği diğerine geri yükleyerek verileri taşıyabilirsiniz.'),
+  Faq('Veriler', 'Verilerimi nasıl silerim?',
+      'Ayarlar > "Tüm verileri sil" bu cihazdaki öğrenci, sınav, kâğıt ve okul bilgilerini siler. İsterseniz otomatik yedekleri de birlikte silebilirsiniz. Google Drive yedeği kullanıyorsanız Ayarlar > Hesap > "Drive\'daki yedeği sil" ile onu da kaldırabilirsiniz.'),
   Faq('Veriler', 'Yanlışlıkla bir şeyi sildim.',
       'Ayarlar > Yedekleme bölümündeki otomatik yedekler listesinden, silmeden önceki günün yedeğini "Geri yükle" ile açabilirsiniz.'),
   Faq('Genel', 'İnternet gerekiyor mu?',

@@ -48,4 +48,22 @@ void main() {
     expect(s.sheets, isEmpty);
     expect(s.students.map((e) => e.id), ['k1']);
   });
+
+  test('tüm veriler silinir; isteğe göre otomatik yedekler korunur ya da silinir', () async {
+    final dir = Directory.systemTemp.createTempSync('silme');
+    final a = AppStore();
+    await a.load(dir: dir);
+    expect(a.students, isNotEmpty);
+    await a.wipeAll();
+    expect(a.students, isEmpty);
+    expect(a.exams, isEmpty);
+    expect(a.sheets, isEmpty);
+    expect(a.autoBackups(), isNotEmpty, reason: 'silmeden önceki hâl yedekte kalmalı');
+    final again = AppStore();
+    await again.load(dir: dir);
+    expect(again.students, isEmpty, reason: 'silme kalıcı olmalı, örnekler geri gelmemeli');
+
+    await a.wipeAll(backups: true);
+    expect(a.autoBackups(), isEmpty);
+  });
 }

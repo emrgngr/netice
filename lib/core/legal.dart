@@ -50,7 +50,7 @@ Toplanmayan veriler
 Konum, rehber, cihaz kimliği, kullanım istatistiği, çökme raporu ve reklam kimliği toplanmaz.
 
 Silme
-Öğrenci, sınav ve kâğıtları uygulama içinden silebilirsiniz. Uygulama kaldırıldığında tüm veriler cihazdan silinir.${_contact('İletişim:')}''';
+Öğrenci, sınav ve kâğıtları tek tek ya da Ayarlar > "Tüm verileri sil" ile bir seferde silebilirsiniz; otomatik yedekleri de birlikte silmeyi seçebilirsiniz. Google Drive yedeği kullanıyorsanız onu da Ayarlar > Hesap bölümünden silebilirsiniz. Uygulama kaldırıldığında tüm veriler cihazdan silinir.${_contact('İletişim:')}''';
 
 /// KVKK aydınlatma metni.
 final kvkkNotice = '''6698 sayılı Kişisel Verilerin Korunması Kanunu kapsamında bilgilendirme

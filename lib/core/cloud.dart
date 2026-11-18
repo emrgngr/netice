@@ -150,4 +150,15 @@ class CloudService {
     if (r.statusCode != 200) throw HttpException('Drive yedeği indirilemedi (${r.statusCode})');
     return store.restoreBackup(utf8.decode(r.bodyBytes));
   }
+
+  /// Drive'daki Netice yedeğini kalıcı olarak siler.
+  Future<bool> deleteBackup(AppStore store) async {
+    final info = await latest();
+    if (info == null) return false;
+    final h = await _headers(interactive: true);
+    final r = await http.delete(Uri.parse('https://www.googleapis.com/drive/v3/files/${info.id}'), headers: h);
+    if (r.statusCode != 204 && r.statusCode != 200) throw HttpException('Drive yedeği silinemedi (${r.statusCode})');
+    store.markCloudBackup(null);
+    return true;
+  }
 }

@@ -20,6 +20,8 @@ class _AccountCardState extends State<AccountCard> {
     try {
       await job();
       if (mounted && ok != null) toast(context, ok);
+    } on _Cancelled {
+      // Kullanıcı vazgeçti.
     } catch (e) {
       if (mounted) toast(context, 'İşlem tamamlanamadı: ${_friendly(e)}');
     } finally {
@@ -168,9 +170,35 @@ class _AccountCardState extends State<AccountCard> {
               : () => _run(() async {
                     final info = await cloud.latest();
                     if (info == null) throw 'Drive\'da yedek bulunamadı.';
-                    if (await _askRestore(info) != true) return;
+                    if (await _askRestore(info) != true) throw _Cancelled();
                     await cloud.restore(store);
                   }, ok: 'Yedek geri yüklendi.'),
+        ),
+        ListTile(
+          leading: const Icon(Icons.cloud_off_rounded, color: NColors.coral),
+          title: const Text('Drive\'daki yedeği sil'),
+          subtitle: const Text('Yedek, Google hesabınızdan kalıcı olarak kaldırılır'),
+          onTap: _busy
+              ? null
+              : () => _run(() async {
+                    final ok = await showDialog<bool>(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: const Text('Drive yedeği silinsin mi?'),
+                        content: const Text('Google Drive\'daki Netice yedeği kalıcı olarak silinir. '
+                            'Bu cihazdaki verilere dokunulmaz. Otomatik Drive yedeği açıksa ertesi gün yeniden yedek alınır.'),
+                        actions: [
+                          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Vazgeç')),
+                          FilledButton(
+                              style: FilledButton.styleFrom(backgroundColor: NColors.coral),
+                              onPressed: () => Navigator.pop(ctx, true),
+                              child: const Text('Sil')),
+                        ],
+                      ),
+                    );
+                    if (ok != true) throw _Cancelled();
+                    if (!await cloud.deleteBackup(store)) throw 'Drive\'da silinecek yedek yok.';
+                  }, ok: 'Drive yedeği silindi.'),
         ),
       ]),
     );
@@ -217,3 +245,5 @@ class _GPainter extends CustomPainter {
   @override
   bool shouldRepaint(_GPainter o) => false;
 }
+
+class _Cancelled implements Exception {}

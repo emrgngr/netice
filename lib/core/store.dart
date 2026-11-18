@@ -153,7 +153,7 @@ class AppStore extends ChangeNotifier {
     _changed();
   }
 
-  void markCloudBackup(DateTime t) {
+  void markCloudBackup(DateTime? t) {
     lastCloudBackup = t;
     _changed();
   }
@@ -261,6 +261,38 @@ class AppStore extends ChangeNotifier {
   bool get hasDemo => exams.any((e) => _isDemoExam(e.id)) || students.any((s) => _isDemoStudent(s.id));
 
   /// Örnek verileri siler; öğretmenin kendi kayıtlarına dokunmaz.
+  /// Bu cihazdaki tüm öğrenci, sınav, kâğıt ve okul bilgilerini siler.
+  /// [backups] true ise otomatik yedekler de silinir; değilse silmeden önce
+  /// son hâlin bir kopyası otomatik yedeklere eklenir (geri dönüş için).
+  Future<void> wipeAll({bool backups = false}) async {
+    if (!backups) {
+      try {
+        await _autoBackup(force: true);
+      } catch (_) {}
+    }
+    students.clear();
+    exams.clear();
+    sheets.clear();
+    school = const SchoolInfo();
+    if (backups) {
+      for (final f in autoBackups()) {
+        try {
+          await f.delete();
+        } catch (_) {}
+      }
+    }
+    notifyListeners();
+    await save();
+    if (backups) {
+      // Kayıt sırasında alınan günlük yedeği de temizle.
+      for (final f in autoBackups()) {
+        try {
+          await f.delete();
+        } catch (_) {}
+      }
+    }
+  }
+
   void clearDemo() {
     sheets.removeWhere((s) => _isDemoExam(s.examId));
     exams.removeWhere((e) => _isDemoExam(e.id));

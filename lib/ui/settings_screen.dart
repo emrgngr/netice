@@ -142,6 +142,59 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ));
 
+  Future<void> _wipe() async {
+    final store = StoreScope.of(context);
+    var alsoBackups = false;
+    final typed = TextEditingController();
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, set) => AlertDialog(
+          icon: const Icon(Icons.delete_forever_rounded, color: NColors.coral),
+          title: const Text('Tüm veriler silinsin mi?'),
+          content: SingleChildScrollView(
+            child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const Text('Bu cihazdaki bütün öğrenciler, sınavlar, okutulan kâğıtlar ve okul bilgileri silinir. '
+                  'İsterseniz önce "Yedeği dosyaya kaydet" ile yedek alın.'),
+              const SizedBox(height: 8),
+              CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                value: alsoBackups,
+                onChanged: (v) => set(() => alsoBackups = v ?? false),
+                title: const Text('Otomatik yedekleri de sil'),
+                subtitle: Text(alsoBackups
+                    ? 'Geri dönüş olmaz.'
+                    : 'Silmeden önceki hâl otomatik yedeklerde kalır; vazgeçerseniz geri yükleyebilirsiniz.'),
+              ),
+              const SizedBox(height: 4),
+              TextField(
+                controller: typed,
+                onChanged: (_) => set(() {}),
+                decoration: const InputDecoration(labelText: 'Onaylamak için SİL yazın'),
+              ),
+            ]),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Vazgeç')),
+            FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: NColors.coral),
+              onPressed: typed.text.trim().toUpperCase() == 'SİL' || typed.text.trim().toLowerCase() == 'sil'
+                  ? () => Navigator.pop(ctx, true)
+                  : null,
+              child: const Text('Sil'),
+            ),
+          ],
+        ),
+      ),
+    );
+    typed.dispose();
+    if (ok != true || !mounted) return;
+    await store.wipeAll(backups: alsoBackups);
+    if (!mounted) return;
+    toast(context, alsoBackups ? 'Tüm veriler ve otomatik yedekler silindi.' : 'Tüm veriler silindi. Önceki hâl otomatik yedeklerde duruyor.');
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     final store = StoreScope.of(context);
@@ -239,6 +292,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
               ]),
             ),
+          const SectionTitle('Verileri sil'),
+          Card(
+            clipBehavior: Clip.antiAlias,
+            child: tile(Icons.delete_forever_rounded, NColors.coral, 'Tüm verileri sil',
+                'Öğrenciler, sınavlar, kâğıtlar ve okul bilgileri bu cihazdan silinir', _wipe),
+          ),
           const SectionTitle('Netice\'yi yayın'),
           Card(
             clipBehavior: Clip.antiAlias,
