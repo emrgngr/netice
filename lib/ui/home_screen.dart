@@ -235,6 +235,8 @@ class _Dashboard extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         GlowButton(label: 'Okut', icon: Icons.document_scanner_outlined, onPressed: () => _startScan(context)),
+        const SizedBox(height: 16),
+        const OfflineNotice(onDark: true),
       ]),
     );
 
@@ -484,5 +486,51 @@ class _Insights extends StatelessWidget {
         ),
       ],
     ]);
+  }
+}
+
+/// Ana ekrandaki bilgi: uygulama çevrimdışı çalışır, veriler bu cihazda kalır.
+class OfflineNotice extends StatelessWidget {
+  final bool onDark;
+  const OfflineNotice({super.key, this.onDark = false});
+
+  static const title = 'Çevrimdışı çalışır · Verileriniz bu cihazda';
+  static const detail = 'Netice internet olmadan çalışır. Öğrenci, sınav ve sonuç bilgileriniz yalnızca '
+      'bu telefonda (veya bilgisayarda), uygulamanın kendi klasöründe saklanır; geliştiriciye ya da '
+      'başka bir sunucuya gönderilmez.\n\nYalnızca sizin seçtiğiniz durumlarda veri cihazdan çıkar: '
+      'bir raporu veya yedeği paylaştığınızda ya da Ayarlar > Hesap bölümünden isteğe bağlı Google Drive '
+      'yedeğini açtığınızda (yedek kendi Google hesabınıza gider).\n\nUygulamayı silmeden önce yedek alın; '
+      'aksi hâlde veriler telefonla birlikte silinir.';
+
+  static void show(BuildContext context) => showDialog<void>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          icon: const Icon(Icons.phonelink_lock_rounded, color: NColors.emerald),
+          title: const Text('Verileriniz sizde kalır'),
+          content: const Text(detail),
+          actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Anladım'))],
+        ),
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    final fg = onDark ? Colors.white.withValues(alpha: 0.85) : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.75);
+    return Material(
+      color: onDark ? Colors.white.withValues(alpha: 0.08) : NColors.emerald.withValues(alpha: 0.08),
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => show(context),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+          child: Row(children: [
+            Icon(Icons.wifi_off_rounded, size: 16, color: onDark ? const Color(0xFF7BE0B4) : NColors.emerald),
+            const SizedBox(width: 8),
+            Expanded(child: Text(title, style: TextStyle(color: fg, fontSize: 12.5, fontWeight: FontWeight.w600))),
+            Icon(Icons.info_outline_rounded, size: 16, color: fg),
+          ]),
+        ),
+      ),
+    );
   }
 }

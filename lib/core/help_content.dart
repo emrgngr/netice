@@ -112,7 +112,7 @@ const guideSections = <GuideSection>[
   ]),
   GuideSection('Verileriniz', 'data', [
     GuideTopic('Yedekleme', [
-      'Netice verilerinizi yalnızca bu cihazda saklar; internete göndermez.',
+      'Netice çevrimdışı çalışır; verilerinizi yalnızca bu telefonda (veya bilgisayarda) saklar, internete göndermez.',
       'Uygulama her gün kendiliğinden bir yedek alır (son 14 gün).',
       'Telefon değiştirirken veya bilgisayara geçerken Ayarlar > "Yedeği dosyaya kaydet" ile yedek alın, yeni cihazda "Yedekten geri yükle" ile açın.',
     ], tip: 'Uygulamayı silmeden önce mutlaka yedeği dosyaya kaydedin; aksi hâlde veriler silinir.'),
@@ -153,7 +153,7 @@ const faqs = <Faq>[
   Faq('Raporlar', 'Notları e-Okul\'a otomatik aktarabilir miyim?',
       'e-Okul dışarıdan otomatik veri girişine izin vermez. "e-Okul listesi" numara sırasına göre hazırlandığı için notları elle girmek birkaç dakika sürer.'),
   Faq('Veriler', 'Verilerim nerede saklanıyor?',
-      'Yalnızca bu cihazda, uygulamanın kendi klasöründe. Hiçbir veri internete gönderilmez; bu nedenle KVKK açısından da güvenlidir.'),
+      'Yalnızca bu cihazda, uygulamanın kendi klasöründe. Hiçbir veri internete gönderilmez; bu nedenle KVKK açısından da güvenlidir. Yalnızca isteğe bağlı Google Drive yedeğini açarsanız yedek, kendi Google hesabınıza kaydedilir.'),
   Faq('Veriler', 'Telefonu değiştirirsem verilerim ne olur?',
       'Eski telefonda Ayarlar > "Yedeği dosyaya kaydet" ile yedek alın, dosyayı yeni cihaza aktarın ve "Yedekten geri yükle"yi seçin.'),
   Faq('Veriler', 'Telefon ve bilgisayar birbirini görüyor mu?',
@@ -161,5 +161,5 @@ const faqs = <Faq>[
   Faq('Veriler', 'Yanlışlıkla bir şeyi sildim.',
       'Ayarlar > Yedekleme bölümündeki otomatik yedekler listesinden, silmeden önceki günün yedeğini "Geri yükle" ile açabilirsiniz.'),
   Faq('Genel', 'İnternet gerekiyor mu?',
-      'Hayır. Netice tamamen çevrimdışı çalışır.'),
+      'Hayır. Netice tamamen çevrimdışı çalışır ve tüm veriler telefonunuzda kalır. İnternet yalnızca isteğe bağlı Google Drive yedeği ve paylaşım için kullanılır.'),
 ];

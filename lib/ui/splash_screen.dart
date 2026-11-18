@@ -122,6 +122,27 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                 ),
               ),
             ),
+            Positioned(
+              left: 24,
+              right: 24,
+              bottom: 66,
+              child: Opacity(
+                opacity: seg(0.66, 0.86) * (1 - seg(0.94, 1.0)),
+                child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  Icon(Icons.wifi_off_rounded, size: 14, color: ink.withValues(alpha: 0.55)),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text('Çevrimdışı çalışır · Verileriniz bu cihazda kalır',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: ink.withValues(alpha: 0.55))),
+                  ),
+                ]),
+              ),
+            ),
           ]);
         },
       ),

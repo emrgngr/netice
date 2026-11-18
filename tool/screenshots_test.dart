@@ -71,6 +71,7 @@ void main() {
     final store = AppStore();
     await tester.runAsync(() => store.load(dir: Directory.systemTemp.createTempSync('shots')));
     store.onboardingDone = true;
+    store.ratePrompted = true;
     final app = NeticeApp(store: store, splash: false);
 
     await shot(tester, app, const Size(390, 844), 'mobil_ana_sayfa');

@@ -23,7 +23,7 @@ String get downloadSignature => '\n\n— Netice ile hazırlandı. Siz de deneyin
 const websiteUrl = '';
 
 String get shareText => 'Optik kâğıtları telefonla okutup puan, analiz ve karneyi saniyeler içinde hazırlayan '
-    'Netice\'yi kullanıyorum, sana da öneririm. İnternetsiz çalışıyor, veriler telefonda kalıyor.'
+    'Netice\'yi kullanıyorum, sana da öneririm. Çevrimdışı çalışıyor, veriler telefonda kalıyor.'
     '\n\nİndir: $downloadUrl';
 
 String _contact(String prefix) => contactEmail.isEmpty ? '' : '\n\n$prefix $contactEmail';
@@ -31,11 +31,14 @@ String _contact(String prefix) => contactEmail.isEmpty ? '' : '\n\n$prefix $cont
 /// Uygulama içi gizlilik politikası (mağazadaki metnin kısa hâli).
 final privacyPolicy = '''Netice, öğretmenlerin optik cevap kâğıtlarını okutup sonuçları analiz etmesi için tasarlanmıştır.
 
-İnternet kullanılmaz
-Uygulama internet bağlantısı kullanmaz, hesap açtırmaz, reklam göstermez ve hiçbir veriyi geliştiriciye ya da üçüncü kişilere göndermez.
+Çevrimdışı çalışır, veriler cihazınızda kalır
+Netice internet bağlantısı olmadan çalışır. Girdiğiniz ve okuttuğunuz tüm bilgiler yalnızca uygulamayı kullandığınız telefonda (veya bilgisayarda), uygulamaya ait klasörde saklanır. Uygulama reklam göstermez, hesap açmayı zorunlu tutmaz ve hiçbir veriyi geliştiriciye ya da üçüncü kişilere göndermez.
+
+İsteğe bağlı Google hesabı
+Ayarlar > Hesap bölümünden dilerseniz Google hesabınızla giriş yapıp yedeğinizi kendi Google Drive alanınıza kaydedebilirsiniz. Bu özellik yalnızca siz açtığınızda internete bağlanır; yedek, Drive'ınızda yalnızca Netice'nin görebildiği gizli uygulama klasöründe tutulur ve geliştiriciye ulaşmaz. Kullanmazsanız uygulama tamamen çevrimdışı kalır.
 
 Tutulan bilgiler
-Öğrenci adı, soyadı, okul numarası ve sınıfı; sınav adı, tarihi, cevap anahtarı ve kazanımları; okutulan kâğıtlardaki işaretler, puanlar ve istatistikler; okul ve öğretmen bilgileri. Bu bilgiler yalnızca bu cihazda, uygulamaya ait klasörde saklanır.
+Öğrenci adı, soyadı, okul numarası ve sınıfı; sınav adı, tarihi, cevap anahtarı ve kazanımları; okutulan kâğıtlardaki işaretler, puanlar ve istatistikler; okul ve öğretmen bilgileri. Bu bilgiler yalnızca bu cihazda, uygulamaya ait klasörde saklanır; hiçbir sunucuya yüklenmez.
 
 Kamera ve fotoğraflar
 Kamera yalnızca siz izin verdiğinizde, cevap kâğıtlarını okumak için kullanılır. Görüntüler cihazda işlenir; fotoğrafların kendisi saklanmaz ve gönderilmez.
@@ -62,7 +65,7 @@ Amaç ve hukuki sebep
 Sınavların değerlendirilmesi, öğrenci başarısının izlenmesi ve sonuç raporlarının hazırlanması (KVKK m. 5/2-ç ve 5/2-f; eğitim-öğretim hizmetinin yürütülmesi).
 
 Saklama ve aktarım
-Veriler yalnızca öğretmenin cihazında saklanır; yurt içinde veya yurt dışında hiçbir sunucuya ya da üçüncü kişiye aktarılmaz. Öğretmenin kendi isteğiyle paylaştığı rapor ve yedeklerin sorumluluğu öğretmene aittir.
+Uygulama çevrimdışı çalışır. Veriler yalnızca öğretmenin kullandığı telefonda (veya bilgisayarda) saklanır; uygulama tarafından yurt içinde veya yurt dışında hiçbir sunucuya ya da üçüncü kişiye aktarılmaz. Öğretmen isterse yedeğini kendi Google Drive hesabına kaydedebilir; bu durumda aktarım öğretmenin kendi tercihi ve Google'ın koşullarıyla yapılır. Öğretmenin kendi isteğiyle paylaştığı rapor ve yedeklerin sorumluluğu öğretmene aittir.
 
 Toplama yöntemi
 Elle giriş, Excel listesinden aktarım ve cevap kâğıtlarının kamerayla okunması.
