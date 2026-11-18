@@ -128,21 +128,29 @@ class _ResultsTab extends StatelessWidget {
     }
     final wide = MediaQuery.sizeOf(context).width >= 900;
     return ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 100), children: [
-      GridView(
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: wide ? 4 : 2,
-          mainAxisSpacing: 12,
-          crossAxisSpacing: 12,
-          mainAxisExtent: 104,
-        ),
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        children: [
-          StatCard(label: 'Sınıf ortalaması', value: fmt1(st.mean)),
-          StatCard(label: 'Medyan', value: fmt1(st.median)),
-          StatCard(label: 'Std. sapma', value: fmt1(st.stdDev)),
-          StatCard(label: 'KR-20', value: st.kr20 == null ? '–' : fmt2(st.kr20!)),
-        ],
+      HeroPanel(
+        child: Row(children: [
+          ScoreRing(
+            value: st.mean / exam.rule.maxScore * 100,
+            size: wide ? 120 : 104,
+            track: Colors.white.withValues(alpha: 0.14),
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: wide ? 28 : 24, fontFeatures: tabular),
+          ),
+          const SizedBox(width: 22),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const Text('SINIF ORTALAMASI',
+                  style: TextStyle(color: Colors.white60, fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 1)),
+              const SizedBox(height: 10),
+              Wrap(spacing: 22, runSpacing: 12, children: [
+                _HeroStat('Medyan', fmt1(st.median)),
+                _HeroStat('Std. sapma', fmt1(st.stdDev)),
+                _HeroStat('KR-20', st.kr20 == null ? '–' : fmt2(st.kr20!)),
+                _HeroStat('Okunan', '${st.count}'),
+              ]),
+            ]),
+          ),
+        ]),
       ),
       const SectionTitle('Puan dağılımı'),
       Card(
@@ -157,9 +165,18 @@ class _ResultsTab extends StatelessWidget {
         child: Column(children: [
           for (var i = 0; i < sorted.length; i++)
             ListTile(
-              leading: SizedBox(
-                width: 28,
-                child: Text('${i + 1}', style: t.textTheme.titleSmall?.copyWith(fontFeatures: tabular)),
+              leading: Container(
+                width: 34,
+                height: 34,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  gradient: i < 3 ? emeraldGradient : null,
+                  color: i < 3 ? null : t.colorScheme.surfaceContainerHighest,
+                  shape: BoxShape.circle,
+                ),
+                child: Text('${i + 1}',
+                    style: t.textTheme.titleSmall?.copyWith(
+                        fontFeatures: tabular, fontWeight: FontWeight.w800, color: i < 3 ? NColors.ink : null)),
               ),
               title: Text(students[sorted[i].sheet.studentId]?.fullName ?? 'Eşleşmeyen kâğıt',
                   style: TextStyle(
@@ -247,8 +264,8 @@ class _Histogram extends StatelessWidget {
                   duration: const Duration(milliseconds: 250),
                   height: 90 * bins[i] / maxV + 2,
                   decoration: BoxDecoration(
-                    color: i == 4 ? NColors.emerald : Theme.of(context).colorScheme.primary.withValues(alpha: 0.75),
-                    borderRadius: BorderRadius.circular(6),
+                    gradient: i == 4 ? emeraldGradient : inkGradient,
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -346,4 +363,17 @@ class _AnalysisTab extends StatelessWidget {
     store.upsertExam(exam.copyWith(questions: qs));
     toast(context, '$no. soru iptal edildi; tüm puanlar yeniden hesaplandı.');
   }
+}
+
+class _HeroStat extends StatelessWidget {
+  final String label;
+  final String value;
+  const _HeroStat(this.label, this.value);
+
+  @override
+  Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(value,
+            style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800, fontFeatures: tabular)),
+        Text(label, style: const TextStyle(color: Colors.white60, fontSize: 12)),
+      ]);
 }

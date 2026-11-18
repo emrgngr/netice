@@ -119,79 +119,114 @@ class _Dashboard extends StatelessWidget {
     final saved = store.timeSaved;
 
     final stats = [
-      StatCard(label: 'Okunan kâğıt', value: '${store.readCount}', hint: '${store.exams.length} sınav'),
-      StatCard(label: 'Genel ortalama', value: fmt1(avg), hint: '100 üzerinden'),
       StatCard(
-        label: 'Kontrol bekleyen',
+          label: 'Okunan',
+          value: '${store.readCount}',
+          hint: 'kâğıt · ${store.exams.length} sınav',
+          icon: Icons.description_outlined,
+          accent: const Color(0xFF6C7FD8)),
+      StatCard(
+          label: 'Ortalama',
+          value: fmt1(avg),
+          hint: '100 üzerinden',
+          icon: Icons.insights_outlined,
+          accent: NColors.emerald),
+      StatCard(
+        label: 'Kontrol',
         value: '$reviewCount',
-        hint: reviewCount > 0 ? 'Belirsiz işaret ya da eşleşmeyen öğrenci' : 'Her şey yolunda',
+        hint: reviewCount > 0 ? 'kâğıt bekliyor' : 'Her şey yolunda',
         accent: reviewCount > 0 ? NColors.amber : NColors.emerald,
-        icon: reviewCount > 0 ? Icons.error_outline : Icons.check_circle_outline,
+        icon: reviewCount > 0 ? Icons.priority_high_rounded : Icons.verified_outlined,
       ),
       StatCard(
-        label: 'Kazandığınız süre',
+        label: 'Kazanılan süre',
         value: '${saved.inHours} sa ${saved.inMinutes % 60} dk',
-        hint: 'Kâğıt başına elle ~1,5 dk varsayımıyla',
+        hint: 'Kâğıt başına elle ~1,5 dk',
+        icon: Icons.timer_outlined,
+        accent: const Color(0xFFE29A3B),
       ),
     ];
 
+    final hour = DateTime.now().hour;
+    final greeting = hour < 11 ? 'Günaydın' : (hour < 18 ? 'İyi günler' : 'İyi akşamlar');
+    void newExam() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NewExamScreen()));
+
+    final hero = HeroPanel(
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          const AppLogo(size: 44),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(greeting, style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500)),
+              const Text('Netice',
+                  style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800, letterSpacing: -0.5)),
+            ]),
+          ),
+          IconButton.filledTonal(
+            style: IconButton.styleFrom(backgroundColor: Colors.white.withValues(alpha: 0.12), foregroundColor: Colors.white),
+            tooltip: 'Yeni sınav',
+            onPressed: newExam,
+            icon: const Icon(Icons.add_rounded),
+          ),
+        ]),
+        const SizedBox(height: 22),
+        Text('Kâğıttan sonuca, saniyeler içinde.',
+            style: TextStyle(color: Colors.white.withValues(alpha: 0.92), fontSize: 18, fontWeight: FontWeight.w700)),
+        const SizedBox(height: 4),
+        Text(
+          store.readCount == 0
+              ? 'İlk sınavınızı okutun; sonuçlar ve analiz kendiliğinden hazırlanır.'
+              : 'Bu dönem ${store.readCount} kâğıt okundu, yaklaşık ${saved.inHours} sa ${saved.inMinutes % 60} dk kazandınız.',
+          style: TextStyle(color: Colors.white.withValues(alpha: 0.65), fontSize: 13, height: 1.4),
+        ),
+        const SizedBox(height: 20),
+        GlowButton(label: 'Okut', icon: Icons.document_scanner_outlined, onPressed: () => _startScan(context)),
+      ]),
+    );
+
     return SafeArea(
       child: CustomScrollView(slivers: [
-        SliverPadding(
-          padding: EdgeInsets.fromLTRB(20, 16, 20, 0),
-          sliver: SliverToBoxAdapter(
-            child: Row(children: [
-              if (wide)
-                Text('Pano', style: t.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800))
-              else
-                const NeticeWordmark(height: 28),
-              const Spacer(),
-              if (wide) ...[
+        if (wide)
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(28, 24, 28, 0),
+            sliver: SliverToBoxAdapter(
+              child: Row(children: [
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(greeting, style: t.textTheme.bodyMedium?.copyWith(color: t.colorScheme.onSurface.withValues(alpha: 0.6))),
+                  Text('Pano', style: t.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800, letterSpacing: -0.5)),
+                ]),
+                const Spacer(),
                 OutlinedButton.icon(
                   onPressed: () => _startScan(context),
                   icon: const Icon(Icons.upload_file),
                   label: const Text('PDF / tarama yükle'),
                 ),
                 const SizedBox(width: 10),
-              ],
-              FilledButton.icon(
-                onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NewExamScreen())),
-                icon: const Icon(Icons.add),
-                label: const Text('Yeni sınav'),
-                style: wide ? null : FilledButton.styleFrom(minimumSize: const Size(0, 40)),
-              ),
-            ]),
-          ),
-        ),
-        if (!wide)
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-            sliver: SliverToBoxAdapter(
-              child: SizedBox(
-                height: 72,
-                child: FilledButton.icon(
-                  onPressed: () => _startScan(context),
-                  icon: const Icon(Icons.document_scanner_outlined, size: 28),
-                  label: const Text('Okut', style: TextStyle(fontSize: 20)),
-                ),
-              ),
+                FilledButton.icon(onPressed: newExam, icon: const Icon(Icons.add), label: const Text('Yeni sınav')),
+              ]),
             ),
+          )
+        else
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            sliver: SliverToBoxAdapter(child: hero),
           ),
         SliverPadding(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+          padding: EdgeInsets.fromLTRB(wide ? 28 : 16, wide ? 20 : 16, wide ? 28 : 16, 0),
           sliver: SliverGrid(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: wide ? 4 : 2,
               mainAxisSpacing: 12,
               crossAxisSpacing: 12,
-              mainAxisExtent: wide ? 128 : 150,
+              mainAxisExtent: wide ? 138 : 136,
             ),
             delegate: SliverChildListDelegate(stats),
           ),
         ),
         SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          sliver: SliverToBoxAdapter(child: SectionTitle('Son sınavlar')),
+          padding: EdgeInsets.symmetric(horizontal: wide ? 28 : 16),
+          sliver: const SliverToBoxAdapter(child: SectionTitle('Son sınavlar')),
         ),
         if (store.exams.isEmpty)
           SliverPadding(
@@ -206,10 +241,10 @@ class _Dashboard extends StatelessWidget {
             ),
           ),
         SliverPadding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
+          padding: EdgeInsets.fromLTRB(wide ? 28 : 16, 0, wide ? 28 : 16, 32),
           sliver: SliverList.separated(
             itemCount: store.exams.length,
-            separatorBuilder: (_, _) => const SizedBox(height: 10),
+            separatorBuilder: (_, _) => const SizedBox(height: 12),
             itemBuilder: (context, i) {
               final e = store.exams[i];
               final rs = store.resultsOf(e);
@@ -218,25 +253,41 @@ class _Dashboard extends StatelessWidget {
               final total = store.studentsOf(e.className).length;
               return Card(
                 clipBehavior: Clip.antiAlias,
-                child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                child: InkWell(
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => ExamScreen(examId: e.id))),
-                  title: Text(e.name, style: const TextStyle(fontWeight: FontWeight.w700)),
-                  subtitle: Text('${e.className} · ${e.date.day}.${e.date.month}.${e.date.year} · '
-                      '${rs.length}${total > 0 ? '/$total' : ''} okundu'),
-                  trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                    if (review > 0)
-                      Padding(
-                        padding: const EdgeInsets.only(right: 12),
-                        child: Chip(
-                          avatar: const Icon(Icons.error_outline, size: 16, color: NColors.amber),
-                          label: Text('$review kontrol'),
-                          visualDensity: VisualDensity.compact,
-                        ),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 14, 14, 14),
+                    child: Row(children: [
+                      Container(
+                        width: 46,
+                        height: 46,
+                        decoration: BoxDecoration(gradient: inkGradient, borderRadius: BorderRadius.circular(14)),
+                        alignment: Alignment.center,
+                        child: Text(e.className.isEmpty ? '–' : e.className,
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 13)),
                       ),
-                    Text(rs.isEmpty ? '–' : fmt1(st.mean),
-                        style: t.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800, fontFeatures: tabular)),
-                  ]),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          Text(e.name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                          const SizedBox(height: 3),
+                          Text('${e.date.day}.${e.date.month}.${e.date.year} · ${e.questionCount} soru · '
+                              '${rs.length}${total > 0 ? '/$total' : ''} okundu',
+                              style: t.textTheme.bodySmall?.copyWith(color: t.colorScheme.onSurface.withValues(alpha: 0.6))),
+                          if (review > 0) ...[
+                            const SizedBox(height: 4),
+                            Row(children: [
+                              const Icon(Icons.priority_high_rounded, size: 14, color: NColors.amber),
+                              Text(' $review kâğıt kontrol bekliyor',
+                                  style: t.textTheme.bodySmall?.copyWith(color: NColors.amber, fontWeight: FontWeight.w600)),
+                            ]),
+                          ],
+                        ]),
+                      ),
+                      if (rs.isNotEmpty) ScoreRing(value: st.mean / e.rule.maxScore * 100, size: 54)
+                      else Icon(Icons.chevron_right, color: t.colorScheme.onSurface.withValues(alpha: 0.4)),
+                    ]),
+                  ),
                 ),
               );
             },

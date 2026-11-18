@@ -1,6 +1,11 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <!-- Netice ses kaydetmez; kamera eklentisinin istediği mikrofon izni kaldırılır. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" tools:node="remove" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
     <application
-        android:label="netice"
+        android:label="Netice"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

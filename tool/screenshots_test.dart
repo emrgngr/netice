@@ -34,6 +34,12 @@ Future<void> shot(WidgetTester tester, Widget app, Size size, String name, {Futu
   tester.view.viewPadding = tester.view.padding;
   await tester.pumpWidget(RepaintBoundary(key: const ValueKey('shot'), child: app));
   await tester.pumpAndSettle();
+  await tester.runAsync(() async {
+    for (final e in find.byType(Image).evaluate()) {
+      await precacheImage((e.widget as Image).image, e);
+    }
+  });
+  await tester.pumpAndSettle();
   if (then != null) {
     await then();
     await tester.pumpAndSettle();
@@ -49,6 +55,7 @@ Future<void> shot(WidgetTester tester, Widget app, Size size, String name, {Futu
 
 void main() {
   testWidgets('ekran görüntüleri', (tester) async {
+    debugDisableShadows = false;
     await tester.runAsync(loadFonts);
     final store = AppStore();
     await tester.runAsync(() => store.load(dir: Directory.systemTemp.createTempSync('shots')));
@@ -61,6 +68,7 @@ void main() {
         then: () async => tester.tap(find.text('Analiz')));
     await shot(tester, StoreScope(store: store, child: _themed(const NewExamScreen())), const Size(412, 915), 'mobil_yeni_sinav');
     await shot(tester, app, const Size(412, 915), 'mobil_siniflar', then: () async => tester.tap(find.text('Sınıflar')));
+    debugDisableShadows = true;
   });
 }
 

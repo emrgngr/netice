@@ -16,6 +16,20 @@ class NColors {
 /// Rakamlar için eş genişlikli (tabular) yazı.
 const tabular = [FontFeature.tabularFigures()];
 
+/// Uygulama simgesindeki derin lacivert gradyan; "kahraman" panellerde kullanılır.
+const inkGradient = LinearGradient(
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
+  colors: [Color(0xFF1E2E60), Color(0xFF0F1B3D), Color(0xFF080F26)],
+  stops: [0, 0.55, 1],
+);
+
+const emeraldGradient = LinearGradient(
+  begin: Alignment.topCenter,
+  end: Alignment.bottomCenter,
+  colors: [Color(0xFF34D399), Color(0xFF059669)],
+);
+
 class NTheme {
   static const _font = 'PlusJakartaSans';
 
@@ -74,12 +88,31 @@ class NTheme {
       ),
       cardTheme: CardThemeData(
         color: surface,
-        elevation: 0,
+        elevation: isDark ? 0 : 6,
+        shadowColor: NColors.ink.withValues(alpha: 0.10),
+        surfaceTintColor: Colors.transparent,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: scheme.outlineVariant),
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: isDark ? scheme.outlineVariant : Colors.white),
         ),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: surface,
+        indicatorColor: NColors.emerald.withValues(alpha: isDark ? 0.25 : 0.16),
+        elevation: 8,
+        shadowColor: NColors.ink.withValues(alpha: 0.12),
+        surfaceTintColor: Colors.transparent,
+        labelTextStyle: WidgetStatePropertyAll(
+            TextStyle(fontFamily: _font, fontSize: 12, fontWeight: FontWeight.w600, color: onSurface)),
+      ),
+      tabBarTheme: TabBarThemeData(
+        indicatorColor: NColors.emerald,
+        labelColor: onSurface,
+        unselectedLabelColor: onSurface.withValues(alpha: 0.55),
+        labelStyle: const TextStyle(fontFamily: _font, fontWeight: FontWeight.w700),
+        dividerColor: Colors.transparent,
+        indicatorSize: TabBarIndicatorSize.label,
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(

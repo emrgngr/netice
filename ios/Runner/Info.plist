@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSCameraUsageDescription</key>
+	<string>Cevap kâğıtlarını okumak için kamera kullanılır. Görüntüler cihazdan dışarı gönderilmez.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Daha önce çekilmiş cevap kâğıdı fotoğraflarını okumak için.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>

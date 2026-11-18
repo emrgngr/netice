@@ -16,6 +16,7 @@ class StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context);
+    final c = accent ?? NColors.emerald;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -23,23 +24,31 @@ class StatCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(label.toUpperCase(),
-                style: t.textTheme.labelSmall?.copyWith(
-                    letterSpacing: 0.8, color: t.colorScheme.onSurface.withValues(alpha: 0.6))),
-            const SizedBox(height: 6),
-            Text(value,
-                style: t.textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.w800, fontFeatures: tabular, color: t.colorScheme.onSurface)),
+            Row(children: [
+              if (icon != null) ...[IconBadge(icon!, color: c, size: 30), const SizedBox(width: 10)],
+              Expanded(
+                child: Text(label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: t.textTheme.labelLarge?.copyWith(
+                        fontWeight: FontWeight.w600, color: t.colorScheme.onSurface.withValues(alpha: 0.6))),
+              ),
+            ]),
+            const Spacer(),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(value,
+                  style: t.textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.w800, letterSpacing: -0.5, fontFeatures: tabular, color: t.colorScheme.onSurface)),
+            ),
             if (hint != null) ...[
-              const SizedBox(height: 4),
-              Row(children: [
-                if (icon != null) ...[Icon(icon, size: 14, color: accent), const SizedBox(width: 4)],
-                Flexible(
-                  child: Text(hint!,
-                      style: t.textTheme.bodySmall?.copyWith(
-                          color: accent ?? t.colorScheme.onSurface.withValues(alpha: 0.6))),
-                ),
-              ]),
+              const SizedBox(height: 2),
+              Text(hint!,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: t.textTheme.bodySmall?.copyWith(
+                      color: accent ?? t.colorScheme.onSurface.withValues(alpha: 0.55))),
             ],
           ],
         ),
@@ -97,5 +106,185 @@ class SectionTitle extends StatelessWidget {
           ),
           ?trailing,
         ]),
+      );
+}
+
+/// Uygulama simgesiyle aynı premium logo (görüntü).
+class AppLogo extends StatelessWidget {
+  final double size;
+  const AppLogo({super.key, this.size = 40});
+
+  @override
+  Widget build(BuildContext context) => Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(size * 0.225),
+          boxShadow: [BoxShadow(color: NColors.ink.withValues(alpha: 0.25), blurRadius: size * 0.3, offset: Offset(0, size * 0.08))],
+        ),
+        child: Image.asset('assets/icon/netice_icon_rounded_1024.png', width: size, height: size, filterQuality: FilterQuality.high),
+      );
+}
+
+/// Lacivert gradyanlı, hafif dokulu "kahraman" panel.
+class HeroPanel extends StatelessWidget {
+  final Widget child;
+  final EdgeInsets padding;
+  const HeroPanel({super.key, required this.child, this.padding = const EdgeInsets.all(22)});
+
+  @override
+  Widget build(BuildContext context) => Container(
+        decoration: BoxDecoration(
+          gradient: inkGradient,
+          borderRadius: BorderRadius.circular(28),
+          boxShadow: [BoxShadow(color: NColors.ink.withValues(alpha: 0.28), blurRadius: 28, offset: const Offset(0, 14))],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(28),
+          child: Stack(children: [
+            // Simgedeki optik dairelerden esinlenen silik desen.
+            Positioned(right: -40, top: -40, child: Opacity(opacity: 0.05, child: _DotPattern(size: 150))),
+            Padding(padding: padding, child: child),
+          ]),
+        ),
+      );
+}
+
+class _DotPattern extends StatelessWidget {
+  final double size;
+  const _DotPattern({required this.size});
+  @override
+  Widget build(BuildContext context) => SizedBox.square(
+        dimension: size,
+        child: CustomPaint(painter: _DotPainter()),
+      );
+}
+
+class _DotPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size s) {
+    final cell = s.width / 5;
+    final p = Paint()..color = Colors.white;
+    final ring = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+    for (var y = 0; y < 5; y++) {
+      for (var x = 0; x < 5; x++) {
+        final c = Offset(cell * (x + 0.5), cell * (y + 0.5));
+        if ((x + y * 2) % 3 == 0) {
+          canvas.drawCircle(c, cell * 0.34, p);
+        } else {
+          canvas.drawCircle(c, cell * 0.30, ring);
+        }
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+/// Zümrüt gradyanlı, parıltılı birincil eylem düğmesi.
+class GlowButton extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final VoidCallback onPressed;
+  final double height;
+  const GlowButton({super.key, required this.label, required this.icon, required this.onPressed, this.height = 64});
+
+  @override
+  Widget build(BuildContext context) => DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: emeraldGradient,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [BoxShadow(color: NColors.emerald.withValues(alpha: 0.45), blurRadius: 22, offset: const Offset(0, 8))],
+        ),
+        child: Material(
+          type: MaterialType.transparency,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(18),
+            onTap: onPressed,
+            child: SizedBox(
+              height: height,
+              child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                Icon(icon, color: NColors.ink, size: 26),
+                const SizedBox(width: 10),
+                Text(label, style: const TextStyle(color: NColors.ink, fontSize: 19, fontWeight: FontWeight.w800, letterSpacing: 0.2)),
+              ]),
+            ),
+          ),
+        ),
+      );
+}
+
+/// Ortalama puanı gösteren halka.
+class ScoreRing extends StatelessWidget {
+  final double value; // 0..100
+  final double size;
+  final Color? track;
+  final TextStyle? style;
+  const ScoreRing({super.key, required this.value, this.size = 56, this.track, this.style});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context);
+    return SizedBox.square(
+      dimension: size,
+      child: Stack(alignment: Alignment.center, children: [
+        TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0, end: (value / 100).clamp(0, 1)),
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOutCubic,
+          builder: (_, v, _) => CustomPaint(
+            size: Size.square(size),
+            painter: _RingPainter(v, track ?? t.colorScheme.outlineVariant, size * 0.09),
+          ),
+        ),
+        Text(fmt1(value),
+            style: style ??
+                t.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800, fontFeatures: tabular, fontSize: size * 0.26)),
+      ]),
+    );
+  }
+}
+
+class _RingPainter extends CustomPainter {
+  final double v;
+  final Color track;
+  final double w;
+  _RingPainter(this.v, this.track, this.w);
+
+  @override
+  void paint(Canvas canvas, Size s) {
+    final rect = Offset(w / 2, w / 2) & Size(s.width - w, s.height - w);
+    canvas.drawArc(rect, 0, 6.2832, false, Paint()
+      ..color = track
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = w);
+    canvas.drawArc(rect, -1.5708, 6.2832 * v, false, Paint()
+      ..shader = const SweepGradient(colors: [Color(0xFF34D399), Color(0xFF059669), Color(0xFF34D399)]).createShader(rect)
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = w);
+  }
+
+  @override
+  bool shouldRepaint(_RingPainter o) => o.v != v || o.track != track;
+}
+
+/// Renkli zeminli küçük simge rozeti.
+class IconBadge extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final double size;
+  const IconBadge(this.icon, {super.key, this.color = NColors.emerald, this.size = 36});
+
+  @override
+  Widget build(BuildContext context) => Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(color: color.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(size * 0.32)),
+        child: Icon(icon, size: size * 0.55, color: color),
       );
 }
