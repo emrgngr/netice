@@ -95,7 +95,7 @@ class ExamScreen extends StatelessWidget {
         body: TabBarView(children: [
           _ResultsTab(exam: exam, results: results),
           _AnalysisTab(exam: exam, results: results),
-          ReviewList(exam: exam),
+          SafeArea(top: false, child: ReviewList(exam: exam)),
         ]),
       ),
     );

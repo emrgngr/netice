@@ -9,6 +9,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:netice/core/store.dart';
 import 'package:netice/main.dart';
 import 'package:netice/ui/exam_screen.dart';
+import 'package:netice/ui/new_exam_screen.dart';
 import 'package:netice/ui/theme.dart';
 
 Future<void> loadFonts() async {
@@ -28,6 +29,9 @@ Future<void> loadFonts() async {
 Future<void> shot(WidgetTester tester, Widget app, Size size, String name, {Future<void> Function()? then}) async {
   tester.view.physicalSize = size * 2;
   tester.view.devicePixelRatio = 2;
+  // Android'in alt gezinme çubuğu gibi bir sistem boşluğu.
+  tester.view.padding = size.width < 600 ? const FakeViewPadding(top: 48, bottom: 96) : FakeViewPadding.zero;
+  tester.view.viewPadding = tester.view.padding;
   await tester.pumpWidget(RepaintBoundary(key: const ValueKey('shot'), child: app));
   await tester.pumpAndSettle();
   if (then != null) {
@@ -55,6 +59,8 @@ void main() {
     await shot(tester, StoreScope(store: store, child: _themed(const ExamScreen(examId: 'demo_exam'))), const Size(390, 844), 'mobil_sinav_sonuclari');
     await shot(tester, StoreScope(store: store, child: _themed(const ExamScreen(examId: 'demo_exam'))), const Size(1366, 820), 'masaustu_madde_analizi',
         then: () async => tester.tap(find.text('Analiz')));
+    await shot(tester, StoreScope(store: store, child: _themed(const NewExamScreen())), const Size(412, 915), 'mobil_yeni_sinav');
+    await shot(tester, app, const Size(412, 915), 'mobil_siniflar', then: () async => tester.tap(find.text('Sınıflar')));
   });
 }
 

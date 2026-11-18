@@ -91,6 +91,21 @@ class _NewExamScreenState extends State<NewExamScreen> {
     final t = Theme.of(context);
     return Scaffold(
       appBar: AppBar(title: const Text('Yeni sınav')),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+          child: Center(
+            heightFactor: 1,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 680),
+              child: SizedBox(
+                width: double.infinity,
+                child: FilledButton(onPressed: _save, child: const Text('Sınavı kaydet')),
+              ),
+            ),
+          ),
+        ),
+      ),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 720),
@@ -114,6 +129,7 @@ class _NewExamScreenState extends State<NewExamScreen> {
             Row(children: [
               Expanded(
                 child: SegmentedButton<int>(
+                  showSelectedIcon: false,
                   segments: const [ButtonSegment(value: 4, label: Text('4 şık')), ButtonSegment(value: 5, label: Text('5 şık'))],
                   selected: {_choices},
                   onSelectionChanged: (s) => setState(() {
@@ -187,8 +203,7 @@ class _NewExamScreenState extends State<NewExamScreen> {
                   ),
                 ),
             ]),
-            const SizedBox(height: 24),
-            FilledButton(onPressed: _save, child: const Text('Sınavı kaydet')),
+            const SizedBox(height: 12),
           ]),
         ),
       ),

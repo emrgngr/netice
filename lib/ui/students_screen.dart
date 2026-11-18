@@ -84,11 +84,16 @@ class _StudentsScreenState extends State<StudentsScreen> {
 
     return SafeArea(
       child: ListView(padding: const EdgeInsets.all(20), children: [
-        Row(children: [
-          Text('Sınıflar ve öğrenciler', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
-          const Spacer(),
-          FilledButton.icon(onPressed: _import, icon: const Icon(Icons.upload_file), label: const Text('Excel / CSV aktar')),
-        ]),
+        Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 12,
+          runSpacing: 12,
+          children: [
+            Text('Sınıflar ve öğrenciler', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+            FilledButton.icon(onPressed: _import, icon: const Icon(Icons.upload_file), label: const Text('Excel / CSV aktar')),
+          ],
+        ),
         const SizedBox(height: 6),
         Text('Excel\'de listeyi "CSV (noktalı virgülle ayrılmış)" olarak kaydedip seçin. '
             'Ad, soyad, okul no ve sınıf sütunları otomatik tanınır.',
