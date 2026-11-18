@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 
 import '../core/models.dart';
+import '../core/report.dart';
 import '../main.dart';
 import 'exam_screen.dart';
 import 'theme.dart';
@@ -19,6 +20,7 @@ class NewExamScreen extends StatefulWidget {
 class _NewExamScreenState extends State<NewExamScreen> {
   final _name = TextEditingController();
   final _class = TextEditingController();
+  final _outcomes = TextEditingController();
   final _focus = FocusNode();
   int _count = 20;
   int _choices = 5;
@@ -48,13 +50,16 @@ class _NewExamScreenState extends State<NewExamScreen> {
     final name = _name.text.trim();
     if (name.isEmpty) return toast(context, 'Sınava bir ad verin.');
     if (!_complete) return toast(context, 'Cevap anahtarında boş soru var.');
+    final outcomes = parseOutcomeRanges(_outcomes.text, _count);
     final exam = Exam(
       id: 'e${DateTime.now().millisecondsSinceEpoch}',
       name: name,
       className: _class.text.trim(),
       date: DateTime.now(),
       choiceCount: _choices,
-      questions: [for (var i = 0; i < _count; i++) Question(no: i + 1, correct: {_key[i]!})],
+      questions: [
+        for (var i = 0; i < _count; i++) Question(no: i + 1, correct: {_key[i]!}, outcomeCode: outcomes[i + 1])
+      ],
       rule: ScoringRule(wrongsPerCorrect: _wrongsPerCorrect),
     );
     StoreScope.of(context).upsertExam(exam);
@@ -203,6 +208,17 @@ class _NewExamScreenState extends State<NewExamScreen> {
                   ),
                 ),
             ]),
+            const SectionTitle('Kazanımlar / konular (isteğe bağlı)'),
+            TextField(
+              controller: _outcomes,
+              minLines: 2,
+              maxLines: 6,
+              decoration: const InputDecoration(
+                hintText: '1-5 Hareket\n6-10 Kuvvet',
+                helperText: 'Her satıra soru aralığı ve konu adı yazın. Raporda konu bazlı başarı gösterilir.',
+                helperMaxLines: 2,
+              ),
+            ),
             const SizedBox(height: 12),
           ]),
         ),

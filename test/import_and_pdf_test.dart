@@ -70,4 +70,17 @@ void main() {
     File('${out.path}/ornek_form.pdf').writeAsBytesSync(forms);
     File('${out.path}/ornek_rapor.pdf').writeAsBytesSync(report);
   });
+
+  test('örnek sınıf için kapsamlı rapor ve öğrenci karneleri', () async {
+    final store = AppStore()..seedDemo();
+    final exam = store.exams.first;
+    final results = store.resultsOf(exam);
+    final report = await buildResultsPdf(exam: exam, results: results, students: store.studentById, institution: 'Örnek Lisesi');
+    final cards = await buildStudentCardsPdf(exam: exam, results: results, students: store.studentById);
+    expect(String.fromCharCodes(report.take(5)), '%PDF-');
+    expect(String.fromCharCodes(cards.take(5)), '%PDF-');
+    final out = Directory('build/test_output')..createSync(recursive: true);
+    File('${out.path}/sinif_raporu.pdf').writeAsBytesSync(report);
+    File('${out.path}/ogrenci_karneleri.pdf').writeAsBytesSync(cards);
+  });
 }

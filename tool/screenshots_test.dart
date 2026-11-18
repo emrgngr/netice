@@ -66,6 +66,8 @@ void main() {
     await shot(tester, StoreScope(store: store, child: _themed(const ExamScreen(examId: 'demo_exam'))), const Size(390, 844), 'mobil_sinav_sonuclari');
     await shot(tester, StoreScope(store: store, child: _themed(const ExamScreen(examId: 'demo_exam'))), const Size(1366, 820), 'masaustu_madde_analizi',
         then: () async => tester.tap(find.text('Analiz')));
+    await shot(tester, StoreScope(store: store, child: _themed(const ExamScreen(examId: 'demo_exam'))), const Size(390, 3400), 'mobil_analiz',
+        then: () async => tester.tap(find.text('Analiz')));
     await shot(tester, StoreScope(store: store, child: _themed(const NewExamScreen())), const Size(412, 915), 'mobil_yeni_sinav');
     await shot(tester, app, const Size(412, 915), 'mobil_siniflar', then: () async => tester.tap(find.text('Sınıflar')));
     debugDisableShadows = true;

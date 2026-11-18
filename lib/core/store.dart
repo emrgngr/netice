@@ -148,7 +148,11 @@ class AppStore extends ChangeNotifier {
       key: 'BDACEABDCEBADCEADBCE',
       date: DateTime.now().subtract(const Duration(days: 2)),
     );
-    exams.add(exam);
+    // Örnek kazanımlar: her 5 soru bir konu.
+    const topics = ['Hareket', 'Kuvvet', 'Enerji', 'Isı ve sıcaklık'];
+    exams.add(exam.copyWith(questions: [
+      for (final q in exam.questions) q.copyWith(outcomeCode: topics[(q.no - 1) ~/ 5]),
+    ]));
     final rnd = math.Random(7);
     for (var i = 0; i < names.length; i++) {
       final ability = 0.35 + 0.6 * (names.length - i) / names.length;

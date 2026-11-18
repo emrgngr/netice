@@ -8,6 +8,7 @@ import 'package:printing/printing.dart';
 import '../core/analysis.dart';
 import '../core/import_export.dart';
 import '../core/models.dart';
+import '../core/report.dart';
 import '../core/scoring.dart';
 import '../main.dart';
 import '../reports/pdf_documents.dart';
@@ -36,7 +37,13 @@ class ExamScreen extends StatelessWidget {
 
     Future<void> pdfReport() async {
       final bytes = await buildResultsPdf(exam: exam, results: results, students: store.studentById);
-      await Printing.sharePdf(bytes: bytes, filename: '${_safe(exam.name)}_sonuclar.pdf');
+      await Printing.sharePdf(bytes: bytes, filename: '${_safe(exam.name)}_sinav_raporu.pdf');
+    }
+
+    Future<void> studentCards() async {
+      if (results.isEmpty) return toast(context, 'Karne için önce kâğıt okutun.');
+      final bytes = await buildStudentCardsPdf(exam: exam, results: results, students: store.studentById);
+      await Printing.sharePdf(bytes: bytes, filename: '${_safe(exam.name)}_ogrenci_karneleri.pdf');
     }
 
     Future<void> excel() async {
@@ -50,7 +57,8 @@ class ExamScreen extends StatelessWidget {
 
     final actions = [
       _Action(Icons.print_outlined, 'Form yazdır', printForms),
-      _Action(Icons.picture_as_pdf_outlined, 'PDF rapor', pdfReport),
+      _Action(Icons.picture_as_pdf_outlined, 'Sınav raporu', pdfReport),
+      _Action(Icons.badge_outlined, 'Öğrenci karneleri', studentCards),
       _Action(Icons.table_view_outlined, 'Excel', excel),
     ];
 
@@ -94,7 +102,7 @@ class ExamScreen extends StatelessWidget {
         ),
         body: TabBarView(children: [
           _ResultsTab(exam: exam, results: results),
-          _AnalysisTab(exam: exam, results: results),
+          _AnalysisTab(exam: exam, results: results, reports: actions.skip(1).toList()),
           SafeArea(top: false, child: ReviewList(exam: exam)),
         ]),
       ),
@@ -281,17 +289,22 @@ class _Histogram extends StatelessWidget {
 class _AnalysisTab extends StatelessWidget {
   final Exam exam;
   final List<Result> results;
-  const _AnalysisTab({required this.exam, required this.results});
+  final List<_Action> reports;
+  const _AnalysisTab({required this.exam, required this.results, required this.reports});
 
   @override
   Widget build(BuildContext context) {
     if (results.isEmpty) return const Center(child: Text('Analiz için önce kâğıt okutun.'));
-    final items = Analysis.itemStats(exam, results);
+    final rep = ExamReport.build(exam, results);
+    final s = rep.stats;
+    final items = rep.items;
     final worst = [...items.where((i) => !exam.questions[i.no - 1].cancelled)]..sort((a, b) => a.p.compareTo(b.p));
     final t = Theme.of(context);
+    final muted = t.colorScheme.onSurface.withValues(alpha: 0.6);
 
     Widget itemCard(ItemStats it) {
       final warn = it.suspiciousChoice != null;
+      final code = exam.questions[it.no - 1].outcomeCode;
       return Card(
         child: Padding(
           padding: const EdgeInsets.all(14),
@@ -311,6 +324,7 @@ class _AnalysisTab extends StatelessWidget {
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text('Doğru oranı %${(it.p * 100).round()} · ${it.difficultyLabel}',
                     style: const TextStyle(fontWeight: FontWeight.w600)),
+                if (code != null && code.isNotEmpty) Text(code, style: t.textTheme.bodySmall?.copyWith(color: muted)),
                 const SizedBox(height: 2),
                 Text(
                   warn
@@ -342,10 +356,216 @@ class _AnalysisTab extends StatelessWidget {
       );
     }
 
+    final kr = s.kr20;
+    final stats = <StatCard>[
+      StatCard(label: 'Ortalama', value: fmt1(s.mean), hint: 'Medyan ${fmt1(s.median)}', icon: Icons.functions),
+      StatCard(
+          label: 'Başarı oranı',
+          value: '%${(rep.passRate * 100).round()}',
+          hint: 'Yarım puan ve üzeri',
+          icon: Icons.emoji_events_outlined),
+      StatCard(label: 'En yüksek', value: fmt1(s.max), hint: 'En düşük ${fmt1(s.min)}', icon: Icons.trending_up),
+      StatCard(
+          label: 'Std. sapma',
+          value: fmt1(s.stdDev),
+          hint: rep.cv == null ? null : 'Değişim %${rep.cv!.round()}',
+          icon: Icons.stacked_line_chart),
+      StatCard(
+          label: 'Çeyrekler',
+          value: '${fmt1(rep.q1)}–${fmt1(rep.q3)}',
+          hint: 'Ortadaki yarı',
+          icon: Icons.align_horizontal_center),
+      StatCard(
+          label: 'Ortalama net',
+          value: fmt2(rep.meanNet),
+          hint: '${fmt1(rep.meanCorrect)} D · ${fmt1(rep.meanWrong)} Y · ${fmt1(rep.meanBlank)} B',
+          icon: Icons.check_circle_outline),
+      StatCard(
+          label: 'Güvenirlik',
+          value: kr == null ? '–' : fmt2(kr),
+          hint: kr == null
+              ? 'KR-20 hesaplanamadı'
+              : kr >= 0.8
+                  ? 'KR-20 · yüksek'
+                  : kr >= 0.7
+                      ? 'KR-20 · kabul edilebilir'
+                      : 'KR-20 · düşük',
+          accent: kr != null && kr < 0.7 ? NColors.amber : null,
+          icon: Icons.verified_outlined),
+      StatCard(
+          label: 'Ölçme hatası',
+          value: rep.sem == null ? '–' : '±${fmt1(rep.sem!)}',
+          hint: 'SEM, puan',
+          icon: Icons.blur_on),
+      StatCard(label: 'Güçlük (p)', value: fmt2(rep.meanP), hint: 'Doğru oranı', icon: Icons.speed),
+      StatCard(label: 'Ayırt edicilik', value: fmt2(rep.meanD), hint: 'Üst − alt grup', icon: Icons.compare_arrows),
+      StatCard(label: 'Üst %27 ort.', value: fmt1(rep.upperMean), accent: NColors.emerald, icon: Icons.north_east),
+      StatCard(label: 'Alt %27 ort.', value: fmt1(rep.lowerMean), accent: NColors.coral, icon: Icons.south_east),
+    ];
+
+    const levelColors = [NColors.emerald, Color(0xFF34D399), NColors.amber, Color(0xFFF59E0B), NColors.coral];
+
     return ListView(padding: const EdgeInsets.fromLTRB(20, 12, 20, 100), children: [
+      HeroPanel(
+        padding: const EdgeInsets.all(18),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          const Text('RAPOR AL',
+              style: TextStyle(color: Colors.white60, fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 1)),
+          const SizedBox(height: 4),
+          const Text('Grafikli sınav raporu, öğrenci karneleri ve Excel listesi',
+              style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700)),
+          const SizedBox(height: 12),
+          Wrap(spacing: 8, runSpacing: 8, children: [
+            for (final a in reports)
+              FilledButton.icon(
+                style: FilledButton.styleFrom(minimumSize: const Size(0, 44)),
+                onPressed: a.run,
+                icon: Icon(a.icon, size: 20),
+                label: Text(a.label),
+              ),
+          ]),
+        ]),
+      ),
+      const SectionTitle('Genel istatistikler'),
+      GridView(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: 240, mainAxisExtent: 124, crossAxisSpacing: 12, mainAxisSpacing: 12),
+        children: stats,
+      ),
+      const SectionTitle('Otomatik değerlendirme'),
+      Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            for (final c in rep.comments)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  const Padding(
+                    padding: EdgeInsets.only(top: 2, right: 10),
+                    child: Icon(Icons.auto_awesome, size: 16, color: NColors.emerald),
+                  ),
+                  Expanded(child: Text(c)),
+                ]),
+              ),
+          ]),
+        ),
+      ),
+      const SectionTitle('Başarı düzeyleri'),
+      Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(children: [
+            for (var i = 0; i < Level.all.length; i++)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 5),
+                child: Row(children: [
+                  SizedBox(
+                    width: 104,
+                    child: Text('${Level.all[i].name} (${Level.all[i].minPct.round()}+)',
+                        style: const TextStyle(fontWeight: FontWeight.w600)),
+                  ),
+                  Expanded(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: LinearProgressIndicator(
+                        value: s.count == 0 ? 0 : rep.levelCounts[i] / s.count,
+                        minHeight: 12,
+                        color: levelColors[i],
+                        backgroundColor: t.colorScheme.surfaceContainerHighest,
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 40,
+                    child: Text('${rep.levelCounts[i]}',
+                        textAlign: TextAlign.right,
+                        style: const TextStyle(fontWeight: FontWeight.w800, fontFeatures: tabular)),
+                  ),
+                ]),
+              ),
+          ]),
+        ),
+      ),
+      const SectionTitle('Soru güçlük grafiği'),
+      Card(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 16, 12, 12),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            _DifficultyChart(exam: exam, items: items),
+            const SizedBox(height: 8),
+            Text('Çubuk: doğru oranı · yeşil kolay, lacivert orta, mercan zor',
+                style: t.textTheme.bodySmall?.copyWith(color: muted)),
+          ]),
+        ),
+      ),
+      const SectionTitle('Soru kalitesi'),
+      Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('Güçlük', style: t.textTheme.labelLarge?.copyWith(color: muted)),
+            const SizedBox(height: 6),
+            Wrap(spacing: 8, runSpacing: 8, children: [
+              for (final e in rep.difficultyCounts.entries) Chip(label: Text('${e.key}: ${e.value}')),
+            ]),
+            const SizedBox(height: 12),
+            Text('Ayırt edicilik', style: t.textTheme.labelLarge?.copyWith(color: muted)),
+            const SizedBox(height: 6),
+            Wrap(spacing: 8, runSpacing: 8, children: [
+              for (final e in rep.discriminationCounts.entries) Chip(label: Text('${e.key}: ${e.value}')),
+            ]),
+          ]),
+        ),
+      ),
+      SectionTitle('Kazanım / konu analizi',
+          trailing: TextButton.icon(
+            onPressed: () => _editOutcomes(context),
+            icon: const Icon(Icons.edit_outlined, size: 18),
+            label: const Text('Düzenle'),
+          )),
+      Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: rep.outcomes.isEmpty
+              ? Text('Soruları konulara bağlarsanız her konunun başarısı burada ve raporda görünür. "Düzenle"ye dokunun.',
+                  style: TextStyle(color: muted))
+              : Column(children: [
+                  for (final o in [...rep.outcomes]..sort((a, b) => a.rate.compareTo(b.rate)))
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Row(children: [
+                          Expanded(
+                              child: Text('${o.code}  ·  ${o.questionNos.length} soru',
+                                  style: const TextStyle(fontWeight: FontWeight.w600))),
+                          Text('%${(o.rate * 100).round()}',
+                              style: const TextStyle(fontWeight: FontWeight.w800, fontFeatures: tabular)),
+                        ]),
+                        const SizedBox(height: 6),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(6),
+                          child: LinearProgressIndicator(
+                            value: o.rate,
+                            minHeight: 10,
+                            color: o.rate >= 0.7
+                                ? NColors.emerald
+                                : o.rate >= 0.5
+                                    ? NColors.amber
+                                    : NColors.coral,
+                            backgroundColor: t.colorScheme.surfaceContainerHighest,
+                          ),
+                        ),
+                      ]),
+                    ),
+                ]),
+        ),
+      ),
       if (results.length < Analysis.reliableGroupSize)
         Padding(
-          padding: const EdgeInsets.only(top: 8),
+          padding: const EdgeInsets.only(top: 12),
           child: Text('${results.length} öğrenci ile madde istatistikleri güvenilir değildir; yol gösterici olarak okuyun.',
               style: t.textTheme.bodySmall?.copyWith(color: NColors.amber)),
         ),
@@ -354,6 +574,41 @@ class _AnalysisTab extends StatelessWidget {
       const SectionTitle('Tüm sorular'),
       for (final it in items) Padding(padding: const EdgeInsets.only(bottom: 10), child: itemCard(it)),
     ]);
+  }
+
+  Future<void> _editOutcomes(BuildContext context) async {
+    final store = StoreScope.of(context);
+    final ctrl = TextEditingController(text: formatOutcomeRanges(exam));
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Kazanımlar / konular'),
+        content: SizedBox(
+          width: 420,
+          child: TextField(
+            controller: ctrl,
+            autofocus: true,
+            minLines: 4,
+            maxLines: 10,
+            decoration: const InputDecoration(
+              hintText: '1-5 Hareket\n6-10 Kuvvet',
+              helperText: 'Her satıra soru aralığı ve konu adı yazın.',
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Vazgeç')),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Kaydet')),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    final m = parseOutcomeRanges(ctrl.text, exam.questionCount);
+    store.upsertExam(exam.copyWith(questions: [
+      for (final q in exam.questions)
+        Question(no: q.no, correct: q.correct, points: q.points, cancelled: q.cancelled, outcomeCode: m[q.no]),
+    ]));
+    if (context.mounted) toast(context, 'Kazanımlar kaydedildi.');
   }
 
   void _cancelQuestion(BuildContext context, int no) {
@@ -376,4 +631,58 @@ class _HeroStat extends StatelessWidget {
             style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800, fontFeatures: tabular)),
         Text(label, style: const TextStyle(color: Colors.white60, fontSize: 12)),
       ]);
+}
+
+class _DifficultyChart extends StatelessWidget {
+  final Exam exam;
+  final List<ItemStats> items;
+  const _DifficultyChart({required this.exam, required this.items});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context);
+    const barW = 22.0;
+    Widget bar(ItemStats it) {
+      final cancelled = exam.questions[it.no - 1].cancelled;
+      final p = cancelled ? 0.0 : it.p;
+      final color = cancelled
+          ? NColors.gray
+          : p > 0.8
+              ? NColors.emerald
+              : p >= 0.3
+                  ? (t.brightness == Brightness.dark ? const Color(0xFF6C7BB5) : NColors.ink)
+                  : NColors.coral;
+      return Tooltip(
+        message: cancelled ? '${it.no}. soru iptal' : '${it.no}. soru: %${(p * 100).round()} doğru',
+        child: SizedBox(
+          width: barW + 6,
+          child: Column(mainAxisAlignment: MainAxisAlignment.end, children: [
+            Text('${(p * 100).round()}', style: t.textTheme.labelSmall?.copyWith(fontSize: 9, fontFeatures: tabular)),
+            const SizedBox(height: 2),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              width: barW,
+              height: 100 * p + 2,
+              decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(6)),
+            ),
+            const SizedBox(height: 4),
+            Text('${it.no}', style: t.textTheme.labelSmall?.copyWith(fontFeatures: tabular)),
+          ]),
+        ),
+      );
+    }
+
+    return SizedBox(
+      height: 140,
+      child: LayoutBuilder(builder: (context, c) {
+        final fits = items.length * (barW + 6) <= c.maxWidth;
+        final row = Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisAlignment: fits ? MainAxisAlignment.spaceBetween : MainAxisAlignment.start,
+          children: [for (final it in items) bar(it)],
+        );
+        return fits ? row : SingleChildScrollView(scrollDirection: Axis.horizontal, child: row);
+      }),
+    );
+  }
 }

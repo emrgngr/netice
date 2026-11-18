@@ -74,13 +74,13 @@ class Question {
     this.outcomeCode,
   });
 
-  Question copyWith({Set<int>? correct, double? points, bool? cancelled}) =>
+  Question copyWith({Set<int>? correct, double? points, bool? cancelled, String? outcomeCode}) =>
       Question(
         no: no,
         correct: correct ?? this.correct,
         points: points ?? this.points,
         cancelled: cancelled ?? this.cancelled,
-        outcomeCode: outcomeCode,
+        outcomeCode: outcomeCode ?? this.outcomeCode,
       );
 
   Map<String, dynamic> toJson() => {

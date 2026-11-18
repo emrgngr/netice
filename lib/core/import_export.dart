@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:csv/csv.dart';
 
 import 'models.dart';
+import 'report.dart';
 import 'scoring.dart';
 
 /// Öğrenci listesi içe aktarma (CSV / Excel'den "CSV olarak kaydet").
@@ -85,17 +86,19 @@ class StudentImport {
 
 /// Excel'in doğrudan açabildiği not listesi (UTF-8 BOM + noktalı virgül).
 String resultsCsv(Exam exam, List<Result> results, Map<String, Student> students) {
-  final sorted = [...results]..sort((a, b) => b.score.compareTo(a.score));
+  final report = ExamReport.build(exam, results);
   String n(double v) => v.toStringAsFixed(2).replaceAll('.', ',');
   final rows = <List<String>>[
-    ['Sıra', 'Okul no', 'Ad', 'Soyad', 'Sınıf', 'Doğru', 'Yanlış', 'Boş', 'Net', 'Puan',
+    ['Sıra', 'Okul no', 'Ad', 'Soyad', 'Sınıf', 'Doğru', 'Yanlış', 'Boş', 'Net', 'Puan', 'Başarı %', 'Yüzdelik',
+      'T puanı', 'Düzey',
+      for (final o in report.outcomes) 'Kazanım: ${o.code} %',
       for (final q in exam.questions) 'S${q.no}'],
-    for (var i = 0; i < sorted.length; i++)
+    for (final st in report.standings)
       () {
-        final r = sorted[i];
+        final r = st.result;
         final s = students[r.sheet.studentId];
         return [
-          '${i + 1}',
+          '${st.rank}',
           s?.number ?? '',
           s?.firstName ?? 'Eşleşmedi',
           s?.lastName ?? '',
@@ -105,12 +108,26 @@ String resultsCsv(Exam exam, List<Result> results, Map<String, Student> students
           '${r.blank}',
           n(r.net),
           n(r.score),
+          n(st.pct),
+          n(st.percentile),
+          n(st.t),
+          st.level.name,
+          for (final o in report.outcomes) n(o.rateOf(exam, r) * 100),
           for (final a in r.sheet.answers)
             a.marked.isEmpty ? '' : a.marked.map((c) => String.fromCharCode(65 + c)).join('/'),
         ];
       }(),
+    [],
+    ['Sınıf ortalaması', '', '', '', '', n(report.meanCorrect), n(report.meanWrong), n(report.meanBlank),
+      n(report.meanNet), n(report.stats.mean)],
+    ['Doğru oranı (p)', '', '', '', '', '', '', '', '', '', '', '', '', '',
+      for (final o in report.outcomes) n(o.rate * 100),
+      for (final it in report.items) n(it.p)],
+    ['Ayırt edicilik (D)', '', '', '', '', '', '', '', '', '', '', '', '', '',
+      for (final _ in report.outcomes) '',
+      for (final it in report.items) n(it.d)],
   ];
-  return '﻿${Csv(fieldDelimiter: ';', lineDelimiter: '\r\n').encode(rows)}';
+  return '\uFEFF${Csv(fieldDelimiter: ';', lineDelimiter: '\r\n').encode(rows)}';
 }
 
 List<int> utf8Bytes(String s) => utf8.encode(s);
