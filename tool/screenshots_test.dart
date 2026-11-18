@@ -37,6 +37,8 @@ Future<void> shot(WidgetTester tester, Widget app, Size size, String name, {Futu
   // Android'in alt gezinme çubuğu gibi bir sistem boşluğu.
   tester.view.padding = size.width < 600 ? const FakeViewPadding(top: 48, bottom: 96) : FakeViewPadding.zero;
   tester.view.viewPadding = tester.view.padding;
+  // Önceki ekrandan kalan açık pencereler (alt sayfa vb.) temizlensin.
+  await tester.pumpWidget(const SizedBox());
   await tester.pumpWidget(RepaintBoundary(key: const ValueKey('shot'), child: app));
   await tester.pumpAndSettle();
   await tester.runAsync(() async {

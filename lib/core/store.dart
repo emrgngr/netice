@@ -66,10 +66,11 @@ class AppStore extends ChangeNotifier {
 
   /// Kayıtlar sırayla yazılır; üst üste gelen iki kayıt aynı geçici dosyayı
   /// paylaşıp birbirini bozmasın.
-  Future<void> _saving = Future.value();
+  Future<void>? _saving;
 
   Future<void> save() {
-    final next = _saving.catchError((_) {}).then((_) => _write());
+    final prev = _saving;
+    final next = prev == null ? _write() : prev.catchError((_) {}).then((_) => _write());
     _saving = next;
     return next;
   }
