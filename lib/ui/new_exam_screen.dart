@@ -111,7 +111,7 @@ class _NewExamScreenState extends State<NewExamScreen> {
           ),
         ),
       ),
-      body: Center(
+      body: Watermark(child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 720),
           child: ListView(padding: const EdgeInsets.all(20), children: [
@@ -222,7 +222,7 @@ class _NewExamScreenState extends State<NewExamScreen> {
             const SizedBox(height: 12),
           ]),
         ),
-      ),
+      )),
     );
   }
 }

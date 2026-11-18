@@ -100,11 +100,11 @@ class ExamScreen extends StatelessWidget {
           icon: const Icon(Icons.document_scanner_outlined),
           label: const Text('Okut', style: TextStyle(fontWeight: FontWeight.w700)),
         ),
-        body: TabBarView(children: [
+        body: Watermark(child: TabBarView(children: [
           _ResultsTab(exam: exam, results: results),
           _AnalysisTab(exam: exam, results: results, reports: actions.skip(1).toList()),
           SafeArea(top: false, child: ReviewList(exam: exam)),
-        ]),
+        ])),
       ),
     );
   }

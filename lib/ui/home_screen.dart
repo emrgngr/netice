@@ -49,12 +49,12 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           VerticalDivider(width: 1, color: Theme.of(context).colorScheme.outlineVariant),
-          Expanded(child: body),
+          Expanded(child: Watermark(child: body)),
         ]),
       );
     }
     return Scaffold(
-      body: body,
+      body: Watermark(child: body),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _tab,
         onDestinationSelected: (i) => setState(() => _tab = i),

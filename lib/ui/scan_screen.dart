@@ -131,7 +131,7 @@ class _ScanScreenState extends State<ScanScreen> {
               style: t.textTheme.bodySmall?.copyWith(color: Colors.white70)),
         ]),
       ),
-      body: SafeArea(
+      body: Watermark(child: SafeArea(
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 720),
@@ -241,7 +241,7 @@ class _ScanScreenState extends State<ScanScreen> {
             ]),
           ),
         ),
-      ),
+      )),
     );
   }
 }

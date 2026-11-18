@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../core/models.dart';
+import 'logo.dart';
 import 'theme.dart';
 
 /// Rakam önde: büyük, tabular rakamlı istatistik kartı.
@@ -287,4 +288,36 @@ class IconBadge extends StatelessWidget {
         decoration: BoxDecoration(color: color.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(size * 0.32)),
         child: Icon(icon, size: size * 0.55, color: color),
       );
+}
+
+/// Ekranların arka planındaki saydam logo filigranı. Kartların ve
+/// panellerin üzerinden çok hafifçe görünür; dokunmaları engellemez.
+class Watermark extends StatelessWidget {
+  final Widget child;
+  const Watermark({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return Stack(children: [
+      child,
+      Positioned.fill(
+        child: IgnorePointer(
+          child: LayoutBuilder(builder: (context, c) {
+            final side = (c.biggest.shortestSide * 0.8).clamp(160.0, 560.0);
+            return Align(
+              alignment: const Alignment(0, 0.35),
+              child: RepaintBoundary(
+                child: NeticeMark(
+                  size: side,
+                  outline: true,
+                  ink: (dark ? Colors.white : NColors.ink).withValues(alpha: dark ? 0.06 : 0.05),
+                ),
+              ),
+            );
+          }),
+        ),
+      ),
+    ]);
+  }
 }

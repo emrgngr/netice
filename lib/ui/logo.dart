@@ -11,7 +11,10 @@ class NeticeMark extends StatelessWidget {
   /// Küçük boyutlarda boş daireler kaldırılır.
   final bool showEmpty;
 
-  const NeticeMark({super.key, this.size = 40, this.ink, this.showEmpty = true});
+  /// Filigran için yalnızca çizgilerle (halka) çizer.
+  final bool outline;
+
+  const NeticeMark({super.key, this.size = 40, this.ink, this.showEmpty = true, this.outline = false});
 
   @override
   Widget build(BuildContext context) => SizedBox.square(
@@ -20,6 +23,7 @@ class NeticeMark extends StatelessWidget {
           painter: _MarkPainter(
             ink: ink ?? Theme.of(context).colorScheme.onSurface,
             showEmpty: showEmpty && size >= 32,
+            outline: outline,
           ),
         ),
       );
@@ -28,7 +32,8 @@ class NeticeMark extends StatelessWidget {
 class _MarkPainter extends CustomPainter {
   final Color ink;
   final bool showEmpty;
-  _MarkPainter({required this.ink, required this.showEmpty});
+  final bool outline;
+  _MarkPainter({required this.ink, required this.showEmpty, this.outline = false});
 
   // 1 = dolu, 0 = boş, 2 = onay.
   static const grid = [
@@ -38,8 +43,45 @@ class _MarkPainter extends CustomPainter {
     [1, 0, 0, 1],
   ];
 
+  void _paintOutline(Canvas canvas, Size s) {
+    final cell = s.width / 4;
+    final r = cell * 0.36;
+    final ring = Paint()
+      ..color = ink
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = cell * 0.06;
+    final dot = Paint()..color = ink;
+    for (var y = 0; y < 4; y++) {
+      for (var x = 0; x < 4; x++) {
+        final c = Offset(cell * (x + 0.5), cell * (y + 0.5));
+        switch (grid[y][x]) {
+          case 1:
+            canvas.drawCircle(c, r, ring);
+            canvas.drawCircle(c, r * 0.55, dot);
+          case 0:
+            canvas.drawCircle(c, r * 0.12, dot);
+          case 2:
+            canvas.drawCircle(c, r, ring);
+            canvas.drawPath(
+              Path()
+                ..moveTo(c.dx - r * 0.45, c.dy + r * 0.02)
+                ..lineTo(c.dx - r * 0.1, c.dy + r * 0.38)
+                ..lineTo(c.dx + r * 0.5, c.dy - r * 0.32),
+              Paint()
+                ..color = ink
+                ..style = PaintingStyle.stroke
+                ..strokeWidth = cell * 0.08
+                ..strokeCap = StrokeCap.round
+                ..strokeJoin = StrokeJoin.round,
+            );
+        }
+      }
+    }
+  }
+
   @override
   void paint(Canvas canvas, Size s) {
+    if (outline) return _paintOutline(canvas, s);
     final cell = s.width / 4;
     final r = cell * 0.36;
     final fill = Paint()..color = ink;
@@ -76,7 +118,7 @@ class _MarkPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_MarkPainter old) => old.ink != ink || old.showEmpty != showEmpty;
+  bool shouldRepaint(_MarkPainter old) => old.ink != ink || old.showEmpty != showEmpty || old.outline != outline;
 }
 
 /// Logo + "Netice" kelimesi.
