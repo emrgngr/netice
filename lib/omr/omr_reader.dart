@@ -22,7 +22,57 @@ class GrayImage {
   static GrayImage? decode(Uint8List bytes) {
     final im = img.decodeImage(bytes);
     if (im == null) return null;
-    return fromImage(im);
+    // Telefon fotoğraflarındaki EXIF yön bilgisini uygula.
+    return fromImage(img.bakeOrientation(im));
+  }
+
+  /// Saat yönünde [quarterTurns] × 90° döndürür.
+  GrayImage rotate(int quarterTurns) {
+    final q = quarterTurns % 4;
+    if (q == 0) return this;
+    final nw = q.isOdd ? height : width, nh = q.isOdd ? width : height;
+    final out = Uint8List(width * height);
+    for (var y = 0; y < height; y++) {
+      final row = y * width;
+      for (var x = 0; x < width; x++) {
+        int nx, ny;
+        switch (q) {
+          case 1:
+            nx = height - 1 - y;
+            ny = x;
+          case 2:
+            nx = width - 1 - x;
+            ny = height - 1 - y;
+          default:
+            nx = y;
+            ny = width - 1 - x;
+        }
+        out[ny * nw + nx] = data[row + x];
+      }
+    }
+    return GrayImage(nw, nh, out);
+  }
+
+  /// Kamera karesinin parlaklık (Y) düzleminden gri görüntü (satır dolgusunu atlar).
+  static GrayImage fromLumaPlane(Uint8List bytes, int width, int height, int bytesPerRow) {
+    if (bytesPerRow == width) return GrayImage(width, height, Uint8List.fromList(bytes.sublist(0, width * height)));
+    final out = Uint8List(width * height);
+    for (var y = 0; y < height; y++) {
+      out.setRange(y * width, (y + 1) * width, bytes, y * bytesPerRow);
+    }
+    return GrayImage(width, height, out);
+  }
+
+  /// iOS BGRA karesinden gri görüntü.
+  static GrayImage fromBgra(Uint8List bytes, int width, int height, int bytesPerRow) {
+    final out = Uint8List(width * height);
+    for (var y = 0; y < height; y++) {
+      var j = y * bytesPerRow;
+      for (var x = 0; x < width; x++, j += 4) {
+        out[y * width + x] = (bytes[j] * 114 + bytes[j + 1] * 587 + bytes[j + 2] * 299) ~/ 1000;
+      }
+    }
+    return GrayImage(width, height, out);
   }
 
   static GrayImage fromImage(img.Image im) {
@@ -92,7 +142,7 @@ class OmrReader {
   OmrReader(this.layout, {this.thresholds = const OmrThresholds()});
 
   OmrResult read(GrayImage image) {
-    final markers = findMarkers(image);
+    final markers = _orient(image, findMarkers(image));
     final hom = Homography.fromPoints(FormLayout.markerCenters, markers);
 
     // Siyah referansı: köşe işaretlerinin iç kısmı.
@@ -141,6 +191,49 @@ class OmrReader {
       markers: markers,
     );
   }
+
+  /// Kâğıt yan ya da ters çekildiyse köşe sırasını düzeltir: dört olası
+  /// yönün her birinde basılı daire çemberlerinin gerçekten beklenen yerde
+  /// olup olmadığına bakılır ve en tutarlı yön seçilir.
+  List<Pt> _orient(GrayImage image, List<Pt> m) {
+    var best = m;
+    var bestScore = double.negativeInfinity;
+    for (var k = 0; k < 4; k++) {
+      final cand = [for (var i = 0; i < 4; i++) m[(i + k) % 4]];
+      final hom = Homography.fromPoints(FormLayout.markerCenters, cand);
+      final score = _ringScore(image, hom);
+      if (score > bestScore) {
+        bestScore = score;
+        best = cand;
+      }
+    }
+    return best;
+  }
+
+  /// Daire çemberi üzerindeki noktalar, daireler arasındaki boşluktan ne kadar koyu?
+  double _ringScore(GrayImage image, Homography hom) {
+    var ring = 0.0, gap = 0.0;
+    var n = 0;
+    final pts = <Pt>[
+      for (var q = 0; q < math.min(layout.questionCount, 12); q++) layout.answerBubble(q, 1),
+      for (var d = 0; d < FormLayout.studentDigits; d++) layout.studentBubble(d, 5),
+    ];
+    for (final c in pts) {
+      for (var a = 0; a < 12; a++) {
+        final ang = a * math.pi / 6;
+        final r = FormLayout.bubbleRadius;
+        final pr = hom.map(Pt(c.x + r * math.cos(ang), c.y + r * math.sin(ang)));
+        final pg = hom.map(Pt(c.x + r * 1.33 * math.cos(ang), c.y + r * 1.33 * math.sin(ang)));
+        if (!_inside(image, pr) || !_inside(image, pg)) return double.negativeInfinity;
+        ring += image.at(pr.x.round(), pr.y.round());
+        gap += image.at(pg.x.round(), pg.y.round());
+        n++;
+      }
+    }
+    return n == 0 ? double.negativeInfinity : (gap - ring) / n;
+  }
+
+  static bool _inside(GrayImage im, Pt p) => p.x >= 0 && p.y >= 0 && p.x < im.width - 0.5 && p.y < im.height - 0.5;
 
   /// Bir sorunun doluluk değerlerinden kararı verir.
   Answer classify(FillValues fills) {

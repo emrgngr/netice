@@ -6,7 +6,7 @@ import '../main.dart';
 import 'exam_screen.dart';
 import 'logo.dart';
 import 'new_exam_screen.dart';
-import 'scan_screen.dart';
+import 'camera_scan_screen.dart';
 import 'students_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
@@ -98,7 +98,7 @@ class _Dashboard extends StatelessWidget {
       );
     }
     if (exam != null && context.mounted) {
-      Navigator.of(context).push(MaterialPageRoute(builder: (_) => ScanScreen(examId: exam!.id)));
+      Navigator.of(context).push(scanRoute(exam.id));
     }
   }
 

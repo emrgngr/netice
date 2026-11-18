@@ -12,7 +12,7 @@ import '../core/scoring.dart';
 import '../main.dart';
 import '../reports/pdf_documents.dart';
 import 'review_screen.dart';
-import 'scan_screen.dart';
+import 'camera_scan_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
 
@@ -88,7 +88,7 @@ class ExamScreen extends StatelessWidget {
         floatingActionButton: FloatingActionButton.extended(
           backgroundColor: NColors.emerald,
           foregroundColor: NColors.ink,
-          onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => ScanScreen(examId: exam.id))),
+          onPressed: () => Navigator.of(context).push(scanRoute(exam.id)),
           icon: const Icon(Icons.document_scanner_outlined),
           label: const Text('Okut', style: TextStyle(fontWeight: FontWeight.w700)),
         ),

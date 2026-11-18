@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
@@ -109,5 +110,29 @@ void main() {
     img.fill(blank, color: img.ColorRgb8(240, 240, 240));
     expect(() => reader.read(GrayImage.fromImage(blank)),
         throwsA(isA<OmrException>()));
+  });
+
+  test('yan ya da ters çekilmiş fotoğraf da doğru yönde okunur', () {
+    final form = raster.render(answers: pattern(), studentNumber: '104263');
+    final gray = GrayImage.fromImage(form);
+    for (final turns in [1, 2, 3]) {
+      final r = reader.read(gray.rotate(turns));
+      expect(r.studentNumber, '104263', reason: '$turns çeyrek tur');
+      expect(r.questions[1].answer.marked, {3}, reason: '$turns çeyrek tur');
+    }
+  });
+
+  test('kamera karesi: satır dolgulu Y düzlemi ve döndürme', () {
+    final form = raster.render(answers: pattern(), studentNumber: '000917');
+    final gray = GrayImage.fromImage(form).rotate(3); // sensör yatay
+    const pad = 64;
+    final stride = gray.width + pad;
+    final plane = Uint8List(stride * gray.height);
+    for (var y = 0; y < gray.height; y++) {
+      plane.setRange(y * stride, y * stride + gray.width, gray.data, y * gray.width);
+    }
+    final frame = GrayImage.fromLumaPlane(plane, gray.width, gray.height, stride).rotate(1);
+    final r = reader.read(frame);
+    expect(r.studentNumber, '000917');
   });
 }
