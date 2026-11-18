@@ -29,7 +29,7 @@ void main() {
               home: const Scaffold(body: Padding(padding: EdgeInsets.all(16), child: Align(alignment: Alignment.topCenter, child: PromoCard()))),
             ),
           ),
-          Size(390, 190),
+          Size(390, name.endsWith('urun') ? 300 : 190),
           name);
     }
   });
