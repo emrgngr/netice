@@ -710,6 +710,9 @@ Future<Uint8List> buildStudentCardsPdf({
   required List<Result> results,
   required Map<String, Student> students,
   String institution = '',
+
+  /// Verilirse yalnızca bu öğrencinin karnesi (istatistikler yine tüm sınıftan).
+  String? onlyStudentId,
 }) async {
   final fonts = await _Fonts.load();
   final r = ExamReport.build(exam, results);
@@ -739,7 +742,7 @@ Future<Uint8List> buildStudentCardsPdf({
     ),
   );
 
-  for (final st in r.standings) {
+  for (final st in r.standings.where((x) => onlyStudentId == null || x.result.sheet.studentId == onlyStudentId)) {
     final res = st.result;
     final stu = students[res.sheet.studentId];
     final wrongs = [

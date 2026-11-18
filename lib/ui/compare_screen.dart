@@ -1,9 +1,9 @@
-import 'package:printing/printing.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../core/progress.dart';
 import '../main.dart';
 import '../reports/pdf_documents.dart';
+import 'report_preview_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
 
@@ -43,8 +43,8 @@ class _CompareScreenState extends State<CompareScreen> {
 
     Future<void> pdf() async {
       if (rows.length < 2) return toast(context, 'Karşılaştırmak için en az iki sınav seçin.');
-      final bytes = await buildComparePdf(rows);
-      await Printing.sharePdf(bytes: bytes, filename: 'sube_karsilastirmasi.pdf');
+      await ReportPreviewScreen.open(context,
+          title: 'Şube karşılaştırması', fileName: 'sube_karsilastirmasi.pdf', build: () => buildComparePdf(rows));
     }
 
     return Scaffold(

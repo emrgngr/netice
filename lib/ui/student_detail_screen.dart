@@ -104,11 +104,18 @@ class StudentDetailScreen extends StatelessWidget {
                     title: Text(e.exam.name, style: const TextStyle(fontWeight: FontWeight.w600)),
                     subtitle: Text('${dmy(e.exam.date)} · Sıra ${e.standing.rank}/${e.classSize} · '
                         'Sınıf ort. ${fmt1(e.classMean)} · ${e.standing.level.name}'),
-                    trailing: Text(fmt1(e.standing.result.score),
-                        style: t.textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w800,
-                            fontFeatures: tabular,
-                            color: e.passed ? null : NColors.coral)),
+                    trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                      Text(fmt1(e.standing.result.score),
+                          style: t.textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              fontFeatures: tabular,
+                              color: e.passed ? null : NColors.coral)),
+                      IconButton(
+                        tooltip: 'Karneyi önizle',
+                        icon: const Icon(Icons.badge_outlined),
+                        onPressed: () => openCardsPreview(context, e.exam, studentId: s.id),
+                      ),
+                    ]),
                     onTap: () => Navigator.of(context)
                         .push(MaterialPageRoute(builder: (_) => ExamScreen(examId: e.exam.id))),
                   ),

@@ -3,7 +3,6 @@ import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:printing/printing.dart';
 
 import '../core/analysis.dart';
 import '../core/import_export.dart';
@@ -15,6 +14,7 @@ import '../reports/pdf_documents.dart';
 import 'review_screen.dart';
 import 'camera_scan_screen.dart';
 import 'exam_settings_screen.dart';
+import 'report_preview_screen.dart';
 import 'student_detail_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
@@ -33,19 +33,23 @@ class ExamScreen extends StatelessWidget {
     final wide = MediaQuery.sizeOf(context).width >= 900;
 
     Future<void> printForms() async {
-      final bytes = await buildFormsPdf(exam, store.studentsOf(exam.className));
-      await Printing.sharePdf(bytes: bytes, filename: '${_safe(exam.name)}_optik_form.pdf');
+      await ReportPreviewScreen.open(context,
+          title: 'Optik formlar',
+          fileName: '${_safe(exam.name)}_optik_form.pdf',
+          build: () => buildFormsPdf(exam, store.studentsOf(exam.className)));
     }
 
     Future<void> pdfReport() async {
-      final bytes = await buildResultsPdf(exam: exam, results: results, students: store.studentById);
-      await Printing.sharePdf(bytes: bytes, filename: '${_safe(exam.name)}_sinav_raporu.pdf');
+      if (results.isEmpty) return toast(context, 'Rapor için önce kâğıt okutun.');
+      await ReportPreviewScreen.open(context,
+          title: 'Sınav raporu',
+          fileName: '${_safe(exam.name)}_sinav_raporu.pdf',
+          build: () => buildResultsPdf(exam: exam, results: results, students: store.studentById));
     }
 
     Future<void> studentCards() async {
       if (results.isEmpty) return toast(context, 'Karne için önce kâğıt okutun.');
-      final bytes = await buildStudentCardsPdf(exam: exam, results: results, students: store.studentById);
-      await Printing.sharePdf(bytes: bytes, filename: '${_safe(exam.name)}_ogrenci_karneleri.pdf');
+      await openCardsPreview(context, exam);
     }
 
     Future<void> excel() async {
@@ -78,8 +82,11 @@ class ExamScreen extends StatelessWidget {
         ),
       );
       if (choice == 'pdf') {
-        final bytes = await buildEokulPdf(exam: exam, results: results, classStudents: cls);
-        await Printing.sharePdf(bytes: bytes, filename: '${_safe(exam.name)}_eokul.pdf');
+        if (!context.mounted) return;
+        await ReportPreviewScreen.open(context,
+            title: 'e-Okul listesi',
+            fileName: '${_safe(exam.name)}_eokul.pdf',
+            build: () => buildEokulPdf(exam: exam, results: results, classStudents: cls));
       } else if (choice == 'xls') {
         await FilePicker.saveFile(
           fileName: '${_safe(exam.name)}_eokul.csv',
@@ -91,14 +98,16 @@ class ExamScreen extends StatelessWidget {
 
     Future<void> labels() async {
       if (results.isEmpty) return toast(context, 'Etiket için önce kâğıt okutun.');
-      final bytes = await buildLabelsPdf(exam: exam, results: results, students: store.studentById);
-      await Printing.sharePdf(bytes: bytes, filename: '${_safe(exam.name)}_etiketler.pdf');
+      await ReportPreviewScreen.open(context,
+          title: 'Sonuç etiketleri',
+          fileName: '${_safe(exam.name)}_etiketler.pdf',
+          build: () => buildLabelsPdf(exam: exam, results: results, students: store.studentById));
     }
 
     final actions = [
       _Action(Icons.print_outlined, 'Form yazdır', printForms),
       _Action(Icons.picture_as_pdf_outlined, 'Sınav raporu', pdfReport),
-      _Action(Icons.badge_outlined, 'Öğrenci karneleri', studentCards),
+      _Action(Icons.badge_outlined, 'Öğrenci karnesi', studentCards),
       _Action(Icons.table_view_outlined, 'Excel', excel),
       _Action(Icons.school_outlined, 'e-Okul listesi', eokul),
       _Action(Icons.label_outline, 'Sonuç etiketi', labels),
@@ -274,6 +283,18 @@ void showSheetDetail(BuildContext context, Exam exam, Result r) {
                 },
                 icon: const Icon(Icons.timeline, size: 18),
                 label: const Text('Öğrenci geçmişi ve gelişimi'),
+              ),
+            ),
+          if (st != null)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  openCardsPreview(context, exam, studentId: st.id);
+                },
+                icon: const Icon(Icons.badge_outlined, size: 18),
+                label: const Text('Karneyi önizle'),
               ),
             ),
           const SizedBox(height: 12),
@@ -822,4 +843,24 @@ class _Heatmap extends StatelessWidget {
       ]),
     ]);
   }
+}
+
+/// Öğrenci karnesi önizlemesini açar; [studentId] verilirse o öğrenciyle başlar.
+Future<void> openCardsPreview(BuildContext context, Exam exam, {String? studentId}) {
+  final store = StoreScope.of(context);
+  final results = store.resultsOf(exam);
+  final byId = store.studentById;
+  final students = [
+    for (final r in results)
+      if (byId[r.sheet.studentId] != null) (byId[r.sheet.studentId]!.id, byId[r.sheet.studentId]!.fullName),
+  ]..sort((a, b) => a.$2.compareTo(b.$2));
+  return Navigator.of(context).push(MaterialPageRoute(
+    builder: (_) => StudentCardsPreview(
+      title: 'Öğrenci karnesi',
+      baseFileName: '${_safe(exam.name)}_karne',
+      students: students,
+      initialStudentId: studentId,
+      build: (id) => buildStudentCardsPdf(exam: exam, results: results, students: byId, onlyStudentId: id),
+    ),
+  ));
 }
