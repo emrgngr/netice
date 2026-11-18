@@ -170,7 +170,9 @@ class _Dashboard extends StatelessWidget {
             icon: const Icon(Icons.add_rounded),
           ),
         ]),
-        const SizedBox(height: 22),
+        const SizedBox(height: 16),
+        const LiveClock(onDark: true),
+        const SizedBox(height: 18),
         Text('Kâğıttan sonuca, saniyeler içinde.',
             style: TextStyle(color: Colors.white.withValues(alpha: 0.92), fontSize: 18, fontWeight: FontWeight.w700)),
         const SizedBox(height: 4),
@@ -197,6 +199,8 @@ class _Dashboard extends StatelessWidget {
                   Text('Pano', style: t.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800, letterSpacing: -0.5)),
                 ]),
                 const Spacer(),
+                const LiveClock(),
+                const SizedBox(width: 16),
                 OutlinedButton.icon(
                   onPressed: () => _startScan(context),
                   icon: const Icon(Icons.upload_file),
@@ -271,7 +275,7 @@ class _Dashboard extends StatelessWidget {
                         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                           Text(e.name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
                           const SizedBox(height: 3),
-                          Text('${e.date.day}.${e.date.month}.${e.date.year} · ${e.questionCount} soru · '
+                          Text('${dmy(e.date)} ${hm(e.date)} · ${e.questionCount} soru · '
                               '${rs.length}${total > 0 ? '/$total' : ''} okundu',
                               style: t.textTheme.bodySmall?.copyWith(color: t.colorScheme.onSurface.withValues(alpha: 0.6))),
                           if (review > 0) ...[

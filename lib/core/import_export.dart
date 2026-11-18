@@ -190,6 +190,9 @@ class StudentImport {
 /// Excel'in doğrudan açabildiği not listesi (UTF-8 BOM + noktalı virgül).
 String resultsCsv(Exam exam, List<Result> results, Map<String, Student> students) {
   final report = ExamReport.build(exam, results);
+  final now = DateTime.now();
+  String two(int v) => v.toString().padLeft(2, '0');
+  final stamp = '${two(now.day)}.${two(now.month)}.${now.year} ${two(now.hour)}:${two(now.minute)}';
   String n(double v) => v.toStringAsFixed(2).replaceAll('.', ',');
   final rows = <List<String>>[
     ['Sıra', 'Okul no', 'Ad', 'Soyad', 'Sınıf', 'Doğru', 'Yanlış', 'Boş', 'Net', 'Puan', 'Başarı %', 'Yüzdelik',
@@ -229,6 +232,9 @@ String resultsCsv(Exam exam, List<Result> results, Map<String, Student> students
     ['Ayırt edicilik (D)', '', '', '', '', '', '', '', '', '', '', '', '', '',
       for (final _ in report.outcomes) '',
       for (final it in report.items) n(it.d)],
+    [],
+    ['Sınav', exam.name, '', 'Sınav tarihi', '${two(exam.date.day)}.${two(exam.date.month)}.${exam.date.year}', '',
+      'Rapor tarihi', stamp],
   ];
   return '\uFEFF${Csv(fieldDelimiter: ';', lineDelimiter: '\r\n').encode(rows)}';
 }

@@ -25,6 +25,9 @@ class NeticeApp extends StatelessWidget {
         theme: NTheme.light(),
         darkTheme: NTheme.dark(),
         themeMode: ThemeMode.system,
+        locale: const Locale('tr', 'TR'),
+        supportedLocales: const [Locale('tr', 'TR'), Locale('en')],
+        localizationsDelegates: GlobalMaterialLocalizations.delegates,
         home: const HomeScreen(),
       ),
     );

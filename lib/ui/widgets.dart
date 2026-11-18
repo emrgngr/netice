@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:material_ui/material_ui.dart';
 
 import '../core/models.dart';
@@ -319,5 +321,85 @@ class Watermark extends StatelessWidget {
         ),
       ),
     ]);
+  }
+}
+
+const _months = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+const _days = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
+String _two(int v) => v.toString().padLeft(2, '0');
+
+/// 18.11.2026
+String dmy(DateTime d) => '${_two(d.day)}.${_two(d.month)}.${d.year}';
+
+/// 10:04
+String hm(DateTime d) => '${_two(d.hour)}:${_two(d.minute)}';
+
+/// 18 Kasım 2026, Çarşamba
+String longDate(DateTime d) => '${d.day} ${_months[d.month - 1]} ${d.year}, ${_days[d.weekday - 1]}';
+
+/// Dakikada bir yenilenen tarih ve saat göstergesi.
+class LiveClock extends StatefulWidget {
+  /// Koyu (lacivert) zemin üzerinde mi?
+  final bool onDark;
+  const LiveClock({super.key, this.onDark = false});
+
+  @override
+  State<LiveClock> createState() => _LiveClockState();
+}
+
+class _LiveClockState extends State<LiveClock> {
+  DateTime _now = DateTime.now();
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _schedule();
+  }
+
+  void _schedule() {
+    final n = DateTime.now();
+    final next = DateTime(n.year, n.month, n.day, n.hour, n.minute + 1);
+    _timer = Timer(next.difference(n), () {
+      if (!mounted) return;
+      setState(() => _now = DateTime.now());
+      _schedule();
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context);
+    final fg = widget.onDark ? Colors.white : t.colorScheme.onSurface;
+    final sub = widget.onDark ? Colors.white70 : t.colorScheme.onSurface.withValues(alpha: 0.6);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: widget.onDark ? Colors.white.withValues(alpha: 0.08) : t.colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: widget.onDark ? Colors.white.withValues(alpha: 0.12) : t.colorScheme.outlineVariant),
+      ),
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        Icon(Icons.calendar_today_rounded, size: 16, color: NColors.emerald),
+        const SizedBox(width: 8),
+        Flexible(
+          child: Text(longDate(_now),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(color: sub, fontSize: 13, fontWeight: FontWeight.w600)),
+        ),
+        const SizedBox(width: 12),
+        Icon(Icons.schedule_rounded, size: 16, color: NColors.emerald),
+        const SizedBox(width: 6),
+        Text(hm(_now),
+            style: TextStyle(color: fg, fontSize: 15, fontWeight: FontWeight.w800, fontFeatures: tabular)),
+      ]),
+    );
   }
 }

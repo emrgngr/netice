@@ -27,6 +27,27 @@ class _NewExamScreenState extends State<NewExamScreen> {
   int _wrongsPerCorrect = 0;
   final List<int?> _key = List.filled(100, null);
   int _cursor = 0;
+  DateTime _date = DateTime.now();
+
+  Future<void> _pickDate() async {
+    final d = await showDatePicker(
+      context: context,
+      initialDate: _date,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2100),
+      helpText: 'Sınav tarihi',
+    );
+    if (d != null) setState(() => _date = DateTime(d.year, d.month, d.day, _date.hour, _date.minute));
+  }
+
+  Future<void> _pickTime() async {
+    final t = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(_date),
+      helpText: 'Sınav saati',
+    );
+    if (t != null) setState(() => _date = DateTime(_date.year, _date.month, _date.day, t.hour, t.minute));
+  }
 
   @override
   void initState() {
@@ -55,7 +76,7 @@ class _NewExamScreenState extends State<NewExamScreen> {
       id: 'e${DateTime.now().millisecondsSinceEpoch}',
       name: name,
       className: _class.text.trim(),
-      date: DateTime.now(),
+      date: _date,
       choiceCount: _choices,
       questions: [
         for (var i = 0; i < _count; i++) Question(no: i + 1, correct: {_key[i]!}, outcomeCode: outcomes[i + 1])
@@ -118,6 +139,24 @@ class _NewExamScreenState extends State<NewExamScreen> {
             TextField(controller: _name, decoration: const InputDecoration(labelText: 'Sınav adı', hintText: 'ör. Fizik Quiz 3')),
             const SizedBox(height: 12),
             TextField(controller: _class, decoration: const InputDecoration(labelText: 'Sınıf / şube', hintText: 'ör. 9-A')),
+            const SizedBox(height: 12),
+            Row(children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: _pickDate,
+                  icon: const Icon(Icons.calendar_today_rounded, size: 18),
+                  label: Text(dmy(_date)),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: _pickTime,
+                  icon: const Icon(Icons.schedule_rounded, size: 18),
+                  label: Text(hm(_date)),
+                ),
+              ),
+            ]),
             const SizedBox(height: 20),
             Text('Soru sayısı: $_count', style: t.textTheme.titleSmall),
             Slider(

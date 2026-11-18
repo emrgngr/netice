@@ -68,7 +68,7 @@ class ExamScreen extends StatelessWidget {
         appBar: AppBar(
           title: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(exam.name),
-            Text('${exam.className} · ${exam.questionCount} soru · ${exam.choiceCount} şık',
+            Text('${exam.className} · ${dmy(exam.date)} ${hm(exam.date)} · ${exam.questionCount} soru · ${exam.choiceCount} şık',
                 style: Theme.of(context).textTheme.bodySmall),
           ]),
           actions: [

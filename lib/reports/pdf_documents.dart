@@ -133,6 +133,10 @@ String _f1(double v) => v.toStringAsFixed(1).replaceAll('.', ',');
 String _f2(double v) => v.toStringAsFixed(2).replaceAll('.', ',');
 String _pct(double v) => '%${(v * 100).round()}';
 String _letter(int i) => String.fromCharCode(65 + i);
+/// Rapor zaman damgası: 18.11.2026 10:04
+String reportStamp(DateTime d) =>
+    '${_date(d)} ${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
+
 String _date(DateTime d) => '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
 String _answer(Answer a) => a.marked.isEmpty ? '–' : a.marked.map(_letter).join('/');
 
@@ -140,7 +144,12 @@ String _answer(Answer a) => a.marked.isEmpty ? '–' : a.marked.map(_letter).joi
 class _Kit {
   final Exam exam;
   final String institution;
+
+  /// Raporun oluşturulduğu an (cihaz saatiyle).
+  final DateTime createdAt = DateTime.now();
   _Kit(this.exam, this.institution);
+
+  String get created => reportStamp(createdAt);
 
   pw.Widget header(pw.Context ctx) => pw.Container(
     margin: const pw.EdgeInsets.only(bottom: 14),
@@ -166,7 +175,7 @@ class _Kit {
           ],
         ),
         pw.Text(
-          '${exam.name} · ${exam.className} · ${_date(exam.date)}',
+          '${exam.name} · ${exam.className} · Sınav: ${_date(exam.date)}',
           style: const pw.TextStyle(color: _muted, fontSize: 9),
         ),
       ],
@@ -177,6 +186,7 @@ class _Kit {
     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
     children: [
       pw.Text('Netice ile hazırlandı', style: const pw.TextStyle(color: _emerald, fontSize: 8)),
+      pw.Text('Rapor tarihi: $created', style: const pw.TextStyle(color: _muted, fontSize: 8)),
       pw.Text('Sayfa ${ctx.pageNumber} / ${ctx.pagesCount}', style: const pw.TextStyle(color: _muted, fontSize: 8)),
     ],
   );
@@ -401,6 +411,11 @@ Future<Uint8List> buildResultsPdf({
                   pw.Text(
                     'sınıf ortalaması / ${max.round()}',
                     style: const pw.TextStyle(color: PdfColors.grey300, fontSize: 8),
+                  ),
+                  pw.SizedBox(height: 4),
+                  pw.Text(
+                    'Rapor tarihi: ${k.created}',
+                    style: const pw.TextStyle(color: PdfColors.grey300, fontSize: 7.5),
                   ),
                 ],
               ),
