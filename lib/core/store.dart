@@ -12,6 +12,12 @@ import 'scoring.dart';
 
 /// Uygulamanın tüm verisi. İlk sürümde cihazda tek bir JSON dosyasında
 /// tutulur (internet gerekmez). Sonraki adım: şifreli SQLite + eşitleme.
+/// Geri yüklenen yedekteki kayıt sayıları.
+class BackupSummary {
+  final int students, exams, sheets;
+  const BackupSummary(this.students, this.exams, this.sheets);
+}
+
 class AppStore extends ChangeNotifier {
   final List<Student> students = [];
   final List<Exam> exams = [];
@@ -19,6 +25,9 @@ class AppStore extends ChangeNotifier {
 
   /// Okul ve öğretmen bilgileri (rapor başlıkları için).
   SchoolInfo school = const SchoolInfo();
+
+  /// İlk açılış rehberi gösterildi mi?
+  bool onboardingDone = false;
 
   File? _file;
   bool loaded = false;
@@ -51,11 +60,7 @@ class AppStore extends ChangeNotifier {
     final base = dir ?? await getApplicationSupportDirectory();
     _file = File('${base.path}${Platform.pathSeparator}netice_data.json');
     if (await _file!.exists()) {
-      final j = jsonDecode(await _file!.readAsString()) as Map<String, dynamic>;
-      students.addAll((j['students'] as List).map((e) => Student.fromJson(e as Map<String, dynamic>)));
-      exams.addAll((j['exams'] as List).map((e) => Exam.fromJson(e as Map<String, dynamic>)));
-      sheets.addAll((j['sheets'] as List).map((e) => Sheet.fromJson(e as Map<String, dynamic>)));
-      if (j['school'] is Map) school = SchoolInfo.fromJson((j['school'] as Map).cast<String, dynamic>());
+      _apply(jsonDecode(await _file!.readAsString()) as Map<String, dynamic>);
     } else {
       seedDemo();
       await save();
@@ -75,18 +80,102 @@ class AppStore extends ChangeNotifier {
     return next;
   }
 
+  Map<String, dynamic> toJsonMap() => {
+        'app': 'netice',
+        'version': 1,
+        'savedAt': DateTime.now().toIso8601String(),
+        'students': students.map((s) => s.toJson()).toList(),
+        'exams': exams.map((e) => e.toJson()).toList(),
+        'sheets': sheets.map((s) => s.toJson()).toList(),
+        'school': school.toJson(),
+        'onboardingDone': onboardingDone,
+      };
+
+  void _apply(Map<String, dynamic> j) {
+    final st = (j['students'] as List).map((e) => Student.fromJson(e as Map<String, dynamic>)).toList();
+    final ex = (j['exams'] as List).map((e) => Exam.fromJson(e as Map<String, dynamic>)).toList();
+    final sh = (j['sheets'] as List).map((e) => Sheet.fromJson(e as Map<String, dynamic>)).toList();
+    students
+      ..clear()
+      ..addAll(st);
+    exams
+      ..clear()
+      ..addAll(ex);
+    sheets
+      ..clear()
+      ..addAll(sh);
+    school = j['school'] is Map ? SchoolInfo.fromJson((j['school'] as Map).cast<String, dynamic>()) : const SchoolInfo();
+    onboardingDone = j['onboardingDone'] as bool? ?? onboardingDone;
+  }
+
+  void finishOnboarding() {
+    onboardingDone = true;
+    _changed();
+  }
+
+  /// Taşınabilir yedek dosyasının içeriği (tüm sınıflar, sınavlar, kâğıtlar ve okul bilgisi).
+  String exportBackup() => const JsonEncoder.withIndent(' ').convert(toJsonMap());
+
+  /// Yedeği okur ve mevcut verinin yerine koyar. Dosya Netice yedeği değilse
+  /// [FormatException] atar ve hiçbir şeyi değiştirmez.
+  Future<BackupSummary> restoreBackup(String text) async {
+    final Map<String, dynamic> j;
+    try {
+      j = jsonDecode(text) as Map<String, dynamic>;
+      if (j['students'] is! List || j['exams'] is! List || j['sheets'] is! List) throw const FormatException();
+    } catch (_) {
+      throw const FormatException('Bu dosya bir Netice yedeği değil.');
+    }
+    // Önce mevcut hâlin bir yedeğini al; yanlış dosya seçilirse geri dönülebilsin.
+    await _autoBackup(force: true);
+    final probe = AppStore().._apply(j); // ayrıştırma hatası mevcut veriyi bozmasın
+    _apply(probe.toJsonMap());
+    notifyListeners();
+    await save();
+    return BackupSummary(students.length, exams.length, sheets.length);
+  }
+
+  Directory? get _backupDir =>
+      _file == null ? null : Directory('${_file!.parent.path}${Platform.pathSeparator}yedekler');
+
+  /// Otomatik yedekler, en yenisi başta.
+  List<File> autoBackups() {
+    final d = _backupDir;
+    if (d == null || !d.existsSync()) return [];
+    return d.listSync().whereType<File>().where((f) => f.path.endsWith('.json')).toList()
+      ..sort((a, b) => b.path.compareTo(a.path));
+  }
+
+  /// Günde bir otomatik yedek; son 14 yedek saklanır.
+  Future<void> _autoBackup({bool force = false}) async {
+    final d = _backupDir;
+    if (d == null) return;
+    final now = DateTime.now();
+    String two(int v) => v.toString().padLeft(2, '0');
+    final day = '${now.year}${two(now.month)}${two(now.day)}';
+    final existing = autoBackups();
+    if (!force && existing.any((f) => f.uri.pathSegments.last.startsWith('netice_yedek_$day'))) return;
+    await d.create(recursive: true);
+    final name = 'netice_yedek_${day}_${two(now.hour)}${two(now.minute)}${two(now.second)}.json';
+    await File('${d.path}${Platform.pathSeparator}$name').writeAsString(jsonEncode(toJsonMap()));
+    for (final old in autoBackups().skip(14)) {
+      try {
+        await old.delete();
+      } catch (_) {}
+    }
+  }
+
   Future<void> _write() async {
     final f = _file;
     if (f == null) return;
     final tmp = File('${f.path}.tmp');
-    await tmp.writeAsString(jsonEncode({
-      'version': 1,
-      'students': students.map((s) => s.toJson()).toList(),
-      'exams': exams.map((e) => e.toJson()).toList(),
-      'sheets': sheets.map((s) => s.toJson()).toList(),
-      'school': school.toJson(),
-    }));
+    await tmp.writeAsString(jsonEncode(toJsonMap()));
     await tmp.rename(f.path);
+    try {
+      await _autoBackup();
+    } catch (_) {
+      // Yedek alınamaması asıl kaydı engellemesin.
+    }
   }
 
   void _changed() {

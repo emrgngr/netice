@@ -6,7 +6,9 @@ import '../core/models.dart';
 import '../core/progress.dart';
 import '../main.dart';
 import 'compare_screen.dart';
+import 'onboarding_screen.dart';
 import 'school_screen.dart';
+import 'settings_screen.dart';
 import 'exam_screen.dart';
 import 'logo.dart';
 import 'new_exam_screen.dart';
@@ -27,12 +29,21 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _tab = 0;
+  bool _guideShown = false;
 
   @override
   Widget build(BuildContext context) {
     final store = StoreScope.of(context);
     if (!store.loaded) {
       return const Scaffold(body: Center(child: NeticeMark(size: 72)));
+    }
+    if (!store.onboardingDone && !_guideShown) {
+      _guideShown = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OnboardingScreen()));
+        }
+      });
     }
     final wide = MediaQuery.sizeOf(context).width >= 900;
     final body = _tab == 0 ? const _Dashboard() : const StudentsScreen(embedded: true);
@@ -163,6 +174,7 @@ class _Dashboard extends StatelessWidget {
     final hour = DateTime.now().hour;
     final greeting = hour < 11 ? 'Günaydın' : (hour < 18 ? 'İyi günler' : 'İyi akşamlar');
     void newExam() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NewExamScreen()));
+    void openSettings() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsScreen()));
 
     final hero = HeroPanel(
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -176,6 +188,13 @@ class _Dashboard extends StatelessWidget {
                   style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800, letterSpacing: -0.5)),
             ]),
           ),
+          IconButton.filledTonal(
+            style: IconButton.styleFrom(backgroundColor: Colors.white.withValues(alpha: 0.12), foregroundColor: Colors.white),
+            tooltip: 'Ayarlar',
+            onPressed: openSettings,
+            icon: const Icon(Icons.settings_outlined),
+          ),
+          const SizedBox(width: 8),
           IconButton.filledTonal(
             style: IconButton.styleFrom(backgroundColor: Colors.white.withValues(alpha: 0.12), foregroundColor: Colors.white),
             tooltip: 'Yeni sınav',
@@ -213,7 +232,9 @@ class _Dashboard extends StatelessWidget {
                 ]),
                 const Spacer(),
                 const LiveClock(),
-                const SizedBox(width: 16),
+                const SizedBox(width: 8),
+                IconButton(tooltip: 'Ayarlar', onPressed: openSettings, icon: const Icon(Icons.settings_outlined)),
+                const SizedBox(width: 8),
                 OutlinedButton.icon(
                   onPressed: () => _startScan(context),
                   icon: const Icon(Icons.upload_file),
@@ -330,6 +351,7 @@ class _Insights extends StatelessWidget {
     final muted = t.colorScheme.onSurface.withValues(alpha: 0.6);
     final school = StoreScope.of(context).school;
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      if (school.isEmpty) ...[
       Card(
         clipBehavior: Clip.antiAlias,
         child: ListTile(
@@ -351,6 +373,7 @@ class _Insights extends StatelessWidget {
         ),
       ),
       const SizedBox(height: 12),
+      ],
       Card(
         clipBehavior: Clip.antiAlias,
         child: ListTile(
