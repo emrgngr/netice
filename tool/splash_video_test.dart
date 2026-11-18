@@ -10,13 +10,13 @@ void main() {
   testWidgets('açılış video kareleri', (tester) async {
     await tester.runAsync(loadFonts);
     for (final night in [false, true]) {
-      for (var i = 0; i <= 65; i++) {
+      for (var i = 0; i <= 79; i++) {
         await shot(
             tester,
             MaterialApp(
                 debugShowCheckedModeBanner: false,
                 theme: NTheme.light(),
-                home: SplashScreen(next: const SizedBox(), night: night, freezeAt: i / 65)),
+                home: SplashScreen(next: const SizedBox(), night: night, freezeAt: i / 79)),
             const Size(390, 844),
             'splash_${night ? 'gece' : 'gunduz'}/f_${i.toString().padLeft(3, '0')}');
       }
