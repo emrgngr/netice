@@ -35,6 +35,7 @@ class ExamScreen extends StatelessWidget {
     Future<void> printForms() async {
       final cls = store.studentsOf(exam.className);
       var copies = 10;
+      var alternate = true;
       final choice = await showModalBottomSheet<String>(
         context: context,
         showDragHandle: true,
@@ -61,6 +62,14 @@ class ExamScreen extends StatelessWidget {
                     ),
                     onTap: () => Navigator.pop(ctx, 'named'),
                   ),
+                  if (exam.hasBooklets && cls.isNotEmpty)
+                    SwitchListTile(
+                      contentPadding: const EdgeInsets.only(left: 72, right: 16),
+                      value: alternate,
+                      onChanged: (v) => setSheet(() => alternate = v),
+                      title: const Text('Kitapçıkları sırayla A, B dağıt'),
+                      subtitle: const Text('Kapalıysa öğrenci kitapçığını formda kendisi işaretler'),
+                    ),
                   ListTile(
                     leading: const Icon(Icons.description_outlined),
                     title: const Text('Boş öğrenci formu'),
@@ -108,7 +117,7 @@ class ExamScreen extends StatelessWidget {
             context,
             title: 'Öğrenci formları',
             fileName: '${name}_optik_form.pdf',
-            build: () => buildFormsPdf(exam, cls, school: store.school),
+            build: () => buildFormsPdf(exam, cls, school: store.school, alternateBooklets: alternate),
           );
         case 'blank':
           await ReportPreviewScreen.open(

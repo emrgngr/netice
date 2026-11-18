@@ -113,6 +113,7 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
       quarterTurns: (_controller?.description.sensorOrientation ?? 90) ~/ 90,
       questions: exam.questionCount,
       choices: exam.choiceCount,
+      booklets: exam.hasBooklets,
     );
     compute(_readFrame, job).then((r) {
       if (!mounted) return;
@@ -128,7 +129,11 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
   }
 
   void _accept(Exam exam, OmrResult r) {
-    final sheet = StoreScope.of(context).addScan(exam, r);
+    final store = StoreScope.of(context);
+    final sheet = store.addScan(exam, r);
+    if (sheet.examId != exam.id) {
+      toast(context, 'Bu kâğıt "${store.examById(sheet.examId)?.name}" sınavına ait; oraya kaydedildi.');
+    }
     HapticFeedback.mediumImpact();
     SystemSound.play(SystemSoundType.click);
     setState(() {
@@ -402,7 +407,9 @@ class _FrameJob {
     required this.quarterTurns,
     required this.questions,
     required this.choices,
+    this.booklets = false,
   });
+  final bool booklets;
 }
 
 OmrResult? _readFrame(_FrameJob j) {
@@ -410,7 +417,7 @@ OmrResult? _readFrame(_FrameJob j) {
     final g = j.bgra
         ? GrayImage.fromBgra(j.bytes, j.width, j.height, j.bytesPerRow)
         : GrayImage.fromLumaPlane(j.bytes, j.width, j.height, j.bytesPerRow);
-    final r = OmrReader(FormLayout(questionCount: j.questions, choiceCount: j.choices)).read(g.rotate(j.quarterTurns));
+    final r = OmrReader(FormLayout(questionCount: j.questions, choiceCount: j.choices, booklets: j.booklets)).read(g.rotate(j.quarterTurns));
     // Hiçbir şey okunmadıysa (yanlış eşleşme) kabul etme.
     if (r.studentNumber == null && r.questions.every((q) => q.answer.state == MarkState.blank)) return null;
     return r;

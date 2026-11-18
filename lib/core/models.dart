@@ -136,6 +136,10 @@ class Exam {
   final List<Question> questions;
   final ScoringRule rule;
 
+  /// B kitapçığı: B'deki [i]. sorunun A kitapçığındaki karşılığı (0'dan).
+  /// Şıklar aynı, yalnızca soru sırası değişik. null = tek kitapçık.
+  final List<int>? bookletOrder;
+
   const Exam({
     required this.id,
     required this.name,
@@ -144,9 +148,44 @@ class Exam {
     required this.choiceCount,
     required this.questions,
     this.rule = const ScoringRule(),
+    this.bookletOrder,
   });
 
   int get questionCount => questions.length;
+
+  bool get hasBooklets => bookletOrder != null;
+
+  /// B kitapçığının cevap anahtarı (B sırasıyla).
+  List<Question> get bookletBQuestions => [
+        for (var i = 0; i < (bookletOrder?.length ?? 0); i++)
+          Question(
+            no: i + 1,
+            correct: questions[bookletOrder![i]].correct,
+            points: questions[bookletOrder![i]].points,
+            cancelled: questions[bookletOrder![i]].cancelled,
+            outcomeCode: questions[bookletOrder![i]].outcomeCode,
+          ),
+      ];
+
+  /// B kitapçığı cevaplarını A sırasına çevirir.
+  List<Answer> toBookletA(List<Answer> b) {
+    final order = bookletOrder;
+    if (order == null) return b;
+    final a = List<Answer>.filled(questions.length, const Answer.blank());
+    for (var i = 0; i < order.length && i < b.length; i++) {
+      a[order[i]] = b[i];
+    }
+    return a;
+  }
+
+  /// "3, 1, 2, …" biçimindeki sırayı çözer; 1..n'in tam bir permütasyonu değilse null.
+  static List<int>? parseBookletOrder(String text, int n) {
+    final parts = text.split(RegExp(r'[^0-9]+')).where((e) => e.isNotEmpty).map(int.parse).toList();
+    if (parts.length != n) return null;
+    final set = parts.toSet();
+    if (set.length != n || set.any((v) => v < 1 || v > n)) return null;
+    return [for (final v in parts) v - 1];
+  }
 
   /// "ABCDA…" biçimindeki cevap anahtarından sınav oluşturur.
   factory Exam.fromKeyString({
@@ -178,7 +217,15 @@ class Exam {
     );
   }
 
-  Exam copyWith({List<Question>? questions, ScoringRule? rule, String? name, String? className, DateTime? date}) =>
+  Exam copyWith({
+    List<Question>? questions,
+    ScoringRule? rule,
+    String? name,
+    String? className,
+    DateTime? date,
+    List<int>? bookletOrder,
+    bool clearBooklet = false,
+  }) =>
       Exam(
         id: id,
         name: name ?? this.name,
@@ -187,6 +234,7 @@ class Exam {
         choiceCount: choiceCount,
         questions: questions ?? this.questions,
         rule: rule ?? this.rule,
+        bookletOrder: clearBooklet ? null : (bookletOrder ?? this.bookletOrder),
       );
 
   Map<String, dynamic> toJson() => {
@@ -197,6 +245,7 @@ class Exam {
         'choiceCount': choiceCount,
         'questions': questions.map((q) => q.toJson()).toList(),
         'rule': rule.toJson(),
+        if (bookletOrder != null) 'bookletOrder': bookletOrder,
       };
 
   factory Exam.fromJson(Map<String, dynamic> j) => Exam(
@@ -209,6 +258,7 @@ class Exam {
             .map((e) => Question.fromJson(e as Map<String, dynamic>))
             .toList(),
         rule: ScoringRule.fromJson(j['rule'] as Map<String, dynamic>),
+        bookletOrder: (j['bookletOrder'] as List?)?.map((e) => e as int).toList(),
       );
 }
 
@@ -252,9 +302,13 @@ class Answer {
 class Sheet {
   final String examId;
   final String? studentId;
+  /// Cevaplar her zaman A kitapçığı sırasıyla saklanır.
   final List<Answer> answers;
 
-  const Sheet({required this.examId, this.studentId, required this.answers});
+  /// Öğrencinin kitapçığı (0 = A, 1 = B).
+  final int booklet;
+
+  const Sheet({required this.examId, this.studentId, required this.answers, this.booklet = 0});
 
   bool get needsReview =>
       studentId == null || answers.any((a) => a.needsReview);
@@ -263,12 +317,14 @@ class Sheet {
         examId: examId,
         studentId: studentId ?? this.studentId,
         answers: answers ?? this.answers,
+        booklet: booklet,
       );
 
   Map<String, dynamic> toJson() => {
         'examId': examId,
         'studentId': studentId,
         'answers': answers.map((a) => a.toJson()).toList(),
+        if (booklet != 0) 'booklet': booklet,
       };
 
   factory Sheet.fromJson(Map<String, dynamic> j) => Sheet(
@@ -277,6 +333,7 @@ class Sheet {
         answers: (j['answers'] as List)
             .map((e) => Answer.fromJson(e as Map<String, dynamic>))
             .toList(),
+        booklet: j['booklet'] as int? ?? 0,
       );
 }
 

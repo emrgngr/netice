@@ -53,7 +53,10 @@ class FormLayout {
   final int questionCount;
   final int choiceCount;
 
-  FormLayout({required this.questionCount, required this.choiceCount}) {
+  /// Sınavın A/B kitapçığı var mı? Varsa formda kitapçık daireleri basılır ve okunur.
+  final bool booklets;
+
+  FormLayout({required this.questionCount, required this.choiceCount, this.booklets = false}) {
     if (questionCount < 1 || questionCount > 100) {
       throw ArgumentError('Soru sayısı 1–100 arasında olmalı');
     }
@@ -74,6 +77,11 @@ class FormLayout {
         studentOrigin.x + digit * digitPitchX,
         studentOrigin.y + value * digitPitchY,
       );
+
+  // ---- Kitapçık türü (A / B) ----
+
+  /// Kitapçık dairesinin merkezi (0 = A, 1 = B).
+  static Pt bookletBubble(int b) => Pt(113.5 + b * 9.0, 88.6);
 
   // ---- Cevap alanı ----
 

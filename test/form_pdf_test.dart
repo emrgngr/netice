@@ -28,4 +28,20 @@ void main() {
     File('${out.path}/anahtar_bos.pdf').writeAsBytesSync(keyBlank);
     File('${out.path}/anahtar_100.pdf').writeAsBytesSync(bigKey);
   });
+
+  test('A/B kitapçıklı sınav: sırayla A-B isimli formlar ve iki anahtar', () async {
+    final exam = Exam.fromKeyString(id: 'kitapcik', name: 'Kimya Yazılı', className: '10-B', key: 'ABCDEABCDEABCDEABCDE')
+        .copyWith(bookletOrder: [for (var i = 0; i < 20; i++) (i * 7) % 20]);
+    final forms = await buildFormsPdf(exam, const [
+      Student(id: '1', firstName: 'Ada', lastName: 'Er', number: '1201', className: '10-B'),
+      Student(id: '2', firstName: 'Can', lastName: 'Su', number: '1202', className: '10-B'),
+    ], alternateBooklets: true);
+    final blank = await buildFormsPdf(exam, const []);
+    final key = await buildAnswerKeyPdf(exam);
+    final out = Directory('build/test_output')..createSync(recursive: true);
+    File('${out.path}/kitapcik_formlar.pdf').writeAsBytesSync(forms);
+    File('${out.path}/kitapcik_bos.pdf').writeAsBytesSync(blank);
+    File('${out.path}/kitapcik_anahtar.pdf').writeAsBytesSync(key);
+    expect(String.fromCharCodes(key.take(5)), '%PDF-');
+  });
 }

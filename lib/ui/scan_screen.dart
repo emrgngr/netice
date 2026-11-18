@@ -42,9 +42,13 @@ class _ScanScreenState extends State<ScanScreen> {
   Future<void> _readGray(String source, GrayImage gray) async {
     final exam = _exam;
     try {
-      final r = await compute(_readJob, _Job(gray, exam.questionCount, exam.choiceCount));
+      final r = await compute(_readJob, _Job(gray, exam.questionCount, exam.choiceCount, exam.hasBooklets));
       if (!mounted) return;
-      final sheet = StoreScope.of(context).addScan(exam, r);
+      final store = StoreScope.of(context);
+      final sheet = store.addScan(exam, r);
+      if (sheet.examId != exam.id) {
+        toast(context, 'Bu kâğıt "${store.examById(sheet.examId)?.name}" sınavına ait; oraya kaydedildi.');
+      }
       HapticFeedback.lightImpact();
       SystemSound.play(SystemSoundType.click);
       setState(() => _entries.insert(0, _ScanEntry(source, sheet: sheet)));
@@ -258,11 +262,12 @@ class _Job {
   final GrayImage image;
   final int questions;
   final int choices;
-  _Job(this.image, this.questions, this.choices);
+  final bool booklets;
+  _Job(this.image, this.questions, this.choices, this.booklets);
 }
 
 OmrResult _readJob(_Job j) =>
-    OmrReader(FormLayout(questionCount: j.questions, choiceCount: j.choices)).read(j.image);
+    OmrReader(FormLayout(questionCount: j.questions, choiceCount: j.choices, booklets: j.booklets)).read(j.image);
 
 GrayImage? _decodeJob(Uint8List bytes) => GrayImage.decode(bytes);
 

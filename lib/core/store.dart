@@ -5,6 +5,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../omr/form_code.dart';
 import '../omr/form_layout.dart';
 import '../omr/omr_reader.dart';
 import 'models.dart';
@@ -223,15 +224,36 @@ class AppStore extends ChangeNotifier {
   }
 
   /// Okunan kâğıdı kaydeder. Aynı öğrencinin önceki kâğıdı varsa yenisiyle değiştirir.
+  /// Makine kodundaki sınav koduna karşılık gelen sınav.
+  Exam? examByCode(int code) => exams.where((e) => FormCode.examCodeOf(e.id) == code).firstOrNull;
+
+  /// Okunan kâğıdı kaydeder. Formdaki makine kodu başka bir sınavı gösteriyorsa
+  /// kâğıt o sınava kaydedilir (dönen kâğıdın examId'si farklı olur).
+  /// Öğrenci, işaretlenen numaradan; o yoksa makine kodundan bulunur.
   Sheet addScan(Exam exam, OmrResult r) {
+    final code = r.code;
+    final other = code == null ? null : examByCode(code.examCode);
+    // Yalnızca aynı yapıdaki (soru/şık sayısı) sınava yönlendirilir; okuma o yapıya göre yapıldı.
+    final target = other != null &&
+            other.questionCount == exam.questionCount &&
+            other.choiceCount == exam.choiceCount &&
+            other.hasBooklets == exam.hasBooklets
+        ? other
+        : exam;
     Student? st;
-    if (r.studentNumber != null) {
-      final n = int.tryParse(r.studentNumber!);
-      st = studentsOf(exam.className).where((s) => int.tryParse(s.number) == n).firstOrNull;
+    final numbers = [
+      if (r.studentNumber != null) int.tryParse(r.studentNumber!),
+      code?.studentNumber,
+    ].whereType<int>();
+    for (final n in numbers) {
+      st = studentsOf(target.className).where((s) => int.tryParse(s.number) == n).firstOrNull;
+      if (st != null) break;
     }
-    final sheet = Sheet(examId: exam.id, studentId: st?.id, answers: r.answers);
+    final booklet = target.hasBooklets ? (r.booklet ?? code?.booklet ?? 0) : 0;
+    final answers = booklet == 1 ? target.toBookletA(r.answers) : r.answers;
+    final sheet = Sheet(examId: target.id, studentId: st?.id, answers: answers, booklet: booklet);
     if (st != null) {
-      sheets.removeWhere((s) => s.examId == exam.id && s.studentId == st!.id);
+      sheets.removeWhere((s) => s.examId == target.id && s.studentId == st!.id);
     }
     sheets.add(sheet);
     _changed();
@@ -358,5 +380,5 @@ class AppStore extends ChangeNotifier {
 }
 
 /// Seçili sınav için okuma motoru oluşturur.
-OmrReader readerFor(Exam exam) =>
-    OmrReader(FormLayout(questionCount: exam.questionCount, choiceCount: exam.choiceCount));
+OmrReader readerFor(Exam exam) => OmrReader(
+    FormLayout(questionCount: exam.questionCount, choiceCount: exam.choiceCount, booklets: exam.hasBooklets));

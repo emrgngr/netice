@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:image/image.dart' as img;
 
 import '../core/models.dart';
+import 'form_code.dart';
 import 'form_layout.dart';
 import 'homography.dart';
 
@@ -111,10 +112,18 @@ class OmrResult {
   /// Bulunan köşe işaretlerinin görüntüdeki merkezleri.
   final List<Pt> markers;
 
+  /// Kenardaki makine kodu (yeni formlarda); okunamadıysa null.
+  final FormCode? code;
+
+  /// Öğrencinin işaretlediği kitapçık (0 = A, 1 = B); işaret yoksa null.
+  final int? booklet;
+
   const OmrResult({
     required this.questions,
     required this.studentNumber,
     required this.markers,
+    this.code,
+    this.booklet,
   });
 
   List<Answer> get answers => questions.map((q) => q.answer).toList();
@@ -185,10 +194,31 @@ class OmrReader {
       }
     }
 
+    // Kitapçık türü.
+    int? booklet;
+    if (layout.booklets) {
+      final a = classify([fillAt(FormLayout.bookletBubble(0)), fillAt(FormLayout.bookletBubble(1))]);
+      if (a.state == MarkState.filled && a.marked.length == 1) booklet = a.marked.first;
+    }
+
+    // Makine kodu şeridi.
+    final bits = <bool>[];
+    for (var i = 0; i < FormCode.cells; i++) {
+      final p = FormCode.cell(i);
+      final c = hom.map(p);
+      final scale = hom.scaleAt(p);
+      final white = _localWhite(image, c, 2.6 * scale);
+      final mean = _meanInDisk(image, c, 0.9 * scale);
+      final range = white - black;
+      bits.add(range >= 20 && (white - mean) / range > 0.5);
+    }
+
     return OmrResult(
       questions: questions,
       studentNumber: numberOk ? digits.toString() : null,
       markers: markers,
+      code: FormCode.decode(bits),
+      booklet: booklet,
     );
   }
 

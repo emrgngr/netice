@@ -9,6 +9,7 @@ import '../core/models.dart';
 import '../core/progress.dart';
 import '../core/report.dart';
 import '../core/scoring.dart';
+import '../omr/form_code.dart';
 import '../omr/form_layout.dart';
 
 const _ink = PdfColor.fromInt(0xFF0F1B3D);
@@ -35,16 +36,22 @@ class _Fonts {
 
 /// Basılı optik formlar. Her öğrenci için adı ve numarası yazılı bir sayfa
 /// üretir; [students] boşsa [blankCopies] adet boş form üretir.
+///
+/// Sınavın B kitapçığı varsa ve [alternateBooklets] açıksa isimli formlar
+/// sırayla A, B, A, B… olarak basılır (kitapçık dairesi dolu gelir).
 Future<Uint8List> buildFormsPdf(Exam exam, List<Student> students,
-    {int blankCopies = 1, SchoolInfo school = const SchoolInfo()}) async {
+    {int blankCopies = 1, SchoolInfo school = const SchoolInfo(), bool alternateBooklets = false}) async {
   final fonts = await _Fonts.load();
-  final layout = FormLayout(questionCount: exam.questionCount, choiceCount: exam.choiceCount);
+  final layout =
+      FormLayout(questionCount: exam.questionCount, choiceCount: exam.choiceCount, booklets: exam.hasBooklets);
   final doc = pw.Document(title: '${exam.name} · optik form', author: 'Netice');
   final pages = students.isEmpty
       ? List<Student?>.filled(math.max(1, blankCopies), null)
       : students.cast<Student?>();
-  for (final s in pages) {
-    doc.addPage(_formPage(layout, exam, fonts, school, student: s));
+  for (var i = 0; i < pages.length; i++) {
+    final s = pages[i];
+    final booklet = exam.hasBooklets && alternateBooklets && s != null ? i % 2 : null;
+    doc.addPage(_formPage(layout, exam, fonts, school, student: s, booklet: booklet));
   }
   return doc.save();
 }
@@ -54,9 +61,13 @@ Future<Uint8List> buildFormsPdf(Exam exam, List<Student> students,
 /// elle dolduracağı boş bir anahtar formu üretilir.
 Future<Uint8List> buildAnswerKeyPdf(Exam exam, {bool filled = true, SchoolInfo school = const SchoolInfo()}) async {
   final fonts = await _Fonts.load();
-  final layout = FormLayout(questionCount: exam.questionCount, choiceCount: exam.choiceCount);
+  final layout =
+      FormLayout(questionCount: exam.questionCount, choiceCount: exam.choiceCount, booklets: exam.hasBooklets);
   final doc = pw.Document(title: '${exam.name} · cevap anahtarı', author: 'Netice');
-  doc.addPage(_formPage(layout, exam, fonts, school, key: true, keyFilled: filled));
+  doc.addPage(_formPage(layout, exam, fonts, school, key: true, keyFilled: filled, booklet: exam.hasBooklets ? 0 : null));
+  if (exam.hasBooklets && filled) {
+    doc.addPage(_formPage(layout, exam, fonts, school, key: true, keyFilled: true, booklet: 1));
+  }
   if (filled) {
     final k = _Kit(exam, school, docTitle: 'Cevap Anahtarı');
     final theme = pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold);
@@ -74,27 +85,39 @@ Future<Uint8List> buildAnswerKeyPdf(Exam exam, {bool filled = true, SchoolInfo s
       footer: k.footer,
       build: (ctx) => [
         k.title('Cevap anahtarı', '${exam.questionCount} soru · ${exam.choiceCount} şık · sınav tarihi ${_date(exam.date)}'),
-        pw.Text('Hızlı okuma (beşli gruplar)', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 9, color: _ink)),
-        pw.SizedBox(height: 6),
-        pw.Wrap(spacing: 6, runSpacing: 6, children: [
-          for (var i = 0; i < qs.length; i += 5)
-            pw.Container(
-              padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-              decoration: pw.BoxDecoration(color: _ivory, borderRadius: pw.BorderRadius.circular(4)),
-              child: pw.Row(mainAxisSize: pw.MainAxisSize.min, children: [
-                pw.Text('${i + 1}–${math.min(i + 5, qs.length)}  ',
-                    style: const pw.TextStyle(color: _muted, fontSize: 8)),
-                pw.Text(
-                  [for (final q in qs.skip(i).take(5)) q.cancelled ? '×' : (q.correct.isEmpty ? '–' : q.correct.map(_letter).join('/'))]
-                      .join(' '),
-                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10, color: _ink, letterSpacing: 1),
-                ),
-              ]),
-            ),
-        ]),
+        for (final (label, list) in [
+          (exam.hasBooklets ? 'A kitapçığı · hızlı okuma (beşli gruplar)' : 'Hızlı okuma (beşli gruplar)', qs),
+          if (exam.hasBooklets) ('B kitapçığı · hızlı okuma (beşli gruplar)', exam.bookletBQuestions),
+        ]) ...[
+          pw.Text(label, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 9, color: _ink)),
+          pw.SizedBox(height: 6),
+          pw.Wrap(spacing: 6, runSpacing: 6, children: [
+            for (var i = 0; i < list.length; i += 5)
+              pw.Container(
+                padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                decoration: pw.BoxDecoration(color: _ivory, borderRadius: pw.BorderRadius.circular(4)),
+                child: pw.Row(mainAxisSize: pw.MainAxisSize.min, children: [
+                  pw.Text('${i + 1}–${math.min(i + 5, list.length)}  ',
+                      style: const pw.TextStyle(color: _muted, fontSize: 8)),
+                  pw.Text(
+                    [
+                      for (final q in list.skip(i).take(5))
+                        q.cancelled ? '×' : (q.correct.isEmpty ? '–' : q.correct.map(_letter).join('/'))
+                    ].join(' '),
+                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10, color: _ink, letterSpacing: 1),
+                  ),
+                ]),
+              ),
+          ]),
+          pw.SizedBox(height: 10),
+        ],
+        if (exam.hasBooklets)
+          pw.Text('B kitapçığı sırası (B\'deki soru → A\'daki soru): '
+              '${[for (var i = 0; i < exam.bookletOrder!.length; i++) '${i + 1}→${exam.bookletOrder![i] + 1}'].join('  ')}',
+              style: const pw.TextStyle(color: _muted, fontSize: 7.5)),
         pw.SizedBox(height: 14),
         pw.TableHelper.fromTextArray(
-          headers: ['Soru', 'Doğru cevap', 'Puan', 'Kazanım'],
+          headers: [exam.hasBooklets ? 'Soru (A)' : 'Soru', 'Doğru cevap', 'Puan', 'Kazanım'],
           data: [
             for (final q in qs) ['${q.no}', ans(q), q.cancelled ? '–' : _f1(worth(q)).replaceAll(',0', ''), q.outcomeCode ?? ''],
           ],
@@ -125,7 +148,7 @@ Future<Uint8List> buildAnswerKeyPdf(Exam exam, {bool filled = true, SchoolInfo s
 }
 
 pw.Page _formPage(FormLayout layout, Exam exam, _Fonts fonts, SchoolInfo school,
-        {Student? student, bool key = false, bool keyFilled = false}) =>
+        {Student? student, bool key = false, bool keyFilled = false, int? booklet}) =>
     pw.Page(
       pageFormat: PdfPageFormat.a4,
       margin: pw.EdgeInsets.zero,
@@ -133,7 +156,7 @@ pw.Page _formPage(FormLayout layout, Exam exam, _Fonts fonts, SchoolInfo school,
         size: PdfPoint(PdfPageFormat.a4.width, PdfPageFormat.a4.height),
         painter: (canvas, size) => _paintForm(canvas, size, layout, exam, student,
             (fonts.regular.getFont(ctx), fonts.bold.getFont(ctx)),
-            key: key, keyFilled: keyFilled, school: school),
+            key: key, keyFilled: keyFilled, school: school, booklet: booklet),
       ),
     );
 
@@ -144,7 +167,7 @@ const _tint = PdfColor.fromInt(0xFFF3F1EB);
 /// kalır (okuma motoru onları orada arar); süslemeler dairelerden en az
 /// 2,5 mm uzakta tutulur ve koyu dolgulu büyük şekil kullanılmaz.
 void _paintForm(PdfGraphics g, PdfPoint size, FormLayout layout, Exam exam, Student? s, (PdfFont, PdfFont) fonts,
-    {bool key = false, bool keyFilled = false, SchoolInfo school = const SchoolInfo()}) {
+    {bool key = false, bool keyFilled = false, SchoolInfo school = const SchoolInfo(), int? booklet}) {
   const mm = PdfPageFormat.mm;
   // PDF koordinatları sol alttan başlar; form mm koordinatları sol üstten.
   double x(double v) => v * mm;
@@ -208,7 +231,25 @@ void _paintForm(PdfGraphics g, PdfPoint size, FormLayout layout, Exam exam, Stud
   text('Kâğıttan sonuca, saniyeler içinde.', 24.3, 19.4, 6, color: _muted);
   text(key ? 'CEVAP ANAHTARI' : 'OPTİK CEVAP KÂĞIDI', 186, 15.2, 11.5,
       bold: true, right: true, color: key ? _coral : _ink);
-  text('${exam.questionCount} soru · ${exam.choiceCount} şık', 186, 19.2, 6.5, right: true, color: _muted);
+  text(
+      '${exam.questionCount} soru · ${exam.choiceCount} şık'
+      '${booklet == null ? '' : ' · ${_letter(booklet)} kitapçığı'}',
+      186, 19.2, 6.5, right: true, color: booklet == 1 ? _coral : _muted, bold: booklet != null);
+
+  // ---- Makine kodu (sol kenar) ----
+  final codeBits = FormCode(
+    examCode: FormCode.examCodeOf(exam.id),
+    studentNumber: key ? null : int.tryParse(s?.number ?? ''),
+    booklet: booklet ?? 0,
+  ).encode();
+  g.setFillColor(PdfColors.black);
+  for (var i = 0; i < codeBits.length; i++) {
+    if (!codeBits[i]) continue;
+    final c = FormCode.cell(i);
+    const h = FormCode.cellSize / 2;
+    g.drawRect(x(c.x - h), y(c.y + h), FormCode.cellSize * mm, FormCode.cellSize * mm);
+  }
+  g.fillPath();
 
   // ---- Bilgi alanları (sol blok) ----
   const l = 24.0, r = 128.0;
@@ -250,14 +291,14 @@ void _paintForm(PdfGraphics g, PdfPoint size, FormLayout layout, Exam exam, Stud
   if (key) {
     final lines = keyFilled
         ? [
-            'Doğru şıklar Netice tarafından karartıldı. Bu sayfa kontrol ve arşiv içindir;',
-            'ikinci sayfada okunaklı anahtar listesi var. Anahtarı değiştirmek için',
-            'Sınav ayarları ekranını kullanın.',
+            'Doğru şıklar Netice tarafından karartıldı.',
+            'Bu sayfa kontrol ve arşiv içindir; okunaklı',
+            'anahtar listesi son sayfadadır.',
           ]
         : [
-            'Her sorunun doğru şıkkını karartın (birden çok doğru varsa hepsini).',
-            'Sonra uygulamada Sınav ayarları › Anahtarı fotoğraftan oku ile çekin;',
-            'anahtar otomatik girilir. Öğrenci numarası alanını boş bırakın.',
+            'Her sorunun doğru şıkkını karartın.',
+            'Sonra Sınav ayarları › Anahtarı fotoğraftan',
+            'oku ile çekin; anahtar kendiliğinden girilir.',
           ];
     for (var i = 0; i < lines.length; i++) {
       text(lines[i], l, 85.4 + i * 3.4, 6.6, color: _ink);
@@ -303,9 +344,30 @@ void _paintForm(PdfGraphics g, PdfPoint size, FormLayout layout, Exam exam, Stud
     g.setFillColor(const PdfColor.fromInt(0xFF1F1F1F));
     g.drawEllipse(x(wx[2]), y(85.4), 0.45 * mm, 0.45 * mm);
     g.fillPath();
-    text('Daireyi tamamen karartın.', l + 49, 86.3, 6.6, color: _muted);
-    text('Kurşun kalem ya da koyu tükenmez kullanın. Değiştirirken eski işareti iyice silin.', l, 91, 6.6);
-    text('Köşedeki siyah karelere yazı yazmayın, kâğıdı katlamayın.', l, 94.4, 6.6);
+    text('Daireyi tamamen karartın; kurşun kalem ya da koyu', l, 90.6, 6.3);
+    text('tükenmez kullanın. Değiştirirken eskisini iyice silin.', l, 93.6, 6.3);
+    text('Kenardaki siyah karelere yazmayın, kâğıdı katlamayın.', l, 96.6, 6.3);
+  }
+
+  // ---- Kitapçık türü ----
+  if (layout.booklets) {
+    final a = FormLayout.bookletBubble(0), b = FormLayout.bookletBubble(1);
+    box(a.x - 6, 79, b.x + 6, 96.5, radius: 2, fill: _tint);
+    text('KİTAPÇIK', (a.x + b.x) / 2, 82.6, 5.6, bold: true, color: _muted, center: true);
+    for (var k = 0; k < 2; k++) {
+      final p = FormLayout.bookletBubble(k);
+      g.setFillColor(PdfColors.white);
+      g.drawEllipse(x(p.x), y(p.y), FormLayout.bubbleRadius * mm, FormLayout.bubbleRadius * mm);
+      g.fillPath();
+      _bubble(g, x(p.x), y(p.y), FormLayout.bubbleRadius * mm, _letter(k), fonts);
+      if (booklet == k) {
+        g.setFillColor(const PdfColor.fromInt(0xFF151515));
+        g.drawEllipse(x(p.x), y(p.y), FormLayout.bubbleRadius * 0.95 * mm, FormLayout.bubbleRadius * 0.95 * mm);
+        g.fillPath();
+      }
+    }
+    text(booklet == null ? 'Türünüzü işaretleyin' : '${_letter(booklet)} kitapçığı', (a.x + b.x) / 2, 95, 5,
+        color: _muted, center: true);
   }
 
   // ---- Öğrenci numarası ----
@@ -352,7 +414,7 @@ void _paintForm(PdfGraphics g, PdfPoint size, FormLayout layout, Exam exam, Stud
       final q = firstQ + row;
       final b0 = layout.answerBubble(q, 0);
       text('${q + 1}', b0.x - 4.3, b0.y + 1.1, 7.5, bold: true, right: true);
-      final question = exam.questions[q];
+      final question = key && booklet == 1 ? exam.bookletBQuestions[q] : exam.questions[q];
       for (var c = 0; c < layout.choiceCount; c++) {
         final b = layout.answerBubble(q, c);
         _bubble(g, x(b.x), y(b.y), rad, _letter(c), fonts);

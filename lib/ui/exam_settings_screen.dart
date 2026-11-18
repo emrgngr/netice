@@ -27,6 +27,8 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
   late List<TextEditingController> _points;
   late List<TextEditingController> _codes;
   late int _wpc;
+  late bool _booklet;
+  late final TextEditingController _order;
   late DateTime _date;
   bool _loaded = false;
 
@@ -43,6 +45,10 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
     _points = [for (final q in _qs) TextEditingController(text: _num(q.points))];
     _codes = [for (final q in _qs) TextEditingController(text: q.outcomeCode ?? '')];
     _wpc = _exam.rule.wrongsPerCorrect;
+    _booklet = _exam.hasBooklets;
+    _order = TextEditingController(
+        text: _exam.bookletOrder == null ? '' : _exam.bookletOrder!.map((v) => v + 1).join(', '))
+      ..addListener(() => setState(() {}));
     _date = _exam.date;
     _loaded = true;
   }
@@ -95,7 +101,16 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
           cancelled: _qs[i].cancelled,
           outcomeCode: code.isEmpty ? null : code));
     }
+    List<int>? order;
+    if (_booklet) {
+      order = Exam.parseBookletOrder(_order.text, _qs.length);
+      if (order == null) {
+        return toast(context, 'B kitapçığı sırası 1–${_qs.length} arasındaki her numarayı bir kez içermeli.');
+      }
+    }
     StoreScope.of(context).upsertExam(_exam.copyWith(
+      bookletOrder: order,
+      clearBooklet: !_booklet,
       name: _name.text.trim(),
       className: _class.text.trim(),
       date: _date,
@@ -188,6 +203,61 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
                   DropdownMenuItem(value: 4, child: Text('4 yanlış 1 doğru')),
                 ],
                 onChanged: (v) => setState(() => _wpc = v ?? 0),
+              ),
+              const SectionTitle('Kitapçık türü'),
+              Card(
+                clipBehavior: Clip.antiAlias,
+                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                  SwitchListTile(
+                    value: _booklet,
+                    onChanged: (v) => setState(() => _booklet = v),
+                    title: const Text('A ve B kitapçığı var', style: TextStyle(fontWeight: FontWeight.w700)),
+                    subtitle: const Text('Kopya önlemek için soruların yeri değişik ikinci kitapçık. '
+                        'Formda kitapçık dairesi çıkar, kâğıtlar kendiliğinden doğru anahtarla puanlanır.'),
+                  ),
+                  if (_booklet)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                        TextField(
+                          controller: _order,
+                          keyboardType: TextInputType.text,
+                          minLines: 1,
+                          maxLines: 3,
+                          decoration: InputDecoration(
+                            labelText: 'B kitapçığındaki soruların A\'daki numaraları',
+                            hintText: 'Örn. 3, 1, 4, 2, …  (B\'nin 1. sorusu A\'nın 3. sorusu)',
+                            errorText: _order.text.trim().isEmpty ||
+                                    Exam.parseBookletOrder(_order.text, _qs.length) != null
+                                ? null
+                                : '1–${_qs.length} arası her numara bir kez yazılmalı',
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(children: [
+                          Expanded(
+                            child: Text(
+                              () {
+                                final o = Exam.parseBookletOrder(_order.text, _qs.length);
+                                if (o == null) return 'B anahtarı sıra girilince burada görünür.';
+                                return 'B anahtarı: ${[
+                                  for (final i in o)
+                                    _qs[i].correct.isEmpty ? '–' : _qs[i].correct.map((c) => String.fromCharCode(65 + c)).join('/')
+                                ].join(' ')}';
+                              }(),
+                              style: t.textTheme.bodySmall?.copyWith(color: muted),
+                            ),
+                          ),
+                          TextButton.icon(
+                            onPressed: () => setState(() =>
+                                _order.text = ([for (var i = 1; i <= _qs.length; i++) i]..shuffle()).join(', ')),
+                            icon: const Icon(Icons.shuffle_rounded, size: 18),
+                            label: const Text('Karışık sıra öner'),
+                          ),
+                        ]),
+                      ]),
+                    ),
+                ]),
               ),
               SectionTitle('Sorular',
                   trailing: TextButton.icon(
