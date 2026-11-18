@@ -184,6 +184,20 @@ class AppStore extends ChangeNotifier {
     save();
   }
 
+  static bool _isDemoExam(String id) => id.startsWith('demo_exam');
+  static bool _isDemoStudent(String id) => id.startsWith('demo_') || id.startsWith('demoB_');
+
+  /// İlk açılışta eklenen örnek sınıf ve sınavlar duruyor mu?
+  bool get hasDemo => exams.any((e) => _isDemoExam(e.id)) || students.any((s) => _isDemoStudent(s.id));
+
+  /// Örnek verileri siler; öğretmenin kendi kayıtlarına dokunmaz.
+  void clearDemo() {
+    sheets.removeWhere((s) => _isDemoExam(s.examId));
+    exams.removeWhere((e) => _isDemoExam(e.id));
+    students.removeWhere((s) => _isDemoStudent(s.id));
+    _changed();
+  }
+
   void setSchool(SchoolInfo info) {
     school = info;
     _changed();

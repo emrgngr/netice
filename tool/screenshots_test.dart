@@ -13,6 +13,8 @@ import 'package:netice/ui/new_exam_screen.dart';
 import 'package:netice/ui/student_detail_screen.dart';
 import 'package:netice/ui/compare_screen.dart';
 import 'package:netice/ui/school_screen.dart';
+import 'package:netice/ui/onboarding_screen.dart';
+import 'package:netice/ui/settings_screen.dart';
 import 'package:netice/core/models.dart';
 import 'package:netice/ui/exam_settings_screen.dart';
 import 'package:netice/ui/theme.dart';
@@ -66,6 +68,7 @@ void main() {
     await tester.runAsync(loadFonts);
     final store = AppStore();
     await tester.runAsync(() => store.load(dir: Directory.systemTemp.createTempSync('shots')));
+    store.onboardingDone = true;
     final app = NeticeApp(store: store);
 
     await shot(tester, app, const Size(390, 844), 'mobil_ana_sayfa');
@@ -93,6 +96,16 @@ void main() {
         subject: 'Fizik');
     await shot(tester, StoreScope(store: store, child: _themed(const SchoolScreen())), const Size(390, 1500),
         'mobil_okul_bilgileri');
+    await shot(tester, StoreScope(store: store, child: _themed(const OnboardingScreen())), const Size(390, 844),
+        'mobil_rehber');
+    await shot(tester, StoreScope(store: store, child: _themed(const SettingsScreen())), const Size(390, 1500),
+        'mobil_ayarlar');
+    await shot(tester, StoreScope(store: store, child: _themed(const ExamSettingsScreen(examId: 'demo_exam'))),
+        const Size(390, 1100), 'mobil_kitapcik', then: () async {
+      await tester.tap(find.text('A ve B kitapçığı var'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Karışık sıra öner'));
+    });
     await shot(tester, StoreScope(store: store, child: _themed(const ExamScreen(examId: 'demo_exam'))), const Size(390, 844),
         'mobil_form_yazdir', then: () async {
           await tester.tap(find.byIcon(Icons.more_vert).first);

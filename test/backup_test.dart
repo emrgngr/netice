@@ -37,4 +37,15 @@ void main() {
     expect(() => b.restoreBackup('yedek değil'), throwsA(isA<FormatException>()));
     expect(b.students.length, before);
   });
+
+  test('örnek veriler silinir, öğretmenin kayıtları kalır', () {
+    final s = AppStore()..seedDemo();
+    s.students.add(const Student(id: 'k1', firstName: 'Ali', lastName: 'Kaya', number: '5', className: '11-C'));
+    expect(s.hasDemo, isTrue);
+    s.clearDemo();
+    expect(s.hasDemo, isFalse);
+    expect(s.exams, isEmpty);
+    expect(s.sheets, isEmpty);
+    expect(s.students.map((e) => e.id), ['k1']);
+  });
 }

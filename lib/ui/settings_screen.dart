@@ -173,6 +173,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
               },
             ),
           ),
+          if (store.hasDemo) ...[
+            const SectionTitle('Örnek veriler'),
+            Card(
+              clipBehavior: Clip.antiAlias,
+              child: tile(Icons.cleaning_services_outlined, NColors.coral, 'Örnek verileri sil',
+                  'Deneme için eklenen 9-A, 9-B sınıfları ve örnek sınavlar', () async {
+                final ok = await showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text('Örnek veriler silinsin mi?'),
+                    content: const Text('Örnek öğrenciler, örnek sınavlar ve kâğıtları silinir. '
+                        'Sizin eklediğiniz sınıf ve sınavlara dokunulmaz.'),
+                    actions: [
+                      TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Vazgeç')),
+                      FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Sil')),
+                    ],
+                  ),
+                );
+                if (ok != true || !context.mounted) return;
+                store.clearDemo();
+                toast(context, 'Örnek veriler silindi.');
+                setState(() {});
+              }),
+            ),
+          ],
           const SectionTitle('Yedekleme'),
           Card(
             clipBehavior: Clip.antiAlias,
