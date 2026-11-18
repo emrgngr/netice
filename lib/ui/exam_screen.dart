@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:printing/printing.dart';
 
 import '../core/analysis.dart';
 import '../core/import_export.dart';
@@ -423,6 +424,15 @@ void showSheetDetail(BuildContext context, Exam exam, Result r) {
                 },
                 icon: const Icon(Icons.badge_outlined, size: 18),
                 label: const Text('Karneyi önizle'),
+              ),
+            ),
+          if (st != null)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: () => shareStudentCard(context, exam, st.id),
+                icon: const Icon(Icons.send_outlined, size: 18),
+                label: const Text('Karneyi veliye gönder (WhatsApp, e-posta…)'),
               ),
             ),
           const SizedBox(height: 12),
@@ -991,4 +1001,34 @@ Future<void> openCardsPreview(BuildContext context, Exam exam, {String? studentI
       build: (id) => buildStudentCardsPdf(exam: exam, results: results, students: byId, onlyStudentId: id, school: store.school),
     ),
   ));
+}
+
+/// Tek öğrencinin karnesini PDF olarak oluşturup telefonun paylaşım
+/// menüsünü açar (WhatsApp, e-posta, Drive…). Hazır bir veli mesajı eklenir.
+Future<void> shareStudentCard(BuildContext context, Exam exam, String studentId) async {
+  final store = StoreScope.of(context);
+  final messenger = ScaffoldMessenger.maybeOf(context);
+  final st = store.studentById[studentId];
+  final results = store.resultsOf(exam);
+  final r = results.where((x) => x.sheet.studentId == studentId).firstOrNull;
+  if (st == null || r == null) return;
+  try {
+    final bytes = await buildStudentCardsPdf(
+        exam: exam, results: results, students: store.studentById, onlyStudentId: studentId, school: store.school);
+    final rep = ExamReport.build(exam, results);
+    final school = store.school.name.trim();
+    final body = 'Sayın Velimiz,\n\n'
+        '${st.fullName} adlı öğrencimizin "${exam.name}" (${dmy(exam.date)}) sınav karnesi ektedir.\n'
+        'Puanı: ${fmt1(r.score)} / ${fmt1(exam.rule.maxScore)} · Sınıf ortalaması: ${fmt1(rep.stats.mean)}\n\n'
+        'Saygılarımızla,\n${store.school.teacher.trim().isEmpty ? 'Ders öğretmeni' : store.school.teacher.trim()}'
+        '${school.isEmpty ? '' : '\n$school'}';
+    await Printing.sharePdf(
+      bytes: bytes,
+      filename: '${_safe(st.fullName)}_${_safe(exam.name)}_karne.pdf',
+      subject: '${st.fullName} – ${exam.name} sınav karnesi',
+      body: body,
+    );
+  } catch (e) {
+    messenger?.showSnackBar(SnackBar(content: Text('Karne paylaşılamadı: $e')));
+  }
 }

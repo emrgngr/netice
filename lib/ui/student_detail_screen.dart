@@ -115,6 +115,11 @@ class StudentDetailScreen extends StatelessWidget {
                         icon: const Icon(Icons.badge_outlined),
                         onPressed: () => openCardsPreview(context, e.exam, studentId: s.id),
                       ),
+                      IconButton(
+                        tooltip: 'Karneyi veliye gönder',
+                        icon: const Icon(Icons.send_outlined),
+                        onPressed: () => shareStudentCard(context, e.exam, s.id),
+                      ),
                     ]),
                     onTap: () => Navigator.of(context)
                         .push(MaterialPageRoute(builder: (_) => ExamScreen(examId: e.exam.id))),
