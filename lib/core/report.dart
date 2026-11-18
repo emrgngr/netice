@@ -301,9 +301,18 @@ class ExamReport {
     if (weak.isNotEmpty) {
       c.add('Ayırt ediciliği düşük sorular: ${weak.join(', ')}. Bu sorular başarılı ve başarısız öğrenciyi ayırmakta zorlanıyor.');
     }
+    final dead = items.where((i) => i.nonFunctional.isNotEmpty).toList();
+    if (dead.isNotEmpty) {
+      c.add('İşlevsiz çeldirici (hiç seçilmeyen şık) olan sorular: '
+          '${dead.map((i) => '${i.no} (${i.nonFunctional.map((x) => String.fromCharCode(65 + x)).join('/')})').join(', ')}. '
+          'Bu şıklar daha inandırıcı hâle getirilebilir.');
+    }
     if (outcomes.isNotEmpty) {
       final s = [...outcomes]..sort((a, b) => a.rate.compareTo(b.rate));
-      c.add('En çok tekrar gereken kazanım: ${s.first.code} (${pct(s.first.rate)} başarı).');
+      final weakest = s.take(3).map((o) => '${o.code} (${pct(o.rate)})').join(', ');
+      c.add(s.length == 1
+          ? 'Kazanım başarısı: $weakest.'
+          : 'En çok tekrar gereken ${math.min(3, s.length)} kazanım: $weakest.');
     }
     if (results.length < Analysis.reliableGroupSize) {
       c.add('Not: ${results.length} öğrenci ile madde istatistikleri yol göstericidir, kesin hüküm değildir.');

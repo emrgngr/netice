@@ -622,6 +622,11 @@ Future<Uint8List> buildResultsPdf({
               ),
             ),
         ],
+        if (r.outcomes.isNotEmpty) ...[
+          pw.NewPage(),
+          k.title('Kazanım ısı haritası', 'Her öğrencinin her kazanımdaki doğru oranı · yeşil ≥ %70 · sarı %50–69 · mercan < %50'),
+          _heatmap(r, students),
+        ],
         pw.NewPage(),
         k.title(
           'Sınıf sonuç listesi',
@@ -679,7 +684,8 @@ Future<Uint8List> buildResultsPdf({
                   '${it.blankCount}',
                   it.suspiciousChoice != null
                       ? 'Üst grup ${_letter(it.suspiciousChoice!)} seçti; anahtarı kontrol edin'
-                      : '${it.difficultyLabel} · ${it.discriminationLabel}',
+                      : '${it.difficultyLabel} · ${it.discriminationLabel}'
+                          '${it.nonFunctional.isEmpty ? '' : ' · İşlevsiz: ${it.nonFunctional.map(_letter).join('/')}'}',
                 ];
               }(),
           ],
@@ -888,4 +894,61 @@ Future<Uint8List> buildStudentCardsPdf({
     doc.addPage(pw.Page(build: (_) => pw.Center(child: pw.Text('Henüz okunan kâğıt yok.'))));
   }
   return doc.save();
+}
+
+PdfColor _heatColor(double v) => v >= 0.7
+    ? const PdfColor.fromInt(0xFFBFEFDC)
+    : v >= 0.5
+        ? const PdfColor.fromInt(0xFFFBE7B5)
+        : const PdfColor.fromInt(0xFFF9D2C5);
+
+pw.Widget _heatmap(ExamReport r, Map<String, Student> students) {
+  final exam = r.exam;
+  final codes = r.outcomes;
+  pw.Widget cell(String t, {PdfColor? color, bool bold = false, pw.Alignment align = pw.Alignment.center}) =>
+      pw.Container(
+        alignment: align,
+        padding: const pw.EdgeInsets.symmetric(horizontal: 3, vertical: 3),
+        color: color,
+        child: pw.Text(t,
+            maxLines: 2,
+            style: pw.TextStyle(fontSize: 7, fontWeight: bold ? pw.FontWeight.bold : pw.FontWeight.normal)),
+      );
+  return pw.Table(
+    border: pw.TableBorder.all(color: PdfColors.white, width: 1.2),
+    columnWidths: {0: const pw.FlexColumnWidth(3), for (var i = 1; i <= codes.length; i++) i: const pw.FlexColumnWidth(1.4)},
+    children: [
+      pw.TableRow(
+        decoration: const pw.BoxDecoration(color: _ink),
+        children: [
+          pw.Container(
+            padding: const pw.EdgeInsets.all(3),
+            child: pw.Text('Öğrenci', style: pw.TextStyle(color: PdfColors.white, fontSize: 7, fontWeight: pw.FontWeight.bold)),
+          ),
+          for (final o in codes)
+            pw.Container(
+              padding: const pw.EdgeInsets.all(3),
+              alignment: pw.Alignment.center,
+              child: pw.Text(o.code,
+                  maxLines: 2,
+                  textAlign: pw.TextAlign.center,
+                  style: pw.TextStyle(color: PdfColors.white, fontSize: 6.5, fontWeight: pw.FontWeight.bold)),
+            ),
+        ],
+      ),
+      for (final st in r.standings)
+        pw.TableRow(children: [
+          cell(students[st.result.sheet.studentId]?.fullName ?? 'Eşleşmedi', align: pw.Alignment.centerLeft),
+          for (final o in codes)
+            () {
+              final v = o.rateOf(exam, st.result);
+              return cell('%${(v * 100).round()}', color: _heatColor(v));
+            }(),
+        ]),
+      pw.TableRow(children: [
+        cell('Sınıf', bold: true, align: pw.Alignment.centerLeft),
+        for (final o in codes) cell('%${(o.rate * 100).round()}', color: _heatColor(o.rate), bold: true),
+      ]),
+    ],
+  );
 }

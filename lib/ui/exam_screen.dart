@@ -350,6 +350,12 @@ class _AnalysisTab extends StatelessWidget {
                         )),
                   Text('Boş: ${it.blankCount}', style: const TextStyle(color: NColors.gray)),
                 ]),
+                if (it.nonFunctional.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text('İşlevsiz çeldirici: ${it.nonFunctional.map(letter).join(', ')} (kimse seçmedi)',
+                        style: t.textTheme.bodySmall?.copyWith(color: muted)),
+                  ),
               ]),
             ),
             if (warn)
@@ -570,6 +576,17 @@ class _AnalysisTab extends StatelessWidget {
                 ]),
         ),
       ),
+      if (rep.outcomes.isNotEmpty) ...[
+        const SectionTitle('Kazanım ısı haritası'),
+        Card(
+          clipBehavior: Clip.antiAlias,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.all(12),
+            child: _Heatmap(rep: rep),
+          ),
+        ),
+      ],
       if (results.length < Analysis.reliableGroupSize)
         Padding(
           padding: const EdgeInsets.only(top: 12),
@@ -691,5 +708,62 @@ class _DifficultyChart extends StatelessWidget {
         return fits ? row : SingleChildScrollView(scrollDirection: Axis.horizontal, child: row);
       }),
     );
+  }
+}
+
+class _Heatmap extends StatelessWidget {
+  final ExamReport rep;
+  const _Heatmap({required this.rep});
+
+  static Color colorOf(double v) => v >= 0.7
+      ? NColors.emerald
+      : v >= 0.5
+          ? NColors.amber
+          : NColors.coral;
+
+  @override
+  Widget build(BuildContext context) {
+    final students = StoreScope.of(context).studentById;
+    final t = Theme.of(context);
+    Widget cell(double v, {bool bold = false}) => Container(
+          width: 64,
+          height: 30,
+          margin: const EdgeInsets.all(1.5),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(color: colorOf(v).withValues(alpha: 0.22), borderRadius: BorderRadius.circular(6)),
+          child: Text('%${(v * 100).round()}',
+              style: TextStyle(fontSize: 12, fontFeatures: tabular, fontWeight: bold ? FontWeight.w800 : FontWeight.w600)),
+        );
+    Widget name(String s, {bool bold = false}) => SizedBox(
+          width: 140,
+          child: Text(s,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontWeight: bold ? FontWeight.w800 : FontWeight.w500)),
+        );
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Row(children: [
+        name(''),
+        for (final o in rep.outcomes)
+          SizedBox(
+            width: 67,
+            child: Text(o.code,
+                maxLines: 2,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                style: t.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w700)),
+          ),
+      ]),
+      const SizedBox(height: 4),
+      for (final st in rep.standings)
+        Row(children: [
+          name(students[st.result.sheet.studentId]?.fullName ?? 'Eşleşmeyen kâğıt'),
+          for (final o in rep.outcomes) cell(o.rateOf(rep.exam, st.result)),
+        ]),
+      Row(children: [
+        name('Sınıf', bold: true),
+        for (final o in rep.outcomes) cell(o.rate, bold: true),
+      ]),
+    ]);
   }
 }

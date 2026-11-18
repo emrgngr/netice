@@ -50,6 +50,10 @@ class ItemStats {
   /// Üst grubun çoğunluğu yanlış bir şıkkı seçtiyse o şık (anahtar uyarısı).
   final int? suspiciousChoice;
 
+  /// Hiç kimsenin seçmediği yanlış şıklar (işlevsiz çeldirici). Yeterli
+  /// öğrenci yoksa boş bırakılır.
+  final List<int> nonFunctional;
+
   const ItemStats({
     required this.no,
     required this.p,
@@ -58,6 +62,7 @@ class ItemStats {
     required this.upperChoiceCounts,
     required this.blankCount,
     required this.suspiciousChoice,
+    this.nonFunctional = const [],
   });
 
   String get difficultyLabel => p > 0.80
@@ -186,6 +191,9 @@ class Analysis {
         upperChoiceCounts: upperCounts,
         blankCount: blanks,
         suspiciousChoice: suspicious,
+        nonFunctional: q.cancelled || n < 10
+            ? const []
+            : [for (var c = 0; c < exam.choiceCount; c++) if (!q.correct.contains(c) && counts[c] == 0) c],
       ));
     }
     return items;
