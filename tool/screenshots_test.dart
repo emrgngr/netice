@@ -12,6 +12,8 @@ import 'package:netice/ui/exam_screen.dart';
 import 'package:netice/ui/new_exam_screen.dart';
 import 'package:netice/ui/student_detail_screen.dart';
 import 'package:netice/ui/compare_screen.dart';
+import 'package:netice/ui/school_screen.dart';
+import 'package:netice/core/models.dart';
 import 'package:netice/ui/exam_settings_screen.dart';
 import 'package:netice/ui/theme.dart';
 
@@ -80,6 +82,15 @@ void main() {
         const Size(390, 1100), 'mobil_sinav_ayarlari');
     await shot(tester, app, const Size(390, 1500), 'mobil_ana_sayfa_uzun');
     await shot(tester, app, const Size(412, 915), 'mobil_siniflar', then: () async => tester.tap(find.text('Sınıflar')));
+    store.school = const SchoolInfo(
+        province: 'Ankara',
+        district: 'Çankaya',
+        name: 'Atatürk Anadolu Lisesi',
+        principal: 'Ayşe Demir',
+        teacher: 'Emine Yılmaz',
+        subject: 'Fizik');
+    await shot(tester, StoreScope(store: store, child: _themed(const SchoolScreen())), const Size(390, 1500),
+        'mobil_okul_bilgileri');
     await shot(tester, StoreScope(store: store, child: _themed(const ExamScreen(examId: 'demo_exam'))), const Size(390, 844),
         'mobil_form_yazdir', then: () async {
           await tester.tap(find.byIcon(Icons.more_vert).first);

@@ -44,7 +44,7 @@ class _CompareScreenState extends State<CompareScreen> {
     Future<void> pdf() async {
       if (rows.length < 2) return toast(context, 'Karşılaştırmak için en az iki sınav seçin.');
       await ReportPreviewScreen.open(context,
-          title: 'Şube karşılaştırması', fileName: 'sube_karsilastirmasi.pdf', build: () => buildComparePdf(rows));
+          title: 'Şube karşılaştırması', fileName: 'sube_karsilastirmasi.pdf', build: () => buildComparePdf(rows, school: store.school));
     }
 
     return Scaffold(

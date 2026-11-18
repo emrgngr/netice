@@ -17,6 +17,9 @@ class AppStore extends ChangeNotifier {
   final List<Exam> exams = [];
   final List<Sheet> sheets = [];
 
+  /// Okul ve öğretmen bilgileri (rapor başlıkları için).
+  SchoolInfo school = const SchoolInfo();
+
   File? _file;
   bool loaded = false;
 
@@ -52,6 +55,7 @@ class AppStore extends ChangeNotifier {
       students.addAll((j['students'] as List).map((e) => Student.fromJson(e as Map<String, dynamic>)));
       exams.addAll((j['exams'] as List).map((e) => Exam.fromJson(e as Map<String, dynamic>)));
       sheets.addAll((j['sheets'] as List).map((e) => Sheet.fromJson(e as Map<String, dynamic>)));
+      if (j['school'] is Map) school = SchoolInfo.fromJson((j['school'] as Map).cast<String, dynamic>());
     } else {
       seedDemo();
       await save();
@@ -60,7 +64,17 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> save() async {
+  /// Kayıtlar sırayla yazılır; üst üste gelen iki kayıt aynı geçici dosyayı
+  /// paylaşıp birbirini bozmasın.
+  Future<void> _saving = Future.value();
+
+  Future<void> save() {
+    final next = _saving.catchError((_) {}).then((_) => _write());
+    _saving = next;
+    return next;
+  }
+
+  Future<void> _write() async {
     final f = _file;
     if (f == null) return;
     final tmp = File('${f.path}.tmp');
@@ -69,6 +83,7 @@ class AppStore extends ChangeNotifier {
       'students': students.map((s) => s.toJson()).toList(),
       'exams': exams.map((e) => e.toJson()).toList(),
       'sheets': sheets.map((s) => s.toJson()).toList(),
+      'school': school.toJson(),
     }));
     await tmp.rename(f.path);
   }
@@ -76,6 +91,11 @@ class AppStore extends ChangeNotifier {
   void _changed() {
     notifyListeners();
     save();
+  }
+
+  void setSchool(SchoolInfo info) {
+    school = info;
+    _changed();
   }
 
   void addStudents(List<Student> list) {

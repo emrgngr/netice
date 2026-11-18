@@ -35,7 +35,8 @@ class _Fonts {
 
 /// Basılı optik formlar. Her öğrenci için adı ve numarası yazılı bir sayfa
 /// üretir; [students] boşsa [blankCopies] adet boş form üretir.
-Future<Uint8List> buildFormsPdf(Exam exam, List<Student> students, {int blankCopies = 1}) async {
+Future<Uint8List> buildFormsPdf(Exam exam, List<Student> students,
+    {int blankCopies = 1, SchoolInfo school = const SchoolInfo()}) async {
   final fonts = await _Fonts.load();
   final layout = FormLayout(questionCount: exam.questionCount, choiceCount: exam.choiceCount);
   final doc = pw.Document(title: '${exam.name} · optik form', author: 'Netice');
@@ -43,7 +44,7 @@ Future<Uint8List> buildFormsPdf(Exam exam, List<Student> students, {int blankCop
       ? List<Student?>.filled(math.max(1, blankCopies), null)
       : students.cast<Student?>();
   for (final s in pages) {
-    doc.addPage(_formPage(layout, exam, fonts, student: s));
+    doc.addPage(_formPage(layout, exam, fonts, school, student: s));
   }
   return doc.save();
 }
@@ -51,13 +52,13 @@ Future<Uint8List> buildFormsPdf(Exam exam, List<Student> students, {int blankCop
 /// Cevap anahtarı formu. [filled] ise doğru şıklar karartılmış basılır ve
 /// ikinci sayfada okunaklı bir anahtar listesi yer alır; değilse öğretmenin
 /// elle dolduracağı boş bir anahtar formu üretilir.
-Future<Uint8List> buildAnswerKeyPdf(Exam exam, {bool filled = true}) async {
+Future<Uint8List> buildAnswerKeyPdf(Exam exam, {bool filled = true, SchoolInfo school = const SchoolInfo()}) async {
   final fonts = await _Fonts.load();
   final layout = FormLayout(questionCount: exam.questionCount, choiceCount: exam.choiceCount);
   final doc = pw.Document(title: '${exam.name} · cevap anahtarı', author: 'Netice');
-  doc.addPage(_formPage(layout, exam, fonts, key: true, keyFilled: filled));
+  doc.addPage(_formPage(layout, exam, fonts, school, key: true, keyFilled: filled));
   if (filled) {
-    final k = _Kit(exam, '');
+    final k = _Kit(exam, school, docTitle: 'Cevap Anahtarı');
     final theme = pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold);
     final qs = exam.questions;
     String ans(Question q) => q.cancelled ? 'İptal' : (q.correct.isEmpty ? '–' : q.correct.map(_letter).join(' / '));
@@ -123,7 +124,7 @@ Future<Uint8List> buildAnswerKeyPdf(Exam exam, {bool filled = true}) async {
   return doc.save();
 }
 
-pw.Page _formPage(FormLayout layout, Exam exam, _Fonts fonts,
+pw.Page _formPage(FormLayout layout, Exam exam, _Fonts fonts, SchoolInfo school,
         {Student? student, bool key = false, bool keyFilled = false}) =>
     pw.Page(
       pageFormat: PdfPageFormat.a4,
@@ -132,7 +133,7 @@ pw.Page _formPage(FormLayout layout, Exam exam, _Fonts fonts,
         size: PdfPoint(PdfPageFormat.a4.width, PdfPageFormat.a4.height),
         painter: (canvas, size) => _paintForm(canvas, size, layout, exam, student,
             (fonts.regular.getFont(ctx), fonts.bold.getFont(ctx)),
-            key: key, keyFilled: keyFilled),
+            key: key, keyFilled: keyFilled, school: school),
       ),
     );
 
@@ -143,7 +144,7 @@ const _tint = PdfColor.fromInt(0xFFF3F1EB);
 /// kalır (okuma motoru onları orada arar); süslemeler dairelerden en az
 /// 2,5 mm uzakta tutulur ve koyu dolgulu büyük şekil kullanılmaz.
 void _paintForm(PdfGraphics g, PdfPoint size, FormLayout layout, Exam exam, Student? s, (PdfFont, PdfFont) fonts,
-    {bool key = false, bool keyFilled = false}) {
+    {bool key = false, bool keyFilled = false, SchoolInfo school = const SchoolInfo()}) {
   const mm = PdfPageFormat.mm;
   // PDF koordinatları sol alttan başlar; form mm koordinatları sol üstten.
   double x(double v) => v * mm;
@@ -220,8 +221,8 @@ void _paintForm(PdfGraphics g, PdfPoint size, FormLayout layout, Exam exam, Stud
   field('OKUL NO', key ? '—' : (s?.number ?? ''), 62, 32.5, 92);
   field('SINAV TARİHİ', _date(exam.date), 94, 32.5, r, bold: false);
   field('SINAV', exam.name, l, 43, r);
-  field('OKUL', '', l, 53.5, 92);
-  field('DERS', '', 94, 53.5, r);
+  field('OKUL', school.name.trim(), l, 53.5, 92, bold: false);
+  field('DERS', school.subject.trim(), 94, 53.5, r, bold: false);
 
   // Öğretmen kutucukları.
   final cells = key
@@ -407,18 +408,91 @@ String _answer(Answer a) => a.marked.isEmpty ? '–' : a.marked.map(_letter).joi
 /// Rapor sayfalarının ortak üst/alt bilgisi ve yardımcı parçaları.
 class _Kit {
   final Exam exam;
-  final String institution;
+  final SchoolInfo school;
 
   /// Sağ üstteki bilgi (verilmezse sınav adı, şube ve tarih).
   final String? headerInfo;
 
+  /// Resmi başlıktaki belge adı ("Sınav Analiz Raporu").
+  final String docTitle;
+
+  /// Resmi başlıktaki sınıf ifadesi (verilmezse "9-A SINIFI").
+  final String? classLine;
+
+  /// Resmi başlık her sayfada mı (karneler), yalnız ilk sayfada mı?
+  final bool letterheadEveryPage;
+
   /// Raporun oluşturulduğu an (cihaz saatiyle).
   final DateTime createdAt = DateTime.now();
-  _Kit(this.exam, this.institution, {this.headerInfo});
+  _Kit(this.exam, this.school,
+      {this.headerInfo, this.docTitle = 'Rapor', this.classLine, this.letterheadEveryPage = false});
+
+  String get institution => school.name.trim();
+
+  /// Resmi yazı başlığı: T.C. / Kaymakamlık / Okul Müdürlüğü / belge adı.
+  pw.Widget letterhead() {
+    const bold = pw.TextStyle(fontSize: 10.5, color: PdfColors.black);
+    final subject = school.subject.trim().isEmpty ? '' : ' ${SchoolInfo.upper(school.subject.trim())} DERSİ';
+    final cls = classLine ?? '${SchoolInfo.upper(exam.className)} SINIFI';
+    return pw.Container(
+      margin: const pw.EdgeInsets.only(bottom: 14),
+      padding: const pw.EdgeInsets.only(bottom: 8),
+      decoration: const pw.BoxDecoration(border: pw.Border(bottom: pw.BorderSide(color: PdfColors.black, width: 0.8))),
+      child: pw.Column(children: [
+        pw.Text('T.C.', style: bold.copyWith(fontWeight: pw.FontWeight.bold)),
+        if (school.authority.isNotEmpty)
+          pw.Text(school.authority, style: bold.copyWith(fontWeight: pw.FontWeight.bold)),
+        pw.Text(school.directorate, style: bold.copyWith(fontWeight: pw.FontWeight.bold), textAlign: pw.TextAlign.center),
+        pw.SizedBox(height: 8),
+        pw.Text(
+          '${SchoolInfo.academicYear(exam.date)} EĞİTİM-ÖĞRETİM YILI $cls$subject',
+          style: const pw.TextStyle(fontSize: 9.5, color: PdfColors.black),
+          textAlign: pw.TextAlign.center,
+        ),
+        pw.Text(SchoolInfo.upper(docTitle),
+            style: pw.TextStyle(fontSize: 10.5, fontWeight: pw.FontWeight.bold, color: PdfColors.black)),
+        pw.SizedBox(height: 6),
+        pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
+          pw.Text(headerInfo ?? 'Sınav: ${exam.name} · ${_date(exam.date)}',
+              style: const pw.TextStyle(fontSize: 8.5, color: PdfColors.black)),
+          pw.Text('Tarih: ${_date(createdAt)}', style: const pw.TextStyle(fontSize: 8.5, color: PdfColors.black)),
+        ]),
+      ]),
+    );
+  }
+
+  /// Resmi raporun sonundaki imza alanı: ders öğretmeni ve okul müdürü onayı.
+  pw.Widget signatures() {
+    if (!school.official) return pw.SizedBox();
+    pw.Widget sig(String role, String name, {String? top}) => pw.SizedBox(
+          width: 170,
+          child: pw.Column(children: [
+            if (top != null) pw.Text(top, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 9)),
+            pw.SizedBox(height: 30),
+            pw.Text(name.trim().isEmpty ? '..............................' : name.trim(),
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 9.5)),
+            pw.Text(role, style: const pw.TextStyle(fontSize: 8.5)),
+          ]),
+        );
+    return pw.Padding(
+      padding: const pw.EdgeInsets.only(top: 30),
+      child: pw.Row(
+        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: pw.CrossAxisAlignment.end,
+        children: [
+          sig(school.subject.trim().isEmpty ? 'Ders Öğretmeni' : '${school.subject.trim()} Öğretmeni', school.teacher),
+          sig('Okul Müdürü', school.principal, top: 'UYGUNDUR\n${_date(createdAt)}'),
+        ],
+      ),
+    );
+  }
 
   String get created => reportStamp(createdAt);
 
-  pw.Widget header(pw.Context ctx) => pw.Container(
+  pw.Widget header(pw.Context ctx) =>
+      school.official && (letterheadEveryPage || ctx.pageNumber == 1) ? letterhead() : _plainHeader(ctx);
+
+  pw.Widget _plainHeader(pw.Context ctx) => pw.Container(
     margin: const pw.EdgeInsets.only(bottom: 14),
     padding: const pw.EdgeInsets.only(bottom: 8),
     decoration: const pw.BoxDecoration(
@@ -610,12 +684,12 @@ Future<Uint8List> buildResultsPdf({
   required Exam exam,
   required List<Result> results,
   required Map<String, Student> students,
-  String institution = '',
+  SchoolInfo school = const SchoolInfo(),
 }) async {
   final fonts = await _Fonts.load();
   final r = ExamReport.build(exam, results);
   final s = r.stats;
-  final k = _Kit(exam, institution);
+  final k = _Kit(exam, school, docTitle: 'Sınav Analiz Raporu');
   final max = exam.rule.maxScore;
   final doc = pw.Document(
     theme: pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold),
@@ -961,6 +1035,7 @@ Future<Uint8List> buildResultsPdf({
         ),
         pw.SizedBox(height: 4),
         pw.Text('* doğru şık', style: const pw.TextStyle(color: _muted, fontSize: 7)),
+        k.signatures(),
       ],
     ),
   );
@@ -972,14 +1047,14 @@ Future<Uint8List> buildStudentCardsPdf({
   required Exam exam,
   required List<Result> results,
   required Map<String, Student> students,
-  String institution = '',
+  SchoolInfo school = const SchoolInfo(),
 
   /// Verilirse yalnızca bu öğrencinin karnesi (istatistikler yine tüm sınıftan).
   String? onlyStudentId,
 }) async {
   final fonts = await _Fonts.load();
   final r = ExamReport.build(exam, results);
-  final k = _Kit(exam, institution);
+  final k = _Kit(exam, school, docTitle: 'Öğrenci Sınav Karnesi', letterheadEveryPage: true);
   final max = exam.rule.maxScore;
   final doc = pw.Document(
     theme: pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold),
@@ -1224,10 +1299,12 @@ pw.Widget _heatmap(ExamReport r, Map<String, Student> students) {
 }
 
 /// Şube karşılaştırma raporu.
-Future<Uint8List> buildComparePdf(List<BranchRow> rows, {String institution = ''}) async {
+Future<Uint8List> buildComparePdf(List<BranchRow> rows, {SchoolInfo school = const SchoolInfo()}) async {
   final fonts = await _Fonts.load();
-  final k = _Kit(rows.first.exam, institution,
-      headerInfo: 'Şube karşılaştırması · ${rows.map((r) => r.exam.className).join(', ')}');
+  final k = _Kit(rows.first.exam, school,
+      headerInfo: 'Şube karşılaştırması · ${rows.map((r) => r.exam.className).join(', ')}',
+      docTitle: 'Şube Karşılaştırma Raporu',
+      classLine: '${rows.map((r) => SchoolInfo.upper(r.exam.className)).toSet().join(', ')} ŞUBELERİ');
   final doc = pw.Document(
       theme: pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold), title: 'Şube karşılaştırması', author: 'Netice');
   final best = rows.reduce((a, b) => a.report.stats.mean >= b.report.stats.mean ? a : b);
@@ -1297,6 +1374,7 @@ Future<Uint8List> buildComparePdf(List<BranchRow> rows, {String institution = ''
           fontSize: rows.first.exam.questionCount > 25 ? 5.5 : 7,
         ),
       ],
+      k.signatures(),
     ],
   ));
   return doc.save();
@@ -1308,10 +1386,10 @@ Future<Uint8List> buildEokulPdf({
   required Exam exam,
   required List<Result> results,
   required List<Student> classStudents,
-  String institution = '',
+  SchoolInfo school = const SchoolInfo(),
 }) async {
   final fonts = await _Fonts.load();
-  final k = _Kit(exam, institution);
+  final k = _Kit(exam, school, docTitle: 'Not Giriş Listesi');
   final doc = pw.Document(
       theme: pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold), title: '${exam.name} e-Okul listesi', author: 'Netice');
   final rows = eokulRows(exam, results, classStudents);
@@ -1338,6 +1416,7 @@ Future<Uint8List> buildEokulPdf({
         widths: {2: const pw.FlexColumnWidth(4), 4: const pw.FlexColumnWidth(2)},
         fontSize: 10,
       ),
+      k.signatures(),
     ],
   ));
   return doc.save();

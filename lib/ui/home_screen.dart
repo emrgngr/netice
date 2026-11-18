@@ -6,6 +6,7 @@ import '../core/models.dart';
 import '../core/progress.dart';
 import '../main.dart';
 import 'compare_screen.dart';
+import 'school_screen.dart';
 import 'exam_screen.dart';
 import 'logo.dart';
 import 'new_exam_screen.dart';
@@ -327,7 +328,29 @@ class _Insights extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = Theme.of(context);
     final muted = t.colorScheme.onSurface.withValues(alpha: 0.6);
+    final school = StoreScope.of(context).school;
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      Card(
+        clipBehavior: Clip.antiAlias,
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          leading: IconBadge(Icons.account_balance_outlined,
+              color: school.isEmpty ? NColors.amber : NColors.emerald),
+          title: Text(school.isEmpty ? 'Okul bilgilerini girin' : school.name,
+              style: const TextStyle(fontWeight: FontWeight.w700)),
+          subtitle: Text(school.isEmpty
+              ? 'Raporlarda resmi yazı başlığı olarak kullanılır'
+              : [
+                  if (school.district.isNotEmpty || school.province.isNotEmpty)
+                    [school.district, school.province].where((e) => e.isNotEmpty).join(' / '),
+                  if (school.subject.isNotEmpty) school.subject,
+                  school.official ? 'Resmi başlık açık' : 'Resmi başlık kapalı',
+                ].join(' · ')),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SchoolScreen())),
+        ),
+      ),
+      const SizedBox(height: 12),
       Card(
         clipBehavior: Clip.antiAlias,
         child: ListTile(

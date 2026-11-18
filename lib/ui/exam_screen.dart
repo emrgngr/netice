@@ -108,28 +108,28 @@ class ExamScreen extends StatelessWidget {
             context,
             title: 'Öğrenci formları',
             fileName: '${name}_optik_form.pdf',
-            build: () => buildFormsPdf(exam, cls),
+            build: () => buildFormsPdf(exam, cls, school: store.school),
           );
         case 'blank':
           await ReportPreviewScreen.open(
             context,
             title: 'Boş optik form ($copies adet)',
             fileName: '${name}_bos_form_$copies.pdf',
-            build: () => buildFormsPdf(exam, const [], blankCopies: copies),
+            build: () => buildFormsPdf(exam, const [], blankCopies: copies, school: store.school),
           );
         case 'key':
           await ReportPreviewScreen.open(
             context,
             title: 'Cevap anahtarı',
             fileName: '${name}_cevap_anahtari.pdf',
-            build: () => buildAnswerKeyPdf(exam),
+            build: () => buildAnswerKeyPdf(exam, school: store.school),
           );
         case 'keyBlank':
           await ReportPreviewScreen.open(
             context,
             title: 'Boş cevap anahtarı formu',
             fileName: '${name}_bos_anahtar.pdf',
-            build: () => buildAnswerKeyPdf(exam, filled: false),
+            build: () => buildAnswerKeyPdf(exam, filled: false, school: store.school),
           );
       }
     }
@@ -139,7 +139,7 @@ class ExamScreen extends StatelessWidget {
       await ReportPreviewScreen.open(context,
           title: 'Sınav raporu',
           fileName: '${_safe(exam.name)}_sinav_raporu.pdf',
-          build: () => buildResultsPdf(exam: exam, results: results, students: store.studentById));
+          build: () => buildResultsPdf(exam: exam, results: results, students: store.studentById, school: store.school));
     }
 
     Future<void> studentCards() async {
@@ -181,7 +181,7 @@ class ExamScreen extends StatelessWidget {
         await ReportPreviewScreen.open(context,
             title: 'e-Okul listesi',
             fileName: '${_safe(exam.name)}_eokul.pdf',
-            build: () => buildEokulPdf(exam: exam, results: results, classStudents: cls));
+            build: () => buildEokulPdf(exam: exam, results: results, classStudents: cls, school: store.school));
       } else if (choice == 'xls') {
         await FilePicker.saveFile(
           fileName: '${_safe(exam.name)}_eokul.csv',
@@ -955,7 +955,7 @@ Future<void> openCardsPreview(BuildContext context, Exam exam, {String? studentI
       baseFileName: '${_safe(exam.name)}_karne',
       students: students,
       initialStudentId: studentId,
-      build: (id) => buildStudentCardsPdf(exam: exam, results: results, students: byId, onlyStudentId: id),
+      build: (id) => buildStudentCardsPdf(exam: exam, results: results, students: byId, onlyStudentId: id, school: store.school),
     ),
   ));
 }

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:netice/core/import_export.dart';
 import 'package:netice/core/models.dart';
+import 'package:netice/core/progress.dart';
 import 'package:netice/core/scoring.dart';
 import 'package:netice/core/store.dart';
 import 'package:netice/omr/form_layout.dart';
@@ -45,10 +46,14 @@ void main() {
     expect(store.studentById[sheet.studentId]!.fullName, 'Elif Kaya');
     expect(store.sheetsOf(exam.id).length, 24);
     expect(Scorer.score(exam, sheet).score, 100);
+    store.setSchool(const SchoolInfo(name: 'Örnek Lisesi', district: 'Merkez', province: 'İzmir'));
+    await store.save();
 
     // Kalıcılık: yeniden yüklenince aynı veri gelir.
     final again = AppStore();
     await again.load(dir: dir);
+    expect(again.school.name, 'Örnek Lisesi');
+    expect(again.school.authority, 'İZMİR VALİLİĞİ');
     expect(again.sheetsOf(exam.id).length, 24);
     final csv = resultsCsv(exam, again.resultsOf(exam), again.studentById);
     expect(csv, contains('Elif;Kaya'));
@@ -75,13 +80,32 @@ void main() {
     final store = AppStore()..seedDemo();
     final exam = store.exams.first;
     final results = store.resultsOf(exam);
-    final report = await buildResultsPdf(exam: exam, results: results, students: store.studentById, institution: 'Örnek Lisesi');
-    final cards = await buildStudentCardsPdf(exam: exam, results: results, students: store.studentById);
+    const school = SchoolInfo(
+        province: 'Ankara',
+        district: 'Çankaya',
+        name: 'Atatürk Anadolu Lisesi',
+        principal: 'Ayşe Demir',
+        teacher: 'Emine Yılmaz',
+        subject: 'Fizik');
+    final report = await buildResultsPdf(exam: exam, results: results, students: store.studentById, school: school);
+    final cards = await buildStudentCardsPdf(exam: exam, results: results, students: store.studentById, school: school);
+    final eokul = await buildEokulPdf(
+        exam: exam, results: results, classStudents: store.studentsOf(exam.className), school: school);
+    final forms = await buildFormsPdf(exam, store.studentsOf(exam.className).take(1).toList(), school: school);
+    final key = await buildAnswerKeyPdf(exam, school: school);
+    final compare = await buildComparePdf(compareExams(store, store.exams.where((e) => e.name == exam.name).toList()
+      ..addAll(store.exams.where((e) => e.className != exam.className))), school: school);
     expect(String.fromCharCodes(report.take(5)), '%PDF-');
     expect(String.fromCharCodes(cards.take(5)), '%PDF-');
     final out = Directory('build/test_output')..createSync(recursive: true);
     File('${out.path}/sinif_raporu.pdf').writeAsBytesSync(report);
     File('${out.path}/ogrenci_karneleri.pdf').writeAsBytesSync(cards);
+    File('${out.path}/resmi_eokul.pdf').writeAsBytesSync(eokul);
+    File('${out.path}/resmi_form.pdf').writeAsBytesSync(forms);
+    File('${out.path}/resmi_anahtar.pdf').writeAsBytesSync(key);
+    File('${out.path}/resmi_karsilastirma.pdf').writeAsBytesSync(compare);
+    expect(school.authority, 'ÇANKAYA KAYMAKAMLIĞI');
+    expect(school.directorate, 'ATATÜRK ANADOLU LİSESİ MÜDÜRLÜĞÜ');
   });
 
   test('Excel (.xlsx) listesi, başlıktan önceki satırlar atlanarak aktarılır', () {

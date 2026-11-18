@@ -279,3 +279,94 @@ class Sheet {
             .toList(),
       );
 }
+
+/// Okul ve öğretmen bilgileri. Raporlarda resmi yazı başlığı olarak kullanılır.
+class SchoolInfo {
+  final String province; // il
+  final String district; // ilçe
+  final String name; // okul adı
+  final String principal; // okul müdürü
+  final String teacher; // ders öğretmeni
+  final String subject; // ders / branş
+
+  /// Raporlarda "T.C. ... Kaymakamlığı ... Müdürlüğü" başlığı ve imza alanı.
+  final bool officialHeader;
+
+  const SchoolInfo({
+    this.province = '',
+    this.district = '',
+    this.name = '',
+    this.principal = '',
+    this.teacher = '',
+    this.subject = '',
+    this.officialHeader = true,
+  });
+
+  bool get isEmpty => name.trim().isEmpty;
+
+  /// Resmi başlık kullanılacak mı?
+  bool get official => officialHeader && !isEmpty;
+
+  /// Türkçe büyük harf (i → İ, ı → I).
+  static String upper(String s) => s.replaceAll('i', 'İ').replaceAll('ı', 'I').toUpperCase();
+
+  /// "ÇANKAYA KAYMAKAMLIĞI" ya da "ANKARA VALİLİĞİ" (ilçe merkez veya boşsa).
+  String get authority {
+    final d = district.trim(), p = province.trim();
+    if (d.isNotEmpty && upper(d) != 'MERKEZ') return '${upper(d)} KAYMAKAMLIĞI';
+    if (p.isNotEmpty) return '${upper(p)} VALİLİĞİ';
+    return '';
+  }
+
+  /// "ATATÜRK ANADOLU LİSESİ MÜDÜRLÜĞÜ"
+  String get directorate {
+    final n = upper(name.trim());
+    if (n.isEmpty) return '';
+    return n.endsWith('MÜDÜRLÜĞÜ') ? n : '$n MÜDÜRLÜĞÜ';
+  }
+
+  /// Eğitim-öğretim yılı: eylülden itibaren yeni yıl başlar.
+  static String academicYear(DateTime d) {
+    final start = d.month >= 9 ? d.year : d.year - 1;
+    return '$start-${start + 1}';
+  }
+
+  SchoolInfo copyWith({
+    String? province,
+    String? district,
+    String? name,
+    String? principal,
+    String? teacher,
+    String? subject,
+    bool? officialHeader,
+  }) =>
+      SchoolInfo(
+        province: province ?? this.province,
+        district: district ?? this.district,
+        name: name ?? this.name,
+        principal: principal ?? this.principal,
+        teacher: teacher ?? this.teacher,
+        subject: subject ?? this.subject,
+        officialHeader: officialHeader ?? this.officialHeader,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'province': province,
+        'district': district,
+        'name': name,
+        'principal': principal,
+        'teacher': teacher,
+        'subject': subject,
+        'officialHeader': officialHeader,
+      };
+
+  factory SchoolInfo.fromJson(Map<String, dynamic> j) => SchoolInfo(
+        province: j['province'] as String? ?? '',
+        district: j['district'] as String? ?? '',
+        name: j['name'] as String? ?? '',
+        principal: j['principal'] as String? ?? '',
+        teacher: j['teacher'] as String? ?? '',
+        subject: j['subject'] as String? ?? '',
+        officialHeader: j['officialHeader'] as bool? ?? true,
+      );
+}
