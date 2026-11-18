@@ -10,6 +10,7 @@ import '../main.dart';
 import 'logo.dart';
 import 'onboarding_screen.dart';
 import 'rate_share.dart';
+import 'account_card.dart';
 import 'help_screen.dart';
 import 'school_screen.dart';
 import 'theme.dart';
@@ -161,6 +162,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       appBar: AppBar(title: const Text('Ayarlar')),
       body: Watermark(
         child: ListView(padding: const EdgeInsets.fromLTRB(16, 8, 16, 40), children: [
+          const SectionTitle('Hesap'),
+          const AccountCard(),
           const SectionTitle('Okul'),
           Card(
             clipBehavior: Clip.antiAlias,

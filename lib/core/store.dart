@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
@@ -32,6 +33,17 @@ class AppStore extends ChangeNotifier {
 
   /// Öğretmenin verdiği yıldız (0: henüz vermedi) ve otomatik sorulup sorulmadığı.
   int rating = 0;
+
+  /// Google hesabı (yalnızca ad ve e-posta; parola veya anahtar saklanmaz).
+  String? googleEmail;
+  String? googleName;
+
+  /// Google Drive'a son yedek zamanı ve otomatik bulut yedeği açık mı.
+  DateTime? lastCloudBackup;
+  bool cloudAuto = true;
+
+  /// Günlük otomatik yedek alındığında çağrılır (bulut yedeği için).
+  Future<void> Function()? onDailyBackup;
   bool ratePrompted = false;
 
   /// Yeterince kullanıldıysa (30+ kâğıt) bir kez yıldız istenir.
@@ -99,6 +111,10 @@ class AppStore extends ChangeNotifier {
         'onboardingDone': onboardingDone,
         'rating': rating,
         'ratePrompted': ratePrompted,
+        'googleEmail': googleEmail,
+        'googleName': googleName,
+        'lastCloudBackup': lastCloudBackup?.toIso8601String(),
+        'cloudAuto': cloudAuto,
       };
 
   void _apply(Map<String, dynamic> j) {
@@ -118,6 +134,28 @@ class AppStore extends ChangeNotifier {
     onboardingDone = j['onboardingDone'] as bool? ?? onboardingDone;
     rating = (j['rating'] as num?)?.toInt() ?? rating;
     ratePrompted = j['ratePrompted'] as bool? ?? ratePrompted;
+    if (j.containsKey('googleEmail')) {
+      googleEmail = j['googleEmail'] as String?;
+      googleName = j['googleName'] as String?;
+      lastCloudBackup = DateTime.tryParse(j['lastCloudBackup'] as String? ?? '');
+      cloudAuto = j['cloudAuto'] as bool? ?? true;
+    }
+  }
+
+  void setGoogleAccount(String? email, String? name) {
+    googleEmail = email;
+    googleName = name;
+    _changed();
+  }
+
+  void setCloudAuto(bool v) {
+    cloudAuto = v;
+    _changed();
+  }
+
+  void markCloudBackup(DateTime t) {
+    lastCloudBackup = t;
+    _changed();
   }
 
   void setRating(int stars) {
@@ -152,7 +190,13 @@ class AppStore extends ChangeNotifier {
     // Önce mevcut hâlin bir yedeğini al; yanlış dosya seçilirse geri dönülebilsin.
     await _autoBackup(force: true);
     final probe = AppStore().._apply(j); // ayrıştırma hatası mevcut veriyi bozmasın
+    final (email, name, last, auto) = (googleEmail, googleName, lastCloudBackup, cloudAuto);
     _apply(probe.toJsonMap());
+    // Hesap bu cihaza aittir; yedekten gelmez.
+    googleEmail = email;
+    googleName = name;
+    lastCloudBackup = last;
+    cloudAuto = auto;
     notifyListeners();
     await save();
     return BackupSummary(students.length, exams.length, sheets.length);
@@ -185,6 +229,10 @@ class AppStore extends ChangeNotifier {
       try {
         await old.delete();
       } catch (_) {}
+    }
+    if (!force && onDailyBackup != null) {
+      // Bulut yedeği arka planda; hata asıl kaydı etkilemez.
+      unawaited(onDailyBackup!().catchError((_) {}));
     }
   }
 

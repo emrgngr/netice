@@ -55,7 +55,7 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
-      - run: flutter build apk --release
+      - run: flutter build apk --release --dart-define=GOOGLE_SERVER_CLIENT_ID=${{ secrets.GOOGLE_SERVER_CLIENT_ID }}
       - uses: actions/upload-artifact@v5
         with:
           name: Netice-Android
