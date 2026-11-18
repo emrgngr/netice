@@ -125,6 +125,17 @@ class ScoringRule {
       );
 }
 
+/// Klasik (açık uçlu) soru: öğretmen elle puanlar.
+class OpenQuestion {
+  final String label;
+  final double maxPoints;
+  const OpenQuestion({required this.label, required this.maxPoints});
+
+  Map<String, dynamic> toJson() => {'label': label, 'maxPoints': maxPoints};
+  factory OpenQuestion.fromJson(Map<String, dynamic> j) =>
+      OpenQuestion(label: j['label'] as String? ?? '', maxPoints: (j['maxPoints'] as num).toDouble());
+}
+
 class Exam {
   final String id;
   final String name;
@@ -140,6 +151,10 @@ class Exam {
   /// Şıklar aynı, yalnızca soru sırası değişik. null = tek kitapçık.
   final List<int>? bookletOrder;
 
+  /// Klasik sorular. Varsa tam puan = test kısmı + klasik kısım; test kısmı
+  /// (tam puan − klasik toplamı) üzerinden ölçeklenir.
+  final List<OpenQuestion> openQuestions;
+
   const Exam({
     required this.id,
     required this.name,
@@ -149,9 +164,16 @@ class Exam {
     required this.questions,
     this.rule = const ScoringRule(),
     this.bookletOrder,
+    this.openQuestions = const [],
   });
 
   int get questionCount => questions.length;
+
+  bool get hasOpen => openQuestions.isNotEmpty;
+  double get openMax => openQuestions.fold(0.0, (a, q) => a + q.maxPoints);
+
+  /// Test (optik) kısmın tam puanı.
+  double get testMax => (rule.maxScore - openMax).clamp(0, rule.maxScore).toDouble();
 
   bool get hasBooklets => bookletOrder != null;
 
@@ -225,6 +247,7 @@ class Exam {
     DateTime? date,
     List<int>? bookletOrder,
     bool clearBooklet = false,
+    List<OpenQuestion>? openQuestions,
   }) =>
       Exam(
         id: id,
@@ -235,6 +258,7 @@ class Exam {
         questions: questions ?? this.questions,
         rule: rule ?? this.rule,
         bookletOrder: clearBooklet ? null : (bookletOrder ?? this.bookletOrder),
+        openQuestions: openQuestions ?? this.openQuestions,
       );
 
   Map<String, dynamic> toJson() => {
@@ -246,6 +270,7 @@ class Exam {
         'questions': questions.map((q) => q.toJson()).toList(),
         'rule': rule.toJson(),
         if (bookletOrder != null) 'bookletOrder': bookletOrder,
+        if (openQuestions.isNotEmpty) 'openQuestions': openQuestions.map((q) => q.toJson()).toList(),
       };
 
   factory Exam.fromJson(Map<String, dynamic> j) => Exam(
@@ -259,6 +284,9 @@ class Exam {
             .toList(),
         rule: ScoringRule.fromJson(j['rule'] as Map<String, dynamic>),
         bookletOrder: (j['bookletOrder'] as List?)?.map((e) => e as int).toList(),
+        openQuestions: [
+          for (final e in (j['openQuestions'] as List?) ?? const []) OpenQuestion.fromJson(e as Map<String, dynamic>)
+        ],
       );
 }
 
@@ -308,16 +336,26 @@ class Sheet {
   /// Öğrencinin kitapçığı (0 = A, 1 = B).
   final int booklet;
 
-  const Sheet({required this.examId, this.studentId, required this.answers, this.booklet = 0});
+  /// Klasik soru puanları (öğretmen girer; girilmeyen null).
+  final List<double?> openScores;
+
+  const Sheet({
+    required this.examId,
+    this.studentId,
+    required this.answers,
+    this.booklet = 0,
+    this.openScores = const [],
+  });
 
   bool get needsReview =>
       studentId == null || answers.any((a) => a.needsReview);
 
-  Sheet copyWith({String? studentId, List<Answer>? answers}) => Sheet(
+  Sheet copyWith({String? studentId, List<Answer>? answers, List<double?>? openScores}) => Sheet(
         examId: examId,
         studentId: studentId ?? this.studentId,
         answers: answers ?? this.answers,
         booklet: booklet,
+        openScores: openScores ?? this.openScores,
       );
 
   Map<String, dynamic> toJson() => {
@@ -325,6 +363,7 @@ class Sheet {
         'studentId': studentId,
         'answers': answers.map((a) => a.toJson()).toList(),
         if (booklet != 0) 'booklet': booklet,
+        if (openScores.isNotEmpty) 'openScores': openScores,
       };
 
   factory Sheet.fromJson(Map<String, dynamic> j) => Sheet(
@@ -334,6 +373,7 @@ class Sheet {
             .map((e) => Answer.fromJson(e as Map<String, dynamic>))
             .toList(),
         booklet: j['booklet'] as int? ?? 0,
+        openScores: [for (final v in (j['openScores'] as List?) ?? const []) (v as num?)?.toDouble()],
       );
 }
 

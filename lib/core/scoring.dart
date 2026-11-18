@@ -13,8 +13,17 @@ class Result {
   /// Net = doğru − yanlış / götürme oranı.
   final double net;
 
-  /// Ölçeklenmiş puan (0..maxScore).
+  /// Toplam puan (0..maxScore) = test kısmı + klasik kısım.
   final double score;
+
+  /// Test (optik) kısmın puanı (0..exam.testMax).
+  final double testScore;
+
+  /// Klasik soruların toplamı; klasik soru yoksa 0.
+  final double openScore;
+
+  /// Klasik puanları eksik mi (girilmemiş soru var)?
+  final bool openMissing;
 
   const Result({
     required this.sheet,
@@ -24,7 +33,10 @@ class Result {
     required this.blank,
     required this.net,
     required this.score,
-  });
+    double? testScore,
+    this.openScore = 0,
+    this.openMissing = false,
+  }) : testScore = testScore ?? score;
 }
 
 /// Puanlama motoru. Saf fonksiyon: cevap anahtarı değişince tüm sınıf
@@ -65,9 +77,18 @@ class Scorer {
     final k = exam.rule.wrongsPerCorrect;
     final net = k > 0 ? c - w / k : c.toDouble();
     final rawPoints = k > 0 ? earned - wrongPoints / k : earned;
-    final score = possible == 0
-        ? 0.0
-        : (math.max(0, rawPoints) / possible * exam.rule.maxScore);
+    final test = possible == 0 ? 0.0 : (math.max(0, rawPoints) / possible * exam.testMax);
+    var open = 0.0;
+    var missing = false;
+    for (var i = 0; i < exam.openQuestions.length; i++) {
+      final v = i < sheet.openScores.length ? sheet.openScores[i] : null;
+      if (v == null) {
+        missing = true;
+        continue;
+      }
+      open += v.clamp(0, exam.openQuestions[i].maxPoints);
+    }
+    final score = test + open;
     return Result(
       sheet: sheet,
       outcomes: outcomes,
@@ -76,6 +97,9 @@ class Scorer {
       blank: b,
       net: net,
       score: double.parse(score.toStringAsFixed(2)),
+      testScore: double.parse(test.toStringAsFixed(2)),
+      openScore: double.parse(open.toStringAsFixed(2)),
+      openMissing: exam.hasOpen && missing,
     );
   }
 

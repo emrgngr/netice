@@ -194,8 +194,11 @@ String resultsCsv(Exam exam, List<Result> results, Map<String, Student> students
   String two(int v) => v.toString().padLeft(2, '0');
   final stamp = '${two(now.day)}.${two(now.month)}.${now.year} ${two(now.hour)}:${two(now.minute)}';
   String n(double v) => v.toStringAsFixed(2).replaceAll('.', ',');
+  final extra = exam.hasOpen ? exam.openQuestions.length + 2 : 0;
   final rows = <List<String>>[
-    ['Sıra', 'Okul no', 'Ad', 'Soyad', 'Sınıf', 'Doğru', 'Yanlış', 'Boş', 'Net', 'Puan', 'Başarı %', 'Yüzdelik',
+    ['Sıra', 'Okul no', 'Ad', 'Soyad', 'Sınıf', 'Doğru', 'Yanlış', 'Boş', 'Net',
+      if (exam.hasOpen) ...['Test puanı', for (final q in exam.openQuestions) q.label, 'Klasik toplam'],
+      'Puan', 'Başarı %', 'Yüzdelik',
       'T puanı', 'Düzey',
       for (final o in report.outcomes) 'Kazanım: ${o.code} %',
       for (final q in exam.questions) 'S${q.no}'],
@@ -213,6 +216,12 @@ String resultsCsv(Exam exam, List<Result> results, Map<String, Student> students
           '${r.wrong}',
           '${r.blank}',
           n(r.net),
+          if (exam.hasOpen) ...[
+            n(r.testScore),
+            for (var i = 0; i < exam.openQuestions.length; i++)
+              i < r.sheet.openScores.length && r.sheet.openScores[i] != null ? n(r.sheet.openScores[i]!) : '',
+            n(r.openScore),
+          ],
           n(r.score),
           n(st.pct),
           n(st.percentile),
@@ -225,11 +234,11 @@ String resultsCsv(Exam exam, List<Result> results, Map<String, Student> students
       }(),
     [],
     ['Sınıf ortalaması', '', '', '', '', n(report.meanCorrect), n(report.meanWrong), n(report.meanBlank),
-      n(report.meanNet), n(report.stats.mean)],
-    ['Doğru oranı (p)', '', '', '', '', '', '', '', '', '', '', '', '', '',
+      n(report.meanNet), for (var i = 0; i < extra; i++) '', n(report.stats.mean)],
+    ['Doğru oranı (p)', '', '', '', '', '', '', '', '', '', '', '', '', '', for (var i = 0; i < extra; i++) '',
       for (final o in report.outcomes) n(o.rate * 100),
       for (final it in report.items) n(it.p)],
-    ['Ayırt edicilik (D)', '', '', '', '', '', '', '', '', '', '', '', '', '',
+    ['Ayırt edicilik (D)', '', '', '', '', '', '', '', '', '', '', '', '', '', for (var i = 0; i < extra; i++) '',
       for (final _ in report.outcomes) '',
       for (final it in report.items) n(it.d)],
     [],

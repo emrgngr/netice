@@ -1036,7 +1036,7 @@ Future<Uint8List> buildResultsPdf({
           'Yüzdelik: sınıfın yüzde kaçından daha başarılı · T: ortalaması 50, sapması 10 olan standart puan',
         ),
         k.table(
-          ['Sıra', 'Ad Soyad', 'No', 'D', 'Y', 'B', 'Net', 'Puan', 'Yüzdelik', 'T', 'Düzey'],
+          ['Sıra', 'Ad Soyad', 'No', 'D', 'Y', 'B', 'Net', if (exam.hasOpen) ...['Test', 'Klasik'], 'Puan', 'Yüzdelik', 'T', 'Düzey'],
           [
             for (final st in r.standings)
               [
@@ -1047,6 +1047,7 @@ Future<Uint8List> buildResultsPdf({
                 '${st.result.wrong}',
                 '${st.result.blank}',
                 _f2(st.result.net),
+                if (exam.hasOpen) ...[_f1(st.result.testScore), st.result.openMissing ? 'eksik' : _f1(st.result.openScore)],
                 _f1(st.result.score),
                 '%${st.percentile.round()}',
                 _f1(st.t),
@@ -1213,6 +1214,15 @@ Future<Uint8List> buildStudentCardsPdf({
               k.statBox('Yanlış', '${res.wrong}', color: _coral),
               k.statBox('Boş', '${res.blank}', color: _gray),
               k.statBox('Başarı', '%${st.pct.round()}'),
+              if (exam.hasOpen) ...[
+                k.statBox('Test kısmı', '${_f1(res.testScore)} / ${_f1(exam.testMax)}'),
+                k.statBox('Klasik kısım', res.openMissing ? 'eksik' : '${_f1(res.openScore)} / ${_f1(exam.openMax)}'),
+                for (var i = 0; i < exam.openQuestions.length && i < 2; i++)
+                  k.statBox(exam.openQuestions[i].label,
+                      i < res.sheet.openScores.length && res.sheet.openScores[i] != null
+                          ? '${_f1(res.sheet.openScores[i]!)} / ${_f1(exam.openQuestions[i].maxPoints)}'
+                          : '–'),
+              ],
             ]),
             k.title('Sınıfla karşılaştırma'),
             compare('Öğrenci', res.score, _emerald),

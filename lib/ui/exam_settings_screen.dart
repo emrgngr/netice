@@ -28,6 +28,7 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
   late List<TextEditingController> _codes;
   late int _wpc;
   late bool _booklet;
+  late List<(TextEditingController, TextEditingController)> _open;
   late final TextEditingController _order;
   late DateTime _date;
   bool _loaded = false;
@@ -46,6 +47,10 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
     _codes = [for (final q in _qs) TextEditingController(text: q.outcomeCode ?? '')];
     _wpc = _exam.rule.wrongsPerCorrect;
     _booklet = _exam.hasBooklets;
+    _open = [
+      for (final q in _exam.openQuestions)
+        (TextEditingController(text: q.label), TextEditingController(text: _num(q.maxPoints)))
+    ];
     _order = TextEditingController(
         text: _exam.bookletOrder == null ? '' : _exam.bookletOrder!.map((v) => v + 1).join(', '))
       ..addListener(() => setState(() {}));
@@ -101,6 +106,17 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
           cancelled: _qs[i].cancelled,
           outcomeCode: code.isEmpty ? null : code));
     }
+    final open = <OpenQuestion>[];
+    for (var i = 0; i < _open.length; i++) {
+      final m = _parse(_open[i].$2.text);
+      if (m == null || m <= 0) return toast(context, '${i + 1}. klasik sorunun puanı geçerli değil.');
+      final label = _open[i].$1.text.trim();
+      open.add(OpenQuestion(label: label.isEmpty ? 'Klasik ${i + 1}' : label, maxPoints: m));
+    }
+    final openSum = open.fold(0.0, (a, q) => a + q.maxPoints);
+    if (openSum >= max) {
+      return toast(context, 'Klasik soruların toplamı (${_num(openSum)}) tam puandan küçük olmalı; kalanı test kısmıdır.');
+    }
     List<int>? order;
     if (_booklet) {
       order = Exam.parseBookletOrder(_order.text, _qs.length);
@@ -111,6 +127,7 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
     StoreScope.of(context).upsertExam(_exam.copyWith(
       bookletOrder: order,
       clearBooklet: !_booklet,
+      openQuestions: open,
       name: _name.text.trim(),
       className: _class.text.trim(),
       date: _date,
@@ -258,6 +275,66 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
                       ]),
                     ),
                 ]),
+              ),
+              const SectionTitle('Klasik (yazılı) sorular'),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                    Text(
+                      _open.isEmpty
+                          ? 'Sınavda açık uçlu sorular da varsa ekleyin. Puanlarını kâğıtları okuttuktan sonra '
+                              '"Klasik puan gir" ekranından girersiniz.'
+                          : () {
+                              final sum = _open.fold(0.0, (a, o) => a + (_parse(o.$2.text) ?? 0));
+                              final max = _parse(_max.text) ?? 0;
+                              return 'Klasik toplam ${_num(sum)} puan · test kısmı ${_num((max - sum).clamp(0, max).toDouble())} '
+                                  'puan üzerinden hesaplanır · tam puan ${_num(max)}';
+                            }(),
+                      style: t.textTheme.bodySmall?.copyWith(color: muted),
+                    ),
+                    for (var i = 0; i < _open.length; i++)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10),
+                        child: Row(children: [
+                          Expanded(
+                            flex: 3,
+                            child: TextField(
+                              controller: _open[i].$1,
+                              decoration: InputDecoration(labelText: 'Soru adı', hintText: 'Klasik ${i + 1}'),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          SizedBox(
+                            width: 90,
+                            child: TextField(
+                              controller: _open[i].$2,
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                              onChanged: (_) => setState(() {}),
+                              decoration: const InputDecoration(labelText: 'Puan'),
+                            ),
+                          ),
+                          IconButton(
+                            tooltip: 'Kaldır',
+                            onPressed: () => setState(() => _open.removeAt(i)),
+                            icon: const Icon(Icons.remove_circle_outline),
+                          ),
+                        ]),
+                      ),
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton.icon(
+                        onPressed: () => setState(() => _open.add((
+                              TextEditingController(text: 'Klasik ${_open.length + 1}'),
+                              TextEditingController(text: '10'),
+                            ))),
+                        icon: const Icon(Icons.add),
+                        label: const Text('Klasik soru ekle'),
+                      ),
+                    ),
+                  ]),
+                ),
               ),
               SectionTitle('Sorular',
                   trailing: TextButton.icon(

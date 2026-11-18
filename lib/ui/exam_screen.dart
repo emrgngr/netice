@@ -14,6 +14,7 @@ import '../reports/pdf_documents.dart';
 import 'review_screen.dart';
 import 'camera_scan_screen.dart';
 import 'exam_settings_screen.dart';
+import 'open_scores_screen.dart';
 import 'report_preview_screen.dart';
 import 'student_detail_screen.dart';
 import 'theme.dart';
@@ -210,6 +211,10 @@ class ExamScreen extends StatelessWidget {
 
     final actions = [
       _Action(Icons.print_outlined, 'Form yazdır', printForms),
+      if (exam.hasOpen)
+        _Action(Icons.edit_note_rounded, 'Klasik puan gir', () async {
+          await Navigator.of(context).push(MaterialPageRoute(builder: (_) => OpenScoresScreen(examId: exam.id)));
+        }),
       _Action(Icons.picture_as_pdf_outlined, 'Sınav raporu', pdfReport),
       _Action(Icons.badge_outlined, 'Öğrenci karnesi', studentCards),
       _Action(Icons.table_view_outlined, 'Excel', excel),
@@ -265,7 +270,7 @@ class ExamScreen extends StatelessWidget {
         ),
         body: Watermark(child: TabBarView(children: [
           _ResultsTab(exam: exam, results: results),
-          _AnalysisTab(exam: exam, results: results, reports: actions.skip(1).toList()),
+          _AnalysisTab(exam: exam, results: results, reports: actions.where((a) => a.label != 'Form yazdır' && a.label != 'Klasik puan gir').toList()),
           SafeArea(top: false, child: ReviewList(exam: exam)),
         ])),
       ),
@@ -298,7 +303,26 @@ class _ResultsTab extends StatelessWidget {
       return const Center(child: Text('Henüz okunan kâğıt yok. "Okut" ile başlayın.'));
     }
     final wide = MediaQuery.sizeOf(context).width >= 900;
+    final openMissing = exam.hasOpen ? results.where((r) => r.openMissing).length : 0;
     return ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 100), children: [
+      if (openMissing > 0)
+        Padding(
+          padding: const EdgeInsets.only(bottom: 14),
+          child: Card(
+            color: NColors.amber.withValues(alpha: 0.14),
+            child: ListTile(
+              leading: const Icon(Icons.edit_note_rounded, color: NColors.amber),
+              title: Text('$openMissing öğrencinin klasik puanı eksik',
+                  style: const TextStyle(fontWeight: FontWeight.w700)),
+              subtitle: const Text('Puanlar girilene kadar toplamda yalnızca test kısmı görünür.'),
+              trailing: FilledButton(
+                onPressed: () => Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (_) => OpenScoresScreen(examId: exam.id))),
+                child: const Text('Gir'),
+              ),
+            ),
+          ),
+        ),
       HeroPanel(
         child: Row(children: [
           ScoreRing(
