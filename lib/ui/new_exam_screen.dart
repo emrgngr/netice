@@ -5,6 +5,7 @@ import '../core/models.dart';
 import '../core/report.dart';
 import '../main.dart';
 import 'exam_screen.dart';
+import 'key_from_photo.dart';
 import 'theme.dart';
 import 'widgets.dart';
 
@@ -62,6 +63,18 @@ class _NewExamScreenState extends State<NewExamScreen> {
     setState(() {
       _key[_cursor] = choice;
       if (_cursor < _count - 1) _cursor++;
+    });
+  }
+
+  Future<void> _fromPhoto() async {
+    final key = await readKeyFromPhoto(context, questions: _count, choices: _choices);
+    if (key == null) return;
+    setState(() {
+      for (var i = 0; i < _count; i++) {
+        _key[i] = key[i].isEmpty ? null : key[i].first;
+      }
+      final firstEmpty = List.generate(_count, (i) => _key[i]).indexOf(null);
+      _cursor = firstEmpty < 0 ? _count - 1 : firstEmpty;
     });
   }
 
@@ -198,7 +211,18 @@ class _NewExamScreenState extends State<NewExamScreen> {
                 ),
               ),
             ]),
-            SectionTitle('Cevap anahtarı', trailing: Text('Klavyeden A–${letter(_choices - 1)} de yazabilirsiniz', style: t.textTheme.bodySmall)),
+            SectionTitle('Cevap anahtarı',
+                trailing: TextButton.icon(
+                  onPressed: _fromPhoto,
+                  icon: const Icon(Icons.photo_camera_outlined, size: 18),
+                  label: const Text('Fotoğraftan oku'),
+                )),
+            Padding(
+              padding: const EdgeInsets.only(left: 4, bottom: 8),
+              child: Text('Tuşlarla veya klavyeden A–${letter(_choices - 1)} yazın. Doğru cevaplarla doldurduğunuz bir '
+                  'Netice formunun fotoğrafını da seçebilirsiniz.',
+                  style: t.textTheme.bodySmall),
+            ),
             Focus(
               focusNode: _focus,
               autofocus: true,

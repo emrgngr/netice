@@ -14,6 +14,7 @@ import '../main.dart';
 import '../reports/pdf_documents.dart';
 import 'review_screen.dart';
 import 'camera_scan_screen.dart';
+import 'exam_settings_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
 
@@ -72,6 +73,12 @@ class ExamScreen extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodySmall),
           ]),
           actions: [
+            IconButton(
+              tooltip: 'Sınav ayarları',
+              icon: const Icon(Icons.tune),
+              onPressed: () => Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (_) => ExamSettingsScreen(examId: exam.id))),
+            ),
             if (wide)
               for (final a in actions)
                 Padding(
@@ -362,7 +369,7 @@ class _AnalysisTab extends StatelessWidget {
       StatCard(
           label: 'Başarı oranı',
           value: '%${(rep.passRate * 100).round()}',
-          hint: 'Yarım puan ve üzeri',
+          hint: 'Geçme puanı ${exam.rule.pass.round()} ve üzeri',
           icon: Icons.emoji_events_outlined),
       StatCard(label: 'En yüksek', value: fmt1(s.max), hint: 'En düşük ${fmt1(s.min)}', icon: Icons.trending_up),
       StatCard(

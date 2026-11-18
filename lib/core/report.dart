@@ -79,7 +79,7 @@ class ExamReport {
   final double range;
   final double meanCorrect, meanWrong, meanBlank, meanNet;
 
-  /// Tam puanın %50'si ve üzerini alanların oranı (0..1).
+  /// Geçme puanı ve üzerini alanların oranı (0..1).
   final double passRate;
 
   /// Değişim katsayısı (std / ortalama, %).
@@ -231,7 +231,7 @@ class ExamReport {
 
     final kr = stats.kr20;
     final sem = kr == null ? null : stats.stdDev * math.sqrt(math.max(0, 1 - kr));
-    final passRate = n == 0 ? 0.0 : scores.where((s) => s >= max / 2).length / n;
+    final passRate = n == 0 ? 0.0 : scores.where((s) => s >= exam.rule.pass).length / n;
 
     return ExamReport._(
       exam: exam,
@@ -273,7 +273,7 @@ class ExamReport {
         : meanP <= 0.70
             ? 'Sınav orta güçlükte: soruların ortalama doğru oranı ${pct(meanP)}.'
             : 'Sınav kolay: soruların ortalama doğru oranı ${pct(meanP)}.');
-    c.add('Öğrencilerin ${pct(passRate)}\'i tam puanın yarısını veya fazlasını aldı.');
+    c.add('Öğrencilerin ${pct(passRate)}\'i geçme puanını (${exam.rule.pass.round()}) aldı.');
     final kr = stats.kr20;
     if (kr != null) {
       c.add(kr >= 0.80

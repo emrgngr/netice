@@ -428,7 +428,7 @@ Future<Uint8List> buildResultsPdf({
           k.statBox('Katılım', '${s.count}', hint: 'okunan kâğıt'),
           k.statBox('Ortalama', _f1(s.mean), hint: 'Medyan ${_f1(s.median)}'),
           k.statBox('Standart sapma', _f1(s.stdDev), hint: r.cv == null ? null : 'Değişim katsayısı %${r.cv!.round()}'),
-          k.statBox('Başarı oranı', _pct(r.passRate), hint: '${(max / 2).round()} ve üzeri alanlar', color: _emerald),
+          k.statBox('Başarı oranı', _pct(r.passRate), hint: '${exam.rule.pass.round()} ve üzeri alanlar', color: _emerald),
           k.statBox('En yüksek', _f1(s.max), color: _emerald),
           k.statBox('En düşük', _f1(s.min), color: _coral),
           k.statBox('Açıklık', _f1(r.range), hint: 'en yüksek − en düşük'),

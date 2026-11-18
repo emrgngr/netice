@@ -108,14 +108,20 @@ class ScoringRule {
   /// Tam puan (ham puan bu değere ölçeklenir).
   final double maxScore;
 
-  const ScoringRule({this.wrongsPerCorrect = 0, this.maxScore = 100});
+  /// Geçme puanı (öğretmen belirler). Boşsa tam puanın yarısı.
+  final double? passScore;
+
+  const ScoringRule({this.wrongsPerCorrect = 0, this.maxScore = 100, this.passScore});
+
+  double get pass => passScore ?? maxScore / 2;
 
   Map<String, dynamic> toJson() =>
-      {'wrongsPerCorrect': wrongsPerCorrect, 'maxScore': maxScore};
+      {'wrongsPerCorrect': wrongsPerCorrect, 'maxScore': maxScore, if (passScore != null) 'passScore': passScore};
 
   factory ScoringRule.fromJson(Map<String, dynamic> j) => ScoringRule(
         wrongsPerCorrect: j['wrongsPerCorrect'] as int? ?? 0,
         maxScore: (j['maxScore'] as num?)?.toDouble() ?? 100,
+        passScore: (j['passScore'] as num?)?.toDouble(),
       );
 }
 
@@ -172,11 +178,12 @@ class Exam {
     );
   }
 
-  Exam copyWith({List<Question>? questions, ScoringRule? rule}) => Exam(
+  Exam copyWith({List<Question>? questions, ScoringRule? rule, String? name, String? className, DateTime? date}) =>
+      Exam(
         id: id,
-        name: name,
-        className: className,
-        date: date,
+        name: name ?? this.name,
+        className: className ?? this.className,
+        date: date ?? this.date,
         choiceCount: choiceCount,
         questions: questions ?? this.questions,
         rule: rule ?? this.rule,
