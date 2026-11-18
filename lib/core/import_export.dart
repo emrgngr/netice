@@ -7,6 +7,7 @@ import 'package:xml/xml.dart';
 import 'models.dart';
 import 'report.dart';
 import 'scoring.dart';
+import 'term.dart';
 
 /// Öğrenci listesi içe aktarma (CSV / Excel'den "CSV olarak kaydet").
 ///
@@ -266,6 +267,30 @@ String eokulCsv(Exam exam, List<Result> results, List<Student> classStudents) {
         byId[list[i].id] == null ? 'G' : '${byId[list[i].id]!.score.round()}',
         byId[list[i].id] == null ? 'Sınava girmedi' : '',
       ],
+  ];
+  return '\uFEFF${Csv(fieldDelimiter: ';', lineDelimiter: '\r\n').encode(rows)}';
+}
+
+/// Dönem sonu not çizelgesi (Excel): her sınav 100 üzerinden, ortalama ve
+/// e-Okul'a girilecek tam sayı not.
+String termCsv(TermReport t) {
+  String n(double v) => v.toStringAsFixed(2).replaceAll('.', ',');
+  final rows = <List<String>>[
+    ['Okul No', 'Adı', 'Soyadı', 'Sınıf', for (final e in t.exams) e.exam.name, 'Ortalama', 'Dönem notu'],
+    for (final r in t.rows)
+      [
+        r.student.number,
+        r.student.firstName,
+        r.student.lastName,
+        r.student.className,
+        for (final s in r.scores) s == null ? 'G' : n(s),
+        r.average == null ? '' : n(r.average!),
+        r.grade == null ? 'G' : '${r.grade}',
+      ],
+    [],
+    ['Ağırlık', '', '', '', for (final e in t.exams) n(e.weight)],
+    ['Sınıf ort. (100)', '', '', '', for (final e in t.exams) n(e.mean100), n(t.classAverage)],
+    ['Dönem', t.term.label],
   ];
   return '\uFEFF${Csv(fieldDelimiter: ';', lineDelimiter: '\r\n').encode(rows)}';
 }

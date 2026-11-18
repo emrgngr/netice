@@ -9,6 +9,7 @@ import '../core/models.dart';
 import '../core/progress.dart';
 import '../core/report.dart';
 import '../core/scoring.dart';
+import '../core/term.dart';
 import '../omr/form_code.dart';
 import '../omr/form_layout.dart';
 
@@ -1558,5 +1559,206 @@ Future<Uint8List> buildLabelsPdf({
     ));
   }
   if (sorted.isEmpty) doc.addPage(pw.Page(build: (_) => pw.Center(child: pw.Text('Henüz okunan kâğıt yok.'))));
+  return doc.save();
+}
+
+String _short(String s, [int n = 14]) => s.length <= n ? s : '${s.substring(0, n - 1)}…';
+
+_Kit _termKit(TermReport t, SchoolInfo school, String docTitle, {bool everyPage = false}) => _Kit(
+      t.exams.last.exam,
+      school,
+      docTitle: docTitle,
+      headerInfo: '${t.term.label} · ${t.className} · ${t.exams.length} sınav',
+      classLine: '${SchoolInfo.upper(t.className)} SINIFI',
+      letterheadEveryPage: everyPage,
+    );
+
+/// Dönem sonu not çizelgesi: her öğrencinin seçilen sınavlardaki puanı
+/// (100 üzerinden), ağırlıklı ortalaması ve e-Okul'a girilecek tam sayı not.
+Future<Uint8List> buildTermGradesPdf(TermReport t, {SchoolInfo school = const SchoolInfo()}) async {
+  final fonts = await _Fonts.load();
+  final k = _termKit(t, school, 'Dönem Sonu Not Çizelgesi');
+  final doc = pw.Document(
+      theme: pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold), title: 'Dönem not çizelgesi', author: 'Netice');
+  final equal = t.exams.every((e) => e.weight == t.exams.first.weight);
+  final totalW = t.exams.fold<double>(0, (a, e) => a + e.weight);
+  final graded = t.rows.where((r) => r.average != null).toList();
+  doc.addPage(pw.MultiPage(
+    pageFormat: t.exams.length > 5 ? PdfPageFormat.a4.landscape : PdfPageFormat.a4,
+    margin: const pw.EdgeInsets.fromLTRB(36, 30, 36, 30),
+    header: k.header,
+    footer: k.footer,
+    build: (ctx) => [
+      k.title('Dönem sonu not çizelgesi',
+          '${t.term.label} · puanlar 100 üzerinden · ${equal ? 'sınavlar eşit ağırlıklı' : 'ağırlıklı ortalama'} · '
+          'girilmeyen sınav ortalamaya katılmaz'),
+      k.grid([
+        k.statBox('Öğrenci', '${t.rows.length}', hint: '${graded.length} öğrencinin notu var'),
+        k.statBox('Sınav', '${t.exams.length}'),
+        k.statBox('Sınıf ortalaması', _f1(t.classAverage), color: _emerald),
+        k.statBox('En yüksek', graded.isEmpty ? '–' : '${graded.map((r) => r.grade!).reduce(math.max)}'),
+      ]),
+      pw.SizedBox(height: 4),
+      k.table(
+        ['Sınav', 'Tarih', 'Ağırlık', 'Katılım', 'Sınıf ort. (100)'],
+        [
+          for (final e in t.exams)
+            [
+              e.exam.name,
+              _date(e.exam.date),
+              totalW == 0 ? '–' : '%${(e.weight / totalW * 100).round()}',
+              '${e.report.results.length}',
+              _f1(e.mean100),
+            ]
+        ],
+        leftColumn: 0,
+        widths: {0: const pw.FlexColumnWidth(4)},
+      ),
+      pw.SizedBox(height: 10),
+      k.table(
+        ['No', 'Ad Soyad', for (var i = 0; i < t.exams.length; i++) '${i + 1}. ${_short(t.exams[i].exam.name, 12)}', 'Ortalama', 'Dönem notu'],
+        [
+          for (final r in t.rows)
+            [
+              r.student.number,
+              r.student.fullName,
+              for (final s in r.scores) s == null ? 'G' : _f1(s),
+              r.average == null ? '–' : _f2(r.average!),
+              r.grade == null ? 'G' : '${r.grade}',
+            ]
+        ],
+        leftColumn: 1,
+        widths: {1: const pw.FlexColumnWidth(3.5)},
+        fontSize: t.exams.length > 6 ? 7 : 8.5,
+      ),
+      pw.Padding(
+        padding: const pw.EdgeInsets.only(top: 6),
+        child: pw.Text('G: sınava girmedi. Dönem notu, ortalamanın tam sayıya yuvarlanmış hâlidir.',
+            style: const pw.TextStyle(fontSize: 7.5, color: _muted)),
+      ),
+      k.signatures(),
+    ],
+  ));
+  return doc.save();
+}
+
+/// Dönem kazanım karnesi: her öğrenciye bir sayfa; dönemdeki sınavları,
+/// gelişim grafiği ve kazanım bazında birikimli başarısı.
+Future<Uint8List> buildTermCardsPdf(TermReport t, {SchoolInfo school = const SchoolInfo(), String? onlyStudentId}) async {
+  final fonts = await _Fonts.load();
+  final k = _termKit(t, school, 'Dönem Kazanım Karnesi', everyPage: true);
+  final doc = pw.Document(
+      theme: pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold), title: 'Dönem kazanım karnesi', author: 'Netice');
+  final rows = t.rows.where((r) => r.average != null && (onlyStudentId == null || r.student.id == onlyStudentId)).toList();
+  if (rows.isEmpty) {
+    doc.addPage(pw.Page(build: (_) => pw.Center(child: pw.Text('Bu dönemde sonucu olan öğrenci yok.'))));
+    return doc.save();
+  }
+  PdfColor tone(double v) => v >= 0.7 ? _emerald : (v >= 0.5 ? _amber : _coral);
+
+  for (final r in rows) {
+    final out = r.outcomes.entries.toList()..sort((a, b) => b.value.$1.compareTo(a.value.$1));
+    final strong = out.where((e) => e.value.$1 >= 0.7).map((e) => e.key).take(4).toList();
+    final weak = out.reversed.where((e) => e.value.$1 < 0.5).map((e) => e.key).take(4).toList();
+    final taken = [for (var i = 0; i < t.exams.length; i++) if (r.scores[i] != null) i];
+    doc.addPage(pw.Page(
+      pageFormat: PdfPageFormat.a4,
+      margin: const pw.EdgeInsets.fromLTRB(36, 30, 36, 30),
+      build: (ctx) => pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
+        k.header(ctx),
+        pw.Container(
+          padding: const pw.EdgeInsets.all(16),
+          decoration: pw.BoxDecoration(color: _ink, borderRadius: pw.BorderRadius.circular(10)),
+          child: pw.Row(children: [
+            pw.Expanded(
+              child: pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
+                pw.Text('DÖNEM KAZANIM KARNESİ',
+                    style: pw.TextStyle(color: _emerald, fontSize: 8, fontWeight: pw.FontWeight.bold, letterSpacing: 1.5)),
+                pw.SizedBox(height: 4),
+                pw.Text(r.student.fullName,
+                    style: pw.TextStyle(color: PdfColors.white, fontSize: 18, fontWeight: pw.FontWeight.bold)),
+                pw.Text('No ${r.student.number} · ${r.student.className} · ${t.term.label}',
+                    style: const pw.TextStyle(color: PdfColors.grey300, fontSize: 9)),
+              ]),
+            ),
+            pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.end, children: [
+              pw.Text('${r.grade}', style: pw.TextStyle(color: PdfColors.white, fontSize: 30, fontWeight: pw.FontWeight.bold)),
+              pw.Text('dönem ortalaması · sınıf ${_f1(t.classAverage)}',
+                  style: const pw.TextStyle(color: PdfColors.grey300, fontSize: 8)),
+            ]),
+          ]),
+        ),
+        pw.SizedBox(height: 12),
+        k.title('Sınavlar', '${r.taken} / ${t.exams.length} sınava katıldı · puanlar 100 üzerinden'),
+        k.table(
+          ['Sınav', 'Tarih', 'Puan', 'Sınıf ort.', 'Fark'],
+          [
+            for (var i = 0; i < t.exams.length; i++)
+              [
+                t.exams[i].exam.name,
+                _date(t.exams[i].exam.date),
+                r.scores[i] == null ? 'Girmedi' : _f1(r.scores[i]!),
+                _f1(t.exams[i].mean100),
+                r.scores[i] == null
+                    ? '–'
+                    : '${r.scores[i]! >= t.exams[i].mean100 ? '+' : ''}${_f1(r.scores[i]! - t.exams[i].mean100)}',
+              ]
+          ],
+          leftColumn: 0,
+          widths: {0: const pw.FlexColumnWidth(4)},
+        ),
+        if (taken.length >= 2) ...[
+          k.title('Gelişim'),
+          k.barChart(
+            [for (final i in taken) r.scores[i]!],
+            [for (final i in taken) _date(t.exams[i].exam.date)],
+            maxValue: 100,
+            height: 70,
+            colors: [for (final i in taken) r.scores[i]! >= t.exams[i].mean100 ? _emerald : _ink],
+          ),
+        ],
+        if (out.isNotEmpty) ...[
+          k.title('Kazanımlar', 'Dönem boyunca bu kazanıma ait sorulardaki doğru oranı · çizgi: öğrenci, sağdaki: sınıf'),
+          for (final e in out.take(14))
+            pw.Padding(
+              padding: const pw.EdgeInsets.only(bottom: 4),
+              child: pw.Row(children: [
+                pw.SizedBox(width: 150, child: pw.Text(_short(e.key, 34), style: const pw.TextStyle(fontSize: 8))),
+                pw.Expanded(child: k.hbar(e.value.$1, tone(e.value.$1), height: 8)),
+                pw.SizedBox(
+                    width: 34,
+                    child: pw.Text(_pct(e.value.$1),
+                        textAlign: pw.TextAlign.right, style: pw.TextStyle(fontSize: 8.5, fontWeight: pw.FontWeight.bold))),
+                pw.SizedBox(
+                    width: 44,
+                    child: pw.Text('sınıf ${_pct(e.value.$2)}',
+                        textAlign: pw.TextAlign.right, style: const pw.TextStyle(fontSize: 7, color: _muted))),
+              ]),
+            ),
+          pw.SizedBox(height: 8),
+          pw.Container(
+            padding: const pw.EdgeInsets.all(10),
+            decoration: pw.BoxDecoration(color: _ivory, borderRadius: pw.BorderRadius.circular(8)),
+            child: pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
+              pw.Text('Güçlü yönler: ${strong.isEmpty ? 'Henüz belirgin değil.' : strong.join(', ')}',
+                  style: const pw.TextStyle(fontSize: 8.5)),
+              pw.SizedBox(height: 3),
+              pw.Text('Çalışılması önerilen: ${weak.isEmpty ? 'Belirgin bir eksik görünmüyor.' : weak.join(', ')}',
+                  style: const pw.TextStyle(fontSize: 8.5)),
+            ]),
+          ),
+        ] else
+          pw.Padding(
+            padding: const pw.EdgeInsets.only(top: 10),
+            child: pw.Text('Sınavlarda kazanım kodu girilmediği için kazanım analizi yapılamadı.',
+                style: const pw.TextStyle(fontSize: 8.5, color: _muted)),
+          ),
+        pw.Spacer(),
+        k.signatures(),
+        pw.SizedBox(height: 6),
+        k.footer(ctx),
+      ]),
+    ));
+  }
   return doc.save();
 }

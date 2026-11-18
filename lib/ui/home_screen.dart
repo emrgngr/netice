@@ -9,6 +9,7 @@ import 'compare_screen.dart';
 import 'onboarding_screen.dart';
 import 'school_screen.dart';
 import 'settings_screen.dart';
+import 'term_screen.dart';
 import 'exam_screen.dart';
 import 'logo.dart';
 import 'new_exam_screen.dart';
@@ -383,6 +384,18 @@ class _Insights extends StatelessWidget {
           subtitle: const Text('Aynı sınavı farklı şubelerde yan yana görün'),
           trailing: const Icon(Icons.chevron_right),
           onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CompareScreen())),
+        ),
+      ),
+      const SizedBox(height: 12),
+      Card(
+        clipBehavior: Clip.antiAlias,
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          leading: const IconBadge(Icons.workspace_premium_outlined, color: NColors.ink),
+          title: const Text('Dönem raporu', style: TextStyle(fontWeight: FontWeight.w700)),
+          subtitle: const Text('Dönem sonu notu ve öğrenci kazanım karneleri'),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TermScreen())),
         ),
       ),
       if (warnings.isNotEmpty) ...[
