@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 
 import 'core/store.dart';
 import 'ui/home_screen.dart';
+import 'ui/splash_screen.dart';
 import 'ui/theme.dart';
 
 void main() {
@@ -13,7 +14,10 @@ void main() {
 
 class NeticeApp extends StatelessWidget {
   final AppStore store;
-  const NeticeApp({super.key, required this.store});
+
+  /// Açılış animasyonu gösterilsin mi (testlerde kapatılır).
+  final bool splash;
+  const NeticeApp({super.key, required this.store, this.splash = true});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +32,7 @@ class NeticeApp extends StatelessWidget {
         locale: const Locale('tr', 'TR'),
         supportedLocales: const [Locale('tr', 'TR'), Locale('en')],
         localizationsDelegates: GlobalMaterialLocalizations.delegates,
-        home: const HomeScreen(),
+        home: splash ? const SplashScreen(next: HomeScreen()) : const HomeScreen(),
       ),
     );
   }

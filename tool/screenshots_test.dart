@@ -71,7 +71,7 @@ void main() {
     final store = AppStore();
     await tester.runAsync(() => store.load(dir: Directory.systemTemp.createTempSync('shots')));
     store.onboardingDone = true;
-    final app = NeticeApp(store: store);
+    final app = NeticeApp(store: store, splash: false);
 
     await shot(tester, app, const Size(390, 844), 'mobil_ana_sayfa');
     await shot(tester, app, const Size(1366, 820), 'masaustu_pano');
@@ -126,7 +126,7 @@ void main() {
     await tester.runAsync(() => empty.load(dir: Directory.systemTemp.createTempSync('bos')));
     empty.clearDemo();
     empty.onboardingDone = true;
-    await shot(tester, NeticeApp(store: empty), const Size(390, 1100), 'mobil_bos_ana_sayfa');
+    await shot(tester, NeticeApp(store: empty, splash: false), const Size(390, 1100), 'mobil_bos_ana_sayfa');
     debugDisableShadows = true;
   });
 }
