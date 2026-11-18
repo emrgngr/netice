@@ -6,6 +6,7 @@ import 'package:material_ui/material_ui.dart';
 import '../core/import_export.dart';
 import '../core/models.dart';
 import '../main.dart';
+import 'student_detail_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
 
@@ -201,7 +202,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
         const SizedBox(height: 6),
         Text('Tüm sınıfları tek Excel dosyasında (.xlsx veya CSV) aktarabilirsiniz: okul no, ad, soyad ve sınıf '
             'sütunları otomatik tanınır, öğrenciler sınıflarına kendiliğinden ayrılır. '
-            'Bir öğrenciyi düzenlemek veya silmek için üstüne dokunun.',
+            'Öğrencinin geçmişini görmek için üstüne, düzenlemek için kalem simgesine dokunun.',
             style: Theme.of(context).textTheme.bodySmall),
         const SizedBox(height: 16),
         if (classes.isNotEmpty)
@@ -223,8 +224,13 @@ class _StudentsScreenState extends State<StudentsScreen> {
                 leading: CircleAvatar(child: Text(s.firstName.isEmpty ? '?' : s.firstName.characters.first)),
                 title: Text(s.fullName),
                 subtitle: Text('No ${s.number}'),
-                trailing: const Icon(Icons.edit_outlined, size: 18),
-                onTap: () => _edit(existing: s),
+                trailing: IconButton(
+                  tooltip: 'Düzenle',
+                  icon: const Icon(Icons.edit_outlined, size: 18),
+                  onPressed: () => _edit(existing: s),
+                ),
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => StudentDetailScreen(studentId: s.id, onEdit: (st) => _edit(existing: st)))),
               ),
             if (list.isEmpty)
               const Padding(padding: EdgeInsets.all(24), child: Text('Bu sınıfta öğrenci yok.')),

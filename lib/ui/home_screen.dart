@@ -1,12 +1,16 @@
+import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../core/analysis.dart';
 import '../core/models.dart';
+import '../core/progress.dart';
 import '../main.dart';
+import 'compare_screen.dart';
 import 'exam_screen.dart';
 import 'logo.dart';
 import 'new_exam_screen.dart';
 import 'camera_scan_screen.dart';
+import 'student_detail_screen.dart';
 import 'students_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
@@ -33,7 +37,15 @@ class _HomeScreenState extends State<HomeScreen> {
     final body = _tab == 0 ? const _Dashboard() : const StudentsScreen(embedded: true);
 
     if (wide) {
-      return Scaffold(
+      // Masaüstü kısayolları: Ctrl+N yeni sınav, Ctrl+K şube karşılaştırması.
+      return CallbackShortcuts(
+        bindings: {
+          const SingleActivator(LogicalKeyboardKey.keyN, control: true): () =>
+              Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NewExamScreen())),
+          const SingleActivator(LogicalKeyboardKey.keyK, control: true): () =>
+              Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CompareScreen())),
+        },
+        child: Focus(autofocus: true, child: Scaffold(
         body: Row(children: [
           NavigationRail(
             selectedIndex: _tab,
@@ -51,7 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
           VerticalDivider(width: 1, color: Theme.of(context).colorScheme.outlineVariant),
           Expanded(child: Watermark(child: body)),
         ]),
-      );
+      )));
     }
     return Scaffold(
       body: Watermark(child: body),
@@ -229,6 +241,10 @@ class _Dashboard extends StatelessWidget {
           ),
         ),
         SliverPadding(
+          padding: EdgeInsets.fromLTRB(wide ? 28 : 16, 12, wide ? 28 : 16, 0),
+          sliver: SliverToBoxAdapter(child: _Insights(warnings: earlyWarnings(store))),
+        ),
+        SliverPadding(
           padding: EdgeInsets.symmetric(horizontal: wide ? 28 : 16),
           sliver: const SliverToBoxAdapter(child: SectionTitle('Son sınavlar')),
         ),
@@ -299,5 +315,90 @@ class _Dashboard extends StatelessWidget {
         ),
       ]),
     );
+  }
+}
+
+/// Erken uyarı listesi ve şube karşılaştırması kısayolu.
+class _Insights extends StatelessWidget {
+  final List<EarlyWarning> warnings;
+  const _Insights({required this.warnings});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context);
+    final muted = t.colorScheme.onSurface.withValues(alpha: 0.6);
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      Card(
+        clipBehavior: Clip.antiAlias,
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          leading: const IconBadge(Icons.compare_arrows_rounded, color: NColors.emerald),
+          title: const Text('Şube karşılaştırması', style: TextStyle(fontWeight: FontWeight.w700)),
+          subtitle: const Text('Aynı sınavı farklı şubelerde yan yana görün'),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CompareScreen())),
+        ),
+      ),
+      if (warnings.isNotEmpty) ...[
+        const SizedBox(height: 12),
+        Card(
+          clipBehavior: Clip.antiAlias,
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 4),
+              child: Row(children: [
+                const IconBadge(Icons.priority_high_rounded, color: NColors.amber),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text('Dikkat gerektiren öğrenciler (${warnings.length})',
+                        style: const TextStyle(fontWeight: FontWeight.w700)),
+                    Text('Yalnızca size gösterilen bir hatırlatmadır.', style: TextStyle(color: muted, fontSize: 12)),
+                  ]),
+                ),
+              ]),
+            ),
+            for (final w in warnings.take(4))
+              ListTile(
+                dense: true,
+                title: Text(w.student.fullName, style: const TextStyle(fontWeight: FontWeight.w600)),
+                subtitle: Text('${w.student.className} · ${w.reason}'),
+                trailing: Text('%${w.lastPct.round()}',
+                    style: const TextStyle(fontWeight: FontWeight.w800, fontFeatures: tabular, color: NColors.coral)),
+                onTap: () => Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (_) => StudentDetailScreen(studentId: w.student.id))),
+              ),
+            if (warnings.length > 4)
+              TextButton(
+                onPressed: () => showModalBottomSheet(
+                  context: context,
+                  showDragHandle: true,
+                  isScrollControlled: true,
+                  builder: (ctx) => SafeArea(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(ctx).height * 0.75),
+                      child: ListView(shrinkWrap: true, children: [
+                        for (final w in warnings)
+                          ListTile(
+                            title: Text(w.student.fullName),
+                            subtitle: Text('${w.student.className} · ${w.reason}'),
+                            trailing: Text('%${w.lastPct.round()}'),
+                            onTap: () {
+                              Navigator.pop(ctx);
+                              Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (_) => StudentDetailScreen(studentId: w.student.id)));
+                            },
+                          ),
+                      ]),
+                    ),
+                  ),
+                ),
+                child: Text('Tümünü göster (${warnings.length})'),
+              ),
+            const SizedBox(height: 6),
+          ]),
+        ),
+      ],
+    ]);
   }
 }

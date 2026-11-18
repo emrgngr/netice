@@ -10,6 +10,9 @@ import 'package:netice/core/store.dart';
 import 'package:netice/main.dart';
 import 'package:netice/ui/exam_screen.dart';
 import 'package:netice/ui/new_exam_screen.dart';
+import 'package:netice/ui/student_detail_screen.dart';
+import 'package:netice/ui/compare_screen.dart';
+import 'package:netice/ui/exam_settings_screen.dart';
 import 'package:netice/ui/theme.dart';
 
 Future<void> loadFonts() async {
@@ -69,6 +72,13 @@ void main() {
     await shot(tester, StoreScope(store: store, child: _themed(const ExamScreen(examId: 'demo_exam'))), const Size(390, 3400), 'mobil_analiz',
         then: () async => tester.tap(find.text('Analiz')));
     await shot(tester, StoreScope(store: store, child: _themed(const NewExamScreen())), const Size(412, 915), 'mobil_yeni_sinav');
+    await shot(tester, StoreScope(store: store, child: _themed(const StudentDetailScreen(studentId: 'demo_5'))),
+        const Size(390, 1500), 'mobil_ogrenci_gecmisi');
+    await shot(tester, StoreScope(store: store, child: _themed(const CompareScreen())), const Size(390, 1600),
+        'mobil_sube_karsilastirmasi');
+    await shot(tester, StoreScope(store: store, child: _themed(const ExamSettingsScreen(examId: 'demo_exam'))),
+        const Size(390, 1100), 'mobil_sinav_ayarlari');
+    await shot(tester, app, const Size(390, 1500), 'mobil_ana_sayfa_uzun');
     await shot(tester, app, const Size(412, 915), 'mobil_siniflar', then: () async => tester.tap(find.text('Sınıflar')));
     debugDisableShadows = true;
   });

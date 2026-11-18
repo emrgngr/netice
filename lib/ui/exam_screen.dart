@@ -15,6 +15,7 @@ import '../reports/pdf_documents.dart';
 import 'review_screen.dart';
 import 'camera_scan_screen.dart';
 import 'exam_settings_screen.dart';
+import 'student_detail_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
 
@@ -56,11 +57,51 @@ class ExamScreen extends StatelessWidget {
       );
     }
 
+    Future<void> eokul() async {
+      final cls = store.studentsOf(exam.className);
+      if (cls.isEmpty) return toast(context, 'Bu sınıfta kayıtlı öğrenci yok.');
+      final choice = await showModalBottomSheet<String>(
+        context: context,
+        showDragHandle: true,
+        builder: (ctx) => SafeArea(
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            const ListTile(title: Text('e-Okul not giriş listesi', style: TextStyle(fontWeight: FontWeight.w800))),
+            ListTile(
+                leading: const Icon(Icons.picture_as_pdf_outlined),
+                title: const Text('PDF (yazdırmak için)'),
+                onTap: () => Navigator.pop(ctx, 'pdf')),
+            ListTile(
+                leading: const Icon(Icons.table_view_outlined),
+                title: const Text('Excel'),
+                onTap: () => Navigator.pop(ctx, 'xls')),
+          ]),
+        ),
+      );
+      if (choice == 'pdf') {
+        final bytes = await buildEokulPdf(exam: exam, results: results, classStudents: cls);
+        await Printing.sharePdf(bytes: bytes, filename: '${_safe(exam.name)}_eokul.pdf');
+      } else if (choice == 'xls') {
+        await FilePicker.saveFile(
+          fileName: '${_safe(exam.name)}_eokul.csv',
+          bytes: Uint8List.fromList(utf8.encode(eokulCsv(exam, results, cls))),
+          mimeType: 'text/csv',
+        );
+      }
+    }
+
+    Future<void> labels() async {
+      if (results.isEmpty) return toast(context, 'Etiket için önce kâğıt okutun.');
+      final bytes = await buildLabelsPdf(exam: exam, results: results, students: store.studentById);
+      await Printing.sharePdf(bytes: bytes, filename: '${_safe(exam.name)}_etiketler.pdf');
+    }
+
     final actions = [
       _Action(Icons.print_outlined, 'Form yazdır', printForms),
       _Action(Icons.picture_as_pdf_outlined, 'Sınav raporu', pdfReport),
       _Action(Icons.badge_outlined, 'Öğrenci karneleri', studentCards),
       _Action(Icons.table_view_outlined, 'Excel', excel),
+      _Action(Icons.school_outlined, 'e-Okul listesi', eokul),
+      _Action(Icons.label_outline, 'Sonuç etiketi', labels),
     ];
 
     return DefaultTabController(
@@ -68,8 +109,10 @@ class ExamScreen extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(exam.name),
-            Text('${exam.className} · ${dmy(exam.date)} ${hm(exam.date)} · ${exam.questionCount} soru · ${exam.choiceCount} şık',
+            Text(exam.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+            Text('${exam.className} · ${dmy(exam.date)} ${hm(exam.date)} · ${exam.questionCount} soru',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.bodySmall),
           ]),
           actions: [
@@ -80,18 +123,18 @@ class ExamScreen extends StatelessWidget {
                   .push(MaterialPageRoute(builder: (_) => ExamSettingsScreen(examId: exam.id))),
             ),
             if (wide)
-              for (final a in actions)
+              for (final a in actions.take(3))
                 Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: OutlinedButton.icon(onPressed: a.run, icon: Icon(a.icon), label: Text(a.label)),
-                )
-            else
-              PopupMenuButton<_Action>(
-                onSelected: (a) => a.run(),
-                itemBuilder: (_) => [
-                  for (final a in actions) PopupMenuItem(value: a, child: ListTile(leading: Icon(a.icon), title: Text(a.label))),
-                ],
-              ),
+                ),
+            PopupMenuButton<_Action>(
+              onSelected: (a) => a.run(),
+              itemBuilder: (_) => [
+                for (final a in wide ? actions.skip(3) : actions)
+                  PopupMenuItem(value: a, child: ListTile(leading: Icon(a.icon), title: Text(a.label))),
+              ],
+            ),
             const SizedBox(width: 8),
           ],
           bottom: TabBar(tabs: [
@@ -220,6 +263,19 @@ void showSheetDetail(BuildContext context, Exam exam, Result r) {
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(st?.fullName ?? 'Eşleşmeyen kâğıt', style: Theme.of(ctx).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
           Text('No ${st?.number ?? '–'} · Puan ${fmt1(r.score)} · Net ${fmt2(r.net)}'),
+          if (st != null)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  Navigator.of(context)
+                      .push(MaterialPageRoute(builder: (_) => StudentDetailScreen(studentId: st.id)));
+                },
+                icon: const Icon(Icons.timeline, size: 18),
+                label: const Text('Öğrenci geçmişi ve gelişimi'),
+              ),
+            ),
           const SizedBox(height: 12),
           Wrap(spacing: 6, runSpacing: 6, children: [
             for (var i = 0; i < exam.questionCount; i++)
@@ -444,7 +500,7 @@ class _AnalysisTab extends StatelessWidget {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: 240, mainAxisExtent: 124, crossAxisSpacing: 12, mainAxisSpacing: 12),
+            maxCrossAxisExtent: 240, mainAxisExtent: 134, crossAxisSpacing: 12, mainAxisSpacing: 12),
         children: stats,
       ),
       const SectionTitle('Otomatik değerlendirme'),

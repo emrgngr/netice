@@ -6,6 +6,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../core/models.dart';
+import '../core/progress.dart';
 import '../core/report.dart';
 import '../core/scoring.dart';
 import '../omr/form_layout.dart';
@@ -145,9 +146,12 @@ class _Kit {
   final Exam exam;
   final String institution;
 
+  /// Sağ üstteki bilgi (verilmezse sınav adı, şube ve tarih).
+  final String? headerInfo;
+
   /// Raporun oluşturulduğu an (cihaz saatiyle).
   final DateTime createdAt = DateTime.now();
-  _Kit(this.exam, this.institution);
+  _Kit(this.exam, this.institution, {this.headerInfo});
 
   String get created => reportStamp(createdAt);
 
@@ -175,7 +179,7 @@ class _Kit {
           ],
         ),
         pw.Text(
-          '${exam.name} · ${exam.className} · Sınav: ${_date(exam.date)}',
+          headerInfo ?? '${exam.name} · ${exam.className} · Sınav: ${_date(exam.date)}',
           style: const pw.TextStyle(color: _muted, fontSize: 9),
         ),
       ],
@@ -951,4 +955,191 @@ pw.Widget _heatmap(ExamReport r, Map<String, Student> students) {
       ]),
     ],
   );
+}
+
+/// Şube karşılaştırma raporu.
+Future<Uint8List> buildComparePdf(List<BranchRow> rows, {String institution = ''}) async {
+  final fonts = await _Fonts.load();
+  final k = _Kit(rows.first.exam, institution,
+      headerInfo: 'Şube karşılaştırması · ${rows.map((r) => r.exam.className).join(', ')}');
+  final doc = pw.Document(
+      theme: pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold), title: 'Şube karşılaştırması', author: 'Netice');
+  final best = rows.reduce((a, b) => a.report.stats.mean >= b.report.stats.mean ? a : b);
+  final sameShape = rows.every((r) => r.exam.questionCount == rows.first.exam.questionCount);
+  final codes = {for (final r in rows) ...r.report.outcomes.map((o) => o.code)}.toList();
+  doc.addPage(pw.MultiPage(
+    pageFormat: PdfPageFormat.a4,
+    margin: const pw.EdgeInsets.fromLTRB(36, 30, 36, 30),
+    header: (ctx) => k.header(ctx),
+    footer: k.footer,
+    build: (ctx) => [
+      k.title('Şube karşılaştırması', rows.map((r) => '${r.exam.name} (${r.exam.className})').join(' · ')),
+      k.barChart(
+        [for (final r in rows) r.report.stats.mean],
+        [for (final r in rows) r.exam.className],
+        maxValue: rows.map((r) => r.exam.rule.maxScore).reduce(math.max),
+        colors: [for (final r in rows) identical(r, best) ? _emerald : _ink],
+        height: 110,
+      ),
+      pw.SizedBox(height: 8),
+      k.table(
+        ['Şube', 'Sınav', 'Kişi', 'Ortalama', 'Medyan', 'Std.', 'Başarı', 'En yüksek', 'En düşük', 'KR-20'],
+        [
+          for (final r in rows)
+            [
+              r.exam.className,
+              r.exam.name,
+              '${r.report.stats.count}',
+              _f1(r.report.stats.mean),
+              _f1(r.report.stats.median),
+              _f1(r.report.stats.stdDev),
+              _pct(r.report.passRate),
+              _f1(r.report.stats.max),
+              _f1(r.report.stats.min),
+              r.report.stats.kr20 == null ? '–' : _f2(r.report.stats.kr20!),
+            ]
+        ],
+        leftColumn: 1,
+        widths: {1: const pw.FlexColumnWidth(3)},
+      ),
+      if (codes.isNotEmpty) ...[
+        k.title('Kazanım başarısı (%)'),
+        k.table(
+          ['Kazanım', for (final r in rows) r.exam.className],
+          [
+            for (final c in codes)
+              [
+                c,
+                for (final r in rows)
+                  () {
+                    final o = r.report.outcomes.where((o) => o.code == c).firstOrNull;
+                    return o == null ? '–' : _pct(o.rate);
+                  }()
+              ]
+          ],
+          leftColumn: 0,
+          widths: {0: const pw.FlexColumnWidth(3)},
+        ),
+      ],
+      if (sameShape) ...[
+        k.title('Soru bazında doğru oranı (%)'),
+        k.table(
+          ['Şube', for (var q = 0; q < rows.first.exam.questionCount; q++) '${q + 1}'],
+          [
+            for (final r in rows) [r.exam.className, for (final it in r.report.items) '${(it.p * 100).round()}']
+          ],
+          fontSize: rows.first.exam.questionCount > 25 ? 5.5 : 7,
+        ),
+      ],
+    ],
+  ));
+  return doc.save();
+}
+
+/// e-Okul'a not girişini kolaylaştıran liste: okul numarasına göre sıralı,
+/// tam sayıya yuvarlanmış puan; sınava girmeyenler işaretli.
+Future<Uint8List> buildEokulPdf({
+  required Exam exam,
+  required List<Result> results,
+  required List<Student> classStudents,
+  String institution = '',
+}) async {
+  final fonts = await _Fonts.load();
+  final k = _Kit(exam, institution);
+  final doc = pw.Document(
+      theme: pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold), title: '${exam.name} e-Okul listesi', author: 'Netice');
+  final rows = eokulRows(exam, results, classStudents);
+  doc.addPage(pw.MultiPage(
+    pageFormat: PdfPageFormat.a4,
+    margin: const pw.EdgeInsets.fromLTRB(36, 30, 36, 30),
+    header: k.header,
+    footer: k.footer,
+    build: (ctx) => [
+      k.title('e-Okul not giriş listesi', 'Okul numarasına göre sıralı · puanlar tam sayıya yuvarlandı · ${exam.rule.maxScore.round()} üzerinden'),
+      k.table(
+        ['Sıra', 'Okul No', 'Ad Soyad', 'Puan', 'Not'],
+        [
+          for (var i = 0; i < rows.length; i++)
+            [
+              '${i + 1}',
+              rows[i].$1.number,
+              rows[i].$1.fullName,
+              rows[i].$2 == null ? 'G' : '${rows[i].$2}',
+              rows[i].$2 == null ? 'Sınava girmedi' : '',
+            ]
+        ],
+        leftColumn: 2,
+        widths: {2: const pw.FlexColumnWidth(4), 4: const pw.FlexColumnWidth(2)},
+        fontSize: 10,
+      ),
+    ],
+  ));
+  return doc.save();
+}
+
+/// (öğrenci, yuvarlanmış puan veya girmediyse null), okul numarasına göre.
+List<(Student, int?)> eokulRows(Exam exam, List<Result> results, List<Student> classStudents) {
+  final byId = {for (final r in results) r.sheet.studentId: r};
+  final list = [for (final s in classStudents) (s, byId[s.id]?.score.round())];
+  list.sort((a, b) => (int.tryParse(a.$1.number) ?? 0).compareTo(int.tryParse(b.$1.number) ?? 0));
+  return list;
+}
+
+/// Kâğıda yapıştırılan sonuç etiketleri: A4, 3 × 8 = 24 etiket (70 × 37 mm).
+Future<Uint8List> buildLabelsPdf({
+  required Exam exam,
+  required List<Result> results,
+  required Map<String, Student> students,
+}) async {
+  final fonts = await _Fonts.load();
+  final doc = pw.Document(
+      theme: pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold), title: '${exam.name} sonuç etiketleri', author: 'Netice');
+  final sorted = [...results]..sort((a, b) => (students[a.sheet.studentId]?.fullName ?? '~')
+      .compareTo(students[b.sheet.studentId]?.fullName ?? '~'));
+  const perPage = 24;
+  const mm = PdfPageFormat.mm;
+  for (var p = 0; p < sorted.length; p += perPage) {
+    final page = sorted.skip(p).take(perPage).toList();
+    doc.addPage(pw.Page(
+      pageFormat: PdfPageFormat.a4,
+      margin: pw.EdgeInsets.zero,
+      build: (ctx) => pw.Column(children: [
+        for (var row = 0; row < (page.length / 3).ceil(); row++)
+          pw.Row(children: [
+            for (final r in page.skip(row * 3).take(3))
+          () {
+            final st = students[r.sheet.studentId];
+            return pw.Container(
+              width: 69.9 * mm,
+              height: 37.1 * mm,
+              padding: const pw.EdgeInsets.fromLTRB(10, 9, 10, 7),
+              child: pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
+                pw.Row(children: [
+                  pw.Expanded(
+                    child: pw.Text(st?.fullName ?? 'Eşleşmeyen kâğıt',
+                        maxLines: 1, style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold, color: _ink)),
+                  ),
+                  pw.Text(st?.number ?? '', style: const pw.TextStyle(fontSize: 7, color: _muted)),
+                ]),
+                pw.Text('${exam.name} · ${_date(exam.date)}',
+                    maxLines: 1, style: const pw.TextStyle(fontSize: 6.5, color: _muted)),
+                pw.Spacer(),
+                pw.Row(crossAxisAlignment: pw.CrossAxisAlignment.end, children: [
+                  pw.Expanded(
+                    child: pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
+                      pw.Text('D ${r.correct}   Y ${r.wrong}   B ${r.blank}', style: const pw.TextStyle(fontSize: 8)),
+                      pw.Text('Net ${_f2(r.net)}', style: const pw.TextStyle(fontSize: 8, color: _muted)),
+                    ]),
+                  ),
+                  pw.Text(_f1(r.score), style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold, color: _ink)),
+                ]),
+              ]),
+            );
+          }(),
+          ]),
+      ]),
+    ));
+  }
+  if (sorted.isEmpty) doc.addPage(pw.Page(build: (_) => pw.Center(child: pw.Text('Henüz okunan kâğıt yok.'))));
+  return doc.save();
 }

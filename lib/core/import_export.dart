@@ -240,3 +240,23 @@ String resultsCsv(Exam exam, List<Result> results, Map<String, Student> students
 }
 
 List<int> utf8Bytes(String s) => utf8.encode(s);
+
+/// e-Okul giriş listesi (Excel): okul numarasına göre sıralı, tam sayı puan.
+String eokulCsv(Exam exam, List<Result> results, List<Student> classStudents) {
+  final byId = {for (final r in results) r.sheet.studentId: r};
+  final list = [...classStudents]
+    ..sort((a, b) => (int.tryParse(a.number) ?? 0).compareTo(int.tryParse(b.number) ?? 0));
+  final rows = <List<String>>[
+    ['Sıra', 'Okul No', 'Adı', 'Soyadı', 'Puan', 'Not'],
+    for (var i = 0; i < list.length; i++)
+      [
+        '${i + 1}',
+        list[i].number,
+        list[i].firstName,
+        list[i].lastName,
+        byId[list[i].id] == null ? 'G' : '${byId[list[i].id]!.score.round()}',
+        byId[list[i].id] == null ? 'Sınava girmedi' : '',
+      ],
+  ];
+  return '\uFEFF${Csv(fieldDelimiter: ';', lineDelimiter: '\r\n').encode(rows)}';
+}

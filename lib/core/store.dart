@@ -135,6 +135,64 @@ class AppStore extends ChangeNotifier {
   }
 
   /// Örnek (kurgusal) veriyle ilk açılış: öğretmen sistemi hemen deneyebilir.
+  /// Örnek veride gelişim, erken uyarı ve şube karşılaştırması görünsün
+  /// diye: 9-A için daha eski bir quiz, 9-B şubesi için aynı quiz.
+  void _seedExtra(int nA) {
+    final rnd = math.Random(11);
+    const topics = ['Hareket', 'Kuvvet', 'Enerji', 'Isı ve sıcaklık'];
+    Exam tagged(Exam e) =>
+        e.copyWith(questions: [for (final q in e.questions) q.copyWith(outcomeCode: topics[(q.no - 1) ~/ 5])]);
+    List<Answer> answers(Exam e, double ability) => [
+          for (var q = 0; q < e.questionCount; q++)
+            () {
+              final key = e.questions[q].correct.first;
+              final roll = rnd.nextDouble();
+              if (roll < ability) return Answer.choice(key);
+              if (roll > 0.96) return const Answer.blank();
+              return Answer.choice((key + 1 + rnd.nextInt(4)) % 5);
+            }()
+        ];
+
+    // 9-A, Fizik Quiz 1: bazı öğrenciler bu sınavda daha iyiydi (düşüş örneği).
+    final q1 = tagged(Exam.fromKeyString(
+      id: 'demo_exam_q1',
+      name: 'Fizik Quiz 1 (örnek)',
+      className: '9-A',
+      key: 'CABDEBCADEACBDECABED',
+      date: DateTime.now().subtract(const Duration(days: 16)),
+    ));
+    exams.add(q1);
+    for (var i = 0; i < nA; i++) {
+      var ability = 0.35 + 0.6 * (nA - i) / nA;
+      if (i % 6 == 5) ability = (ability + 0.3).clamp(0, 0.97);
+      sheets.add(Sheet(examId: q1.id, studentId: 'demo_$i', answers: answers(q1, ability)));
+    }
+
+    // 9-B şubesi ve aynı Quiz 2.
+    const namesB = [
+      ['Aras', 'Yılmaz'], ['Beren', 'Şen'], ['Cem', 'Avcı'], ['Damla', 'Işık'], ['Eren', 'Toprak'],
+      ['Feyza', 'Keskin'], ['Göktuğ', 'Sarı'], ['Hira', 'Ekinci'], ['Kaan', 'Uysal'], ['Melis', 'Aksoy'],
+      ['Onur', 'Çakır'], ['Rana', 'Gök'], ['Sarp', 'Duman'], ['Tuana', 'Bayram'], ['Yiğit', 'Coşkun'],
+      ['Zehra', 'Önal'], ['Alp', 'Karaca'], ['Bade', 'Tunç'],
+    ];
+    for (var i = 0; i < namesB.length; i++) {
+      students.add(Student(
+          id: 'demoB_$i', firstName: namesB[i][0], lastName: namesB[i][1], number: '${2040 + i}', className: '9-B'));
+    }
+    final q2b = tagged(Exam.fromKeyString(
+      id: 'demo_exam_b',
+      name: 'Fizik Quiz 2 (örnek)',
+      className: '9-B',
+      key: 'BDACEABDCEBADCEADBCE',
+      date: DateTime.now().subtract(const Duration(days: 1)),
+    ));
+    exams.add(q2b);
+    for (var i = 0; i < namesB.length; i++) {
+      final ability = 0.45 + 0.5 * (namesB.length - i) / namesB.length;
+      sheets.add(Sheet(examId: q2b.id, studentId: 'demoB_$i', answers: answers(q2b, ability)));
+    }
+  }
+
   void seedDemo() {
     const names = [
       ['Deniz', 'Arslan'], ['Elif', 'Kaya'], ['Mert', 'Yıldız'], ['Zeynep', 'Aydın'],
@@ -165,6 +223,7 @@ class AppStore extends ChangeNotifier {
     exams.add(exam.copyWith(questions: [
       for (final q in exam.questions) q.copyWith(outcomeCode: topics[(q.no - 1) ~/ 5]),
     ]));
+    _seedExtra(names.length);
     final rnd = math.Random(7);
     for (var i = 0; i < names.length; i++) {
       final ability = 0.35 + 0.6 * (names.length - i) / names.length;
