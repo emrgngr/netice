@@ -44,7 +44,10 @@ Future<void> _fonts(String lang) async {
   await load('PlusJakartaSans', special != null
       ? [special]
       : [for (final w in ['400Regular', '500Medium', '600SemiBold', '700Bold', '800ExtraBold']) 'assets/fonts/PlusJakartaSans_$w.ttf']);
-  await load('MaterialIcons', ['/opt/sdk/flutter/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf']);
+  await load('MaterialIcons', [
+    const String.fromEnvironment('ICON_FONT',
+        defaultValue: '/opt/sdk/flutter/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf')
+  ]);
 }
 
 void main() {

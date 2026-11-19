@@ -31,7 +31,9 @@ jobs:
           for f in tool/video/ses_*.json; do
             lang=$(basename "$f" .json); lang=${lang#ses_}
             echo "::group::$lang"
-            flutter test tool/video_test.dart --dart-define=LANG_SHOT=$lang || true
+            ICON=$(dirname "$(which flutter)")/cache/artifacts/material_fonts/MaterialIcons-Regular.otf
+            test -f "$ICON"
+            flutter test tool/video_test.dart --dart-define=LANG_SHOT=$lang --dart-define=ICON_FONT="$ICON" || true
             test -f build/video/frames/$lang/hedefler.json
             mkdir -p build/video/audio/$lang
             i=0
