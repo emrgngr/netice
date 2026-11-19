@@ -139,5 +139,20 @@
  "Öğretmenin görevi": "教員の職位",
  "İngilizce konuşulan ülkeler (ABD, Birleşik Krallık…)": "英語圏の国（米国、英国…）",
  "İspanya": "スペイン",
- "İtalya": "イタリア"
+ "İtalya": "イタリア",
+ "Altı çizili": "下線",
+ "Arapça, Çince ve Japonca harfler her yazı tipinde uygun Noto yazı tipiyle basılır.": "アラビア文字・中国語・日本語の文字は、どの書体でも対応する Noto フォントで印刷されます。",
+ "Arial benzeri (sade)": "Arial 風（シンプル）",
+ "Başlık karakteri": "見出しの書式",
+ "Başlık puntosu": "見出しのサイズ",
+ "Büyült": "大きく",
+ "Kalın": "太字",
+ "Küçült": "小さく",
+ "Netice (modern)": "Netice（モダン）",
+ "Times New Roman benzeri (tırnaklı)": "Times New Roman 風（明朝系）",
+ "Yazı stili": "文字スタイル",
+ "Yazı tipi": "書体",
+ "{0} pt": "{0} pt",
+ "İmza puntosu": "署名のサイズ",
+ "İtalik": "斜体"
 }

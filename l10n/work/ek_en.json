@@ -139,5 +139,20 @@
  "Öğretmenin görevi": "Teacher's position",
  "İngilizce konuşulan ülkeler (ABD, Birleşik Krallık…)": "English-speaking countries (US, UK…)",
  "İspanya": "Spain",
- "İtalya": "Italy"
+ "İtalya": "Italy",
+ "Altı çizili": "Underline",
+ "Arapça, Çince ve Japonca harfler her yazı tipinde uygun Noto yazı tipiyle basılır.": "Arabic, Chinese and Japanese characters are printed with a matching Noto font in every typeface.",
+ "Arial benzeri (sade)": "Arial-like (plain)",
+ "Başlık karakteri": "Heading style",
+ "Başlık puntosu": "Heading size",
+ "Büyült": "Larger",
+ "Kalın": "Bold",
+ "Küçült": "Smaller",
+ "Netice (modern)": "Netice (modern)",
+ "Times New Roman benzeri (tırnaklı)": "Times New Roman-like (serif)",
+ "Yazı stili": "Text style",
+ "Yazı tipi": "Typeface",
+ "{0} pt": "{0} pt",
+ "İmza puntosu": "Signature size",
+ "İtalik": "Italic"
 }

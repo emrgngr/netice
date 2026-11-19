@@ -28,6 +28,9 @@ class _SchoolScreenState extends State<SchoolScreen> {
   bool _turkish = true;
   bool _official = true;
   String _system = 'tr';
+  String _font = 'netice';
+  double _hSize = 10.5, _sSize = 9.5;
+  bool _hBold = true, _hItalic = false, _hUnder = false;
   bool _loaded = false;
 
   @override
@@ -56,6 +59,12 @@ class _SchoolScreenState extends State<SchoolScreen> {
     _turkish = s.turkishStyle;
     _official = s.officialHeader;
     _system = s.titleSystem ?? (_turkish ? 'tr' : TitleSystem.defaultCode());
+    _font = s.fontFamily;
+    _hSize = s.headerSize;
+    _sSize = s.signSize;
+    _hBold = s.headerBold;
+    _hItalic = s.headerItalic;
+    _hUnder = s.headerUnderline;
   }
 
   @override
@@ -83,6 +92,12 @@ class _SchoolScreenState extends State<SchoolScreen> {
         groupLabel: _v('groupLabel'),
         turkishFormat: _turkish,
         titleSystem: _system,
+        fontFamily: _font,
+        headerSize: _hSize,
+        signSize: _sSize,
+        headerBold: _hBold,
+        headerItalic: _hItalic,
+        headerUnderline: _hUnder,
         officialHeader: _official,
       );
 
@@ -181,7 +196,14 @@ class _SchoolScreenState extends State<SchoolScreen> {
     final info = _info;
     final school = _type == InstitutionType.school;
     final now = DateTime.now();
-    const paper = TextStyle(color: Colors.black, fontSize: 12, height: 1.35);
+    final fam = switch (_font) { 'times' => 'ReportSerif', 'arial' => 'ReportSans', _ => null };
+    final paper = TextStyle(color: Colors.black, fontSize: 12, height: 1.35, fontFamily: fam);
+    final head = paper.copyWith(
+      fontSize: _hSize * 1.1,
+      fontWeight: _hBold ? FontWeight.w700 : FontWeight.w400,
+      fontStyle: _hItalic ? FontStyle.italic : FontStyle.normal,
+      decoration: _hUnder ? TextDecoration.underline : null,
+    );
     return Scaffold(
       appBar: AppBar(title: Text(tr('Kurum bilgileri')), actions: [
         Padding(
@@ -274,6 +296,8 @@ class _SchoolScreenState extends State<SchoolScreen> {
               ),
             ]),
           ),
+          SectionTitle(tr('Yazı stili')),
+          _styleCard(),
           SectionTitle(tr('Önizleme')),
           Card(
             color: Colors.white,
@@ -284,8 +308,7 @@ class _SchoolScreenState extends State<SchoolScreen> {
                   : !info.official
                       ? Text(info.name, style: paper.copyWith(fontWeight: FontWeight.w800))
                       : Column(children: [
-                          for (final line in info.letterhead)
-                            Text(line, textAlign: TextAlign.center, style: paper.copyWith(fontWeight: FontWeight.w800)),
+                          for (final line in info.letterhead) Text(line, textAlign: TextAlign.center, style: head),
                           const SizedBox(height: 8),
                           Text(
                             tr('{0} EĞİTİM-ÖĞRETİM YILI {1}{2}', [
@@ -294,9 +317,9 @@ class _SchoolScreenState extends State<SchoolScreen> {
                               info.subject.isEmpty ? '' : tr(' {0} DERSİ', [SchoolInfo.upper(info.subject)])
                             ]),
                             textAlign: TextAlign.center,
-                            style: paper.copyWith(fontSize: 11),
+                            style: paper.copyWith(fontSize: (_hSize - 1) * 1.1, fontStyle: head.fontStyle),
                           ),
-                          Text(tr('SINAV ANALİZ RAPORU'), style: paper.copyWith(fontWeight: FontWeight.w800)),
+                          Text(tr('SINAV ANALİZ RAPORU'), textAlign: TextAlign.center, style: head),
                           const Divider(color: Colors.black, height: 20),
                           const SizedBox(height: 40),
                           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, crossAxisAlignment: CrossAxisAlignment.end, children: [
@@ -304,8 +327,8 @@ class _SchoolScreenState extends State<SchoolScreen> {
                             const SizedBox(width: 12),
                             Flexible(
                               child: Column(children: [
-                                Text('UYGUNDUR', style: paper.copyWith(fontWeight: FontWeight.w800, fontSize: 11)),
-                                Text(dmy(now), style: paper.copyWith(fontSize: 11)),
+                                Text('UYGUNDUR', style: paper.copyWith(fontWeight: FontWeight.w700, fontSize: (_sSize - 0.5) * 1.1)),
+                                Text(dmy(now), style: paper.copyWith(fontWeight: FontWeight.w700, fontSize: (_sSize - 0.5) * 1.1)),
                                 const SizedBox(height: 18),
                                 _sig(paper, info.principal, info.headRole),
                               ]),
@@ -321,7 +344,75 @@ class _SchoolScreenState extends State<SchoolScreen> {
 
   Widget _sig(TextStyle s, String name, String role) => Column(children: [
         Text(name.isEmpty ? '................' : name,
-            textAlign: TextAlign.center, style: s.copyWith(fontWeight: FontWeight.w800, fontSize: 11)),
-        Text(role, textAlign: TextAlign.center, style: s.copyWith(fontSize: 10)),
+            textAlign: TextAlign.center, style: s.copyWith(fontWeight: FontWeight.w700, fontSize: _sSize * 1.1)),
+        Text(role, textAlign: TextAlign.center, style: s.copyWith(fontSize: (_sSize - 1) * 1.1)),
       ]);
+
+  Widget _styleCard() {
+    Widget size(String label, double v, double min, double max, ValueChanged<double> on) => Row(children: [
+          Expanded(child: Text(label)),
+          IconButton(
+              tooltip: tr('Küçült'),
+              onPressed: v <= min ? null : () => setState(() => on(v - 0.5)),
+              icon: const Icon(Icons.remove_circle_outline)),
+          SizedBox(
+              width: 56,
+              child: Text(tr('{0} pt', [v % 1 == 0 ? v.toInt() : v]),
+                  textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w800))),
+          IconButton(
+              tooltip: tr('Büyült'),
+              onPressed: v >= max ? null : () => setState(() => on(v + 0.5)),
+              icon: const Icon(Icons.add_circle_outline)),
+        ]);
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: DropdownButtonFormField<String>(
+              initialValue: _font,
+              isExpanded: true,
+              decoration: InputDecoration(labelText: tr('Yazı tipi'), prefixIcon: const Icon(Icons.font_download_outlined)),
+              items: [
+                for (final f in SchoolInfo.fontFamilies)
+                  DropdownMenuItem(
+                    value: f,
+                    child: Text(SchoolInfo.fontLabel(f),
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontFamily: switch (f) { 'times' => 'ReportSerif', 'arial' => 'ReportSans', _ => null })),
+                  ),
+              ],
+              onChanged: (v) => setState(() => _font = v ?? _font),
+            ),
+          ),
+          const SizedBox(height: 8),
+          size(tr('Başlık puntosu'), _hSize, 8, 16, (v) => _hSize = v),
+          size(tr('İmza puntosu'), _sSize, 7, 14, (v) => _sSize = v),
+          const SizedBox(height: 4),
+          Text(tr('Başlık karakteri')),
+          const SizedBox(height: 8),
+          Wrap(spacing: 8, runSpacing: 8, children: [
+            FilterChip(
+                selected: _hBold,
+                label: Text(tr('Kalın'), style: const TextStyle(fontWeight: FontWeight.w800)),
+                onSelected: (v) => setState(() => _hBold = v)),
+            FilterChip(
+                selected: _hItalic,
+                label: Text(tr('İtalik'), style: const TextStyle(fontStyle: FontStyle.italic)),
+                onSelected: (v) => setState(() => _hItalic = v)),
+            FilterChip(
+                selected: _hUnder,
+                label: Text(tr('Altı çizili'), style: const TextStyle(decoration: TextDecoration.underline)),
+                onSelected: (v) => setState(() => _hUnder = v)),
+          ]),
+          if (L10n.rtl || L10n.code == 'zh' || L10n.code == 'ja') ...[
+            const SizedBox(height: 8),
+            Text(tr('Arapça, Çince ve Japonca harfler her yazı tipinde uygun Noto yazı tipiyle basılır.'),
+                style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))),
+          ],
+        ]),
+      ),
+    );
+  }
 }

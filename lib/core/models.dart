@@ -498,6 +498,18 @@ class SchoolInfo {
   /// Unvan listelerinin ülkesi (tr, en, de…). null: uygulama diline göre.
   final String? titleSystem;
 
+  /// Raporların yazı tipi: netice, times, arial.
+  final String fontFamily;
+
+  /// Resmi başlığın punto ve karakteri.
+  final double headerSize;
+  final bool headerBold;
+  final bool headerItalic;
+  final bool headerUnderline;
+
+  /// İmza alanının puntosu.
+  final double signSize;
+
   /// Raporlarda resmi yazı başlığı ve imza alanı.
   final bool officialHeader;
 
@@ -516,8 +528,22 @@ class SchoolInfo {
     this.groupLabel = '',
     this.turkishFormat,
     this.titleSystem,
+    this.fontFamily = 'netice',
+    this.headerSize = 10.5,
+    this.headerBold = true,
+    this.headerItalic = false,
+    this.headerUnderline = false,
+    this.signSize = 9.5,
     this.officialHeader = true,
   });
+
+  static const fontFamilies = ['netice', 'times', 'arial'];
+
+  static String fontLabel(String f) => switch (f) {
+        'times' => tr('Times New Roman benzeri (tırnaklı)'),
+        'arial' => tr('Arial benzeri (sade)'),
+        _ => tr('Netice (modern)'),
+      };
 
   bool get isEmpty => name.trim().isEmpty;
 
@@ -615,6 +641,12 @@ class SchoolInfo {
         groupLabel: groupLabel ?? this.groupLabel,
         turkishFormat: turkishFormat,
         titleSystem: titleSystem,
+        fontFamily: fontFamily,
+        headerSize: headerSize,
+        headerBold: headerBold,
+        headerItalic: headerItalic,
+        headerUnderline: headerUnderline,
+        signSize: signSize,
         officialHeader: officialHeader ?? this.officialHeader,
       );
 
@@ -633,6 +665,12 @@ class SchoolInfo {
         'groupLabel': groupLabel,
         if (turkishFormat != null) 'turkishFormat': turkishFormat,
         if (titleSystem != null) 'titleSystem': titleSystem,
+        'fontFamily': fontFamily,
+        'headerSize': headerSize,
+        'headerBold': headerBold,
+        'headerItalic': headerItalic,
+        'headerUnderline': headerUnderline,
+        'signSize': signSize,
         'officialHeader': officialHeader,
       };
 
@@ -651,6 +689,12 @@ class SchoolInfo {
         groupLabel: j['groupLabel'] as String? ?? '',
         turkishFormat: j['turkishFormat'] as bool?,
         titleSystem: j['titleSystem'] as String?,
+        fontFamily: j['fontFamily'] as String? ?? 'netice',
+        headerSize: (j['headerSize'] as num?)?.toDouble() ?? 10.5,
+        headerBold: j['headerBold'] as bool? ?? true,
+        headerItalic: j['headerItalic'] as bool? ?? false,
+        headerUnderline: j['headerUnderline'] as bool? ?? false,
+        signSize: (j['signSize'] as num?)?.toDouble() ?? 9.5,
         officialHeader: j['officialHeader'] as bool? ?? true,
       );
 }

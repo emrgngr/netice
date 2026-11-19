@@ -31,18 +31,24 @@ const _levelColors = [_emerald, PdfColor.fromInt(0xFF34D399), _amber, PdfColor.f
 class _Fonts {
   final pw.Font regular;
   final pw.Font bold;
+  final pw.Font italic;
+  final pw.Font boldItalic;
 
   /// Latin dışı harfler (Kiril, Arap, Çin, Japon) için yedek yazı tipleri.
   final List<pw.Font> fallback;
-  _Fonts(this.regular, this.bold, this.fallback);
+  _Fonts(this.regular, this.bold, this.fallback, {pw.Font? italic, pw.Font? boldItalic})
+      : italic = italic ?? regular,
+        boldItalic = boldItalic ?? bold;
 
-  static _Fonts? _cache;
-  static String? _cacheLang;
+  static final _cache = <String, _Fonts>{};
 
-  pw.ThemeData get theme => pw.ThemeData.withFont(base: regular, bold: bold, fontFallback: fallback);
+  pw.ThemeData get theme =>
+      pw.ThemeData.withFont(base: regular, bold: bold, italic: italic, boldItalic: boldItalic, fontFallback: fallback);
 
-  static Future<_Fonts> load() async {
-    if (_cache != null && _cacheLang == L10n.code) return _cache!;
+  /// [family]: netice, times ya da arial (Kurum bilgileri > Yazı stili).
+  static Future<_Fonts> load([String family = 'netice']) async {
+    final key = '${L10n.code}/$family';
+    if (_cache[key] != null) return _cache[key]!;
     Future<pw.Font> f(String path) async => pw.Font.ttf(await rootBundle.load(path));
     final noto = await f('assets/pdf_fonts/NotoSans-Regular.ttf');
     final arabic = await f('assets/pdf_fonts/NotoSansArabic-Regular.ttf');
@@ -50,15 +56,28 @@ class _Fonts {
     final jp = await f('assets/pdf_fonts/NotoSansJP-Regular.ttf');
     // Japonca seçiliyse ortak Çince/Japonca karakterler Japon biçimiyle yazılsın.
     final cjk = L10n.code == 'ja' ? [jp, sc] : [sc, jp];
-    _cacheLang = L10n.code;
     final jakarta = await f('assets/fonts/PlusJakartaSans_400Regular.ttf');
     final jakartaBold = await f('assets/fonts/PlusJakartaSans_700Bold.ttf');
     // Arapçada harflerin birleşmesi için Arap yazı tipi ana yazı tipi olmalı.
     if (L10n.rtl) {
-      return _cache = _Fonts(
+      return _cache[key] = _Fonts(
           arabic, await f('assets/pdf_fonts/NotoSansArabic-Bold.ttf'), [jakarta, noto, ...cjk]);
     }
-    return _cache = _Fonts(jakarta, jakartaBold, [noto, arabic, ...cjk]);
+    final lib = switch (family) {
+      'times' => 'LiberationSerif',
+      'arial' => 'LiberationSans',
+      _ => null,
+    };
+    if (lib != null) {
+      return _cache[key] = _Fonts(
+        await f('assets/pdf_fonts/$lib-Regular.ttf'),
+        await f('assets/pdf_fonts/$lib-Bold.ttf'),
+        [noto, arabic, ...cjk],
+        italic: await f('assets/pdf_fonts/$lib-Italic.ttf'),
+        boldItalic: await f('assets/pdf_fonts/$lib-BoldItalic.ttf'),
+      );
+    }
+    return _cache[key] = _Fonts(jakarta, jakartaBold, [noto, arabic, ...cjk]);
   }
 
   /// Tuval üzerine doğrudan yazılan metin için, metindeki bütün harfleri
@@ -539,7 +558,13 @@ class _Kit {
 
   /// Resmi yazı başlığı: T.C. / Kaymakamlık / Okul Müdürlüğü / belge adı.
   pw.Widget letterhead() {
-    const bold = pw.TextStyle(fontSize: 10.5, color: PdfColors.black);
+    final bold = pw.TextStyle(
+      fontSize: school.headerSize,
+      color: PdfColors.black,
+      fontWeight: school.headerBold ? pw.FontWeight.bold : pw.FontWeight.normal,
+      fontStyle: school.headerItalic ? pw.FontStyle.italic : pw.FontStyle.normal,
+      decoration: school.headerUnderline ? pw.TextDecoration.underline : null,
+    );
     final subject = school.subject.trim().isEmpty ? '' : tr(' {0} DERSİ', [SchoolInfo.upper(school.subject.trim())]);
     final cls = classLine ?? school.classLine(exam.className);
     return pw.Container(
@@ -548,15 +573,17 @@ class _Kit {
       decoration: const pw.BoxDecoration(border: pw.Border(bottom: pw.BorderSide(color: PdfColors.black, width: 0.8))),
       child: pw.Column(children: [
         for (final line in school.letterhead)
-          pw.Text(line, style: bold.copyWith(fontWeight: pw.FontWeight.bold), textAlign: pw.TextAlign.center),
+          pw.Text(line, style: bold, textAlign: pw.TextAlign.center),
         pw.SizedBox(height: 8),
         pw.Text(
           tr('{0} EĞİTİM-ÖĞRETİM YILI {1}{2}', [SchoolInfo.academicYear(exam.date), cls, subject]),
-          style: const pw.TextStyle(fontSize: 9.5, color: PdfColors.black),
+          style: pw.TextStyle(
+              fontSize: school.headerSize - 1,
+              color: PdfColors.black,
+              fontStyle: school.headerItalic ? pw.FontStyle.italic : pw.FontStyle.normal),
           textAlign: pw.TextAlign.center,
         ),
-        pw.Text(SchoolInfo.upper(tr(docTitle)),
-            style: pw.TextStyle(fontSize: 10.5, fontWeight: pw.FontWeight.bold, color: PdfColors.black)),
+        pw.Text(SchoolInfo.upper(tr(docTitle)), style: bold),
         pw.SizedBox(height: 6),
         pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
           pw.Text(headerInfo ?? tr('Sınav: {0} · {1}', [exam.name, _date(exam.date)]),
@@ -573,11 +600,12 @@ class _Kit {
     pw.Widget sig(String role, String name, {String? top}) => pw.SizedBox(
           width: 170,
           child: pw.Column(children: [
-            if (top != null) pw.Text(top, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 9)),
+            if (top != null)
+              pw.Text(top, textAlign: pw.TextAlign.center, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: school.signSize - 0.5)),
             pw.SizedBox(height: 30),
             pw.Text(name.trim().isEmpty ? '..............................' : name.trim(),
-                style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 9.5)),
-            pw.Text(role, style: const pw.TextStyle(fontSize: 8.5)),
+                textAlign: pw.TextAlign.center, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: school.signSize)),
+            pw.Text(role, textAlign: pw.TextAlign.center, style: pw.TextStyle(fontSize: school.signSize - 1)),
           ]),
         );
     return pw.Padding(
@@ -795,7 +823,7 @@ Future<Uint8List> buildResultsPdf({
   required Map<String, Student> students,
   SchoolInfo school = const SchoolInfo(),
 }) async {
-  final fonts = await _Fonts.load();
+  final fonts = await _Fonts.load(school.fontFamily);
   final r = ExamReport.build(exam, results);
   final s = r.stats;
   final k = _Kit(exam, school, docTitle: tr('Sınav Analiz Raporu'));
@@ -1194,7 +1222,7 @@ Future<Uint8List> buildStudentCardsPdf({
   /// Verilirse yalnızca bu öğrencinin karnesi (istatistikler yine tüm sınıftan).
   String? onlyStudentId,
 }) async {
-  final fonts = await _Fonts.load();
+  final fonts = await _Fonts.load(school.fontFamily);
   final r = ExamReport.build(exam, results);
   final k = _Kit(exam, school, docTitle: tr('Öğrenci Sınav Karnesi'), letterheadEveryPage: true);
   final max = exam.rule.maxScore;
@@ -1451,7 +1479,7 @@ pw.Widget _heatmap(ExamReport r, Map<String, Student> students) {
 
 /// Şube karşılaştırma raporu.
 Future<Uint8List> buildComparePdf(List<BranchRow> rows, {SchoolInfo school = const SchoolInfo()}) async {
-  final fonts = await _Fonts.load();
+  final fonts = await _Fonts.load(school.fontFamily);
   final k = _Kit(rows.first.exam, school,
       headerInfo: tr('Şube karşılaştırması · {0}', [rows.map((r) => r.exam.className).join(', ')]),
       docTitle: tr('Şube Karşılaştırma Raporu'),
@@ -1539,7 +1567,7 @@ Future<Uint8List> buildEokulPdf({
   required List<Student> classStudents,
   SchoolInfo school = const SchoolInfo(),
 }) async {
-  final fonts = await _Fonts.load();
+  final fonts = await _Fonts.load(school.fontFamily);
   final k = _Kit(exam, school, docTitle: tr('Not Giriş Listesi'));
   final doc = pw.Document(
       theme: fonts.theme, title: tr('{0} e-Okul listesi', [exam.name]), author: tr('Netice'));
@@ -1715,7 +1743,7 @@ _Kit _termKit(TermReport t, SchoolInfo school, String docTitle, {bool everyPage 
 /// Dönem sonu not çizelgesi: her öğrencinin seçilen sınavlardaki puanı
 /// (100 üzerinden), ağırlıklı ortalaması ve e-Okul'a girilecek tam sayı not.
 Future<Uint8List> buildTermGradesPdf(TermReport t, {SchoolInfo school = const SchoolInfo()}) async {
-  final fonts = await _Fonts.load();
+  final fonts = await _Fonts.load(school.fontFamily);
   final k = _termKit(t, school, tr('Dönem Sonu Not Çizelgesi'));
   final doc = pw.Document(
       theme: fonts.theme, title: tr('Dönem not çizelgesi'), author: tr('Netice'));
@@ -1783,7 +1811,7 @@ Future<Uint8List> buildTermGradesPdf(TermReport t, {SchoolInfo school = const Sc
 /// Dönem kazanım karnesi: her öğrenciye bir sayfa; dönemdeki sınavları,
 /// gelişim grafiği ve kazanım bazında birikimli başarısı.
 Future<Uint8List> buildTermCardsPdf(TermReport t, {SchoolInfo school = const SchoolInfo(), String? onlyStudentId}) async {
-  final fonts = await _Fonts.load();
+  final fonts = await _Fonts.load(school.fontFamily);
   final k = _termKit(t, school, tr('Dönem Kazanım Karnesi'), everyPage: true);
   final doc = pw.Document(
       theme: fonts.theme, title: tr('Dönem kazanım karnesi'), author: tr('Netice'));

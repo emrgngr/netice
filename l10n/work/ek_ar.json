@@ -139,5 +139,20 @@
  "Öğretmenin görevi": "منصب المعلم",
  "İngilizce konuşulan ülkeler (ABD, Birleşik Krallık…)": "الدول الناطقة بالإنجليزية (الولايات المتحدة، المملكة المتحدة…)",
  "İspanya": "إسبانيا",
- "İtalya": "إيطاليا"
+ "İtalya": "إيطاليا",
+ "Altı çizili": "تسطير",
+ "Arapça, Çince ve Japonca harfler her yazı tipinde uygun Noto yazı tipiyle basılır.": "تُطبع الحروف العربية والصينية واليابانية بخط Noto المناسب مع أي خط.",
+ "Arial benzeri (sade)": "شبيه Arial (بسيط)",
+ "Başlık karakteri": "نمط العنوان",
+ "Başlık puntosu": "حجم العنوان",
+ "Büyült": "تكبير",
+ "Kalın": "عريض",
+ "Küçült": "تصغير",
+ "Netice (modern)": "Netice (عصري)",
+ "Times New Roman benzeri (tırnaklı)": "شبيه Times New Roman (مذيّل)",
+ "Yazı stili": "نمط الكتابة",
+ "Yazı tipi": "الخط",
+ "{0} pt": "{0} نقطة",
+ "İmza puntosu": "حجم التواقيع",
+ "İtalik": "مائل"
 }

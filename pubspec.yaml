@@ -95,6 +95,26 @@ flutter:
           weight: 700
         - asset: assets/fonts/PlusJakartaSans_800ExtraBold.ttf
           weight: 800
+    - family: ReportSerif
+      fonts:
+        - asset: assets/pdf_fonts/LiberationSerif-Regular.ttf
+        - asset: assets/pdf_fonts/LiberationSerif-Bold.ttf
+          weight: 700
+        - asset: assets/pdf_fonts/LiberationSerif-Italic.ttf
+          style: italic
+        - asset: assets/pdf_fonts/LiberationSerif-BoldItalic.ttf
+          weight: 700
+          style: italic
+    - family: ReportSans
+      fonts:
+        - asset: assets/pdf_fonts/LiberationSans-Regular.ttf
+        - asset: assets/pdf_fonts/LiberationSans-Bold.ttf
+          weight: 700
+        - asset: assets/pdf_fonts/LiberationSans-Italic.ttf
+          style: italic
+        - asset: assets/pdf_fonts/LiberationSans-BoldItalic.ttf
+          weight: 700
+          style: italic
 
   # To add assets to your application, add an assets section, like this:
   # assets:

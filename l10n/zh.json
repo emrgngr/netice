@@ -1217,5 +1217,20 @@
 "Öğretmenin görevi": "教师职务",
 "İngilizce konuşulan ülkeler (ABD, Birleşik Krallık…)": "英语国家（美国、英国…）",
 "İspanya": "西班牙",
-"İtalya": "意大利"
+"İtalya": "意大利",
+"Altı çizili": "下划线",
+"Arapça, Çince ve Japonca harfler her yazı tipinde uygun Noto yazı tipiyle basılır.": "阿拉伯文、中文和日文字符在任何字体下都会使用相应的 Noto 字体打印。",
+"Arial benzeri (sade)": "类似 Arial（无衬线）",
+"Başlık karakteri": "标题样式",
+"Başlık puntosu": "标题字号",
+"Büyült": "放大",
+"Kalın": "粗体",
+"Küçült": "缩小",
+"Netice (modern)": "Netice（现代）",
+"Times New Roman benzeri (tırnaklı)": "类似 Times New Roman（衬线）",
+"Yazı stili": "文字样式",
+"Yazı tipi": "字体",
+"{0} pt": "{0} 磅",
+"İmza puntosu": "签名字号",
+"İtalik": "斜体"
 }

@@ -1217,5 +1217,20 @@
 "Öğretmenin görevi": "Funktion der Lehrkraft",
 "İngilizce konuşulan ülkeler (ABD, Birleşik Krallık…)": "Englischsprachige Länder (USA, Großbritannien…)",
 "İspanya": "Spanien",
-"İtalya": "Italien"
+"İtalya": "Italien",
+"Altı çizili": "Unterstrichen",
+"Arapça, Çince ve Japonca harfler her yazı tipinde uygun Noto yazı tipiyle basılır.": "Arabische, chinesische und japanische Zeichen werden in jeder Schrift mit einer passenden Noto-Schrift gedruckt.",
+"Arial benzeri (sade)": "Wie Arial (schlicht)",
+"Başlık karakteri": "Schriftstil der Überschrift",
+"Başlık puntosu": "Schriftgröße der Überschrift",
+"Büyült": "Größer",
+"Kalın": "Fett",
+"Küçült": "Kleiner",
+"Netice (modern)": "Netice (modern)",
+"Times New Roman benzeri (tırnaklı)": "Wie Times New Roman (mit Serifen)",
+"Yazı stili": "Schriftstil",
+"Yazı tipi": "Schriftart",
+"{0} pt": "{0} pt",
+"İmza puntosu": "Schriftgröße der Unterschriften",
+"İtalik": "Kursiv"
 }

@@ -139,5 +139,20 @@
  "Öğretmenin görevi": "Incarico del docente",
  "İngilizce konuşulan ülkeler (ABD, Birleşik Krallık…)": "Paesi anglofoni (USA, Regno Unito…)",
  "İspanya": "Spagna",
- "İtalya": "Italia"
+ "İtalya": "Italia",
+ "Altı çizili": "Sottolineato",
+ "Arapça, Çince ve Japonca harfler her yazı tipinde uygun Noto yazı tipiyle basılır.": "I caratteri arabi, cinesi e giapponesi vengono stampati con un font Noto adatto in ogni carattere.",
+ "Arial benzeri (sade)": "Tipo Arial (semplice)",
+ "Başlık karakteri": "Stile dell’intestazione",
+ "Başlık puntosu": "Corpo dell’intestazione",
+ "Büyült": "Ingrandisci",
+ "Kalın": "Grassetto",
+ "Küçült": "Riduci",
+ "Netice (modern)": "Netice (moderno)",
+ "Times New Roman benzeri (tırnaklı)": "Tipo Times New Roman (con grazie)",
+ "Yazı stili": "Stile del testo",
+ "Yazı tipi": "Carattere",
+ "{0} pt": "{0} pt",
+ "İmza puntosu": "Corpo delle firme",
+ "İtalik": "Corsivo"
 }

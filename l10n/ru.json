@@ -1217,5 +1217,20 @@
 "Öğretmenin görevi": "Должность преподавателя",
 "İngilizce konuşulan ülkeler (ABD, Birleşik Krallık…)": "Англоязычные страны (США, Великобритания…)",
 "İspanya": "Испания",
-"İtalya": "Италия"
+"İtalya": "Италия",
+"Altı çizili": "Подчёркнутый",
+"Arapça, Çince ve Japonca harfler her yazı tipinde uygun Noto yazı tipiyle basılır.": "Арабские, китайские и японские символы печатаются подходящим шрифтом Noto при любом выборе.",
+"Arial benzeri (sade)": "Как Arial (простой)",
+"Başlık karakteri": "Начертание заголовка",
+"Başlık puntosu": "Кегль заголовка",
+"Büyült": "Больше",
+"Kalın": "Жирный",
+"Küçült": "Меньше",
+"Netice (modern)": "Netice (современный)",
+"Times New Roman benzeri (tırnaklı)": "Как Times New Roman (с засечками)",
+"Yazı stili": "Стиль текста",
+"Yazı tipi": "Шрифт",
+"{0} pt": "{0} пт",
+"İmza puntosu": "Кегль подписей",
+"İtalik": "Курсив"
 }
