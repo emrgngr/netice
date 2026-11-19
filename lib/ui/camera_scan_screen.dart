@@ -8,6 +8,7 @@ import '../core/models.dart';
 import '../core/scoring.dart';
 import '../main.dart';
 import '../omr/form_layout.dart';
+import '../omr/frame_quality.dart';
 import '../omr/omr_reader.dart';
 import '../omr/rectify.dart';
 import '../omr/serial_scanner.dart';
@@ -36,7 +37,10 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
   DateTime _lastFrame = DateTime.fromMillisecondsSinceEpoch(0);
   final _scanner = SerialScanner();
   Sheet? _lastSheet;
-  String _hint = 'Kâğıdı dört köşesi görünecek şekilde çerçeveye alın';
+  static const _frameHint = 'Kâğıdı dört köşesi görünecek şekilde çerçeveye alın';
+  String _hint = _frameHint;
+  bool _warn = false;
+  FrameAdvice? _pendingAdvice;
   int _sessionCount = 0;
 
   @override
@@ -117,18 +121,38 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
       choices: exam.choiceCount,
       booklets: exam.hasBooklets,
     );
-    compute(_readFrame, job).then((r) {
+    compute(_readFrame, job).then((out) {
       if (!mounted) return;
+      final (r, advice) = out;
       if (r != null) _lastJob = job;
       final accepted = _scanner.feed(r);
       if (accepted != null) {
         _accept(exam, accepted);
       } else {
-        setState(() => _hint = _scanner.formVisible
-            ? 'Form algılandı · okunuyor'
-            : 'Kâğıdı dört köşesi görünecek şekilde çerçeveye alın');
+        _showAdvice(r != null ? FrameAdvice.ok : advice);
       }
     }).whenComplete(() => _busy = false);
+  }
+
+  /// Canlı ipucu: aynı sorun iki ardışık karede görülürse gösterilir (titreşmesin diye).
+  void _showAdvice(FrameAdvice a) {
+    final confirmed = a == FrameAdvice.ok || a == _pendingAdvice;
+    _pendingAdvice = a;
+    if (!confirmed) return;
+    final text = switch (a) {
+      FrameAdvice.tooDark => _torch ? 'Ortam karanlık · daha aydınlık bir yere geçin' : 'Ortam karanlık · feneri açın',
+      FrameAdvice.glare => 'Işık yansıyor · telefonu biraz eğin',
+      FrameAdvice.blurry => 'Görüntü bulanık · telefonu sabit tutun',
+      FrameAdvice.tooFar => 'Biraz yaklaşın',
+      FrameAdvice.tilted => 'Telefonu kâğıda paralel tutun',
+      FrameAdvice.edge => 'Köşeler sığmıyor · biraz uzaklaşın',
+      FrameAdvice.ok => _scanner.formVisible ? 'Form algılandı · okunuyor' : _frameHint,
+    };
+    if (text == _hint) return;
+    setState(() {
+      _hint = text;
+      _warn = a != FrameAdvice.ok;
+    });
   }
 
   void _accept(Exam exam, OmrResult r) {
@@ -150,6 +174,7 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
       _lastSheet = sheet;
       _sessionCount++;
       _hint = 'Okundu · sıradaki kâğıdı koyun';
+      _warn = false;
     });
   }
 
@@ -246,7 +271,12 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
                                 child: Center(
                                   child: AnimatedSwitcher(
                                     duration: const Duration(milliseconds: 200),
-                                    child: _Pill(key: ValueKey(_hint), text: _hint, dark: true),
+                                    child: _Pill(
+                                        key: ValueKey(_hint),
+                                        text: _hint,
+                                        dark: true,
+                                        icon: _warn ? Icons.lightbulb_outline_rounded : null,
+                                        iconColor: NColors.amber),
                                   ),
                                 ),
                               ),
@@ -319,7 +349,7 @@ class _Pill extends StatelessWidget {
           borderRadius: BorderRadius.circular(30),
         ),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
-          if (icon != null) ...[Icon(icon, size: 9, color: iconColor), const SizedBox(width: 6)],
+          if (icon != null) ...[Icon(icon, size: icon == Icons.circle ? 9 : 15, color: iconColor), const SizedBox(width: 6)],
           Text(text, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600, fontFeatures: tabular)),
         ]),
       );
@@ -436,17 +466,23 @@ Uint8List? _rectifyFrame(_FrameJob j) {
   }
 }
 
-OmrResult? _readFrame(_FrameJob j) {
+/// Kareyi okur ve canlı ipucunu hesaplar.
+(OmrResult?, FrameAdvice) _readFrame(_FrameJob j) {
   try {
-    final g = j.bgra
-        ? GrayImage.fromBgra(j.bytes, j.width, j.height, j.bytesPerRow)
-        : GrayImage.fromLumaPlane(j.bytes, j.width, j.height, j.bytesPerRow);
-    final r = OmrReader(FormLayout(questionCount: j.questions, choiceCount: j.choices, booklets: j.booklets)).read(g.rotate(j.quarterTurns));
+    final g = (j.bgra
+            ? GrayImage.fromBgra(j.bytes, j.width, j.height, j.bytesPerRow)
+            : GrayImage.fromLumaPlane(j.bytes, j.width, j.height, j.bytesPerRow))
+        .rotate(j.quarterTurns);
+    OmrResult? r;
+    try {
+      r = OmrReader(FormLayout(questionCount: j.questions, choiceCount: j.choices, booklets: j.booklets)).read(g);
+    } catch (_) {}
+    final advice = FrameQuality.assess(g, markers: r?.markers);
     // Hiçbir şey okunmadıysa (yanlış eşleşme) kabul etme.
-    if (r.studentNumber == null && r.questions.every((q) => q.answer.state == MarkState.blank)) return null;
-    return r;
+    if (r != null && r.studentNumber == null && r.questions.every((q) => q.answer.state == MarkState.blank)) r = null;
+    return (r, advice);
   } catch (_) {
-    return null;
+    return (null, FrameAdvice.ok);
   }
 }
 
