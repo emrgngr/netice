@@ -18,6 +18,7 @@ import 'review_screen.dart' show unmatchedLabel;
 import 'scan_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
+import '../l10n/l10n.dart';
 
 /// Kamerayla seri okuma: deklanşör yok. Kâğıt çerçeveye girince dört köşe
 /// işareti bulunur, iki ardışık karede aynı okunursa kaydedilir; titreşim
@@ -39,7 +40,7 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
   DateTime _lastFrame = DateTime.fromMillisecondsSinceEpoch(0);
   final _scanner = SerialScanner();
   Sheet? _lastSheet;
-  static const _frameHint = 'Kâğıdı dört köşesi görünecek şekilde çerçeveye alın';
+  static String get _frameHint => tr('Kâğıdı dört köşesi görünecek şekilde çerçeveye alın');
   String _hint = _frameHint;
   bool _warn = false;
   FrameAdvice? _pendingAdvice;
@@ -75,7 +76,7 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
     try {
       final cams = await availableCameras();
       if (cams.isEmpty) {
-        setState(() => _error = 'Bu cihazda kamera bulunamadı.');
+        setState(() => _error = tr('Bu cihazda kamera bulunamadı.'));
         return;
       }
       final back = cams.firstWhere((c) => c.lensDirection == CameraLensDirection.back, orElse: () => cams.first);
@@ -99,9 +100,9 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
       });
       await c.startImageStream(_onFrame);
     } on CameraException catch (e) {
-      setState(() => _error = e.code.contains('Denied')
-          ? 'Kamera izni verilmedi. Telefonun Ayarlar > Uygulamalar > Netice > İzinler bölümünden kameraya izin verin.'
-          : 'Kamera açılamadı: ${e.description ?? e.code}');
+      setState(() => _error = e.code.contains(tr('Denied'))
+          ? tr('Kamera izni verilmedi. Telefonun Ayarlar > Uygulamalar > Netice > İzinler bölümünden kameraya izin verin.')
+          : tr('Kamera açılamadı: {0}', [e.description ?? e.code]));
     }
   }
 
@@ -140,13 +141,13 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
     _pendingAdvice = a;
     if (!confirmed) return;
     final text = switch (a) {
-      FrameAdvice.tooDark => _torch ? 'Ortam karanlık · daha aydınlık bir yere geçin' : 'Ortam karanlık · feneri açın',
-      FrameAdvice.glare => 'Işık yansıyor · telefonu biraz eğin',
-      FrameAdvice.blurry => 'Görüntü bulanık · telefonu sabit tutun',
-      FrameAdvice.tooFar => 'Biraz yaklaşın',
-      FrameAdvice.tilted => 'Telefonu kâğıda paralel tutun',
-      FrameAdvice.edge => 'Köşeler sığmıyor · biraz uzaklaşın',
-      FrameAdvice.ok => _scanner.formVisible ? 'Form algılandı · okunuyor' : _frameHint,
+      FrameAdvice.tooDark => _torch ? tr('Ortam karanlık · daha aydınlık bir yere geçin') : tr('Ortam karanlık · feneri açın'),
+      FrameAdvice.glare => tr('Işık yansıyor · telefonu biraz eğin'),
+      FrameAdvice.blurry => tr('Görüntü bulanık · telefonu sabit tutun'),
+      FrameAdvice.tooFar => tr('Biraz yaklaşın'),
+      FrameAdvice.tilted => tr('Telefonu kâğıda paralel tutun'),
+      FrameAdvice.edge => tr('Köşeler sığmıyor · biraz uzaklaşın'),
+      FrameAdvice.ok => _scanner.formVisible ? tr('Form algılandı · okunuyor') : _frameHint,
     };
     if (text == _hint) return;
     setState(() {
@@ -162,7 +163,7 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
     if (status == ScanStatus.duplicate) {
       HapticFeedback.lightImpact();
       setState(() {
-        _hint = 'Bu kâğıt zaten okunmuştu · sıradakini koyun';
+        _hint = tr('Bu kâğıt zaten okunmuştu · sıradakini koyun');
         _warn = true;
       });
       return;
@@ -175,17 +176,17 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
       });
     }
     if (sheet.examId != exam.id) {
-      toast(context, 'Bu kâğıt "${store.examById(sheet.examId)?.name}" sınavına ait; oraya kaydedildi.');
+      toast(context, tr('Bu kâğıt "{0}" sınavına ait; oraya kaydedildi.', [store.examById(sheet.examId)?.name]));
     }
     if (status == ScanStatus.conflict) {
-      toast(context, 'Bu numarayla farklı cevaplı bir kâğıt zaten okunmuştu. Yeni kâğıt "Kontrol" listesine alındı; kimin olduğunu oradan seçin.');
+      toast(context, tr('Bu numarayla farklı cevaplı bir kâğıt zaten okunmuştu. Yeni kâğıt "Kontrol" listesine alındı; kimin olduğunu oradan seçin.'));
     }
     HapticFeedback.mediumImpact();
     SystemSound.play(SystemSoundType.click);
     setState(() {
       _lastSheet = sheet;
       _sessionCount++;
-      _hint = status == ScanStatus.replaced ? 'Yeniden okundu · önceki okumanın yerine geçti' : 'Okundu · sıradaki kâğıdı koyun';
+      _hint = status == ScanStatus.replaced ? tr('Yeniden okundu · önceki okumanın yerine geçti') : tr('Okundu · sıradaki kâğıdı koyun');
       _warn = false;
     });
   }
@@ -226,12 +227,12 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16)),
-                  Text('${exam.questionCount} soru · ${exam.choiceCount} şık',
+                  Text(tr('{0} soru · {1} şık', [exam.questionCount, exam.choiceCount]),
                       style: const TextStyle(color: Colors.white60, fontSize: 12)),
                 ]),
               ),
               IconButton(
-                tooltip: 'Fener',
+                tooltip: tr('Fener'),
                 onPressed: _toggleTorch,
                 icon: Icon(_torch ? Icons.flashlight_on : Icons.flashlight_off_outlined, color: Colors.white),
               ),
@@ -243,7 +244,7 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
               _Pill(
                 icon: Icons.circle,
                 iconColor: NColors.emerald,
-                text: 'Seri mod açık',
+                text: tr('Seri mod açık'),
               ),
               const SizedBox(width: 8),
               _Pill(text: '$read${total > 0 ? ' / $total' : ''} okundu'),
@@ -324,7 +325,7 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
                   ),
                   onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => ScanScreen(examId: exam.id))),
                   icon: Icon(review > 0 ? Icons.priority_high_rounded : Icons.photo_library_outlined),
-                  label: Text(review > 0 ? 'Kontrol ($review)' : 'Galeriden'),
+                  label: Text(review > 0 ? 'Kontrol ($review)' : tr('Galeriden')),
                 ),
               ),
               const SizedBox(width: 12),
@@ -332,7 +333,7 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
                 flex: 2,
                 child: GlowButton(
                   height: 54,
-                  label: 'Bitir ve sonuçlar',
+                  label: tr('Bitir ve sonuçlar'),
                   icon: Icons.check_rounded,
                   onPressed: () => Navigator.of(context)
                       .pushReplacement(MaterialPageRoute(builder: (_) => ExamScreen(examId: exam.id))),
@@ -400,7 +401,7 @@ class _LastCard extends StatelessWidget {
                 style: const TextStyle(color: NColors.ink, fontWeight: FontWeight.w700, fontSize: 16)),
             const SizedBox(height: 2),
             warn
-                ? const Text('Kontrol gerekiyor', style: TextStyle(color: Color(0xFFB7791F), fontWeight: FontWeight.w600))
+                ? Text(tr('Kontrol gerekiyor'), style: TextStyle(color: Color(0xFFB7791F), fontWeight: FontWeight.w600))
                 : Theme(data: NTheme.light(), child: DybText(r.correct, r.wrong, r.blank)),
           ]),
         ),

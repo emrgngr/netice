@@ -1,3 +1,4 @@
+import '../l10n/l10n.dart';
 /// Uygulama sürümü (pubspec.yaml ile aynı tutulur).
 const appVersion = '1.0.0';
 
@@ -17,7 +18,7 @@ String get downloadUrl => websiteUrl.isNotEmpty ? websiteUrl : playStoreUrl;
 String get downloadLabel => downloadUrl.replaceFirst(RegExp(r'^https?://'), '');
 
 /// Mesajların sonuna eklenen kısa imza.
-String get downloadSignature => '\n\n— Netice ile hazırlandı. Siz de deneyin: $downloadUrl';
+String get downloadSignature => tr('\n\n— Netice ile hazırlandı. Siz de deneyin: {0}', [downloadUrl]);
 
 /// Kullanım koşulları: kendi sayfamız yayımlanana kadar Apple'ın standart
 /// son kullanıcı lisans sözleşmesi (App Store'un da kabul ettiği metin).
@@ -26,14 +27,14 @@ const termsUrl = 'https://www.apple.com/legal/internet-services/itunes/dev/stdeu
 /// Tanıtım sayfasının adresi (yayımlanınca doldurulur).
 const websiteUrl = '';
 
-String get shareText => 'Optik kâğıtları telefonla okutup puan, analiz ve karneyi saniyeler içinde hazırlayan '
-    'Netice\'yi kullanıyorum, sana da öneririm. Çevrimdışı çalışıyor, veriler telefonda kalıyor.'
-    '\n\nİndir: $downloadUrl';
+String get shareText => tr('Optik kâğıtları telefonla okutup puan, analiz ve karneyi saniyeler içinde hazırlayan Netice\'yi kullanıyorum, sana da öneririm. Çevrimdışı çalışıyor, veriler telefonda kalıyor.\n\nİndir: {0}', [downloadUrl]);
 
 String _contact(String prefix) => contactEmail.isEmpty ? '' : '\n\n$prefix $contactEmail';
 
 /// Uygulama içi gizlilik politikası (mağazadaki metnin kısa hâli).
-final privacyPolicy = '''Netice, öğretmenlerin optik cevap kâğıtlarını okutup sonuçları analiz etmesi için tasarlanmıştır.
+String get privacyPolicy => tr(_privacy) + _contact(tr('İletişim:'));
+
+const _privacy = '''Netice, öğretmenlerin optik cevap kâğıtlarını okutup sonuçları analiz etmesi için tasarlanmıştır.
 
 Çevrimdışı çalışır, veriler cihazınızda kalır
 Netice internet bağlantısı olmadan çalışır. Girdiğiniz ve okuttuğunuz tüm bilgiler yalnızca uygulamayı kullandığınız telefonda (veya bilgisayarda), uygulamaya ait klasörde saklanır. Uygulama hesap açmayı zorunlu tutmaz ve hiçbir veriyi geliştiriciye ya da üçüncü kişilere göndermez.
@@ -60,10 +61,12 @@ Toplanmayan veriler
 Konum, rehber, cihaz kimliği, kullanım istatistiği, çökme raporu ve reklam kimliği toplanmaz.
 
 Silme
-Öğrenci, sınav ve kâğıtları tek tek ya da Ayarlar > "Tüm verileri sil" ile bir seferde silebilirsiniz; otomatik yedekleri de birlikte silmeyi seçebilirsiniz. Google Drive yedeği kullanıyorsanız onu da Ayarlar > Hesap bölümünden silebilirsiniz. Uygulama kaldırıldığında tüm veriler cihazdan silinir.${_contact('İletişim:')}''';
+Öğrenci, sınav ve kâğıtları tek tek ya da Ayarlar > "Tüm verileri sil" ile bir seferde silebilirsiniz; otomatik yedekleri de birlikte silmeyi seçebilirsiniz. Google Drive yedeği kullanıyorsanız onu da Ayarlar > Hesap bölümünden silebilirsiniz. Uygulama kaldırıldığında tüm veriler cihazdan silinir.''';
 
 /// KVKK aydınlatma metni.
-final kvkkNotice = '''6698 sayılı Kişisel Verilerin Korunması Kanunu kapsamında bilgilendirme
+String get kvkkNotice => tr(_kvkk) + _contact(tr('Uygulama ile ilgili sorular:'));
+
+const _kvkk = '''6698 sayılı Kişisel Verilerin Korunması Kanunu kapsamında bilgilendirme
 
 Veri sorumlusu
 Uygulamaya öğrenci bilgilerini giren öğretmen ve bağlı olduğu okul veri sorumlusudur. Uygulama geliştiricisi bu verilere erişmez ve onları işlemez.
@@ -84,4 +87,4 @@ Saklama süresi
 Öğretmen silene veya uygulamayı kaldırana kadar.
 
 Haklar
-Öğrenciler ve velileri KVKK m. 11'deki haklarını veri sorumlusu olan öğretmene veya okula başvurarak kullanır.${_contact('Uygulama ile ilgili sorular:')}''';
+Öğrenciler ve velileri KVKK m. 11'deki haklarını veri sorumlusu olan öğretmene veya okula başvurarak kullanır.''';

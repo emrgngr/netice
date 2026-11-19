@@ -6,13 +6,14 @@ import '../core/legal.dart';
 import '../main.dart';
 import 'theme.dart';
 import 'widgets.dart';
+import '../l10n/l10n.dart';
 
 /// Uygulamayı meslektaşlara önerme: telefonun paylaşım menüsü açılır.
 Future<void> shareApp(BuildContext context) async {
   try {
-    await SharePlus.instance.share(ShareParams(text: shareText, subject: 'Netice: optik okuma ve sınav analizi'));
+    await SharePlus.instance.share(ShareParams(text: shareText, subject: tr('Netice: optik okuma ve sınav analizi')));
   } catch (_) {
-    if (context.mounted) toast(context, 'Paylaşım açılamadı.');
+    if (context.mounted) toast(context, tr('Paylaşım açılamadı.'));
   }
 }
 
@@ -34,12 +35,12 @@ Future<void> showRateDialog(BuildContext context, {VoidCallback? onFeedback}) as
   if (stars >= 4) {
     if (storePublished) {
       final ok = await launchUrl(Uri.parse(playStoreUrl), mode: LaunchMode.externalApplication);
-      if (!ok && context.mounted) toast(context, 'Mağaza açılamadı.');
+      if (!ok && context.mounted) toast(context, tr('Mağaza açılamadı.'));
     } else {
-      toast(context, 'Teşekkürler! Netice mağazaya çıkınca bu düğme sizi doğrudan yorum sayfasına götürecek.');
+      toast(context, tr('Teşekkürler! Netice mağazaya çıkınca bu düğme sizi doğrudan yorum sayfasına götürecek.'));
     }
   } else {
-    toast(context, 'Teşekkürler. Neyi daha iyi yapabileceğimizi yazar mısınız?');
+    toast(context, tr('Teşekkürler. Neyi daha iyi yapabileceğimizi yazar mısınız?'));
     onFeedback?.call();
   }
 }
@@ -54,7 +55,7 @@ class _RateDialog extends StatefulWidget {
 class _RateDialogState extends State<_RateDialog> {
   late int _s = widget.initial;
 
-  static const _labels = ['', 'Hiç beğenmedim', 'Geliştirilmeli', 'İdare eder', 'Beğendim', 'Harika!'];
+  static List<String> get _labels => ['', tr('Hiç beğenmedim'), tr('Geliştirilmeli'), tr('İdare eder'), tr('Beğendim'), tr('Harika!')];
 
   @override
   Widget build(BuildContext context) {
@@ -69,16 +70,16 @@ class _RateDialogState extends State<_RateDialog> {
           child: const Icon(Icons.star_rounded, color: NColors.amber, size: 40),
         ),
         const SizedBox(height: 14),
-        Text('Netice işinizi kolaylaştırdı mı?',
+        Text(tr('Netice işinizi kolaylaştırdı mı?'),
             textAlign: TextAlign.center, style: t.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
         const SizedBox(height: 6),
-        Text('Yıldızınız, başka öğretmenlerin Netice\'yi bulmasına yardım eder.',
+        Text(tr('Yıldızınız, başka öğretmenlerin Netice\'yi bulmasına yardım eder.'),
             textAlign: TextAlign.center, style: TextStyle(color: t.colorScheme.onSurface.withValues(alpha: 0.65))),
         const SizedBox(height: 16),
         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           for (var i = 1; i <= 5; i++)
             IconButton(
-              tooltip: '$i yıldız',
+              tooltip: tr('{0} yıldız', [i]),
               iconSize: 38,
               padding: const EdgeInsets.symmetric(horizontal: 2),
               constraints: const BoxConstraints(),
@@ -100,10 +101,10 @@ class _RateDialogState extends State<_RateDialog> {
       ]),
       actionsAlignment: MainAxisAlignment.center,
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Daha sonra')),
+        TextButton(onPressed: () => Navigator.pop(context), child: Text(tr('Daha sonra'))),
         FilledButton(
           onPressed: _s == 0 ? null : () => Navigator.pop(context, _s),
-          child: Text(_s >= 4 ? 'Mağazada değerlendir' : 'Gönder'),
+          child: Text(_s >= 4 ? tr('Mağazada değerlendir') : tr('Gönder')),
         ),
       ],
     );

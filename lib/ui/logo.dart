@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import 'theme.dart';
+import '../l10n/l10n.dart';
 
 /// Konsept A, "Optik N": 4×4 optik daireden dolu olanlar N harfini çizer,
 /// köşedeki son daire onay işaretine dönüşür.
@@ -132,7 +133,7 @@ class NeticeWordmark extends StatelessWidget {
         children: [
           NeticeMark(size: height, showEmpty: false),
           SizedBox(width: height * 0.35),
-          Text('Netice',
+          Text(tr('Netice'),
               style: TextStyle(
                 fontSize: height * 0.85,
                 fontWeight: FontWeight.w800,

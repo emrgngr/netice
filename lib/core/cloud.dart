@@ -5,6 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 
 import 'store.dart';
+import '../l10n/l10n.dart';
 
 /// Google ile giriş ve Google Drive yedeği.
 ///
@@ -85,24 +86,24 @@ class CloudService {
     await _ensureInit();
     _account ??= await GoogleSignIn.instance.attemptLightweightAuthentication();
     if (_account == null) {
-      if (!interactive) throw StateError('Google oturumu yok');
+      if (!interactive) throw StateError(tr('Google oturumu yok'));
       _account = await GoogleSignIn.instance.authenticate(scopeHint: _scopes);
     }
     final client = _account!.authorizationClient;
     final auth = await client.authorizationForScopes(_scopes) ??
-        (interactive ? await client.authorizeScopes(_scopes) : throw StateError('Drive izni yok'));
-    return {'Authorization': 'Bearer ${auth.accessToken}'};
+        (interactive ? await client.authorizeScopes(_scopes) : throw StateError(tr('Drive izni yok')));
+    return {'Authorization': tr('Bearer {0}', [auth.accessToken])};
   }
 
   Future<CloudBackupInfo?> latest({bool interactive = true}) async {
     final h = await _headers(interactive: interactive);
     final uri = Uri.https('www.googleapis.com', '/drive/v3/files', {
       'spaces': 'appDataFolder',
-      'q': "name = '$_fileName' and trashed = false",
+      'q': tr('name = \'{0}\' and trashed = false', [_fileName]),
       'fields': 'files(id,modifiedTime,size)',
     });
     final r = await http.get(uri, headers: h);
-    if (r.statusCode != 200) throw HttpException('Drive listesi alınamadı (${r.statusCode})');
+    if (r.statusCode != 200) throw HttpException(tr('Drive listesi alınamadı ({0})', [r.statusCode]));
     final files = (jsonDecode(r.body)['files'] as List).cast<Map<String, dynamic>>();
     if (files.isEmpty) return null;
     final f = files.first;
@@ -137,7 +138,7 @@ class CloudService {
           headers: {...h, 'Content-Type': 'application/json'},
           body: body);
     }
-    if (r.statusCode != 200) throw HttpException('Drive yedeği yazılamadı (${r.statusCode})');
+    if (r.statusCode != 200) throw HttpException(tr('Drive yedeği yazılamadı ({0})', [r.statusCode]));
     store.markCloudBackup(DateTime.now());
   }
 
@@ -147,7 +148,7 @@ class CloudService {
     if (info == null) return null;
     final h = await _headers(interactive: true);
     final r = await http.get(Uri.parse('https://www.googleapis.com/drive/v3/files/${info.id}?alt=media'), headers: h);
-    if (r.statusCode != 200) throw HttpException('Drive yedeği indirilemedi (${r.statusCode})');
+    if (r.statusCode != 200) throw HttpException(tr('Drive yedeği indirilemedi ({0})', [r.statusCode]));
     return store.restoreBackup(utf8.decode(r.bodyBytes));
   }
 
@@ -157,7 +158,7 @@ class CloudService {
     if (info == null) return false;
     final h = await _headers(interactive: true);
     final r = await http.delete(Uri.parse('https://www.googleapis.com/drive/v3/files/${info.id}'), headers: h);
-    if (r.statusCode != 204 && r.statusCode != 200) throw HttpException('Drive yedeği silinemedi (${r.statusCode})');
+    if (r.statusCode != 204 && r.statusCode != 200) throw HttpException(tr('Drive yedeği silinemedi ({0})', [r.statusCode]));
     store.markCloudBackup(null);
     return true;
   }

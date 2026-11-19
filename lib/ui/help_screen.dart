@@ -5,6 +5,7 @@ import 'illustrations.dart';
 import 'onboarding_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
+import '../l10n/l10n.dart';
 
 /// Kullanma kılavuzu ve sık sorulan sorular (aramalı).
 class HelpScreen extends StatefulWidget {
@@ -63,10 +64,10 @@ class _HelpScreenState extends State<HelpScreen> {
             const SizedBox(width: 16),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                const Text('Kullanma kılavuzu',
+                Text(tr('Kullanma kılavuzu'),
                     style: TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.w800)),
                 const SizedBox(height: 4),
-                Text('Okul bilgisinden dönem karnesine, adım adım.',
+                Text(tr('Okul bilgisinden dönem karnesine, adım adım.'),
                     style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 13)),
                 const SizedBox(height: 10),
                 OutlinedButton.icon(
@@ -74,14 +75,14 @@ class _HelpScreenState extends State<HelpScreen> {
                       foregroundColor: Colors.white, side: BorderSide(color: Colors.white.withValues(alpha: 0.4))),
                   onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OnboardingScreen())),
                   icon: const Icon(Icons.play_circle_outline, size: 18),
-                  label: const Text('Tanıtımı yeniden izle'),
+                  label: Text(tr('Tanıtımı yeniden izle')),
                 ),
               ]),
             ),
           ]),
         ),
       ),
-      search('Kılavuzda ara (ör. yedek, kitapçık)'),
+      search(tr('Kılavuzda ara (ör. yedek, kitapçık)')),
       for (final s in guideSections)
         if (s.topics.any((tp) => _match('${s.title} ${tp.title} ${tp.steps.join(' ')} ${tp.tip ?? ''}'))) ...[
           Padding(
@@ -143,7 +144,7 @@ class _HelpScreenState extends State<HelpScreen> {
 
     final cats = <String>{for (final f in faqs) f.category}.toList();
     final faq = ListView(padding: const EdgeInsets.only(bottom: 32), children: [
-      search('Soru ara (ör. barkod, e-Okul, silgi)'),
+      search(tr('Soru ara (ör. barkod, e-Okul, silgi)')),
       for (final c in cats)
         if (faqs.any((f) => f.category == c && _match('${f.q} ${f.a}'))) ...[
           Padding(
@@ -173,7 +174,7 @@ class _HelpScreenState extends State<HelpScreen> {
       if (!faqs.any((f) => _match('${f.q} ${f.a}')))
         Padding(
           padding: const EdgeInsets.all(32),
-          child: Text('Aramanıza uygun soru bulunamadı.', textAlign: TextAlign.center, style: TextStyle(color: muted)),
+          child: Text(tr('Aramanıza uygun soru bulunamadı.'), textAlign: TextAlign.center, style: TextStyle(color: muted)),
         ),
     ]);
 
@@ -182,10 +183,10 @@ class _HelpScreenState extends State<HelpScreen> {
       initialIndex: widget.initialTab,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Yardım'),
-          bottom: const TabBar(tabs: [
-            Tab(icon: Icon(Icons.menu_book_outlined), text: 'Kılavuz'),
-            Tab(icon: Icon(Icons.quiz_outlined), text: 'Sık sorulanlar'),
+          title: Text(tr('Yardım')),
+          bottom: TabBar(tabs: [
+            Tab(icon: Icon(Icons.menu_book_outlined), text: tr('Kılavuz')),
+            Tab(icon: Icon(Icons.quiz_outlined), text: tr('Sık sorulanlar')),
           ]),
         ),
         body: TabBarView(children: [guide, faq]),

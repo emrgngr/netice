@@ -16,6 +16,7 @@ import 'annotated_sheet.dart';
 import 'pro_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
+import '../l10n/l10n.dart';
 
 /// İşaretli kâğıt görüntüsü var mı?
 bool hasSheetImage(BuildContext context, Sheet s) => StoreScope.of(context).sheetImageFile(s) != null;
@@ -57,12 +58,11 @@ class _SheetImageScreenState extends State<SheetImageScreen> {
       await f.writeAsBytes(data!.buffer.asUint8List(), flush: true);
       await SharePlus.instance.share(ShareParams(
         files: [XFile(f.path, mimeType: 'image/png')],
-        subject: '${st?.fullName ?? ''} – ${widget.exam.name} işaretli kâğıt',
-        text: '${st?.fullName ?? 'Öğrencinin'} "${widget.exam.name}" sınavındaki işaretli kâğıdı ektedir. '
-            'Yeşil: doğru, kırmızı: yanlış, kesikli: doğru cevap.$downloadSignature',
+        subject: tr('{0} – {1} işaretli kâğıt', [st?.fullName ?? '', widget.exam.name]),
+        text: tr('{0} "{1}" sınavındaki işaretli kâğıdı ektedir. Yeşil: doğru, kırmızı: yanlış, kesikli: doğru cevap.{2}', [st?.fullName ?? tr('Öğrencinin'), widget.exam.name, downloadSignature]),
       ));
     } catch (e) {
-      if (mounted) toast(context, 'Paylaşılamadı: $e');
+      if (mounted) toast(context, tr('Paylaşılamadı: {0}', [e]));
     }
   }
 
@@ -73,14 +73,14 @@ class _SheetImageScreenState extends State<SheetImageScreen> {
     final muted = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6);
     return Scaffold(
       appBar: AppBar(
-        title: Text(st?.fullName ?? 'İşaretli kâğıt'),
-        actions: [IconButton(tooltip: 'Paylaş', onPressed: _share, icon: const Icon(Icons.ios_share_rounded))],
+        title: Text(st?.fullName ?? tr('İşaretli kâğıt')),
+        actions: [IconButton(tooltip: tr('Paylaş'), onPressed: _share, icon: const Icon(Icons.ios_share_rounded))],
       ),
       body: FutureBuilder<List<int>>(
         future: _bytes,
         builder: (context, snap) {
           if (_bytes == null) {
-            return const Center(child: Text('Bu kâğıdın görüntüsü yok.'));
+            return Center(child: Text(tr('Bu kâğıdın görüntüsü yok.')));
           }
           if (!snap.hasData) return const Center(child: CircularProgressIndicator());
           return Column(children: [
@@ -115,13 +115,13 @@ class _SheetImageScreenState extends State<SheetImageScreen> {
                 padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
                 child: Column(children: [
                   Wrap(spacing: 14, runSpacing: 6, alignment: WrapAlignment.center, children: [
-                    _legend(NColors.emerald, 'Doğru', false),
-                    _legend(NColors.coral, 'Yanlış işaret', false),
-                    _legend(NColors.emerald, 'Olması gereken', true),
-                    _legend(NColors.amber, 'Boş bırakılan', true),
+                    _legend(NColors.emerald, tr('Doğru'), false),
+                    _legend(NColors.coral, tr('Yanlış işaret'), false),
+                    _legend(NColors.emerald, tr('Olması gereken'), true),
+                    _legend(NColors.amber, tr('Boş bırakılan'), true),
                   ]),
                   const SizedBox(height: 6),
-                  Text('İki parmakla yakınlaştırabilirsiniz.', style: TextStyle(color: muted, fontSize: 12)),
+                  Text(tr('İki parmakla yakınlaştırabilirsiniz.'), style: TextStyle(color: muted, fontSize: 12)),
                 ]),
               ),
             ),

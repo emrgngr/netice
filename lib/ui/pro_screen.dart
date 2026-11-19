@@ -9,6 +9,7 @@ import '../core/pro.dart';
 import '../main.dart';
 import 'theme.dart';
 import 'widgets.dart';
+import '../l10n/l10n.dart';
 
 /// Pro özelliği gerekiyorsa tanıtım ekranını açar. Kullanıcı Pro ise ya da
 /// satın alırsa true döner.
@@ -118,7 +119,7 @@ class _ProScreenState extends State<ProScreen> {
   Future<void> _restore() async {
     final err = await ProService.instance.restore();
     if (!mounted) return;
-    toast(context, err ?? 'Satın alımlar kontrol ediliyor…');
+    toast(context, err ?? tr('Satın alımlar kontrol ediliyor…'));
   }
 
   @override
@@ -136,14 +137,14 @@ class _ProScreenState extends State<ProScreen> {
               child: IconButton(
                 onPressed: () => Navigator.of(context).maybePop(),
                 icon: const Icon(Icons.close_rounded, color: Colors.white70),
-                tooltip: 'Kapat',
+                tooltip: tr('Kapat'),
               ),
             ),
             const SizedBox(height: 4),
             const Center(child: AppLogo(size: 64)),
             const SizedBox(height: 16),
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: const [
-              Text('Netice',
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Text(tr('Netice'),
                   style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w800, letterSpacing: -0.6)),
               SizedBox(width: 10),
               _GoldPro(),
@@ -151,8 +152,8 @@ class _ProScreenState extends State<ProScreen> {
             const SizedBox(height: 8),
             Text(
               f == null
-                  ? 'Okumak her zaman ücretsiz. Pro ile raporlarınız tek dokunuşla hazır.'
-                  : '"${f.title}" Netice Pro ile açılır. Okumak her zaman ücretsiz.',
+                  ? tr('Okumak her zaman ücretsiz. Pro ile raporlarınız tek dokunuşla hazır.')
+                  : tr('"{0}" Netice Pro ile açılır. Okumak her zaman ücretsiz.', [f.title]),
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.white.withValues(alpha: 0.72), fontSize: 14.5, height: 1.4),
             ),
@@ -162,7 +163,7 @@ class _ProScreenState extends State<ProScreen> {
             if (store.inTrial && !store.hasSubscription)
               Padding(
                 padding: const EdgeInsets.only(bottom: 14),
-                child: Text('Ücretsiz denemenizde ${store.trialDaysLeft} gün kaldı. Deneme bitince yalnızca bu özellikler kilitlenir; verileriniz olduğu gibi kalır.',
+                child: Text(tr('Ücretsiz denemenizde {0} gün kaldı. Deneme bitince yalnızca bu özellikler kilitlenir; verileriniz olduğu gibi kalır.', [store.trialDaysLeft]),
                     textAlign: TextAlign.center,
                     style: const TextStyle(color: Color(0xFFE9C46A), fontWeight: FontWeight.w600, fontSize: 13)),
               ),
@@ -189,21 +190,18 @@ class _ProScreenState extends State<ProScreen> {
                   onPressed: _busy ? null : _buy,
                   child: _busy
                       ? const SizedBox.square(dimension: 22, child: CircularProgressIndicator(strokeWidth: 2.4, color: Colors.white))
-                      : const Text('Pro\'ya geç'),
+                      : Text(tr('Pro\'ya geç')),
                 ),
               ),
               const SizedBox(height: 6),
               TextButton(
                 onPressed: _restore,
-                child: const Text('Satın alımları geri yükle', style: TextStyle(color: Colors.white70)),
+                child: Text(tr('Satın alımları geri yükle'), style: TextStyle(color: Colors.white70)),
               ),
             ],
             const SizedBox(height: 6),
             Text(
-              '${Platform.isIOS ? 'Ödeme Apple Kimliğinizden' : 'Ödeme Google Play hesabınızdan'} alınır. Abonelik, dönem bitmeden en az 24 saat önce iptal edilmezse '
-              'aynı süre ve fiyatla kendiliğinden yenilenir. ${Platform.isIOS ? 'Ayarlar > Apple Kimliği > Abonelikler' : 'Google Play > Abonelikler'} bölümünden '
-              'istediğiniz zaman iptal edebilirsiniz; iptal edilen abonelik dönem sonuna kadar geçerlidir. '
-              'Pro\'ya geçmek verilerinizin yerini değiştirmez: her şey yine bu cihazda kalır.',
+              tr('{0} alınır. Abonelik, dönem bitmeden en az 24 saat önce iptal edilmezse aynı süre ve fiyatla kendiliğinden yenilenir. {1} bölümünden istediğiniz zaman iptal edebilirsiniz; iptal edilen abonelik dönem sonuna kadar geçerlidir. Pro\'ya geçmek verilerinizin yerini değiştirmez: her şey yine bu cihazda kalır.', [Platform.isIOS ? tr('Ödeme Apple Kimliğinizden') : tr('Ödeme Google Play hesabınızdan'), Platform.isIOS ? tr('Ayarlar > Apple Kimliği > Abonelikler') : tr('Google Play > Abonelikler')]),
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.white.withValues(alpha: 0.45), fontSize: 11.5, height: 1.45),
             ),
@@ -212,14 +210,14 @@ class _ProScreenState extends State<ProScreen> {
               TextButton(
                 onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                     builder: (_) => Scaffold(
-                          appBar: AppBar(title: const Text('Gizlilik politikası')),
+                          appBar: AppBar(title: Text(tr('Gizlilik politikası'))),
                           body: SingleChildScrollView(padding: const EdgeInsets.all(20), child: SelectableText(privacyPolicy)),
                         ))),
-                child: const Text('Gizlilik politikası', style: TextStyle(color: Colors.white60, fontSize: 12)),
+                child: Text(tr('Gizlilik politikası'), style: TextStyle(color: Colors.white60, fontSize: 12)),
               ),
               TextButton(
                 onPressed: () => launchUrl(Uri.parse(termsUrl), mode: LaunchMode.externalApplication),
-                child: const Text('Kullanım koşulları', style: TextStyle(color: Colors.white60, fontSize: 12)),
+                child: Text(tr('Kullanım koşulları'), style: TextStyle(color: Colors.white60, fontSize: 12)),
               ),
             ]),
           ]),
@@ -344,7 +342,7 @@ class _ActiveCard extends StatelessWidget {
         child: Column(children: [
           const Icon(Icons.verified_rounded, color: NColors.emerald, size: 36),
           const SizedBox(height: 8),
-          Text('Netice Pro etkin${product == proYearlyId ? ' · Yıllık' : product == proMonthlyId ? ' · Aylık' : ''}',
+          Text(tr('Netice Pro etkin{0}', [product == proYearlyId ? tr(' · Yıllık') : product == proMonthlyId ? tr(' · Aylık') : '']),
               style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 16)),
           const SizedBox(height: 10),
           OutlinedButton(
@@ -354,7 +352,7 @@ class _ActiveCard extends StatelessWidget {
                     ? 'https://apps.apple.com/account/subscriptions'
                     : 'https://play.google.com/store/account/subscriptions?package=$androidPackage'),
                 mode: LaunchMode.externalApplication),
-            child: const Text('Aboneliği yönet'),
+            child: Text(tr('Aboneliği yönet')),
           ),
         ]),
       );

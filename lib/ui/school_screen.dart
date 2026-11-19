@@ -5,6 +5,7 @@ import '../main.dart';
 import '../core/pro.dart';
 import 'pro_screen.dart';
 import 'widgets.dart';
+import '../l10n/l10n.dart';
 
 /// Okul ve öğretmen bilgileri. Tüm PDF rapor ve listelerde resmi yazı
 /// başlığı (T.C. / Kaymakamlık / Okul Müdürlüğü) ve imza alanı olarak kullanılır.
@@ -20,13 +21,13 @@ class _SchoolScreenState extends State<SchoolScreen> {
   bool _official = true;
   bool _loaded = false;
 
-  static const _fields = [
-    ('name', 'Okul adı', 'Örn. Atatürk Anadolu Lisesi', Icons.account_balance_outlined),
-    ('province', 'İl', 'Örn. Ankara', Icons.location_city_outlined),
-    ('district', 'İlçe', 'Örn. Çankaya (il merkezindeyse "Merkez")', Icons.map_outlined),
-    ('principal', 'Okul müdürü', 'Ad Soyad', Icons.person_outline),
-    ('teacher', 'Ders öğretmeni', 'Ad Soyad', Icons.badge_outlined),
-    ('subject', 'Ders / branş', 'Örn. Fizik', Icons.menu_book_outlined),
+  static List<(String, String, String, IconData)> get _fields => [
+    ('name', tr('Okul adı'), tr('Örn. Atatürk Anadolu Lisesi'), Icons.account_balance_outlined),
+    ('province', tr('İl'), tr('Örn. Ankara'), Icons.location_city_outlined),
+    ('district', tr('İlçe'), tr('Örn. Çankaya (il merkezindeyse "Merkez")'), Icons.map_outlined),
+    ('principal', tr('Okul müdürü'), tr('Ad Soyad'), Icons.person_outline),
+    ('teacher', tr('Ders öğretmeni'), tr('Ad Soyad'), Icons.badge_outlined),
+    ('subject', tr('Ders / branş'), tr('Örn. Fizik'), Icons.menu_book_outlined),
   ];
 
   @override
@@ -69,7 +70,7 @@ class _SchoolScreenState extends State<SchoolScreen> {
 
   void _save() {
     StoreScope.of(context).setSchool(_info);
-    toast(context, 'Okul bilgileri kaydedildi. Bundan sonraki tüm raporlarda kullanılacak.');
+    toast(context, tr('Okul bilgileri kaydedildi. Bundan sonraki tüm raporlarda kullanılacak.'));
     Navigator.of(context).pop();
   }
 
@@ -81,16 +82,15 @@ class _SchoolScreenState extends State<SchoolScreen> {
     final now = DateTime.now();
     const paper = TextStyle(color: Colors.black, fontSize: 12, height: 1.35);
     return Scaffold(
-      appBar: AppBar(title: const Text('Okul bilgileri'), actions: [
+      appBar: AppBar(title: Text(tr('Okul bilgileri')), actions: [
         Padding(
           padding: const EdgeInsets.only(right: 8),
-          child: FilledButton(onPressed: _save, child: const Text('Kaydet')),
+          child: FilledButton(onPressed: _save, child: Text(tr('Kaydet'))),
         ),
       ]),
       body: Watermark(
         child: ListView(padding: const EdgeInsets.fromLTRB(20, 8, 20, 40), children: [
-          Text('Bu bilgiler sınav raporu, karne, e-Okul listesi, şube karşılaştırması ve optik formlarda '
-              'başlık olarak yer alır. Boş bıraktığınız alanlar basılmaz.',
+          Text(tr('Bu bilgiler sınav raporu, karne, e-Okul listesi, şube karşılaştırması ve optik formlarda başlık olarak yer alır. Boş bıraktığınız alanlar basılmaz.'),
               style: TextStyle(color: muted)),
           const SizedBox(height: 16),
           for (final f in _fields)
@@ -114,19 +114,19 @@ class _SchoolScreenState extends State<SchoolScreen> {
                 if (mounted) setState(() => _official = v);
               },
               title: Row(children: [
-                const Flexible(child: Text('Resmi yazı başlığı ve imza alanı', style: TextStyle(fontWeight: FontWeight.w700))),
+                Flexible(child: Text(tr('Resmi yazı başlığı ve imza alanı'), style: TextStyle(fontWeight: FontWeight.w700))),
                 if (!StoreScope.of(context).isPro) ...[const SizedBox(width: 8), const ProBadge()],
               ]),
-              subtitle: const Text('Kapalıysa raporlarda yalnızca okul adı küçük başlık olarak görünür.'),
+              subtitle: Text(tr('Kapalıysa raporlarda yalnızca okul adı küçük başlık olarak görünür.')),
             ),
           ),
-          const SectionTitle('Önizleme'),
+          SectionTitle(tr('Önizleme')),
           Card(
             color: Colors.white,
             child: Padding(
               padding: const EdgeInsets.all(18),
               child: info.isEmpty
-                  ? const Text('Önizleme için okul adını yazın.', style: TextStyle(color: Colors.black54))
+                  ? Text(tr('Önizleme için okul adını yazın.'), style: TextStyle(color: Colors.black54))
                   : !info.official
                       ? Text(info.name, style: paper.copyWith(fontWeight: FontWeight.w800))
                       : Column(children: [
@@ -137,22 +137,21 @@ class _SchoolScreenState extends State<SchoolScreen> {
                               textAlign: TextAlign.center, style: paper.copyWith(fontWeight: FontWeight.w800)),
                           const SizedBox(height: 8),
                           Text(
-                            '${SchoolInfo.academicYear(now)} EĞİTİM-ÖĞRETİM YILI 9-A SINIFI'
-                            '${info.subject.isEmpty ? '' : ' ${SchoolInfo.upper(info.subject)} DERSİ'}',
+                            tr('{0} EĞİTİM-ÖĞRETİM YILI 9-A SINIFI{1}', [SchoolInfo.academicYear(now), info.subject.isEmpty ? '' : tr(' {0} DERSİ', [SchoolInfo.upper(info.subject)])]),
                             textAlign: TextAlign.center,
                             style: paper.copyWith(fontSize: 11),
                           ),
-                          Text('SINAV ANALİZ RAPORU', style: paper.copyWith(fontWeight: FontWeight.w800)),
+                          Text(tr('SINAV ANALİZ RAPORU'), style: paper.copyWith(fontWeight: FontWeight.w800)),
                           const Divider(color: Colors.black, height: 20),
                           const SizedBox(height: 40),
                           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                             _sig(paper, info.teacher,
-                                info.subject.isEmpty ? 'Ders Öğretmeni' : '${info.subject} Öğretmeni'),
+                                info.subject.isEmpty ? tr('Ders Öğretmeni') : tr('{0} Öğretmeni', [info.subject])),
                             Column(children: [
                               Text('UYGUNDUR', style: paper.copyWith(fontWeight: FontWeight.w800, fontSize: 11)),
                               Text(dmy(now), style: paper.copyWith(fontSize: 11)),
                               const SizedBox(height: 18),
-                              _sig(paper, info.principal, 'Okul Müdürü'),
+                              _sig(paper, info.principal, tr('Okul Müdürü')),
                             ]),
                           ]),
                         ]),

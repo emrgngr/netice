@@ -18,6 +18,7 @@ import 'pro_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
 import 'template_screen.dart';
+import '../l10n/l10n.dart';
 
 /// Ayarlar: okul bilgileri, yedekleme, gizlilik metinleri, rehber, geri bildirim.
 class SettingsScreen extends StatefulWidget {
@@ -34,13 +35,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _export() async {
     final store = StoreScope.of(context);
     final path = await FilePicker.saveFile(
-      dialogTitle: 'Yedeği kaydet',
+      dialogTitle: tr('Yedeği kaydet'),
       fileName: 'netice_yedek_${_stamp(DateTime.now())}.json',
       bytes: Uint8List.fromList(utf8.encode(store.exportBackup())),
     );
     if (!mounted) return;
     if (path != null || Platform.isAndroid || Platform.isIOS) {
-      toast(context, 'Yedek kaydedildi. Dosyayı diğer cihaza taşıyıp "Yedekten geri yükle" ile açabilirsiniz.');
+      toast(context, tr('Yedek kaydedildi. Dosyayı diğer cihaza taşıyıp "Yedekten geri yükle" ile açabilirsiniz.'));
     }
   }
 
@@ -48,12 +49,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text('Yedekten geri yüklensin mi?'),
-          content: Text('$what\n\nBu cihazdaki mevcut veriler yedektekilerle değiştirilecek. '
-              'Mevcut hâlin bir kopyası önce otomatik yedeklere eklenir.'),
+          title: Text(tr('Yedekten geri yüklensin mi?')),
+          content: Text(tr('{0}\n\nBu cihazdaki mevcut veriler yedektekilerle değiştirilecek. Mevcut hâlin bir kopyası önce otomatik yedeklere eklenir.', [what])),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Vazgeç')),
-            FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Geri yükle')),
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr('Vazgeç'))),
+            FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(tr('Geri yükle'))),
           ],
         ),
       ) ??
@@ -65,16 +65,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     try {
       final r = await store.restoreBackup(text);
       if (!mounted) return;
-      toast(context, 'Geri yüklendi: ${r.students} öğrenci, ${r.exams} sınav, ${r.sheets} kâğıt.');
+      toast(context, tr('Geri yüklendi: {0} öğrenci, {1} sınav, {2} kâğıt.', [r.students, r.exams, r.sheets]));
       setState(() {});
     } on FormatException catch (e) {
-      if (mounted) toast(context, e.message);
+      if (mounted) toast(context, tr(e.message));
     }
   }
 
   Future<void> _import() async {
     final files = await FilePicker.pickFiles(
-      dialogTitle: 'Netice yedeği seçin',
+      dialogTitle: tr('Netice yedeği seçin'),
       type: FileType.custom,
       allowedExtensions: ['json'],
     );
@@ -82,7 +82,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final f = files.first;
     final bytes = await f.readAsBytes();
     if (!mounted) return;
-    await _restoreText(utf8.decode(bytes, allowMalformed: true), 'Dosya: ${f.name}');
+    await _restoreText(utf8.decode(bytes, allowMalformed: true), tr('Dosya: {0}', [f.name]));
   }
 
   Future<void> _feedback() async {
@@ -90,7 +90,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Geri bildirim'),
+        title: Text(tr('Geri bildirim')),
         content: SizedBox(
           width: 420,
           child: TextField(
@@ -98,30 +98,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
             autofocus: true,
             minLines: 5,
             maxLines: 10,
-            decoration: const InputDecoration(
-              hintText: 'Ne iyi çalıştı, ne zorladı, ne eksik? Okunamayan bir kâğıt olduysa ne olduğunu yazın.',
+            decoration: InputDecoration(
+              hintText: tr('Ne iyi çalıştı, ne zorladı, ne eksik? Okunamayan bir kâğıt olduysa ne olduğunu yazın.'),
             ),
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Vazgeç')),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Dosya olarak kaydet')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr('Vazgeç'))),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(tr('Dosya olarak kaydet'))),
         ],
       ),
     );
     if (ok != true || c.text.trim().isEmpty || !mounted) return;
     final store = StoreScope.of(context);
-    final text = 'Netice geri bildirim\n'
-        'Sürüm: $appVersion · ${Platform.operatingSystem}\n'
-        'Tarih: ${dmy(DateTime.now())} ${hm(DateTime.now())}\n'
-        'Kayıtlar: ${store.students.length} öğrenci, ${store.exams.length} sınav, ${store.sheets.length} kâğıt\n\n'
-        '${c.text.trim()}\n';
+    final text = tr('Netice geri bildirim\nSürüm: {0} · {1}\nTarih: {2} {3}\nKayıtlar: {4} öğrenci, {5} sınav, {6} kâğıt\n\n{7}\n', [appVersion, Platform.operatingSystem, dmy(DateTime.now()), hm(DateTime.now()), store.students.length, store.exams.length, store.sheets.length, c.text.trim()]);
     await FilePicker.saveFile(
-      dialogTitle: 'Geri bildirimi kaydet',
+      dialogTitle: tr('Geri bildirimi kaydet'),
       fileName: 'netice_geri_bildirim_${_stamp(DateTime.now())}.txt',
       bytes: Uint8List.fromList(utf8.encode(text)),
     );
-    if (mounted) toast(context, 'Geri bildirim dosyası hazır. E-posta ya da WhatsApp ile iletebilirsiniz.');
+    if (mounted) toast(context, tr('Geri bildirim dosyası hazır. E-posta ya da WhatsApp ile iletebilirsiniz.'));
   }
 
   void _openText(String title, String text) => Navigator.of(context).push(MaterialPageRoute(
@@ -154,37 +150,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, set) => AlertDialog(
           icon: const Icon(Icons.delete_forever_rounded, color: NColors.coral),
-          title: const Text('Tüm veriler silinsin mi?'),
+          title: Text(tr('Tüm veriler silinsin mi?')),
           content: SingleChildScrollView(
             child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Text('Bu cihazdaki bütün öğrenciler, sınavlar, okutulan kâğıtlar ve okul bilgileri silinir. '
-                  'İsterseniz önce "Yedeği dosyaya kaydet" ile yedek alın.'),
+              Text(tr('Bu cihazdaki bütün öğrenciler, sınavlar, okutulan kâğıtlar ve okul bilgileri silinir. İsterseniz önce "Yedeği dosyaya kaydet" ile yedek alın.')),
               const SizedBox(height: 8),
               CheckboxListTile(
                 contentPadding: EdgeInsets.zero,
                 value: alsoBackups,
                 onChanged: (v) => set(() => alsoBackups = v ?? false),
-                title: const Text('Otomatik yedekleri de sil'),
+                title: Text(tr('Otomatik yedekleri de sil')),
                 subtitle: Text(alsoBackups
-                    ? 'Geri dönüş olmaz.'
-                    : 'Silmeden önceki hâl otomatik yedeklerde kalır; vazgeçerseniz geri yükleyebilirsiniz.'),
+                    ? tr('Geri dönüş olmaz.')
+                    : tr('Silmeden önceki hâl otomatik yedeklerde kalır; vazgeçerseniz geri yükleyebilirsiniz.')),
               ),
               const SizedBox(height: 4),
               TextField(
                 controller: typed,
                 onChanged: (_) => set(() {}),
-                decoration: const InputDecoration(labelText: 'Onaylamak için SİL yazın'),
+                decoration: InputDecoration(labelText: tr('Onaylamak için SİL yazın')),
               ),
             ]),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Vazgeç')),
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr('Vazgeç'))),
             FilledButton(
               style: FilledButton.styleFrom(backgroundColor: NColors.coral),
-              onPressed: typed.text.trim().toUpperCase() == 'SİL' || typed.text.trim().toLowerCase() == 'sil'
+              onPressed: typed.text.trim().toUpperCase() == tr('SİL') || typed.text.trim().toLowerCase() == 'sil'
                   ? () => Navigator.pop(ctx, true)
                   : null,
-              child: const Text('Sil'),
+              child: Text(tr('Sil')),
             ),
           ],
         ),
@@ -194,7 +189,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (ok != true || !mounted) return;
     await store.wipeAll(backups: alsoBackups);
     if (!mounted) return;
-    toast(context, alsoBackups ? 'Tüm veriler ve otomatik yedekler silindi.' : 'Tüm veriler silindi. Önceki hâl otomatik yedeklerde duruyor.');
+    toast(context, alsoBackups ? tr('Tüm veriler ve otomatik yedekler silindi.') : tr('Tüm veriler silindi. Önceki hâl otomatik yedeklerde duruyor.'));
     setState(() {});
   }
 
@@ -215,55 +210,68 @@ class _SettingsScreenState extends State<SettingsScreen> {
         );
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Ayarlar')),
+      appBar: AppBar(title: Text(tr('Ayarlar'))),
       body: Watermark(
         child: ListView(padding: const EdgeInsets.fromLTRB(16, 8, 16, 40), children: [
-          const SectionTitle('Netice Pro'),
+          SectionTitle(tr('Dil')),
+          Card(
+            clipBehavior: Clip.antiAlias,
+            child: ListTile(
+              leading: const IconBadge(Icons.translate_rounded, color: NColors.emerald),
+              title: Text(tr('Uygulama dili'), style: const TextStyle(fontWeight: FontWeight.w700)),
+              subtitle: Text(store.language == null
+                  ? tr('Cihazın dili: {0}', [AppLanguage.byCode(L10n.code).name])
+                  : AppLanguage.byCode(L10n.code).name),
+              trailing: Text(AppLanguage.byCode(L10n.code).flag, style: const TextStyle(fontSize: 22)),
+              onTap: () => pickLanguage(context),
+            ),
+          ),
+          SectionTitle(tr('Netice Pro')),
           Card(
             clipBehavior: Clip.antiAlias,
             child: ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               leading: const IconBadge(Icons.workspace_premium_rounded, color: Color(0xFFD4A24C)),
               title: Row(children: [
-                const Text('Netice Pro', style: TextStyle(fontWeight: FontWeight.w800)),
+                Text(tr('Netice Pro'), style: TextStyle(fontWeight: FontWeight.w800)),
                 const SizedBox(width: 8),
                 if (store.isPro) const ProBadge(),
               ]),
               subtitle: Text(store.hasSubscription
-                  ? 'Aboneliğiniz etkin. Teşekkürler!'
+                  ? tr('Aboneliğiniz etkin. Teşekkürler!')
                   : store.inTrial
-                      ? 'Ücretsiz deneme: ${store.trialDaysLeft} gün kaldı'
+                      ? tr('Ücretsiz deneme: {0} gün kaldı', [store.trialDaysLeft])
                       : AppStore.proFreeOnThisPlatform
-                          ? 'Bilgisayar sürümünde Pro özellikleri şimdilik açık'
-                          : 'Dönem raporu, karne, veliye gönderme ve daha fazlası'),
+                          ? tr('Bilgisayar sürümünde Pro özellikleri şimdilik açık')
+                          : tr('Dönem raporu, karne, veliye gönderme ve daha fazlası')),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProScreen(), fullscreenDialog: true)),
             ),
           ),
-          const SectionTitle('Hesap'),
+          SectionTitle(tr('Hesap')),
           const AccountCard(),
-          const SectionTitle('Okul'),
+          SectionTitle(tr('Okul')),
           Card(
             clipBehavior: Clip.antiAlias,
             child: tile(
               Icons.account_balance_outlined,
               store.school.isEmpty ? NColors.amber : NColors.emerald,
-              'Okul bilgileri',
-              store.school.isEmpty ? 'Raporlarda resmi başlık için girin' : store.school.name,
+              tr('Okul bilgileri'),
+              store.school.isEmpty ? tr('Raporlarda resmi başlık için girin') : store.school.name,
               () async {
                 await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SchoolScreen()));
                 if (mounted) setState(() {});
               },
             ),
           ),
-          const SectionTitle('Formlar'),
+          SectionTitle(tr('Formlar')),
           Card(
             clipBehavior: Clip.antiAlias,
             child: tile(
               Icons.grid_on_rounded,
               NColors.emerald,
-              'Başka firma formları',
-              store.templates.isEmpty ? 'Yayınevi formları için şablon oluşturun' : '${store.templates.length} şablon',
+              tr('Başka firma formları'),
+              store.templates.isEmpty ? tr('Yayınevi formları için şablon oluşturun') : tr('{0} şablon', [store.templates.length]),
               () async {
                 await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TemplatesScreen()));
                 if (mounted) setState(() {});
@@ -271,46 +279,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           if (store.hasDemo) ...[
-            const SectionTitle('Örnek veriler'),
+            SectionTitle(tr('Örnek veriler')),
             Card(
               clipBehavior: Clip.antiAlias,
-              child: tile(Icons.cleaning_services_outlined, NColors.coral, 'Örnek verileri sil',
-                  'Deneme için eklenen 9-A, 9-B sınıfları ve örnek sınavlar', () async {
+              child: tile(Icons.cleaning_services_outlined, NColors.coral, tr('Örnek verileri sil'),
+                  tr('Deneme için eklenen 9-A, 9-B sınıfları ve örnek sınavlar'), () async {
                 final ok = await showDialog<bool>(
                   context: context,
                   builder: (ctx) => AlertDialog(
-                    title: const Text('Örnek veriler silinsin mi?'),
-                    content: const Text('Örnek öğrenciler, örnek sınavlar ve kâğıtları silinir. '
-                        'Sizin eklediğiniz sınıf ve sınavlara dokunulmaz.'),
+                    title: Text(tr('Örnek veriler silinsin mi?')),
+                    content: Text(tr('Örnek öğrenciler, örnek sınavlar ve kâğıtları silinir. Sizin eklediğiniz sınıf ve sınavlara dokunulmaz.')),
                     actions: [
-                      TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Vazgeç')),
-                      FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Sil')),
+                      TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr('Vazgeç'))),
+                      FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(tr('Sil'))),
                     ],
                   ),
                 );
                 if (ok != true || !context.mounted) return;
                 store.clearDemo();
-                toast(context, 'Örnek veriler silindi.');
+                toast(context, tr('Örnek veriler silindi.'));
                 setState(() {});
               }),
             ),
           ],
-          const SectionTitle('Yedekleme'),
+          SectionTitle(tr('Yedekleme')),
           Card(
             clipBehavior: Clip.antiAlias,
             child: Column(children: [
-              tile(Icons.save_alt_rounded, NColors.emerald, 'Yedeği dosyaya kaydet',
-                  'Telefondan bilgisayara taşımak veya güvende tutmak için', _export),
+              tile(Icons.save_alt_rounded, NColors.emerald, tr('Yedeği dosyaya kaydet'),
+                  tr('Telefondan bilgisayara taşımak veya güvende tutmak için'), _export),
               const Divider(height: 1),
-              tile(Icons.settings_backup_restore_rounded, NColors.ink, 'Yedekten geri yükle',
-                  'Başka cihazdan getirdiğiniz yedek dosyasını açın', _import),
+              tile(Icons.settings_backup_restore_rounded, NColors.ink, tr('Yedekten geri yükle'),
+                  tr('Başka cihazdan getirdiğiniz yedek dosyasını açın'), _import),
             ]),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(4, 12, 4, 6),
             child: Text(
-              'Netice her gün ilk kayıtta otomatik bir yedek alır ve son 14 yedeği saklar. '
-              'Otomatik yedekler bu cihazdadır; uygulamayı silmeden önce dosyaya yedek alın.',
+              tr('Netice her gün ilk kayıtta otomatik bir yedek alır ve son 14 yedeği saklar. Otomatik yedekler bu cihazdadır; uygulamayı silmeden önce dosyaya yedek alın.'),
               style: TextStyle(color: muted, fontSize: 13),
             ),
           ),
@@ -325,51 +331,51 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     title: Text(_backupLabel(f)),
                     trailing: TextButton(
                       onPressed: () async =>
-                          _restoreText(await f.readAsString(), 'Otomatik yedek: ${_backupLabel(f)}'),
-                      child: const Text('Geri yükle'),
+                          _restoreText(await f.readAsString(), tr('Otomatik yedek: {0}', [_backupLabel(f)])),
+                      child: Text(tr('Geri yükle')),
                     ),
                   ),
               ]),
             ),
-          const SectionTitle('Verileri sil'),
+          SectionTitle(tr('Verileri sil')),
           Card(
             clipBehavior: Clip.antiAlias,
-            child: tile(Icons.delete_forever_rounded, NColors.coral, 'Tüm verileri sil',
-                'Öğrenciler, sınavlar, kâğıtlar ve okul bilgileri bu cihazdan silinir', _wipe),
+            child: tile(Icons.delete_forever_rounded, NColors.coral, tr('Tüm verileri sil'),
+                tr('Öğrenciler, sınavlar, kâğıtlar ve okul bilgileri bu cihazdan silinir'), _wipe),
           ),
-          const SectionTitle('Netice\'yi yayın'),
+          SectionTitle(tr('Netice\'yi yayın')),
           Card(
             clipBehavior: Clip.antiAlias,
             child: Column(children: [
-              tile(Icons.share_rounded, NColors.emerald, 'Uygulamayı paylaş', 'Meslektaşlarınıza WhatsApp veya e-postayla önerin',
+              tile(Icons.share_rounded, NColors.emerald, tr('Uygulamayı paylaş'), tr('Meslektaşlarınıza WhatsApp veya e-postayla önerin'),
                   () => shareApp(context)),
               const Divider(height: 1),
-              tile(Icons.star_rounded, NColors.amber, 'Yıldız ver',
-                  StoreScope.of(context).rating == 0 ? 'Görüşünüz bizim için değerli' : 'Verdiğiniz puan: ${StoreScope.of(context).rating} yıldız',
+              tile(Icons.star_rounded, NColors.amber, tr('Yıldız ver'),
+                  StoreScope.of(context).rating == 0 ? tr('Görüşünüz bizim için değerli') : tr('Verdiğiniz puan: {0} yıldız', [StoreScope.of(context).rating]),
                   () => showRateDialog(context, onFeedback: _feedback)),
             ]),
           ),
-          const SectionTitle('Yardım ve gizlilik'),
+          SectionTitle(tr('Yardım ve gizlilik')),
           Card(
             clipBehavior: Clip.antiAlias,
             child: Column(children: [
-              tile(Icons.menu_book_outlined, NColors.emerald, 'Kullanma kılavuzu', 'Adım adım anlatım',
+              tile(Icons.menu_book_outlined, NColors.emerald, tr('Kullanma kılavuzu'), tr('Adım adım anlatım'),
                   () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const HelpScreen()))),
               const Divider(height: 1),
-              tile(Icons.quiz_outlined, NColors.emerald, 'Sık sorulan sorular', 'Aranabilir cevaplar',
+              tile(Icons.quiz_outlined, NColors.emerald, tr('Sık sorulan sorular'), tr('Aranabilir cevaplar'),
                   () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const HelpScreen(initialTab: 1)))),
               const Divider(height: 1),
-              tile(Icons.play_circle_outline, NColors.ink, 'Tanıtımı yeniden izle', 'Netice\'yi 4 adımda tanıyın',
+              tile(Icons.play_circle_outline, NColors.ink, tr('Tanıtımı yeniden izle'), tr('Netice\'yi 4 adımda tanıyın'),
                   () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OnboardingScreen()))),
               const Divider(height: 1),
-              tile(Icons.lock_outline_rounded, NColors.ink, 'Gizlilik politikası',
-                  'Veriler yalnızca bu cihazda', () => _openText('Gizlilik politikası', privacyPolicy)),
+              tile(Icons.lock_outline_rounded, NColors.ink, tr('Gizlilik politikası'),
+                  tr('Veriler yalnızca bu cihazda'), () => _openText(tr('Gizlilik politikası'), privacyPolicy)),
               const Divider(height: 1),
-              tile(Icons.gavel_rounded, NColors.ink, 'KVKK aydınlatma metni', '6698 sayılı Kanun kapsamında',
-                  () => _openText('KVKK aydınlatma metni', kvkkNotice)),
+              tile(Icons.gavel_rounded, NColors.ink, tr('KVKK aydınlatma metni'), tr('6698 sayılı Kanun kapsamında'),
+                  () => _openText(tr('KVKK aydınlatma metni'), kvkkNotice)),
               const Divider(height: 1),
-              tile(Icons.chat_bubble_outline_rounded, NColors.amber, 'Geri bildirim',
-                  'Görüşlerinizi dosya olarak kaydedip iletin', _feedback),
+              tile(Icons.chat_bubble_outline_rounded, NColors.amber, tr('Geri bildirim'),
+                  tr('Görüşlerinizi dosya olarak kaydedip iletin'), _feedback),
             ]),
           ),
           const SizedBox(height: 20),
@@ -377,8 +383,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Column(children: [
               const NeticeMark(size: 36),
               const SizedBox(height: 6),
-              Text('Netice $appVersion', style: const TextStyle(fontWeight: FontWeight.w700)),
-              Text('Kâğıttan sonuca, saniyeler içinde.', style: TextStyle(color: muted, fontSize: 12)),
+              Text(tr('Netice {0}', [appVersion]), style: const TextStyle(fontWeight: FontWeight.w700)),
+              Text(tr('Kâğıttan sonuca, saniyeler içinde.'), style: TextStyle(color: muted, fontSize: 12)),
             ]),
           ),
         ]),
@@ -391,4 +397,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (m == null) return f.uri.pathSegments.last;
     return '${m[3]}.${m[2]}.${m[1]} ${m[4]}:${m[5]}';
   }
+}
+
+
+/// Dil seçici. "Cihazın dili" seçilirse telefonun dili kullanılır.
+Future<void> pickLanguage(BuildContext context) async {
+  final store = StoreScope.of(context);
+  final picked = await showModalBottomSheet<String>(
+    context: context,
+    showDragHandle: true,
+    isScrollControlled: true,
+    builder: (ctx) => SafeArea(
+      child: ListView(shrinkWrap: true, children: [
+        ListTile(
+          leading: const Icon(Icons.phone_android_rounded),
+          title: Text(tr('Cihazın dili')),
+          trailing: store.language == null ? const Icon(Icons.check_rounded, color: NColors.emerald) : null,
+          onTap: () => Navigator.pop(ctx, ''),
+        ),
+        for (final l in AppLanguage.all)
+          ListTile(
+            leading: Text(l.flag, style: const TextStyle(fontSize: 22)),
+            title: Text(l.name),
+            trailing: store.language == l.code ? const Icon(Icons.check_rounded, color: NColors.emerald) : null,
+            onTap: () => Navigator.pop(ctx, l.code),
+          ),
+      ]),
+    ),
+  );
+  if (picked == null) return;
+  store.setLanguage(picked.isEmpty ? null : picked);
 }

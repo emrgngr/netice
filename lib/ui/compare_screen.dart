@@ -6,6 +6,7 @@ import '../reports/pdf_documents.dart';
 import 'report_preview_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
+import '../l10n/l10n.dart';
 
 /// Şube karşılaştırması: aynı sınavın farklı şubelerdeki sonuçları
 /// (veya öğretmenin seçtiği herhangi sınavlar).
@@ -42,18 +43,18 @@ class _CompareScreenState extends State<CompareScreen> {
         rows.every((r) => r.exam.questionCount == rows.first.exam.questionCount);
 
     Future<void> pdf() async {
-      if (rows.length < 2) return toast(context, 'Karşılaştırmak için en az iki sınav seçin.');
+      if (rows.length < 2) return toast(context, tr('Karşılaştırmak için en az iki sınav seçin.'));
       await ReportPreviewScreen.open(context,
-          title: 'Şube karşılaştırması', fileName: 'sube_karsilastirmasi.pdf', build: () => buildComparePdf(rows, school: store.reportSchool));
+          title: tr('Şube karşılaştırması'), fileName: 'sube_karsilastirmasi.pdf', build: () => buildComparePdf(rows, school: store.reportSchool));
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Şube karşılaştırması'), actions: [
-        IconButton(tooltip: 'PDF rapor', onPressed: pdf, icon: const Icon(Icons.picture_as_pdf_outlined)),
+      appBar: AppBar(title: Text(tr('Şube karşılaştırması')), actions: [
+        IconButton(tooltip: tr('PDF rapor'), onPressed: pdf, icon: const Icon(Icons.picture_as_pdf_outlined)),
       ]),
       body: Watermark(
         child: ListView(padding: const EdgeInsets.fromLTRB(20, 8, 20, 40), children: [
-          Text('Karşılaştırmak istediğiniz sınavları seçin. Aynı adlı sınavlar (farklı şubeler) hızlı seçim olarak üstte.',
+          Text(tr('Karşılaştırmak istediğiniz sınavları seçin. Aynı adlı sınavlar (farklı şubeler) hızlı seçim olarak üstte.'),
               style: TextStyle(color: muted)),
           if (groups.isNotEmpty) ...[
             const SizedBox(height: 10),
@@ -61,7 +62,7 @@ class _CompareScreenState extends State<CompareScreen> {
               for (final g in groups.values)
                 ActionChip(
                   avatar: const Icon(Icons.bolt, size: 18),
-                  label: Text('${g.first.name} (${g.length} şube)'),
+                  label: Text(tr('{0} ({1} şube)', [g.first.name, g.length])),
                   onPressed: () => setState(() => _selected
                     ..clear()
                     ..addAll(g.map((e) => e.id))),
@@ -78,12 +79,12 @@ class _CompareScreenState extends State<CompareScreen> {
               ),
           ]),
           if (rows.length < 2)
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(top: 24),
-              child: Text('Karşılaştırma için okunmuş kâğıdı olan en az iki sınav seçin.'),
+              child: Text(tr('Karşılaştırma için okunmuş kâğıdı olan en az iki sınav seçin.')),
             )
           else ...[
-            const SectionTitle('Ortalama puan'),
+            SectionTitle(tr('Ortalama puan')),
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -120,21 +121,21 @@ class _CompareScreenState extends State<CompareScreen> {
                 ]),
               ),
             ),
-            const SectionTitle('Özet tablo'),
+            SectionTitle(tr('Özet tablo')),
             Card(
               clipBehavior: Clip.antiAlias,
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: DataTable(
                   columnSpacing: 22,
-                  columns: const [
-                    DataColumn(label: Text('Şube')),
-                    DataColumn(label: Text('Kişi'), numeric: true),
-                    DataColumn(label: Text('Ort.'), numeric: true),
-                    DataColumn(label: Text('Medyan'), numeric: true),
-                    DataColumn(label: Text('Std.'), numeric: true),
-                    DataColumn(label: Text('Başarı'), numeric: true),
-                    DataColumn(label: Text('En yüksek'), numeric: true),
+                  columns: [
+                    DataColumn(label: Text(tr('Şube'))),
+                    DataColumn(label: Text(tr('Kişi')), numeric: true),
+                    DataColumn(label: Text(tr('Ort.')), numeric: true),
+                    DataColumn(label: Text(tr('Medyan')), numeric: true),
+                    DataColumn(label: Text(tr('Std.')), numeric: true),
+                    DataColumn(label: Text(tr('Başarı')), numeric: true),
+                    DataColumn(label: Text(tr('En yüksek')), numeric: true),
                     DataColumn(label: Text('KR-20'), numeric: true),
                   ],
                   rows: [
@@ -154,7 +155,7 @@ class _CompareScreenState extends State<CompareScreen> {
               ),
             ),
             if (sameShape) ...[
-              const SectionTitle('Soru bazında doğru oranı (%)'),
+              SectionTitle(tr('Soru bazında doğru oranı (%)')),
               Card(
                 clipBehavior: Clip.antiAlias,
                 child: SingleChildScrollView(
@@ -197,7 +198,7 @@ class _CompareScreenState extends State<CompareScreen> {
               ),
             ],
             if (rows.every((r) => r.report.outcomes.isNotEmpty)) ...[
-              const SectionTitle('Kazanım başarısı'),
+              SectionTitle(tr('Kazanım başarısı')),
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16),

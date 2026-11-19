@@ -16,6 +16,7 @@ import 'pro_screen.dart';
 import '../core/pro.dart';
 import 'theme.dart';
 import 'widgets.dart';
+import '../l10n/l10n.dart';
 
 /// Dönem raporu: bir sınıfın dönemdeki sınavlarından dönem sonu notu
 /// (ağırlıklı ortalama) ve öğrenci başına dönem kazanım karnesi.
@@ -74,17 +75,17 @@ class _TermScreenState extends State<TermScreen> {
     final base = '${_safe(_class ?? '')}_${_safe(_term.label.split(' (').first)}';
 
     Future<void> gradesPdf() async {
-      if (report == null) return toast(context, 'Önce en az bir sınav seçin.');
+      if (report == null) return toast(context, tr('Önce en az bir sınav seçin.'));
       await ReportPreviewScreen.open(
         context,
-        title: 'Dönem not çizelgesi',
+        title: tr('Dönem not çizelgesi'),
         fileName: '${base}_not_cizelgesi.pdf',
         build: () => buildTermGradesPdf(report, school: store.reportSchool),
       );
     }
 
     Future<void> cardsPdf([String? studentId]) async {
-      if (report == null) return toast(context, 'Önce en az bir sınav seçin.');
+      if (report == null) return toast(context, tr('Önce en az bir sınav seçin.'));
       if (!await requirePro(context, ProFeature.studentCards) || !context.mounted) return;
       final students = [
         for (final r in report.rows)
@@ -93,7 +94,7 @@ class _TermScreenState extends State<TermScreen> {
       await Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) => StudentCardsPreview(
-            title: 'Dönem kazanım karnesi',
+            title: tr('Dönem kazanım karnesi'),
             baseFileName: '${base}_kazanim_karnesi',
             students: students,
             initialStudentId: studentId,
@@ -104,7 +105,7 @@ class _TermScreenState extends State<TermScreen> {
     }
 
     Future<void> excel() async {
-      if (report == null) return toast(context, 'Önce en az bir sınav seçin.');
+      if (report == null) return toast(context, tr('Önce en az bir sınav seçin.'));
       await FilePicker.saveFile(
         fileName: '${base}_donem_notlari.csv',
         bytes: Uint8List.fromList(utf8.encode(termCsv(report))),
@@ -119,38 +120,35 @@ class _TermScreenState extends State<TermScreen> {
         await Printing.sharePdf(
           bytes: bytes,
           filename: '${_safe(r.student.fullName)}_donem_karnesi.pdf',
-          subject: '${r.student.fullName} – ${_term.label} kazanım karnesi',
+          subject: tr('{0} – {1} kazanım karnesi', [r.student.fullName, _term.label]),
           body:
-              'Sayın Velimiz,\n\n${r.student.fullName} adlı öğrencimizin ${_term.label} kazanım karnesi ektedir.\n'
-              'Dönem ortalaması: ${r.grade} · Sınıf ortalaması: ${fmt1(report.classAverage)}\n\nSaygılarımızla,\n'
-              '${store.school.teacher.trim().isEmpty ? 'Ders öğretmeni' : store.school.teacher.trim()}'
-              '$downloadSignature',
+              tr('Sayın Velimiz,\n\n{0} adlı öğrencimizin {1} kazanım karnesi ektedir.\nDönem ortalaması: {2} · Sınıf ortalaması: {3}\n\nSaygılarımızla,\n{4}{5}', [r.student.fullName, _term.label, r.grade, fmt1(report.classAverage), store.school.teacher.trim().isEmpty ? tr('Ders öğretmeni') : store.school.teacher.trim(), downloadSignature]),
         );
       } catch (e) {
-        if (context.mounted) toast(context, 'Karne paylaşılamadı: $e');
+        if (context.mounted) toast(context, tr('Karne paylaşılamadı: {0}', [e]));
       }
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dönem raporu'),
-        actions: [IconButton(tooltip: 'Excel', onPressed: excel, icon: const Icon(Icons.table_view_outlined))],
+        title: Text(tr('Dönem raporu')),
+        actions: [IconButton(tooltip: tr('Excel'), onPressed: excel, icon: const Icon(Icons.table_view_outlined))],
       ),
       body: Watermark(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 40),
           children: [
             Text(
-              'Sınıfı ve dönemi seçin; o dönemdeki sınavlardan dönem sonu notu ve her öğrenci için kazanım karnesi hazırlanır.',
+              tr('Sınıfı ve dönemi seçin; o dönemdeki sınavlardan dönem sonu notu ve her öğrenci için kazanım karnesi hazırlanır.'),
               style: TextStyle(color: muted),
             ),
             const SizedBox(height: 14),
             if (classes.isEmpty)
-              const Card(
+              Card(
                 child: EmptyState(
                   kind: IllustrationKind.term,
-                  title: 'Henüz sonucu olan sınav yok',
-                  message: 'Kâğıt okuttuğunuz sınavlar burada dönem sonu notuna ve kazanım karnesine dönüşür.',
+                  title: tr('Henüz sonucu olan sınav yok'),
+                  message: tr('Kâğıt okuttuğunuz sınavlar burada dönem sonu notuna ve kazanım karnesine dönüşür.'),
                 ),
               )
             else ...[
@@ -160,8 +158,8 @@ class _TermScreenState extends State<TermScreen> {
                     child: DropdownButtonFormField<String>(
                       initialValue: _class,
                       isExpanded: true,
-                      decoration: const InputDecoration(
-                        labelText: 'Sınıf / şube',
+                      decoration: InputDecoration(
+                        labelText: tr('Sınıf / şube'),
                         prefixIcon: Icon(Icons.groups_2_outlined),
                       ),
                       items: [for (final c in classes) DropdownMenuItem(value: c, child: Text(c))],
@@ -185,14 +183,14 @@ class _TermScreenState extends State<TermScreen> {
                   _off.clear();
                 }),
               ),
-              SectionTitle('Sınavlar ve ağırlıkları (${chosen.length}/${candidates.length})'),
+              SectionTitle(tr('Sınavlar ve ağırlıkları ({0}/{1})', [chosen.length, candidates.length])),
               if (candidates.isEmpty)
                 Card(
                   child: ListTile(
                     leading: const IconBadge(Icons.event_busy_outlined, color: NColors.amber),
-                    title: const Text('Bu dönemde sınav yok'),
+                    title: Text(tr('Bu dönemde sınav yok')),
                     subtitle: Text(
-                      '${_class ?? ''} için ${_term.label} içinde sonucu olan sınav bulunamadı. "Tüm yıl"ı deneyin.',
+                      tr('{0} için {1} içinde sonucu olan sınav bulunamadı. "Tüm yıl"ı deneyin.', [_class ?? '', _term.label]),
                     ),
                   ),
                 )
@@ -207,8 +205,7 @@ class _TermScreenState extends State<TermScreen> {
                           onChanged: (v) => setState(() => v == true ? _off.remove(e.id) : _off.add(e.id)),
                           title: Text(e.name, style: const TextStyle(fontWeight: FontWeight.w600)),
                           subtitle: Text(
-                            '${dmy(e.date)} · ${store.sheetsOf(e.id).length} kâğıt'
-                            '${_off.contains(e.id) || totalW == 0 ? '' : ' · notun %${((_weights[e.id] ?? 1) / totalW * 100).round()}\'i'}',
+                            tr('{0} · {1} kâğıt{2}', [dmy(e.date), store.sheetsOf(e.id).length, _off.contains(e.id) || totalW == 0 ? '' : ' · notun %${((_weights[e.id] ?? 1) / totalW * 100).round()}\'i']),
                           ),
                           secondary: DropdownButton<double>(
                             value: _weights[e.id] ?? 1,
@@ -234,7 +231,7 @@ class _TermScreenState extends State<TermScreen> {
                     children: [
                       Expanded(
                         child: StatCard(
-                          label: 'Ortalama',
+                          label: tr('Ortalama'),
                           value: fmt1(report.classAverage),
                           icon: Icons.insights_rounded,
                         ),
@@ -242,7 +239,7 @@ class _TermScreenState extends State<TermScreen> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: StatCard(
-                          label: 'Notu olan',
+                          label: tr('Notu olan'),
                           value: '${report.rows.where((r) => r.average != null).length}/${report.rows.length}',
                           icon: Icons.how_to_reg_outlined,
                         ),
@@ -258,12 +255,12 @@ class _TermScreenState extends State<TermScreen> {
                     FilledButton.icon(
                       onPressed: gradesPdf,
                       icon: const Icon(Icons.grading_rounded),
-                      label: const Text('Not çizelgesi (PDF)'),
+                      label: Text(tr('Not çizelgesi (PDF)')),
                     ),
                     FilledButton.tonalIcon(
                       onPressed: () => cardsPdf(),
                       icon: const Icon(Icons.badge_outlined),
-                      label: const Text('Kazanım karneleri'),
+                      label: Text(tr('Kazanım karneleri')),
                     ),
                     OutlinedButton.icon(
                       onPressed: excel,
@@ -272,7 +269,7 @@ class _TermScreenState extends State<TermScreen> {
                     ),
                   ],
                 ),
-                const SectionTitle('Dönem notları'),
+                SectionTitle(tr('Dönem notları')),
                 Card(
                   clipBehavior: Clip.antiAlias,
                   child: Column(
@@ -298,7 +295,7 @@ class _TermScreenState extends State<TermScreen> {
                               ),
                               if (r.average != null)
                                 IconButton(
-                                  tooltip: 'Karneyi veliye gönder',
+                                  tooltip: tr('Karneyi veliye gönder'),
                                   icon: const Icon(Icons.send_outlined, size: 20),
                                   onPressed: () => share(r),
                                 ),
@@ -311,7 +308,7 @@ class _TermScreenState extends State<TermScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'G: sınava girmedi. Girilmeyen sınav öğrencinin ortalamasına katılmaz; ağırlıklar diğer sınavlara dağıtılır.',
+                  tr('G: sınava girmedi. Girilmeyen sınav öğrencinin ortalamasına katılmaz; ağırlıklar diğer sınavlara dağıtılır.'),
                   style: TextStyle(color: muted, fontSize: 12),
                 ),
               ],

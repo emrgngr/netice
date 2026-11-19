@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'models.dart';
 import 'scoring.dart';
+import '../l10n/l10n.dart';
 
 /// Sınav düzeyi özet istatistikler.
 class ExamStats {
@@ -66,18 +67,18 @@ class ItemStats {
   });
 
   String get difficultyLabel => p > 0.80
-      ? 'Kolay'
+      ? tr('Kolay')
       : p >= 0.30
-          ? 'Orta'
-          : 'Zor';
+          ? tr('Orta')
+          : tr('Zor');
 
   String get discriminationLabel => d >= 0.40
-      ? 'Çok iyi'
+      ? tr('Çok iyi')
       : d >= 0.30
-          ? 'İyi'
+          ? tr('İyi')
           : d >= 0.20
-              ? 'Düzeltilmeli'
-              : 'Gözden geçirilmeli';
+              ? tr('Düzeltilmeli')
+              : tr('Gözden geçirilmeli');
 }
 
 class Analysis {

@@ -8,6 +8,7 @@ import 'exam_screen.dart';
 import 'key_from_photo.dart';
 import 'theme.dart';
 import 'widgets.dart';
+import '../l10n/l10n.dart';
 
 /// Hızlı sınav oluşturma: soru sayısı, şık sayısı, cevap anahtarı tuş takımı.
 /// Klavyeden "ABCDE…" yazmak da çalışır.
@@ -36,7 +37,7 @@ class _NewExamScreenState extends State<NewExamScreen> {
       initialDate: _date,
       firstDate: DateTime(2020),
       lastDate: DateTime(2100),
-      helpText: 'Sınav tarihi',
+      helpText: tr('Sınav tarihi'),
     );
     if (d != null) setState(() => _date = DateTime(d.year, d.month, d.day, _date.hour, _date.minute));
   }
@@ -45,7 +46,7 @@ class _NewExamScreenState extends State<NewExamScreen> {
     final t = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.fromDateTime(_date),
-      helpText: 'Sınav saati',
+      helpText: tr('Sınav saati'),
     );
     if (t != null) setState(() => _date = DateTime(_date.year, _date.month, _date.day, t.hour, t.minute));
   }
@@ -82,8 +83,8 @@ class _NewExamScreenState extends State<NewExamScreen> {
 
   void _save() {
     final name = _name.text.trim();
-    if (name.isEmpty) return toast(context, 'Sınava bir ad verin.');
-    if (!_complete) return toast(context, 'Cevap anahtarında boş soru var.');
+    if (name.isEmpty) return toast(context, tr('Sınava bir ad verin.'));
+    if (!_complete) return toast(context, tr('Cevap anahtarında boş soru var.'));
     final outcomes = parseOutcomeRanges(_outcomes.text, _count);
     final exam = Exam(
       id: 'e${DateTime.now().millisecondsSinceEpoch}',
@@ -129,7 +130,7 @@ class _NewExamScreenState extends State<NewExamScreen> {
   Widget build(BuildContext context) {
     final t = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Yeni sınav')),
+      appBar: AppBar(title: Text(tr('Yeni sınav'))),
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
@@ -139,7 +140,7 @@ class _NewExamScreenState extends State<NewExamScreen> {
               constraints: const BoxConstraints(maxWidth: 680),
               child: SizedBox(
                 width: double.infinity,
-                child: FilledButton(onPressed: _save, child: const Text('Sınavı kaydet')),
+                child: FilledButton(onPressed: _save, child: Text(tr('Sınavı kaydet'))),
               ),
             ),
           ),
@@ -149,9 +150,9 @@ class _NewExamScreenState extends State<NewExamScreen> {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 720),
           child: ListView(padding: const EdgeInsets.all(20), children: [
-            TextField(controller: _name, decoration: const InputDecoration(labelText: 'Sınav adı', hintText: 'ör. Fizik Quiz 3')),
+            TextField(controller: _name, decoration: InputDecoration(labelText: tr('Sınav adı'), hintText: tr('ör. Fizik Quiz 3'))),
             const SizedBox(height: 12),
-            TextField(controller: _class, decoration: const InputDecoration(labelText: 'Sınıf / şube', hintText: 'ör. 9-A')),
+            TextField(controller: _class, decoration: InputDecoration(labelText: tr('Sınıf / şube'), hintText: tr('ör. 9-A'))),
             const SizedBox(height: 12),
             Row(children: [
               Expanded(
@@ -171,7 +172,7 @@ class _NewExamScreenState extends State<NewExamScreen> {
               ),
             ]),
             const SizedBox(height: 20),
-            Text('Soru sayısı: $_count', style: t.textTheme.titleSmall),
+            Text(tr('Soru sayısı: {0}', [_count]), style: t.textTheme.titleSmall),
             Slider(
               value: _count.toDouble(),
               min: 5,
@@ -187,7 +188,7 @@ class _NewExamScreenState extends State<NewExamScreen> {
               Expanded(
                 child: SegmentedButton<int>(
                   showSelectedIcon: false,
-                  segments: const [ButtonSegment(value: 4, label: Text('4 şık')), ButtonSegment(value: 5, label: Text('5 şık'))],
+                  segments: [ButtonSegment(value: 4, label: Text(tr('4 şık'))), ButtonSegment(value: 5, label: Text(tr('5 şık')))],
                   selected: {_choices},
                   onSelectionChanged: (s) => setState(() {
                     _choices = s.first;
@@ -201,26 +202,25 @@ class _NewExamScreenState extends State<NewExamScreen> {
               Expanded(
                 child: DropdownButtonFormField<int>(
                   initialValue: _wrongsPerCorrect,
-                  decoration: const InputDecoration(labelText: 'Yanlış götürme'),
-                  items: const [
-                    DropdownMenuItem(value: 0, child: Text('Yok')),
-                    DropdownMenuItem(value: 3, child: Text('3 yanlış 1 doğru')),
-                    DropdownMenuItem(value: 4, child: Text('4 yanlış 1 doğru')),
+                  decoration: InputDecoration(labelText: tr('Yanlış götürme')),
+                  items: [
+                    DropdownMenuItem(value: 0, child: Text(tr('Yok'))),
+                    DropdownMenuItem(value: 3, child: Text(tr('3 yanlış 1 doğru'))),
+                    DropdownMenuItem(value: 4, child: Text(tr('4 yanlış 1 doğru'))),
                   ],
                   onChanged: (v) => setState(() => _wrongsPerCorrect = v ?? 0),
                 ),
               ),
             ]),
-            SectionTitle('Cevap anahtarı',
+            SectionTitle(tr('Cevap anahtarı'),
                 trailing: TextButton.icon(
                   onPressed: _fromPhoto,
                   icon: const Icon(Icons.photo_camera_outlined, size: 18),
-                  label: const Text('Fotoğraftan oku'),
+                  label: Text(tr('Fotoğraftan oku')),
                 )),
             Padding(
               padding: const EdgeInsets.only(left: 4, bottom: 8),
-              child: Text('Tuşlarla veya klavyeden A–${letter(_choices - 1)} yazın. Doğru cevaplarla doldurduğunuz bir '
-                  'Netice formunun fotoğrafını da seçebilirsiniz.',
+              child: Text(tr('Tuşlarla veya klavyeden A–{0} yazın. Doğru cevaplarla doldurduğunuz bir Netice formunun fotoğrafını da seçebilirsiniz.', [letter(_choices - 1)]),
                   style: t.textTheme.bodySmall),
             ),
             Focus(
@@ -271,14 +271,14 @@ class _NewExamScreenState extends State<NewExamScreen> {
                   ),
                 ),
             ]),
-            const SectionTitle('Kazanımlar / konular (isteğe bağlı)'),
+            SectionTitle(tr('Kazanımlar / konular (isteğe bağlı)')),
             TextField(
               controller: _outcomes,
               minLines: 2,
               maxLines: 6,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: '1-5 Hareket\n6-10 Kuvvet',
-                helperText: 'Her satıra soru aralığı ve konu adı yazın. Raporda konu bazlı başarı gösterilir.',
+                helperText: tr('Her satıra soru aralığı ve konu adı yazın. Raporda konu bazlı başarı gösterilir.'),
                 helperMaxLines: 2,
               ),
             ),

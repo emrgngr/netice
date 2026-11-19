@@ -5,6 +5,7 @@ import 'illustrations.dart';
 import 'school_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
+import '../l10n/l10n.dart';
 
 /// İlk açılış rehberi: Netice'yi dört adımda tanıtır.
 class OnboardingScreen extends StatefulWidget {
@@ -22,30 +23,30 @@ class _Step {
   const _Step(this.icon, this.title, this.body, this.points);
 }
 
-const _steps = [
-  _Step(IllustrationKind.welcome, 'Netice\'ye hoş geldiniz',
-      'Optik kâğıtları telefonunuzla okutun; puanlar, analizler ve raporlar kendiliğinden hazırlansın.', [
-    'İnternet gerekmez, veriler yalnızca bu cihazda kalır',
-    'Bir kâğıt ortalama 2 saniyede okunur',
-    'Emin olunamayan işaretler size sorulur, sessizce karar verilmez',
+List<_Step> get _steps => [
+  _Step(IllustrationKind.welcome, tr('Netice\'ye hoş geldiniz'),
+      tr('Optik kâğıtları telefonunuzla okutun; puanlar, analizler ve raporlar kendiliğinden hazırlansın.'), [
+    tr('İnternet gerekmez, veriler yalnızca bu cihazda kalır'),
+    tr('Bir kâğıt ortalama 2 saniyede okunur'),
+    tr('Emin olunamayan işaretler size sorulur, sessizce karar verilmez'),
   ]),
-  _Step(IllustrationKind.school, '1. Okul bilgileri',
-      'Okul adı, il/ilçe, müdür ve öğretmen adını bir kez girin. Tüm raporlar resmi yazı başlığıyla çıkar.', [
-    'T.C. / Kaymakamlık / Okul Müdürlüğü başlığı',
-    'Öğretmen ve müdür imza alanı',
-    'İstediğiniz zaman Ayarlar\'dan değiştirebilirsiniz',
+  _Step(IllustrationKind.school, tr('1. Okul bilgileri'),
+      tr('Okul adı, il/ilçe, müdür ve öğretmen adını bir kez girin. Tüm raporlar resmi yazı başlığıyla çıkar.'), [
+    tr('T.C. / Kaymakamlık / Okul Müdürlüğü başlığı'),
+    tr('Öğretmen ve müdür imza alanı'),
+    tr('İstediğiniz zaman Ayarlar\'dan değiştirebilirsiniz'),
   ]),
-  _Step(IllustrationKind.students, '2. Sınıflarınızı aktarın',
-      'Sınıflar sekmesinden e-Okul\'dan aldığınız Excel listesini seçin. Tüm şubeler tek dosyadan ayrılır.', [
-    'Gerekli sütunlar: Okul No, Adı, Soyadı, Sınıf',
-    'Tek tek öğrenci de ekleyebilirsiniz',
-    'Örnek sınıf ve sınavla hemen deneyebilirsiniz',
+  _Step(IllustrationKind.students, tr('2. Sınıflarınızı aktarın'),
+      tr('Sınıflar sekmesinden e-Okul\'dan aldığınız Excel listesini seçin. Tüm şubeler tek dosyadan ayrılır.'), [
+    tr('Gerekli sütunlar: Okul No, Adı, Soyadı, Sınıf'),
+    tr('Tek tek öğrenci de ekleyebilirsiniz'),
+    tr('Örnek sınıf ve sınavla hemen deneyebilirsiniz'),
   ]),
-  _Step(IllustrationKind.scan, '3. Sınav, form, okut',
-      'Yeni sınav oluşturun, cevap anahtarını girin, Form yazdır ile isimli formları basın ve Okut\'a dokunun.', [
-    'Kâğıtları art arda kameraya gösterin, okuma kendiliğinden olur',
-    'Sonuçlar, madde analizi ve karneler anında hazır',
-    'Her PDF önce önizlenir, sonra yazdırılır veya paylaşılır',
+  _Step(IllustrationKind.scan, tr('3. Sınav, form, okut'),
+      tr('Yeni sınav oluşturun, cevap anahtarını girin, Form yazdır ile isimli formları basın ve Okut\'a dokunun.'), [
+    tr('Kâğıtları art arda kameraya gösterin, okuma kendiliğinden olur'),
+    tr('Sonuçlar, madde analizi ve karneler anında hazır'),
+    tr('Her PDF önce önizlenir, sonra yazdırılır veya paylaşılır'),
   ]),
 ];
 
@@ -78,7 +79,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: _finish,
-                  child: const Text('Atla', style: TextStyle(color: Colors.white70)),
+                  child: Text(tr('Atla'), style: TextStyle(color: Colors.white70)),
                 ),
               ),
               Expanded(
@@ -117,12 +118,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           onPressed: () =>
                               Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SchoolScreen())),
                           icon: const Icon(Icons.edit_outlined),
-                          label: const Text('Okul bilgilerini şimdi gir'),
+                          label: Text(tr('Okul bilgilerini şimdi gir')),
                         ),
                       ),
                     ),
                   GlowButton(
-                    label: last ? 'Başla' : 'Devam',
+                    label: last ? tr('Başla') : tr('Devam'),
                     icon: last ? Icons.check_rounded : Icons.arrow_forward_rounded,
                     height: 56,
                     onPressed: last
@@ -149,10 +150,10 @@ class _StepView extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(28, 12, 28, 12),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           if (first) ...[
-            const Row(children: [
+            Row(children: [
               AppLogo(size: 40),
               SizedBox(width: 10),
-              Text('Netice', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800)),
+              Text(tr('Netice'), style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800)),
             ]),
             const SizedBox(height: 8),
           ],

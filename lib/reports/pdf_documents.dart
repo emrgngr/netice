@@ -13,6 +13,7 @@ import '../core/term.dart';
 import '../core/legal.dart';
 import '../omr/form_code.dart';
 import '../omr/form_layout.dart';
+import '../l10n/l10n.dart';
 
 const _ink = PdfColor.fromInt(0xFF0F1B3D);
 const _emerald = PdfColor.fromInt(0xFF10B981);
@@ -46,7 +47,7 @@ Future<Uint8List> buildFormsPdf(Exam exam, List<Student> students,
   final fonts = await _Fonts.load();
   final layout =
       FormLayout(questionCount: exam.questionCount, choiceCount: exam.choiceCount, booklets: exam.hasBooklets);
-  final doc = pw.Document(title: '${exam.name} · optik form', author: 'Netice');
+  final doc = pw.Document(title: tr('{0} · optik form', [exam.name]), author: tr('Netice'));
   final pages = students.isEmpty
       ? List<Student?>.filled(math.max(1, blankCopies), null)
       : students.cast<Student?>();
@@ -65,16 +66,16 @@ Future<Uint8List> buildAnswerKeyPdf(Exam exam, {bool filled = true, SchoolInfo s
   final fonts = await _Fonts.load();
   final layout =
       FormLayout(questionCount: exam.questionCount, choiceCount: exam.choiceCount, booklets: exam.hasBooklets);
-  final doc = pw.Document(title: '${exam.name} · cevap anahtarı', author: 'Netice');
+  final doc = pw.Document(title: tr('{0} · cevap anahtarı', [exam.name]), author: tr('Netice'));
   doc.addPage(_formPage(layout, exam, fonts, school, key: true, keyFilled: filled, booklet: exam.hasBooklets ? 0 : null));
   if (exam.hasBooklets && filled) {
     doc.addPage(_formPage(layout, exam, fonts, school, key: true, keyFilled: true, booklet: 1));
   }
   if (filled) {
-    final k = _Kit(exam, school, docTitle: 'Cevap Anahtarı');
+    final k = _Kit(exam, school, docTitle: tr('Cevap Anahtarı'));
     final theme = pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold);
     final qs = exam.questions;
-    String ans(Question q) => q.cancelled ? 'İptal' : (q.correct.isEmpty ? '–' : q.correct.map(_letter).join(' / '));
+    String ans(Question q) => q.cancelled ? tr('İptal') : (q.correct.isEmpty ? '–' : q.correct.map(_letter).join(' / '));
     String pts(double v) => v == v.roundToDouble() ? '${v.round()}' : _f1(v);
     final possible = qs.where((q) => !q.cancelled).fold<double>(0, (a, q) => a + q.points);
     // Sorunun puan tablosundaki gerçek değeri (ağırlık, toplam puana ölçeklenir).
@@ -86,10 +87,10 @@ Future<Uint8List> buildAnswerKeyPdf(Exam exam, {bool filled = true, SchoolInfo s
       header: k.header,
       footer: k.footer,
       build: (ctx) => [
-        k.title('Cevap anahtarı', '${exam.questionCount} soru · ${exam.choiceCount} şık · sınav tarihi ${_date(exam.date)}'),
+        k.title(tr('Cevap anahtarı'), tr('{0} soru · {1} şık · sınav tarihi {2}', [exam.questionCount, exam.choiceCount, _date(exam.date)])),
         for (final (label, list) in [
-          (exam.hasBooklets ? 'A kitapçığı · hızlı okuma (beşli gruplar)' : 'Hızlı okuma (beşli gruplar)', qs),
-          if (exam.hasBooklets) ('B kitapçığı · hızlı okuma (beşli gruplar)', exam.bookletBQuestions),
+          (exam.hasBooklets ? tr('A kitapçığı · hızlı okuma (beşli gruplar)') : tr('Hızlı okuma (beşli gruplar)'), qs),
+          if (exam.hasBooklets) (tr('B kitapçığı · hızlı okuma (beşli gruplar)'), exam.bookletBQuestions),
         ]) ...[
           pw.Text(label, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 9, color: _ink)),
           pw.SizedBox(height: 6),
@@ -114,12 +115,11 @@ Future<Uint8List> buildAnswerKeyPdf(Exam exam, {bool filled = true, SchoolInfo s
           pw.SizedBox(height: 10),
         ],
         if (exam.hasBooklets)
-          pw.Text('B kitapçığı sırası (B\'deki soru → A\'daki soru): '
-              '${[for (var i = 0; i < exam.bookletOrder!.length; i++) '${i + 1}→${exam.bookletOrder![i] + 1}'].join('  ')}',
+          pw.Text(tr('B kitapçığı sırası (B\'deki soru → A\'daki soru): {0}', [[for (var i = 0; i < exam.bookletOrder!.length; i++) '${i + 1}→${exam.bookletOrder![i] + 1}'].join('  ')]),
               style: const pw.TextStyle(color: _muted, fontSize: 7.5)),
         pw.SizedBox(height: 14),
         pw.TableHelper.fromTextArray(
-          headers: [exam.hasBooklets ? 'Soru (A)' : 'Soru', 'Doğru cevap', 'Puan', 'Kazanım'],
+          headers: [exam.hasBooklets ? 'Soru (A)' : tr('Soru'), tr('Doğru cevap'), tr('Puan'), tr('Kazanım')],
           data: [
             for (final q in qs) ['${q.no}', ans(q), q.cancelled ? '–' : _f1(worth(q)).replaceAll(',0', ''), q.outcomeCode ?? ''],
           ],
@@ -139,8 +139,7 @@ Future<Uint8List> buildAnswerKeyPdf(Exam exam, {bool filled = true, SchoolInfo s
         ),
         pw.SizedBox(height: 10),
         pw.Text(
-          'Toplam puan: ${pts(exam.rule.maxScore)} · Geçme puanı: ${pts(exam.rule.pass)}'
-          '${qs.any((q) => q.cancelled) ? ' · İptal edilen sorular herkese doğru sayılır.' : ''}',
+          tr('Toplam puan: {0} · Geçme puanı: {1}{2}', [pts(exam.rule.maxScore), pts(exam.rule.pass), qs.any((q) => q.cancelled) ? tr(' · İptal edilen sorular herkese doğru sayılır.') : '']),
           style: const pw.TextStyle(color: _muted, fontSize: 8),
         ),
       ],
@@ -229,13 +228,12 @@ void _paintForm(PdfGraphics g, PdfPoint size, FormLayout layout, Exam exam, Stud
   g.setFillColor(_ink);
   g.drawEllipse(x(29.4), y(13.6), 1.0 * mm, 1.0 * mm);
   g.fillPath();
-  text('Netice', 32, 15.4, 12, bold: true);
-  text('Kâğıttan sonuca, saniyeler içinde.', 24.3, 19.4, 6, color: _muted);
-  text(key ? 'CEVAP ANAHTARI' : 'OPTİK CEVAP KÂĞIDI', 186, 15.2, 11.5,
+  text(tr('Netice'), 32, 15.4, 12, bold: true);
+  text(tr('Kâğıttan sonuca, saniyeler içinde.'), 24.3, 19.4, 6, color: _muted);
+  text(key ? tr('CEVAP ANAHTARI') : tr('OPTİK CEVAP KÂĞIDI'), 186, 15.2, 11.5,
       bold: true, right: true, color: key ? _coral : _ink);
   text(
-      '${exam.questionCount} soru · ${exam.choiceCount} şık'
-      '${booklet == null ? '' : ' · ${_letter(booklet)} kitapçığı'}',
+      tr('{0} soru · {1} şık{2}', [exam.questionCount, exam.choiceCount, booklet == null ? '' : tr(' · {0} kitapçığı', [_letter(booklet)])]),
       186, 19.2, 6.5, right: true, color: booklet == 1 ? _coral : _muted, bold: booklet != null);
 
   // ---- Makine kodu (sol kenar) ----
@@ -256,13 +254,13 @@ void _paintForm(PdfGraphics g, PdfPoint size, FormLayout layout, Exam exam, Stud
   // ---- Bilgi alanları (sol blok) ----
   const l = 24.0, r = 128.0;
   if (key) {
-    field('BU KÂĞIT', 'CEVAP ANAHTARIDIR · öğrenciye dağıtmayın', l, 22, r, valueColor: _coral);
+    field(tr('BU KÂĞIT'), tr('CEVAP ANAHTARIDIR · öğrenciye dağıtmayın'), l, 22, r, valueColor: _coral);
   } else {
-    field('ADI SOYADI', s?.fullName ?? '', l, 22, r);
+    field(tr('ADI SOYADI'), s?.fullName ?? '', l, 22, r);
   }
-  field('SINIFI / ŞUBESİ', key ? exam.className : (s?.className ?? ''), l, 32.5, 60);
-  field('OKUL NO', key ? '—' : (s?.number ?? ''), 62, 32.5, 92);
-  field('SINAV TARİHİ', _date(exam.date), 94, 32.5, r, bold: false);
+  field(tr('SINIFI / ŞUBESİ'), key ? exam.className : (s?.className ?? ''), l, 32.5, 60);
+  field(tr('OKUL NO'), key ? '—' : (s?.number ?? ''), 62, 32.5, 92);
+  field(tr('SINAV TARİHİ'), _date(exam.date), 94, 32.5, r, bold: false);
   field('SINAV', exam.name, l, 43, r);
   field('OKUL', school.name.trim(), l, 53.5, 92, bold: false);
   field('DERS', school.subject.trim(), 94, 53.5, r, bold: false);
@@ -271,15 +269,15 @@ void _paintForm(PdfGraphics g, PdfPoint size, FormLayout layout, Exam exam, Stud
   final cells = key
       ? [
           ('SORU', '${exam.questionCount}'),
-          ('ŞIK', '${exam.choiceCount}'),
-          ('TOPLAM PUAN', exam.rule.maxScore == exam.rule.maxScore.roundToDouble()
+          (tr('ŞIK'), '${exam.choiceCount}'),
+          (tr('TOPLAM PUAN'), exam.rule.maxScore == exam.rule.maxScore.roundToDouble()
               ? '${exam.rule.maxScore.round()}'
               : _f1(exam.rule.maxScore)),
-          ('İPTAL', '${exam.questions.where((q) => q.cancelled).length}'),
+          (tr('İPTAL'), '${exam.questions.where((q) => q.cancelled).length}'),
           ('KAZANIM', '${exam.questions.map((q) => q.outcomeCode).whereType<String>().toSet().length}'),
         ]
-      : [('DOĞRU', ''), ('YANLIŞ', ''), ('BOŞ', ''), ('NET', ''), ('PUAN', '')];
-  text(key ? 'SINAV BİLGİSİ' : 'ÖĞRETMEN DOLDURUR', l, 66.2, 5.6, bold: true, color: _muted);
+      : [(tr('DOĞRU'), ''), (tr('YANLIŞ'), ''), (tr('BOŞ'), ''), ('NET', ''), ('PUAN', '')];
+  text(key ? tr('SINAV BİLGİSİ') : tr('ÖĞRETMEN DOLDURUR'), l, 66.2, 5.6, bold: true, color: _muted);
   const cw = (r - l - 4 * 1.5) / 5;
   for (var i = 0; i < cells.length; i++) {
     final x0 = l + i * (cw + 1.5);
@@ -289,18 +287,18 @@ void _paintForm(PdfGraphics g, PdfPoint size, FormLayout layout, Exam exam, Stud
   }
 
   // Doldurma örneği ve kısa yönerge.
-  text(key ? 'ÖĞRETMEN İÇİN' : 'NASIL DOLDURULUR?', l, 81, 5.6, bold: true, color: _muted);
+  text(key ? tr('ÖĞRETMEN İÇİN') : tr('NASIL DOLDURULUR?'), l, 81, 5.6, bold: true, color: _muted);
   if (key) {
     final lines = keyFilled
         ? [
-            'Doğru şıklar Netice tarafından karartıldı.',
-            'Bu sayfa kontrol ve arşiv içindir; okunaklı',
-            'anahtar listesi son sayfadadır.',
+            tr('Doğru şıklar Netice tarafından karartıldı.'),
+            tr('Bu sayfa kontrol ve arşiv içindir; okunaklı'),
+            tr('anahtar listesi son sayfadadır.'),
           ]
         : [
-            'Her sorunun doğru şıkkını karartın.',
-            'Sonra Sınav ayarları › Anahtarı fotoğraftan',
-            'oku ile çekin; anahtar kendiliğinden girilir.',
+            tr('Her sorunun doğru şıkkını karartın.'),
+            tr('Sonra Sınav ayarları › Anahtarı fotoğraftan'),
+            tr('oku ile çekin; anahtar kendiliğinden girilir.'),
           ];
     for (var i = 0; i < lines.length; i++) {
       text(lines[i], l, 85.4 + i * 3.4, 6.6, color: _ink);
@@ -320,9 +318,9 @@ void _paintForm(PdfGraphics g, PdfPoint size, FormLayout layout, Exam exam, Stud
       }
     }
 
-    text('Doğru:', l, 86.3, 6.6, bold: true, color: _emerald);
+    text(tr('Doğru:'), l, 86.3, 6.6, bold: true, color: _emerald);
     sample(l + 11.4, 85.4, fill: true);
-    text('Yanlış:', l + 17, 86.3, 6.6, bold: true, color: _coral);
+    text(tr('Yanlış:'), l + 17, 86.3, 6.6, bold: true, color: _coral);
     final wx = [l + 28, l + 33.5, l + 39, l + 44.5];
     for (final cx in wx) {
       sample(cx, 85.4);
@@ -346,16 +344,16 @@ void _paintForm(PdfGraphics g, PdfPoint size, FormLayout layout, Exam exam, Stud
     g.setFillColor(const PdfColor.fromInt(0xFF1F1F1F));
     g.drawEllipse(x(wx[2]), y(85.4), 0.45 * mm, 0.45 * mm);
     g.fillPath();
-    text('Daireyi tamamen karartın; kurşun kalem ya da koyu', l, 90.6, 6.3);
-    text('tükenmez kullanın. Değiştirirken eskisini iyice silin.', l, 93.6, 6.3);
-    text('Kenardaki siyah karelere yazmayın, kâğıdı katlamayın.', l, 96.6, 6.3);
+    text(tr('Daireyi tamamen karartın; kurşun kalem ya da koyu'), l, 90.6, 6.3);
+    text(tr('tükenmez kullanın. Değiştirirken eskisini iyice silin.'), l, 93.6, 6.3);
+    text(tr('Kenardaki siyah karelere yazmayın, kâğıdı katlamayın.'), l, 96.6, 6.3);
   }
 
   // ---- Kitapçık türü ----
   if (layout.booklets) {
     final a = FormLayout.bookletBubble(0), b = FormLayout.bookletBubble(1);
     box(a.x - 6, 79, b.x + 6, 96.5, radius: 2, fill: _tint);
-    text('KİTAPÇIK', (a.x + b.x) / 2, 82.6, 5.6, bold: true, color: _muted, center: true);
+    text(tr('KİTAPÇIK'), (a.x + b.x) / 2, 82.6, 5.6, bold: true, color: _muted, center: true);
     for (var k = 0; k < 2; k++) {
       final p = FormLayout.bookletBubble(k);
       g.setFillColor(PdfColors.white);
@@ -368,7 +366,7 @@ void _paintForm(PdfGraphics g, PdfPoint size, FormLayout layout, Exam exam, Stud
         g.fillPath();
       }
     }
-    text(booklet == null ? 'Türünüzü işaretleyin' : '${_letter(booklet)} kitapçığı', (a.x + b.x) / 2, 95, 5,
+    text(booklet == null ? tr('Türünüzü işaretleyin') : tr('{0} kitapçığı', [_letter(booklet)]), (a.x + b.x) / 2, 95, 5,
         color: _muted, center: true);
   }
 
@@ -377,7 +375,7 @@ void _paintForm(PdfGraphics g, PdfPoint size, FormLayout layout, Exam exam, Stud
   final first = layout.studentBubble(0, 0);
   final last = layout.studentBubble(FormLayout.studentDigits - 1, 9);
   box(first.x - 6, 22, last.x + 6, last.y + 5.2, radius: 2);
-  text('ÖĞRENCİ NUMARASI', (first.x + last.x) / 2, 25.6, 5.6, bold: true, color: _muted, center: true);
+  text(tr('ÖĞRENCİ NUMARASI'), (first.x + last.x) / 2, 25.6, 5.6, bold: true, color: _muted, center: true);
   final number = key ? null : s?.number.padLeft(FormLayout.studentDigits, '0');
   for (var d = 0; d < FormLayout.studentDigits; d++) {
     final top = layout.studentBubble(d, 0);
@@ -434,17 +432,17 @@ void _paintForm(PdfGraphics g, PdfPoint size, FormLayout layout, Exam exam, Stud
     final nx = layout.answerBubble(0, layout.choiceCount - 1).x + 13;
     final y0 = FormLayout.answersTop - 8.2;
     box(nx, y0, 186, y0 + 40, radius: 2);
-    text('NOTLAR / AÇIKLAMA', nx + 2.5, y0 + 4, 5.6, bold: true, color: _muted);
+    text(tr('NOTLAR / AÇIKLAMA'), nx + 2.5, y0 + 4, 5.6, bold: true, color: _muted);
     final mid = (nx + 186) / 2;
     box(nx, y0 + 44, mid - 1.5, y0 + 62, radius: 2);
-    text('ÖĞRENCİ İMZASI', nx + 2.5, y0 + 48, 5.6, bold: true, color: _muted);
+    text(tr('ÖĞRENCİ İMZASI'), nx + 2.5, y0 + 48, 5.6, bold: true, color: _muted);
     box(mid + 1.5, y0 + 44, 186, y0 + 62, radius: 2);
-    text('ÖĞRETMEN İMZASI', mid + 4, y0 + 48, 5.6, bold: true, color: _muted);
+    text(tr('ÖĞRETMEN İMZASI'), mid + 4, y0 + 48, 5.6, bold: true, color: _muted);
   }
 
   // ---- Alt bilgi ----
-  text('Sınav kodu: ${exam.id}', 24, 271.5, 5.6, color: _muted);
-  text('Formu %100 ölçekle yazdırın; fotokopiyle çoğaltabilirsiniz.', 186, 271.5, 5.6, right: true, color: _muted);
+  text(tr('Sınav kodu: {0}', [exam.id]), 24, 271.5, 5.6, color: _muted);
+  text(tr('Formu %100 ölçekle yazdırın; fotokopiyle çoğaltabilirsiniz.'), 186, 271.5, 5.6, right: true, color: _muted);
 }
 
 void _bubble(PdfGraphics g, double cx, double cy, double r, String label, (PdfFont, PdfFont) fonts) {
@@ -458,15 +456,15 @@ void _bubble(PdfGraphics g, double cx, double cy, double r, String label, (PdfFo
   g.drawString(fonts.$1, 5.5, label, cx - w / 2, cy - 1.9);
 }
 
-String _f1(double v) => v.toStringAsFixed(1).replaceAll('.', ',');
-String _f2(double v) => v.toStringAsFixed(2).replaceAll('.', ',');
+String _f1(double v) => v.toStringAsFixed(1).replaceAll('.', L10n.decimal);
+String _f2(double v) => v.toStringAsFixed(2).replaceAll('.', L10n.decimal);
 String _pct(double v) => '%${(v * 100).round()}';
 String _letter(int i) => String.fromCharCode(65 + i);
 /// Rapor zaman damgası: 18.11.2026 10:04
 String reportStamp(DateTime d) =>
     '${_date(d)} ${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
 
-String _date(DateTime d) => '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
+String _date(DateTime d) => L10n.date(d);
 String _answer(Answer a) => a.marked.isEmpty ? '–' : a.marked.map(_letter).join('/');
 
 /// Rapor sayfalarının ortak üst/alt bilgisi ve yardımcı parçaları.
@@ -496,7 +494,7 @@ class _Kit {
   /// Resmi yazı başlığı: T.C. / Kaymakamlık / Okul Müdürlüğü / belge adı.
   pw.Widget letterhead() {
     const bold = pw.TextStyle(fontSize: 10.5, color: PdfColors.black);
-    final subject = school.subject.trim().isEmpty ? '' : ' ${SchoolInfo.upper(school.subject.trim())} DERSİ';
+    final subject = school.subject.trim().isEmpty ? '' : tr(' {0} DERSİ', [SchoolInfo.upper(school.subject.trim())]);
     final cls = classLine ?? '${SchoolInfo.upper(exam.className)} SINIFI';
     return pw.Container(
       margin: const pw.EdgeInsets.only(bottom: 14),
@@ -509,17 +507,17 @@ class _Kit {
         pw.Text(school.directorate, style: bold.copyWith(fontWeight: pw.FontWeight.bold), textAlign: pw.TextAlign.center),
         pw.SizedBox(height: 8),
         pw.Text(
-          '${SchoolInfo.academicYear(exam.date)} EĞİTİM-ÖĞRETİM YILI $cls$subject',
+          tr('{0} EĞİTİM-ÖĞRETİM YILI {1}{2}', [SchoolInfo.academicYear(exam.date), cls, subject]),
           style: const pw.TextStyle(fontSize: 9.5, color: PdfColors.black),
           textAlign: pw.TextAlign.center,
         ),
-        pw.Text(SchoolInfo.upper(docTitle),
+        pw.Text(SchoolInfo.upper(tr(docTitle)),
             style: pw.TextStyle(fontSize: 10.5, fontWeight: pw.FontWeight.bold, color: PdfColors.black)),
         pw.SizedBox(height: 6),
         pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
-          pw.Text(headerInfo ?? 'Sınav: ${exam.name} · ${_date(exam.date)}',
+          pw.Text(headerInfo ?? tr('Sınav: {0} · {1}', [exam.name, _date(exam.date)]),
               style: const pw.TextStyle(fontSize: 8.5, color: PdfColors.black)),
-          pw.Text('Tarih: ${_date(createdAt)}', style: const pw.TextStyle(fontSize: 8.5, color: PdfColors.black)),
+          pw.Text(tr('Tarih: {0}', [_date(createdAt)]), style: const pw.TextStyle(fontSize: 8.5, color: PdfColors.black)),
         ]),
       ]),
     );
@@ -544,8 +542,8 @@ class _Kit {
         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
         crossAxisAlignment: pw.CrossAxisAlignment.end,
         children: [
-          sig(school.subject.trim().isEmpty ? 'Ders Öğretmeni' : '${school.subject.trim()} Öğretmeni', school.teacher),
-          sig('Okul Müdürü', school.principal, top: 'UYGUNDUR\n${_date(createdAt)}'),
+          sig(school.subject.trim().isEmpty ? tr('Ders Öğretmeni') : tr('{0} Öğretmeni', [school.subject.trim()]), school.teacher),
+          sig(tr('Okul Müdürü'), school.principal, top: 'UYGUNDUR\n${_date(createdAt)}'),
         ],
       ),
     );
@@ -574,13 +572,13 @@ class _Kit {
             ),
             pw.SizedBox(width: 6),
             pw.Text(
-              institution.isEmpty ? 'Netice' : institution,
+              institution.isEmpty ? tr('Netice') : institution,
               style: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: _ink),
             ),
           ],
         ),
         pw.Text(
-          headerInfo ?? '${exam.name} · ${exam.className} · Sınav: ${_date(exam.date)}',
+          headerInfo ?? tr('{0} · {1} · Sınav: {2}', [exam.name, exam.className, _date(exam.date)]),
           style: const pw.TextStyle(color: _muted, fontSize: 9),
         ),
       ],
@@ -591,8 +589,8 @@ class _Kit {
     pw.Row(
       mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
       children: [
-        pw.Text('Netice ile hazırlandı', style: const pw.TextStyle(color: _emerald, fontSize: 8)),
-        pw.Text('Rapor tarihi: $created', style: const pw.TextStyle(color: _muted, fontSize: 8)),
+        pw.Text(tr('Netice ile hazırlandı'), style: const pw.TextStyle(color: _emerald, fontSize: 8)),
+        pw.Text(tr('Rapor tarihi: {0}', [created]), style: const pw.TextStyle(color: _muted, fontSize: 8)),
         pw.Text('Sayfa ${ctx.pageNumber} / ${ctx.pagesCount}', style: const pw.TextStyle(color: _muted, fontSize: 8)),
       ],
     ),
@@ -756,17 +754,17 @@ Future<Uint8List> buildResultsPdf({
   final fonts = await _Fonts.load();
   final r = ExamReport.build(exam, results);
   final s = r.stats;
-  final k = _Kit(exam, school, docTitle: 'Sınav Analiz Raporu');
+  final k = _Kit(exam, school, docTitle: tr('Sınav Analiz Raporu'));
   final max = exam.rule.maxScore;
   final doc = pw.Document(
     theme: pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold),
-    title: '${exam.name} sınav raporu',
-    author: 'Netice',
+    title: tr('{0} sınav raporu', [exam.name]),
+    author: tr('Netice'),
   );
 
   final rule = exam.rule.wrongsPerCorrect > 0
-      ? '${exam.rule.wrongsPerCorrect} yanlış 1 doğruyu götürür'
-      : 'Yanlış götürmez';
+      ? tr('{0} yanlış 1 doğruyu götürür', [exam.rule.wrongsPerCorrect])
+      : tr('Yanlış götürmez');
   final cancelled = exam.questions.where((q) => q.cancelled).map((q) => q.no).toList();
 
   doc.addPage(
@@ -787,7 +785,7 @@ Future<Uint8List> buildResultsPdf({
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
                     pw.Text(
-                      'SINAV RAPORU',
+                      tr('SINAV RAPORU'),
                       style: pw.TextStyle(
                         color: _emerald,
                         fontSize: 8,
@@ -802,8 +800,7 @@ Future<Uint8List> buildResultsPdf({
                     ),
                     pw.SizedBox(height: 4),
                     pw.Text(
-                      '${exam.className} · ${_date(exam.date)} · ${exam.questionCount} soru · ${exam.choiceCount} şık · $rule'
-                      '${cancelled.isEmpty ? '' : ' · İptal: ${cancelled.join(', ')}'}',
+                      tr('{0} · {1} · {2} soru · {3} şık · {4}{5}', [exam.className, _date(exam.date), exam.questionCount, exam.choiceCount, rule, cancelled.isEmpty ? '' : tr(' · İptal: {0}', [cancelled.join(', ')])]),
                       style: const pw.TextStyle(color: PdfColors.grey300, fontSize: 8),
                     ),
                   ],
@@ -817,12 +814,12 @@ Future<Uint8List> buildResultsPdf({
                     style: pw.TextStyle(color: PdfColors.white, fontSize: 28, fontWeight: pw.FontWeight.bold),
                   ),
                   pw.Text(
-                    'sınıf ortalaması / ${max.round()}',
+                    tr('sınıf ortalaması / {0}', [max.round()]),
                     style: const pw.TextStyle(color: PdfColors.grey300, fontSize: 8),
                   ),
                   pw.SizedBox(height: 4),
                   pw.Text(
-                    'Rapor tarihi: ${k.created}',
+                    tr('Rapor tarihi: {0}', [k.created]),
                     style: const pw.TextStyle(color: PdfColors.grey300, fontSize: 7.5),
                   ),
                 ],
@@ -831,34 +828,34 @@ Future<Uint8List> buildResultsPdf({
           ),
         ),
         pw.SizedBox(height: 12),
-        k.title('Genel istatistikler'),
+        k.title(tr('Genel istatistikler')),
         k.grid([
-          k.statBox('Katılım', '${s.count}', hint: 'okunan kâğıt'),
-          k.statBox('Ortalama', _f1(s.mean), hint: 'Medyan ${_f1(s.median)}'),
-          k.statBox('Standart sapma', _f1(s.stdDev), hint: r.cv == null ? null : 'Değişim katsayısı %${r.cv!.round()}'),
-          k.statBox('Başarı oranı', _pct(r.passRate), hint: '${exam.rule.pass.round()} ve üzeri alanlar', color: _emerald),
-          k.statBox('En yüksek', _f1(s.max), color: _emerald),
-          k.statBox('En düşük', _f1(s.min), color: _coral),
-          k.statBox('Açıklık', _f1(r.range), hint: 'en yüksek − en düşük'),
-          k.statBox('Çeyrekler', '${_f1(r.q1)} – ${_f1(r.q3)}', hint: 'öğrencilerin ortadaki yarısı'),
-          k.statBox('Ortalama net', _f2(r.meanNet), hint: '${r.activeQuestionCount} soru üzerinden'),
+          k.statBox(tr('Katılım'), '${s.count}', hint: tr('okunan kâğıt')),
+          k.statBox(tr('Ortalama'), _f1(s.mean), hint: tr('Medyan {0}', [_f1(s.median)])),
+          k.statBox(tr('Standart sapma'), _f1(s.stdDev), hint: r.cv == null ? null : tr('Değişim katsayısı %{0}', [r.cv!.round()])),
+          k.statBox(tr('Başarı oranı'), _pct(r.passRate), hint: tr('{0} ve üzeri alanlar', [exam.rule.pass.round()]), color: _emerald),
+          k.statBox(tr('En yüksek'), _f1(s.max), color: _emerald),
+          k.statBox(tr('En düşük'), _f1(s.min), color: _coral),
+          k.statBox(tr('Açıklık'), _f1(r.range), hint: tr('en yüksek − en düşük')),
+          k.statBox(tr('Çeyrekler'), '${_f1(r.q1)} – ${_f1(r.q3)}', hint: tr('öğrencilerin ortadaki yarısı')),
+          k.statBox(tr('Ortalama net'), _f2(r.meanNet), hint: tr('{0} soru üzerinden', [r.activeQuestionCount])),
           k.statBox('Ort. D / Y / B', '${_f1(r.meanCorrect)} / ${_f1(r.meanWrong)} / ${_f1(r.meanBlank)}'),
           k.statBox(
-            'KR-20 güvenirlik',
+            tr('KR-20 güvenirlik'),
             s.kr20 == null ? '–' : _f2(s.kr20!),
             hint: s.kr20 == null
-                ? 'hesaplanamadı'
+                ? tr('hesaplanamadı')
                 : s.kr20! >= 0.7
-                ? 'kabul edilebilir'
-                : 'düşük',
+                ? tr('kabul edilebilir')
+                : tr('düşük'),
           ),
-          k.statBox('Ölçme hatası (SEM)', r.sem == null ? '–' : '±${_f1(r.sem!)}', hint: 'puan cinsinden'),
-          k.statBox('Ortalama güçlük', _f2(r.meanP), hint: 'p: doğru oranı'),
-          k.statBox('Ort. ayırt edicilik', _f2(r.meanD), hint: 'D: üst − alt grup'),
-          k.statBox('Üst %27 ortalaması', _f1(r.upperMean), color: _emerald),
-          k.statBox('Alt %27 ortalaması', _f1(r.lowerMean), color: _coral),
+          k.statBox(tr('Ölçme hatası (SEM)'), r.sem == null ? '–' : '±${_f1(r.sem!)}', hint: tr('puan cinsinden')),
+          k.statBox(tr('Ortalama güçlük'), _f2(r.meanP), hint: tr('p: doğru oranı')),
+          k.statBox(tr('Ort. ayırt edicilik'), _f2(r.meanD), hint: tr('D: üst − alt grup')),
+          k.statBox(tr('Üst %27 ortalaması'), _f1(r.upperMean), color: _emerald),
+          k.statBox(tr('Alt %27 ortalaması'), _f1(r.lowerMean), color: _coral),
         ]),
-        k.title('Grafik özeti'),
+        k.title(tr('Grafik özeti')),
         () {
           final c = results.fold<int>(0, (a, x) => a + x.correct);
           final w = results.fold<int>(0, (a, x) => a + x.wrong);
@@ -866,32 +863,32 @@ Future<Uint8List> buildResultsPdf({
           final passed = results.where((x) => x.score >= exam.rule.pass).length;
           return pw.Row(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
             pw.Expanded(
-                child: _pieBox('Başarı düzeyleri', [
+                child: _pieBox(tr('Başarı düzeyleri'), [
               for (var i = 0; i < Level.all.length; i++) (Level.all[i].name, r.levelCounts[i].toDouble(), _levelColors[i]),
             ])),
             pw.SizedBox(width: 6),
             pw.Expanded(
-                child: _pieBox('Cevaplar', [
-              ('Doğru', c.toDouble(), _emerald),
-              ('Yanlış', w.toDouble(), _coral),
-              ('Boş', b.toDouble(), _gray),
+                child: _pieBox(tr('Cevaplar'), [
+              (tr('Doğru'), c.toDouble(), _emerald),
+              (tr('Yanlış'), w.toDouble(), _coral),
+              (tr('Boş'), b.toDouble(), _gray),
             ], donut: true)),
             pw.SizedBox(width: 6),
             pw.Expanded(
-                child: _pieBox('Geçme durumu', [
-              ('Geçti', passed.toDouble(), _emerald),
-              ('Geçemedi', (results.length - passed).toDouble(), _coral),
+                child: _pieBox(tr('Geçme durumu'), [
+              (tr('Geçti'), passed.toDouble(), _emerald),
+              (tr('Geçemedi'), (results.length - passed).toDouble(), _coral),
             ], donut: true)),
             pw.SizedBox(width: 6),
             pw.Expanded(
-                child: _pieBox('Soru güçlüğü', [
-              ('Kolay', (r.difficultyCounts['Kolay'] ?? 0).toDouble(), _emerald),
-              ('Orta', (r.difficultyCounts['Orta'] ?? 0).toDouble(), _ink),
-              ('Zor', (r.difficultyCounts['Zor'] ?? 0).toDouble(), _coral),
+                child: _pieBox(tr('Soru güçlüğü'), [
+              (tr('Kolay'), (r.difficultyCounts['Kolay'] ?? 0).toDouble(), _emerald),
+              (tr('Orta'), (r.difficultyCounts['Orta'] ?? 0).toDouble(), _ink),
+              (tr('Zor'), (r.difficultyCounts['Zor'] ?? 0).toDouble(), _coral),
             ], donut: true)),
           ]);
         }(),
-        k.title('Otomatik değerlendirme'),
+        k.title(tr('Otomatik değerlendirme')),
         pw.Container(
           padding: const pw.EdgeInsets.all(10),
           decoration: pw.BoxDecoration(color: _ivory, borderRadius: pw.BorderRadius.circular(8)),
@@ -926,7 +923,7 @@ Future<Uint8List> buildResultsPdf({
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  k.title('Puan dağılımı', 'Tam puana göre yüzdelik dilimlerde öğrenci sayısı'),
+                  k.title(tr('Puan dağılımı'), tr('Tam puana göre yüzdelik dilimlerde öğrenci sayısı')),
                   k.barChart(
                     r.histogram10.map((e) => e.toDouble()).toList(),
                     [for (var i = 0; i < 10; i++) '${i * 10}'],
@@ -942,7 +939,7 @@ Future<Uint8List> buildResultsPdf({
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  k.title('Başarı düzeyleri'),
+                  k.title(tr('Başarı düzeyleri')),
                   for (var i = 0; i < Level.all.length; i++)
                     pw.Padding(
                       padding: const pw.EdgeInsets.only(bottom: 5),
@@ -976,8 +973,8 @@ Future<Uint8List> buildResultsPdf({
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
             k.title(
-              'Soru güçlük grafiği',
-              'Her sorunun doğru cevaplanma oranı · yeşil: kolay, lacivert: orta, mercan: zor',
+              tr('Soru güçlük grafiği'),
+              tr('Her sorunun doğru cevaplanma oranı · yeşil: kolay, lacivert: orta, mercan: zor'),
             ),
             k.barChart(
               [for (final it in r.items) exam.questions[it.no - 1].cancelled ? 0 : it.p * 100],
@@ -997,9 +994,9 @@ Future<Uint8List> buildResultsPdf({
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  k.title('Soru güçlüğü'),
+                  k.title(tr('Soru güçlüğü')),
                   k.table(
-                    ['Kolay', 'Orta', 'Zor'],
+                    [tr('Kolay'), tr('Orta'), tr('Zor')],
                     [
                       [for (final e in r.difficultyCounts.values) '$e'],
                     ],
@@ -1013,7 +1010,7 @@ Future<Uint8List> buildResultsPdf({
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  k.title('Ayırt edicilik'),
+                  k.title(tr('Ayırt edicilik')),
                   k.table(
                     [...r.discriminationCounts.keys],
                     [
@@ -1026,7 +1023,7 @@ Future<Uint8List> buildResultsPdf({
           ],
         ),
         if (r.outcomes.isNotEmpty) ...[
-          k.title('Kazanım / konu analizi', 'Sınıfın her kazanımdaki doğru oranı'),
+          k.title(tr('Kazanım / konu analizi'), tr('Sınıfın her kazanımdaki doğru oranı')),
           for (final o in [...r.outcomes]..sort((a, b) => a.rate.compareTo(b.rate)))
             pw.Padding(
               padding: const pw.EdgeInsets.only(bottom: 5),
@@ -1065,21 +1062,21 @@ Future<Uint8List> buildResultsPdf({
         ],
         if (r.outcomes.isNotEmpty) ...[
           pw.NewPage(),
-          k.title('Kazanım ısı haritası', 'Her öğrencinin her kazanımdaki doğru oranı · yeşil ≥ %70 · sarı %50–69 · mercan < %50'),
+          k.title(tr('Kazanım ısı haritası'), tr('Her öğrencinin her kazanımdaki doğru oranı · yeşil ≥ %70 · sarı %50–69 · mercan < %50')),
           _heatmap(r, students),
         ],
         pw.NewPage(),
         k.title(
-          'Sınıf sonuç listesi',
-          'Yüzdelik: sınıfın yüzde kaçından daha başarılı · T: ortalaması 50, sapması 10 olan standart puan',
+          tr('Sınıf sonuç listesi'),
+          tr('Yüzdelik: sınıfın yüzde kaçından daha başarılı · T: ortalaması 50, sapması 10 olan standart puan'),
         ),
         k.table(
-          ['Sıra', 'Ad Soyad', 'No', 'D', 'Y', 'B', 'Net', if (exam.hasOpen) ...['Test', 'Klasik'], 'Puan', 'Yüzdelik', 'T', 'Düzey'],
+          [tr('Sıra'), tr('Ad Soyad'), 'No', 'D', 'Y', 'B', tr('Net'), if (exam.hasOpen) ...[tr('Test'), tr('Klasik')], tr('Puan'), tr('Yüzdelik'), 'T', tr('Düzey')],
           [
             for (final st in r.standings)
               [
                 '${st.rank}',
-                students[st.result.sheet.studentId]?.fullName ?? 'Eşleşmedi',
+                students[st.result.sheet.studentId]?.fullName ?? tr('Eşleşmedi'),
                 students[st.result.sheet.studentId]?.number ?? '',
                 '${st.result.correct}',
                 '${st.result.wrong}',
@@ -1097,19 +1094,19 @@ Future<Uint8List> buildResultsPdf({
         ),
         pw.NewPage(),
         k.title(
-          'Madde analizi',
-          'p = doğru oranı (güçlük) · D = ayırt edicilik (üst %27 − alt %27) · Değerler öğretmene yol gösteren uyarılardır.',
+          tr('Madde analizi'),
+          tr('p = doğru oranı (güçlük) · D = ayırt edicilik (üst %27 − alt %27) · Değerler öğretmene yol gösteren uyarılardır.'),
         ),
         k.table(
           [
-            'Soru',
-            'Anahtar',
-            if (r.outcomes.isNotEmpty) 'Kazanım',
+            tr('Soru'),
+            tr('Anahtar'),
+            if (r.outcomes.isNotEmpty) tr('Kazanım'),
             'p',
             'D',
             for (var c = 0; c < exam.choiceCount; c++) _letter(c),
-            'Boş',
-            'Yorum',
+            tr('Boş'),
+            tr('Yorum'),
           ],
           [
             for (final it in r.items)
@@ -1117,7 +1114,7 @@ Future<Uint8List> buildResultsPdf({
                 final q = exam.questions[it.no - 1];
                 return [
                   '${it.no}',
-                  q.cancelled ? 'İptal' : q.correct.map(_letter).join('/'),
+                  q.cancelled ? tr('İptal') : q.correct.map(_letter).join('/'),
                   if (r.outcomes.isNotEmpty) q.outcomeCode ?? '',
                   _f2(it.p),
                   _f2(it.d),
@@ -1125,7 +1122,7 @@ Future<Uint8List> buildResultsPdf({
                     q.correct.contains(c) ? '${it.choiceCounts[c]}*' : '${it.choiceCounts[c]}',
                   '${it.blankCount}',
                   it.suspiciousChoice != null
-                      ? 'Üst grup ${_letter(it.suspiciousChoice!)} seçti; anahtarı kontrol edin'
+                      ? tr('Üst grup {0} seçti; anahtarı kontrol edin', [_letter(it.suspiciousChoice!)])
                       : '${it.difficultyLabel} · ${it.discriminationLabel}'
                           '${it.nonFunctional.isEmpty ? '' : ' · İşlevsiz: ${it.nonFunctional.map(_letter).join('/')}'}',
                 ];
@@ -1135,7 +1132,7 @@ Future<Uint8List> buildResultsPdf({
           widths: {(r.outcomes.isNotEmpty ? 6 : 5) + exam.choiceCount: const pw.FlexColumnWidth(4.5)},
         ),
         pw.SizedBox(height: 4),
-        pw.Text('* doğru şık', style: const pw.TextStyle(color: _muted, fontSize: 7)),
+        pw.Text(tr('* doğru şık'), style: const pw.TextStyle(color: _muted, fontSize: 7)),
         k.signatures(),
       ],
     ),
@@ -1155,12 +1152,12 @@ Future<Uint8List> buildStudentCardsPdf({
 }) async {
   final fonts = await _Fonts.load();
   final r = ExamReport.build(exam, results);
-  final k = _Kit(exam, school, docTitle: 'Öğrenci Sınav Karnesi', letterheadEveryPage: true);
+  final k = _Kit(exam, school, docTitle: tr('Öğrenci Sınav Karnesi'), letterheadEveryPage: true);
   final max = exam.rule.maxScore;
   final doc = pw.Document(
     theme: pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold),
-    title: '${exam.name} öğrenci karneleri',
-    author: 'Netice',
+    title: tr('{0} öğrenci karneleri', [exam.name]),
+    author: tr('Netice'),
   );
 
   pw.Widget compare(String label, double v, PdfColor color) => pw.Padding(
@@ -1206,7 +1203,7 @@ Future<Uint8List> buildStudentCardsPdf({
                       crossAxisAlignment: pw.CrossAxisAlignment.start,
                       children: [
                         pw.Text(
-                          'ÖĞRENCİ KARNESİ',
+                          tr('ÖĞRENCİ KARNESİ'),
                           style: pw.TextStyle(
                             color: _emerald,
                             fontSize: 8,
@@ -1216,7 +1213,7 @@ Future<Uint8List> buildStudentCardsPdf({
                         ),
                         pw.SizedBox(height: 4),
                         pw.Text(
-                          stu?.fullName ?? 'Eşleşmeyen kâğıt',
+                          stu?.fullName ?? tr('Eşleşmeyen kâğıt'),
                           style: pw.TextStyle(color: PdfColors.white, fontSize: 18, fontWeight: pw.FontWeight.bold),
                         ),
                         pw.Text(
@@ -1244,17 +1241,17 @@ Future<Uint8List> buildStudentCardsPdf({
             ),
             pw.SizedBox(height: 12),
             k.grid([
-              k.statBox('Sınıf sırası', '${st.rank} / ${r.standings.length}'),
-              k.statBox('Yüzdelik', '%${st.percentile.round()}', hint: 'sınıfın bu kadarından başarılı'),
-              k.statBox('T puanı', _f1(st.t), hint: '50 = sınıf ortalaması'),
-              k.statBox('Net', _f2(res.net)),
-              k.statBox('Doğru', '${res.correct}', color: _emerald),
-              k.statBox('Yanlış', '${res.wrong}', color: _coral),
-              k.statBox('Boş', '${res.blank}', color: _gray),
-              k.statBox('Başarı', '%${st.pct.round()}'),
+              k.statBox(tr('Sınıf sırası'), '${st.rank} / ${r.standings.length}'),
+              k.statBox(tr('Yüzdelik'), '%${st.percentile.round()}', hint: tr('sınıfın bu kadarından başarılı')),
+              k.statBox(tr('T puanı'), _f1(st.t), hint: tr('50 = sınıf ortalaması')),
+              k.statBox(tr('Net'), _f2(res.net)),
+              k.statBox(tr('Doğru'), '${res.correct}', color: _emerald),
+              k.statBox(tr('Yanlış'), '${res.wrong}', color: _coral),
+              k.statBox(tr('Boş'), '${res.blank}', color: _gray),
+              k.statBox(tr('Başarı'), '%${st.pct.round()}'),
               if (exam.hasOpen) ...[
-                k.statBox('Test kısmı', '${_f1(res.testScore)} / ${_f1(exam.testMax)}'),
-                k.statBox('Klasik kısım', res.openMissing ? 'eksik' : '${_f1(res.openScore)} / ${_f1(exam.openMax)}'),
+                k.statBox(tr('Test kısmı'), '${_f1(res.testScore)} / ${_f1(exam.testMax)}'),
+                k.statBox(tr('Klasik kısım'), res.openMissing ? 'eksik' : '${_f1(res.openScore)} / ${_f1(exam.openMax)}'),
                 for (var i = 0; i < exam.openQuestions.length && i < 2; i++)
                   k.statBox(exam.openQuestions[i].label,
                       i < res.sheet.openScores.length && res.sheet.openScores[i] != null
@@ -1262,12 +1259,12 @@ Future<Uint8List> buildStudentCardsPdf({
                           : '–'),
               ],
             ]),
-            k.title('Sınıfla karşılaştırma'),
-            compare('Öğrenci', res.score, _emerald),
-            compare('Sınıf ortalaması', r.stats.mean, _ink),
-            compare('En yüksek puan', r.stats.max, _gray),
+            k.title(tr('Sınıfla karşılaştırma')),
+            compare(tr('Öğrenci'), res.score, _emerald),
+            compare(tr('Sınıf ortalaması'), r.stats.mean, _ink),
+            compare(tr('En yüksek puan'), r.stats.max, _gray),
             if (r.outcomes.isNotEmpty) ...[
-              k.title('Kazanım / konu başarısı', 'Öğrenci (yeşil) ve sınıf (lacivert) doğru oranı'),
+              k.title(tr('Kazanım / konu başarısı'), tr('Öğrenci (yeşil) ve sınıf (lacivert) doğru oranı')),
               for (final o in r.outcomes)
                 pw.Padding(
                   padding: const pw.EdgeInsets.only(bottom: 5),
@@ -1295,7 +1292,7 @@ Future<Uint8List> buildStudentCardsPdf({
                   ),
                 ),
             ],
-            k.title('Cevaplar', 'Yeşil: doğru · mercan: yanlış · gri: boş/iptal · parantez içinde doğru cevap'),
+            k.title(tr('Cevaplar'), tr('Yeşil: doğru · mercan: yanlış · gri: boş/iptal · parantez içinde doğru cevap')),
             pw.Wrap(
               spacing: 4,
               runSpacing: 4,
@@ -1327,7 +1324,7 @@ Future<Uint8List> buildStudentCardsPdf({
               ],
             ),
             if (wrongs.isNotEmpty) ...[
-              k.title('Tekrar edilmesi önerilen sorular'),
+              k.title(tr('Tekrar edilmesi önerilen sorular')),
               pw.Text(
                 wrongs
                     .map((i) {
@@ -1346,7 +1343,7 @@ Future<Uint8List> buildStudentCardsPdf({
     );
   }
   if (r.standings.isEmpty) {
-    doc.addPage(pw.Page(build: (_) => pw.Center(child: pw.Text('Henüz okunan kâğıt yok.'))));
+    doc.addPage(pw.Page(build: (_) => pw.Center(child: pw.Text(tr('Henüz okunan kâğıt yok.')))));
   }
   return doc.save();
 }
@@ -1378,7 +1375,7 @@ pw.Widget _heatmap(ExamReport r, Map<String, Student> students) {
         children: [
           pw.Container(
             padding: const pw.EdgeInsets.all(3),
-            child: pw.Text('Öğrenci', style: pw.TextStyle(color: PdfColors.white, fontSize: 7, fontWeight: pw.FontWeight.bold)),
+            child: pw.Text(tr('Öğrenci'), style: pw.TextStyle(color: PdfColors.white, fontSize: 7, fontWeight: pw.FontWeight.bold)),
           ),
           for (final o in codes)
             pw.Container(
@@ -1393,7 +1390,7 @@ pw.Widget _heatmap(ExamReport r, Map<String, Student> students) {
       ),
       for (final st in r.standings)
         pw.TableRow(children: [
-          cell(students[st.result.sheet.studentId]?.fullName ?? 'Eşleşmedi', align: pw.Alignment.centerLeft),
+          cell(students[st.result.sheet.studentId]?.fullName ?? tr('Eşleşmedi'), align: pw.Alignment.centerLeft),
           for (final o in codes)
             () {
               final v = o.rateOf(exam, st.result);
@@ -1401,7 +1398,7 @@ pw.Widget _heatmap(ExamReport r, Map<String, Student> students) {
             }(),
         ]),
       pw.TableRow(children: [
-        cell('Sınıf', bold: true, align: pw.Alignment.centerLeft),
+        cell(tr('Sınıf'), bold: true, align: pw.Alignment.centerLeft),
         for (final o in codes) cell('%${(o.rate * 100).round()}', color: _heatColor(o.rate), bold: true),
       ]),
     ],
@@ -1412,11 +1409,11 @@ pw.Widget _heatmap(ExamReport r, Map<String, Student> students) {
 Future<Uint8List> buildComparePdf(List<BranchRow> rows, {SchoolInfo school = const SchoolInfo()}) async {
   final fonts = await _Fonts.load();
   final k = _Kit(rows.first.exam, school,
-      headerInfo: 'Şube karşılaştırması · ${rows.map((r) => r.exam.className).join(', ')}',
-      docTitle: 'Şube Karşılaştırma Raporu',
-      classLine: '${rows.map((r) => SchoolInfo.upper(r.exam.className)).toSet().join(', ')} ŞUBELERİ');
+      headerInfo: tr('Şube karşılaştırması · {0}', [rows.map((r) => r.exam.className).join(', ')]),
+      docTitle: tr('Şube Karşılaştırma Raporu'),
+      classLine: tr('{0} ŞUBELERİ', [rows.map((r) => SchoolInfo.upper(r.exam.className)).toSet().join(', ')]));
   final doc = pw.Document(
-      theme: pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold), title: 'Şube karşılaştırması', author: 'Netice');
+      theme: pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold), title: tr('Şube karşılaştırması'), author: tr('Netice'));
   final best = rows.reduce((a, b) => a.report.stats.mean >= b.report.stats.mean ? a : b);
   final sameShape = rows.every((r) => r.exam.questionCount == rows.first.exam.questionCount);
   final codes = {for (final r in rows) ...r.report.outcomes.map((o) => o.code)}.toList();
@@ -1426,7 +1423,7 @@ Future<Uint8List> buildComparePdf(List<BranchRow> rows, {SchoolInfo school = con
     header: (ctx) => k.header(ctx),
     footer: k.footer,
     build: (ctx) => [
-      k.title('Şube karşılaştırması', rows.map((r) => '${r.exam.name} (${r.exam.className})').join(' · ')),
+      k.title(tr('Şube karşılaştırması'), rows.map((r) => '${r.exam.name} (${r.exam.className})').join(' · ')),
       k.barChart(
         [for (final r in rows) r.report.stats.mean],
         [for (final r in rows) r.exam.className],
@@ -1436,7 +1433,7 @@ Future<Uint8List> buildComparePdf(List<BranchRow> rows, {SchoolInfo school = con
       ),
       pw.SizedBox(height: 8),
       k.table(
-        ['Şube', 'Sınav', 'Kişi', 'Ortalama', 'Medyan', 'Std.', 'Başarı', 'En yüksek', 'En düşük', 'KR-20'],
+        [tr('Şube'), tr('Sınav'), tr('Kişi'), tr('Ortalama'), tr('Medyan'), tr('Std.'), tr('Başarı'), tr('En yüksek'), tr('En düşük'), 'KR-20'],
         [
           for (final r in rows)
             [
@@ -1456,9 +1453,9 @@ Future<Uint8List> buildComparePdf(List<BranchRow> rows, {SchoolInfo school = con
         widths: {1: const pw.FlexColumnWidth(3)},
       ),
       if (codes.isNotEmpty) ...[
-        k.title('Kazanım başarısı (%)'),
+        k.title(tr('Kazanım başarısı (%)')),
         k.table(
-          ['Kazanım', for (final r in rows) r.exam.className],
+          [tr('Kazanım'), for (final r in rows) r.exam.className],
           [
             for (final c in codes)
               [
@@ -1475,9 +1472,9 @@ Future<Uint8List> buildComparePdf(List<BranchRow> rows, {SchoolInfo school = con
         ),
       ],
       if (sameShape) ...[
-        k.title('Soru bazında doğru oranı (%)'),
+        k.title(tr('Soru bazında doğru oranı (%)')),
         k.table(
-          ['Şube', for (var q = 0; q < rows.first.exam.questionCount; q++) '${q + 1}'],
+          [tr('Şube'), for (var q = 0; q < rows.first.exam.questionCount; q++) '${q + 1}'],
           [
             for (final r in rows) [r.exam.className, for (final it in r.report.items) '${(it.p * 100).round()}']
           ],
@@ -1499,9 +1496,9 @@ Future<Uint8List> buildEokulPdf({
   SchoolInfo school = const SchoolInfo(),
 }) async {
   final fonts = await _Fonts.load();
-  final k = _Kit(exam, school, docTitle: 'Not Giriş Listesi');
+  final k = _Kit(exam, school, docTitle: tr('Not Giriş Listesi'));
   final doc = pw.Document(
-      theme: pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold), title: '${exam.name} e-Okul listesi', author: 'Netice');
+      theme: pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold), title: tr('{0} e-Okul listesi', [exam.name]), author: tr('Netice'));
   final rows = eokulRows(exam, results, classStudents);
   doc.addPage(pw.MultiPage(
     pageFormat: PdfPageFormat.a4,
@@ -1509,9 +1506,9 @@ Future<Uint8List> buildEokulPdf({
     header: k.header,
     footer: k.footer,
     build: (ctx) => [
-      k.title('e-Okul not giriş listesi', 'Okul numarasına göre sıralı · puanlar tam sayıya yuvarlandı · ${exam.rule.maxScore.round()} üzerinden'),
+      k.title(tr('e-Okul not giriş listesi'), tr('Okul numarasına göre sıralı · puanlar tam sayıya yuvarlandı · {0} üzerinden', [exam.rule.maxScore.round()])),
       k.table(
-        ['Sıra', 'Okul No', 'Ad Soyad', 'Puan', 'Not'],
+        [tr('Sıra'), tr('Okul No'), tr('Ad Soyad'), tr('Puan'), tr('Not')],
         [
           for (var i = 0; i < rows.length; i++)
             [
@@ -1519,7 +1516,7 @@ Future<Uint8List> buildEokulPdf({
               rows[i].$1.number,
               rows[i].$1.fullName,
               rows[i].$2 == null ? 'G' : '${rows[i].$2}',
-              rows[i].$2 == null ? 'Sınava girmedi' : '',
+              rows[i].$2 == null ? tr('Sınava girmedi') : '',
             ]
         ],
         leftColumn: 2,
@@ -1548,7 +1545,7 @@ Future<Uint8List> buildLabelsPdf({
 }) async {
   final fonts = await _Fonts.load();
   final doc = pw.Document(
-      theme: pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold), title: '${exam.name} sonuç etiketleri', author: 'Netice');
+      theme: pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold), title: tr('{0} sonuç etiketleri', [exam.name]), author: tr('Netice'));
   final sorted = [...results]..sort((a, b) => (students[a.sheet.studentId]?.fullName ?? '~')
       .compareTo(students[b.sheet.studentId]?.fullName ?? '~'));
   const perPage = 24;
@@ -1571,7 +1568,7 @@ Future<Uint8List> buildLabelsPdf({
               child: pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
                 pw.Row(children: [
                   pw.Expanded(
-                    child: pw.Text(st?.fullName ?? 'Eşleşmeyen kâğıt',
+                    child: pw.Text(st?.fullName ?? tr('Eşleşmeyen kâğıt'),
                         maxLines: 1, style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold, color: _ink)),
                   ),
                   pw.Text(st?.number ?? '', style: const pw.TextStyle(fontSize: 7, color: _muted)),
@@ -1583,7 +1580,7 @@ Future<Uint8List> buildLabelsPdf({
                   pw.Expanded(
                     child: pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
                       pw.Text('D ${r.correct}   Y ${r.wrong}   B ${r.blank}', style: const pw.TextStyle(fontSize: 8)),
-                      pw.Text('Net ${_f2(r.net)}', style: const pw.TextStyle(fontSize: 8, color: _muted)),
+                      pw.Text(tr('Net {0}', [_f2(r.net)]), style: const pw.TextStyle(fontSize: 8, color: _muted)),
                     ]),
                   ),
                   pw.Text(_f1(r.score), style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold, color: _ink)),
@@ -1595,7 +1592,7 @@ Future<Uint8List> buildLabelsPdf({
       ]),
     ));
   }
-  if (sorted.isEmpty) doc.addPage(pw.Page(build: (_) => pw.Center(child: pw.Text('Henüz okunan kâğıt yok.'))));
+  if (sorted.isEmpty) doc.addPage(pw.Page(build: (_) => pw.Center(child: pw.Text(tr('Henüz okunan kâğıt yok.')))));
   return doc.save();
 }
 
@@ -1651,8 +1648,8 @@ pw.Widget downloadNote() => pw.Padding(
         child: pw.RichText(
           textAlign: pw.TextAlign.center,
           text: pw.TextSpan(style: const pw.TextStyle(fontSize: 7, color: _muted), children: [
-            pw.TextSpan(text: 'Netice', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: _ink)),
-            const pw.TextSpan(text: ' · Optik kâğıtları telefonla okutun, sonuç ve karne saniyeler içinde · Ücretsiz indirin: '),
+            pw.TextSpan(text: tr('Netice'), style: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: _ink)),
+            pw.TextSpan(text: tr(' · Optik kâğıtları telefonla okutun, sonuç ve karne saniyeler içinde · Ücretsiz indirin: ')),
             pw.TextSpan(text: downloadLabel, style: const pw.TextStyle(color: _emerald, decoration: pw.TextDecoration.underline)),
           ]),
         ),
@@ -1665,7 +1662,7 @@ _Kit _termKit(TermReport t, SchoolInfo school, String docTitle, {bool everyPage 
       t.exams.last.exam,
       school,
       docTitle: docTitle,
-      headerInfo: '${t.term.label} · ${t.className} · ${t.exams.length} sınav',
+      headerInfo: tr('{0} · {1} · {2} sınav', [t.term.label, t.className, t.exams.length]),
       classLine: '${SchoolInfo.upper(t.className)} SINIFI',
       letterheadEveryPage: everyPage,
     );
@@ -1674,9 +1671,9 @@ _Kit _termKit(TermReport t, SchoolInfo school, String docTitle, {bool everyPage 
 /// (100 üzerinden), ağırlıklı ortalaması ve e-Okul'a girilecek tam sayı not.
 Future<Uint8List> buildTermGradesPdf(TermReport t, {SchoolInfo school = const SchoolInfo()}) async {
   final fonts = await _Fonts.load();
-  final k = _termKit(t, school, 'Dönem Sonu Not Çizelgesi');
+  final k = _termKit(t, school, tr('Dönem Sonu Not Çizelgesi'));
   final doc = pw.Document(
-      theme: pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold), title: 'Dönem not çizelgesi', author: 'Netice');
+      theme: pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold), title: tr('Dönem not çizelgesi'), author: tr('Netice'));
   final equal = t.exams.every((e) => e.weight == t.exams.first.weight);
   final totalW = t.exams.fold<double>(0, (a, e) => a + e.weight);
   final graded = t.rows.where((r) => r.average != null).toList();
@@ -1686,18 +1683,17 @@ Future<Uint8List> buildTermGradesPdf(TermReport t, {SchoolInfo school = const Sc
     header: k.header,
     footer: k.footer,
     build: (ctx) => [
-      k.title('Dönem sonu not çizelgesi',
-          '${t.term.label} · puanlar 100 üzerinden · ${equal ? 'sınavlar eşit ağırlıklı' : 'ağırlıklı ortalama'} · '
-          'girilmeyen sınav ortalamaya katılmaz'),
+      k.title(tr('Dönem sonu not çizelgesi'),
+          tr('{0} · puanlar 100 üzerinden · {1} · girilmeyen sınav ortalamaya katılmaz', [t.term.label, equal ? tr('sınavlar eşit ağırlıklı') : tr('ağırlıklı ortalama')])),
       k.grid([
-        k.statBox('Öğrenci', '${t.rows.length}', hint: '${graded.length} öğrencinin notu var'),
-        k.statBox('Sınav', '${t.exams.length}'),
-        k.statBox('Sınıf ortalaması', _f1(t.classAverage), color: _emerald),
-        k.statBox('En yüksek', graded.isEmpty ? '–' : '${graded.map((r) => r.grade!).reduce(math.max)}'),
+        k.statBox(tr('Öğrenci'), '${t.rows.length}', hint: tr('{0} öğrencinin notu var', [graded.length])),
+        k.statBox(tr('Sınav'), '${t.exams.length}'),
+        k.statBox(tr('Sınıf ortalaması'), _f1(t.classAverage), color: _emerald),
+        k.statBox(tr('En yüksek'), graded.isEmpty ? '–' : '${graded.map((r) => r.grade!).reduce(math.max)}'),
       ]),
       pw.SizedBox(height: 4),
       k.table(
-        ['Sınav', 'Tarih', 'Ağırlık', 'Katılım', 'Sınıf ort. (100)'],
+        [tr('Sınav'), tr('Tarih'), tr('Ağırlık'), tr('Katılım'), tr('Sınıf ort. (100)')],
         [
           for (final e in t.exams)
             [
@@ -1713,7 +1709,7 @@ Future<Uint8List> buildTermGradesPdf(TermReport t, {SchoolInfo school = const Sc
       ),
       pw.SizedBox(height: 10),
       k.table(
-        ['No', 'Ad Soyad', for (var i = 0; i < t.exams.length; i++) '${i + 1}. ${_short(t.exams[i].exam.name, 12)}', 'Ortalama', 'Dönem notu'],
+        ['No', tr('Ad Soyad'), for (var i = 0; i < t.exams.length; i++) '${i + 1}. ${_short(t.exams[i].exam.name, 12)}', tr('Ortalama'), tr('Dönem notu')],
         [
           for (final r in t.rows)
             [
@@ -1730,7 +1726,7 @@ Future<Uint8List> buildTermGradesPdf(TermReport t, {SchoolInfo school = const Sc
       ),
       pw.Padding(
         padding: const pw.EdgeInsets.only(top: 6),
-        child: pw.Text('G: sınava girmedi. Dönem notu, ortalamanın tam sayıya yuvarlanmış hâlidir.',
+        child: pw.Text(tr('G: sınava girmedi. Dönem notu, ortalamanın tam sayıya yuvarlanmış hâlidir.'),
             style: const pw.TextStyle(fontSize: 7.5, color: _muted)),
       ),
       k.signatures(),
@@ -1743,12 +1739,12 @@ Future<Uint8List> buildTermGradesPdf(TermReport t, {SchoolInfo school = const Sc
 /// gelişim grafiği ve kazanım bazında birikimli başarısı.
 Future<Uint8List> buildTermCardsPdf(TermReport t, {SchoolInfo school = const SchoolInfo(), String? onlyStudentId}) async {
   final fonts = await _Fonts.load();
-  final k = _termKit(t, school, 'Dönem Kazanım Karnesi', everyPage: true);
+  final k = _termKit(t, school, tr('Dönem Kazanım Karnesi'), everyPage: true);
   final doc = pw.Document(
-      theme: pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold), title: 'Dönem kazanım karnesi', author: 'Netice');
+      theme: pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold), title: tr('Dönem kazanım karnesi'), author: tr('Netice'));
   final rows = t.rows.where((r) => r.average != null && (onlyStudentId == null || r.student.id == onlyStudentId)).toList();
   if (rows.isEmpty) {
-    doc.addPage(pw.Page(build: (_) => pw.Center(child: pw.Text('Bu dönemde sonucu olan öğrenci yok.'))));
+    doc.addPage(pw.Page(build: (_) => pw.Center(child: pw.Text(tr('Bu dönemde sonucu olan öğrenci yok.')))));
     return doc.save();
   }
   PdfColor tone(double v) => v >= 0.7 ? _emerald : (v >= 0.5 ? _amber : _coral);
@@ -1769,7 +1765,7 @@ Future<Uint8List> buildTermCardsPdf(TermReport t, {SchoolInfo school = const Sch
           child: pw.Row(children: [
             pw.Expanded(
               child: pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
-                pw.Text('DÖNEM KAZANIM KARNESİ',
+                pw.Text(tr('DÖNEM KAZANIM KARNESİ'),
                     style: pw.TextStyle(color: _emerald, fontSize: 8, fontWeight: pw.FontWeight.bold, letterSpacing: 1.5)),
                 pw.SizedBox(height: 4),
                 pw.Text(r.student.fullName,
@@ -1780,21 +1776,21 @@ Future<Uint8List> buildTermCardsPdf(TermReport t, {SchoolInfo school = const Sch
             ),
             pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.end, children: [
               pw.Text('${r.grade}', style: pw.TextStyle(color: PdfColors.white, fontSize: 30, fontWeight: pw.FontWeight.bold)),
-              pw.Text('dönem ortalaması · sınıf ${_f1(t.classAverage)}',
+              pw.Text(tr('dönem ortalaması · sınıf {0}', [_f1(t.classAverage)]),
                   style: const pw.TextStyle(color: PdfColors.grey300, fontSize: 8)),
             ]),
           ]),
         ),
         pw.SizedBox(height: 12),
-        k.title('Sınavlar', '${r.taken} / ${t.exams.length} sınava katıldı · puanlar 100 üzerinden'),
+        k.title(tr('Sınavlar'), tr('{0} / {1} sınava katıldı · puanlar 100 üzerinden', [r.taken, t.exams.length])),
         k.table(
-          ['Sınav', 'Tarih', 'Puan', 'Sınıf ort.', 'Fark'],
+          [tr('Sınav'), tr('Tarih'), tr('Puan'), tr('Sınıf ort.'), tr('Fark')],
           [
             for (var i = 0; i < t.exams.length; i++)
               [
                 t.exams[i].exam.name,
                 _date(t.exams[i].exam.date),
-                r.scores[i] == null ? 'Girmedi' : _f1(r.scores[i]!),
+                r.scores[i] == null ? tr('Girmedi') : _f1(r.scores[i]!),
                 _f1(t.exams[i].mean100),
                 r.scores[i] == null
                     ? '–'
@@ -1805,7 +1801,7 @@ Future<Uint8List> buildTermCardsPdf(TermReport t, {SchoolInfo school = const Sch
           widths: {0: const pw.FlexColumnWidth(4)},
         ),
         if (taken.length >= 2) ...[
-          k.title('Gelişim'),
+          k.title(tr('Gelişim')),
           k.barChart(
             [for (final i in taken) r.scores[i]!],
             [for (final i in taken) _date(t.exams[i].exam.date)],
@@ -1815,7 +1811,7 @@ Future<Uint8List> buildTermCardsPdf(TermReport t, {SchoolInfo school = const Sch
           ),
         ],
         if (out.isNotEmpty) ...[
-          k.title('Kazanımlar', 'Dönem boyunca bu kazanıma ait sorulardaki doğru oranı · çizgi: öğrenci, sağdaki: sınıf'),
+          k.title(tr('Kazanımlar'), tr('Dönem boyunca bu kazanıma ait sorulardaki doğru oranı · çizgi: öğrenci, sağdaki: sınıf')),
           for (final e in out.take(14))
             pw.Padding(
               padding: const pw.EdgeInsets.only(bottom: 4),
@@ -1828,7 +1824,7 @@ Future<Uint8List> buildTermCardsPdf(TermReport t, {SchoolInfo school = const Sch
                         textAlign: pw.TextAlign.right, style: pw.TextStyle(fontSize: 8.5, fontWeight: pw.FontWeight.bold))),
                 pw.SizedBox(
                     width: 44,
-                    child: pw.Text('sınıf ${_pct(e.value.$2)}',
+                    child: pw.Text(tr('sınıf {0}', [_pct(e.value.$2)]),
                         textAlign: pw.TextAlign.right, style: const pw.TextStyle(fontSize: 7, color: _muted))),
               ]),
             ),
@@ -1837,17 +1833,17 @@ Future<Uint8List> buildTermCardsPdf(TermReport t, {SchoolInfo school = const Sch
             padding: const pw.EdgeInsets.all(10),
             decoration: pw.BoxDecoration(color: _ivory, borderRadius: pw.BorderRadius.circular(8)),
             child: pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
-              pw.Text('Güçlü yönler: ${strong.isEmpty ? 'Henüz belirgin değil.' : strong.join(', ')}',
+              pw.Text(tr('Güçlü yönler: {0}', [strong.isEmpty ? tr('Henüz belirgin değil.') : strong.join(', ')]),
                   style: const pw.TextStyle(fontSize: 8.5)),
               pw.SizedBox(height: 3),
-              pw.Text('Çalışılması önerilen: ${weak.isEmpty ? 'Belirgin bir eksik görünmüyor.' : weak.join(', ')}',
+              pw.Text(tr('Çalışılması önerilen: {0}', [weak.isEmpty ? tr('Belirgin bir eksik görünmüyor.') : weak.join(', ')]),
                   style: const pw.TextStyle(fontSize: 8.5)),
             ]),
           ),
         ] else
           pw.Padding(
             padding: const pw.EdgeInsets.only(top: 10),
-            child: pw.Text('Sınavlarda kazanım kodu girilmediği için kazanım analizi yapılamadı.',
+            child: pw.Text(tr('Sınavlarda kazanım kodu girilmediği için kazanım analizi yapılamadı.'),
                 style: const pw.TextStyle(fontSize: 8.5, color: _muted)),
           ),
         pw.Spacer(),

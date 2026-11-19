@@ -5,6 +5,7 @@ import '../core/models.dart';
 import '../main.dart';
 import 'theme.dart';
 import 'widgets.dart';
+import '../l10n/l10n.dart';
 
 /// Kontrol kuyruğu: belirsiz işaretler ve eşleşmeyen öğrenciler.
 /// Sistem emin olmadığı hiçbir şeyi sessizce karara bağlamaz.
@@ -18,11 +19,11 @@ class ReviewList extends StatelessWidget {
     final store = StoreScope.of(context);
     final pending = store.sheetsOf(exam.id).where((s) => s.needsReview).toList();
     if (pending.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Icon(Icons.check_circle_outline, size: 56, color: NColors.emerald),
           SizedBox(height: 8),
-          Text('Kontrol bekleyen işaret yok.'),
+          Text(tr('Kontrol bekleyen işaret yok.')),
         ]),
       );
     }
@@ -95,21 +96,21 @@ class _ReviewCardState extends State<_ReviewCard> {
               leading: best ? const Icon(Icons.auto_fix_high_rounded, color: NColors.emerald) : null,
               title: Text(s.fullName, style: TextStyle(fontWeight: best ? FontWeight.w700 : null)),
               subtitle: read == null ? Text(s.number) : _NumberDiff(read: read, number: s.number),
-              trailing: best ? const Text('Bu öğrenci', style: TextStyle(color: NColors.emerald, fontWeight: FontWeight.w700)) : null,
+              trailing: best ? Text(tr('Bu öğrenci'), style: TextStyle(color: NColors.emerald, fontWeight: FontWeight.w700)) : null,
               onTap: () => _assignStudent(s.id),
             ),
           );
       return ListView(padding: const EdgeInsets.all(20), children: [
         Text(
             read == null
-                ? 'Bu kâğıttaki öğrenci numarası okunamadı.'
-                : 'Kâğıtta okunan numara: ${read.replaceAll('?', '•')}',
+                ? tr('Bu kâğıttaki öğrenci numarası okunamadı.')
+                : tr('Kâğıtta okunan numara: {0}', [read.replaceAll('?', '•')]),
             style: t.textTheme.titleMedium),
         const SizedBox(height: 4),
         Text(
             read != null && read.contains('?')
-                ? '• ile gösterilen rakamlar okunamadı. Kâğıt kimin? (${widget.remaining} kâğıt kontrol bekliyor)'
-                : 'Bu numara listede yok. Kâğıt kimin? (${widget.remaining} kâğıt kontrol bekliyor)',
+                ? tr('• ile gösterilen rakamlar okunamadı. Kâğıt kimin? ({0} kâğıt kontrol bekliyor)', [widget.remaining])
+                : tr('Bu numara listede yok. Kâğıt kimin? ({0} kâğıt kontrol bekliyor)', [widget.remaining]),
             style: t.textTheme.bodySmall),
         const SizedBox(height: 12),
         if (owner != null) ...[
@@ -118,10 +119,9 @@ class _ReviewCardState extends State<_ReviewCard> {
             margin: const EdgeInsets.only(bottom: 12),
             child: ListTile(
               leading: const Icon(Icons.swap_horiz_rounded, color: NColors.amber),
-              title: Text('${owner.fullName} (${owner.number}) için zaten bir kâğıt okunmuştu',
+              title: Text(tr('{0} ({1}) için zaten bir kâğıt okunmuştu', [owner.fullName, owner.number]),
                   style: const TextStyle(fontWeight: FontWeight.w700)),
-              subtitle: const Text('Cevaplar çok farklı. Bu kâğıt gerçekten onunsa öncekinin yerine geçirin; '
-                  'numarayı yanlış işaretleyen başka bir öğrenciyse aşağıdan seçin.'),
+              subtitle: Text(tr('Cevaplar çok farklı. Bu kâğıt gerçekten onunsa öncekinin yerine geçirin; numarayı yanlış işaretleyen başka bir öğrenciyse aşağıdan seçin.')),
               isThreeLine: true,
             ),
           ),
@@ -130,32 +130,32 @@ class _ReviewCardState extends State<_ReviewCard> {
             child: OutlinedButton.icon(
               onPressed: () => _assignStudent(owner.id),
               icon: const Icon(Icons.swap_horiz_rounded),
-              label: Text('${owner.fullName} · öncekinin yerine geçsin'),
+              label: Text(tr('{0} · öncekinin yerine geçsin', [owner.fullName])),
             ),
           ),
           const SizedBox(height: 16),
         ],
         if (suggested.isNotEmpty) ...[
-          Text('Önerilen', style: t.textTheme.labelLarge?.copyWith(color: NColors.emerald, fontWeight: FontWeight.w800)),
+          Text(tr('Önerilen'), style: t.textTheme.labelLarge?.copyWith(color: NColors.emerald, fontWeight: FontWeight.w800)),
           const SizedBox(height: 6),
           for (final (i, s) in suggested.indexed) tile(s, best: i == 0),
           if (candidates.isNotEmpty) ...[
             const SizedBox(height: 8),
-            Text('Diğer öğrenciler', style: t.textTheme.labelLarge),
+            Text(tr('Diğer öğrenciler'), style: t.textTheme.labelLarge),
             const SizedBox(height: 6),
           ],
         ],
         for (final s in candidates) tile(s),
         if (candidates.isEmpty && suggested.isEmpty)
-          const Text('Listede kâğıdı okunmamış öğrenci kalmadı. Öğrenci listesini kontrol edin.'),
+          Text(tr('Listede kâğıdı okunmamış öğrenci kalmadı. Öğrenci listesini kontrol edin.')),
       ]);
     }
 
     final qIndex = sheet.answers.indexWhere((a) => a.needsReview);
     final a = sheet.answers[qIndex];
     final reason = a.state == MarkState.multiple
-        ? 'İki ya da daha fazla şık dolu görünüyor.'
-        : 'İşaret silik ya da yarım silinmiş görünüyor.';
+        ? tr('İki ya da daha fazla şık dolu görünüyor.')
+        : tr('İşaret silik ya da yarım silinmiş görünüyor.');
 
     return Focus(
       focusNode: _focus,
@@ -184,7 +184,7 @@ class _ReviewCardState extends State<_ReviewCard> {
                 style: t.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
             const SizedBox(height: 4),
             Text(reason, style: const TextStyle(color: NColors.amber)),
-            Text('${widget.remaining} kâğıt kontrol bekliyor', style: t.textTheme.bodySmall),
+            Text(tr('{0} kâğıt kontrol bekliyor', [widget.remaining]), style: t.textTheme.bodySmall),
             const SizedBox(height: 20),
             Card(
               child: Padding(
@@ -211,7 +211,7 @@ class _ReviewCardState extends State<_ReviewCard> {
               ),
             ),
             const SizedBox(height: 8),
-            Text('Okunan: ${answerText(a)}. Doğru karar hangisi?', textAlign: TextAlign.center),
+            Text(tr('Okunan: {0}. Doğru karar hangisi?', [answerText(a)]), textAlign: TextAlign.center),
             const SizedBox(height: 16),
             Row(children: [
               for (var c = 0; c < exam.choiceCount; c++)
@@ -231,13 +231,13 @@ class _ReviewCardState extends State<_ReviewCard> {
             ]),
             const SizedBox(height: 10),
             Row(children: [
-              Expanded(child: OutlinedButton(onPressed: () => _decide(qIndex, {}), child: const Text('Boş say'))),
+              Expanded(child: OutlinedButton(onPressed: () => _decide(qIndex, {}), child: Text(tr('Boş say')))),
               const SizedBox(width: 10),
               if (a.marked.length > 1)
-                Expanded(child: OutlinedButton(onPressed: () => _decide(qIndex, a.marked), child: const Text('Geçersiz (çift)'))),
+                Expanded(child: OutlinedButton(onPressed: () => _decide(qIndex, a.marked), child: Text(tr('Geçersiz (çift)')))),
             ]),
             const SizedBox(height: 12),
-            Text('Kısayol: A–${letter(exam.choiceCount - 1)} tuşları, boş için boşluk.',
+            Text(tr('Kısayol: A–{0} tuşları, boş için boşluk.', [letter(exam.choiceCount - 1)]),
                 textAlign: TextAlign.center, style: t.textTheme.bodySmall),
           ]),
         ),
@@ -249,7 +249,7 @@ class _ReviewCardState extends State<_ReviewCard> {
 /// Eşleşmeyen kâğıt için kısa etiket (okunan numarayla).
 String unmatchedLabel(Sheet s) {
   final r = s.readNumber;
-  return r == null ? 'Öğrenci eşleşmedi' : 'Öğrenci eşleşmedi · no ${r.replaceAll('?', '•')}';
+  return r == null ? tr('Öğrenci eşleşmedi') : tr('Öğrenci eşleşmedi · no {0}', [r.replaceAll('?', '•')]);
 }
 
 /// Öğrenci numarasını, okunan numarayla farklı rakamları vurgulayarak gösterir.

@@ -8,6 +8,7 @@ import 'models.dart';
 import 'report.dart';
 import 'scoring.dart';
 import 'term.dart';
+import '../l10n/l10n.dart';
 
 /// Öğrenci listesi içe aktarma (CSV / Excel'den "CSV olarak kaydet").
 ///
@@ -193,15 +194,15 @@ String resultsCsv(Exam exam, List<Result> results, Map<String, Student> students
   final report = ExamReport.build(exam, results);
   final now = DateTime.now();
   String two(int v) => v.toString().padLeft(2, '0');
-  final stamp = '${two(now.day)}.${two(now.month)}.${now.year} ${two(now.hour)}:${two(now.minute)}';
-  String n(double v) => v.toStringAsFixed(2).replaceAll('.', ',');
+  final stamp = '${L10n.date(now)} ${two(now.hour)}:${two(now.minute)}';
+  String n(double v) => v.toStringAsFixed(2).replaceAll('.', L10n.decimal);
   final extra = exam.hasOpen ? exam.openQuestions.length + 2 : 0;
   final rows = <List<String>>[
-    ['Sıra', 'Okul no', 'Ad', 'Soyad', 'Sınıf', 'Doğru', 'Yanlış', 'Boş', 'Net',
-      if (exam.hasOpen) ...['Test puanı', for (final q in exam.openQuestions) q.label, 'Klasik toplam'],
-      'Puan', 'Başarı %', 'Yüzdelik',
-      'T puanı', 'Düzey',
-      for (final o in report.outcomes) 'Kazanım: ${o.code} %',
+    [tr('Sıra'), tr('Okul no'), 'Ad', tr('Soyad'), tr('Sınıf'), tr('Doğru'), tr('Yanlış'), tr('Boş'), tr('Net'),
+      if (exam.hasOpen) ...[tr('Test puanı'), for (final q in exam.openQuestions) q.label, tr('Klasik toplam')],
+      tr('Puan'), tr('Başarı %'), tr('Yüzdelik'),
+      tr('T puanı'), tr('Düzey'),
+      for (final o in report.outcomes) tr('Kazanım: {0} %', [o.code]),
       for (final q in exam.questions) 'S${q.no}'],
     for (final st in report.standings)
       () {
@@ -210,7 +211,7 @@ String resultsCsv(Exam exam, List<Result> results, Map<String, Student> students
         return [
           '${st.rank}',
           s?.number ?? '',
-          s?.firstName ?? 'Eşleşmedi',
+          s?.firstName ?? tr('Eşleşmedi'),
           s?.lastName ?? '',
           s?.className ?? exam.className,
           '${r.correct}',
@@ -234,17 +235,17 @@ String resultsCsv(Exam exam, List<Result> results, Map<String, Student> students
         ];
       }(),
     [],
-    ['Sınıf ortalaması', '', '', '', '', n(report.meanCorrect), n(report.meanWrong), n(report.meanBlank),
+    [tr('Sınıf ortalaması'), '', '', '', '', n(report.meanCorrect), n(report.meanWrong), n(report.meanBlank),
       n(report.meanNet), for (var i = 0; i < extra; i++) '', n(report.stats.mean)],
-    ['Doğru oranı (p)', '', '', '', '', '', '', '', '', '', '', '', '', '', for (var i = 0; i < extra; i++) '',
+    [tr('Doğru oranı (p)'), '', '', '', '', '', '', '', '', '', '', '', '', '', for (var i = 0; i < extra; i++) '',
       for (final o in report.outcomes) n(o.rate * 100),
       for (final it in report.items) n(it.p)],
-    ['Ayırt edicilik (D)', '', '', '', '', '', '', '', '', '', '', '', '', '', for (var i = 0; i < extra; i++) '',
+    [tr('Ayırt edicilik (D)'), '', '', '', '', '', '', '', '', '', '', '', '', '', for (var i = 0; i < extra; i++) '',
       for (final _ in report.outcomes) '',
       for (final it in report.items) n(it.d)],
     [],
-    ['Sınav', exam.name, '', 'Sınav tarihi', '${two(exam.date.day)}.${two(exam.date.month)}.${exam.date.year}', '',
-      'Rapor tarihi', stamp],
+    [tr('Sınav'), exam.name, '', tr('Sınav tarihi'), L10n.date(exam.date), '',
+      tr('Rapor tarihi'), stamp],
   ];
   return '\uFEFF${Csv(fieldDelimiter: ';', lineDelimiter: '\r\n').encode(rows)}';
 }
@@ -257,7 +258,7 @@ String eokulCsv(Exam exam, List<Result> results, List<Student> classStudents) {
   final list = [...classStudents]
     ..sort((a, b) => (int.tryParse(a.number) ?? 0).compareTo(int.tryParse(b.number) ?? 0));
   final rows = <List<String>>[
-    ['Sıra', 'Okul No', 'Adı', 'Soyadı', 'Puan', 'Not'],
+    [tr('Sıra'), tr('Okul No'), tr('Adı'), tr('Soyadı'), tr('Puan'), tr('Not')],
     for (var i = 0; i < list.length; i++)
       [
         '${i + 1}',
@@ -265,7 +266,7 @@ String eokulCsv(Exam exam, List<Result> results, List<Student> classStudents) {
         list[i].firstName,
         list[i].lastName,
         byId[list[i].id] == null ? 'G' : '${byId[list[i].id]!.score.round()}',
-        byId[list[i].id] == null ? 'Sınava girmedi' : '',
+        byId[list[i].id] == null ? tr('Sınava girmedi') : '',
       ],
   ];
   return '\uFEFF${Csv(fieldDelimiter: ';', lineDelimiter: '\r\n').encode(rows)}';
@@ -274,9 +275,9 @@ String eokulCsv(Exam exam, List<Result> results, List<Student> classStudents) {
 /// Dönem sonu not çizelgesi (Excel): her sınav 100 üzerinden, ortalama ve
 /// e-Okul'a girilecek tam sayı not.
 String termCsv(TermReport t) {
-  String n(double v) => v.toStringAsFixed(2).replaceAll('.', ',');
+  String n(double v) => v.toStringAsFixed(2).replaceAll('.', L10n.decimal);
   final rows = <List<String>>[
-    ['Okul No', 'Adı', 'Soyadı', 'Sınıf', for (final e in t.exams) e.exam.name, 'Ortalama', 'Dönem notu'],
+    [tr('Okul No'), tr('Adı'), tr('Soyadı'), tr('Sınıf'), for (final e in t.exams) e.exam.name, tr('Ortalama'), tr('Dönem notu')],
     for (final r in t.rows)
       [
         r.student.number,
@@ -288,9 +289,9 @@ String termCsv(TermReport t) {
         r.grade == null ? 'G' : '${r.grade}',
       ],
     [],
-    ['Ağırlık', '', '', '', for (final e in t.exams) n(e.weight)],
-    ['Sınıf ort. (100)', '', '', '', for (final e in t.exams) n(e.mean100), n(t.classAverage)],
-    ['Dönem', t.term.label],
+    [tr('Ağırlık'), '', '', '', for (final e in t.exams) n(e.weight)],
+    [tr('Sınıf ort. (100)'), '', '', '', for (final e in t.exams) n(e.mean100), n(t.classAverage)],
+    [tr('Dönem'), t.term.label],
   ];
   return '\uFEFF${Csv(fieldDelimiter: ';', lineDelimiter: '\r\n').encode(rows)}';
 }

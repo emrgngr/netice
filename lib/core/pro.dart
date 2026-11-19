@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:in_app_purchase/in_app_purchase.dart';
 
 import 'store.dart';
+import '../l10n/l10n.dart';
 
 /// Netice Pro: okuma ve temel sonuçlar ücretsizdir; aşağıdaki özellikler
 /// Pro aboneliği ister.
@@ -15,9 +16,12 @@ enum ProFeature {
   advancedCharts('Gelişmiş grafikler', 'Pasta, madde haritası, puan yayılımı, kazanım radarı'),
   officialHeader('Resmi yazı başlığı', 'T.C. / Kaymakamlık başlığı ve imza alanı');
 
-  final String title;
-  final String detail;
-  const ProFeature(this.title, this.detail);
+  final String _title;
+  final String _detail;
+  const ProFeature(this._title, this._detail);
+
+  String get title => tr(_title);
+  String get detail => tr(_detail);
 }
 
 /// Mağazada tanımlanacak abonelik kimlikleri (Google Play Console >
@@ -43,9 +47,9 @@ class ProService {
   static final instance = ProService._();
 
   /// Mağaza fiyatı okunamazsa gösterilecek önerilen fiyatlar.
-  static const fallbackPlans = [
-    ProPlan(proYearlyId, 'Yıllık', '799 TL / yıl', 'Ayda yaklaşık 67 TL · en avantajlı'),
-    ProPlan(proMonthlyId, 'Aylık', '99 TL / ay', 'İstediğiniz zaman iptal'),
+  static List<ProPlan> get fallbackPlans => [
+    ProPlan(proYearlyId, tr('Yıllık'), tr('799 TL / yıl'), tr('Ayda yaklaşık 67 TL · en avantajlı')),
+    ProPlan(proMonthlyId, tr('Aylık'), tr('99 TL / ay'), tr('İstediğiniz zaman iptal')),
   ];
 
   /// Abonelik yalnızca mağaza olan platformlarda satılır. Bilgisayar
@@ -98,26 +102,26 @@ class ProService {
 
   /// Satın almayı başlatır. Sonuç [events] ve mağaza durumuyla gelir.
   Future<String?> buy(ProPlan plan) async {
-    if (!storeSupported) return 'Abonelik telefondaki Google Play üzerinden alınır.';
+    if (!storeSupported) return tr('Abonelik telefondaki Google Play üzerinden alınır.');
     final d = plan.details;
     if (d == null) {
-      return 'Abonelik henüz mağazada açılmadı. Uygulama Google Play\'de yayımlanınca satın alınabilecek.';
+      return tr('Abonelik henüz mağazada açılmadı. Uygulama Google Play\'de yayımlanınca satın alınabilecek.');
     }
     try {
       await InAppPurchase.instance.buyNonConsumable(purchaseParam: PurchaseParam(productDetails: d));
       return null;
     } catch (e) {
-      return 'Satın alma başlatılamadı: $e';
+      return tr('Satın alma başlatılamadı: {0}', [e]);
     }
   }
 
   Future<String?> restore() async {
-    if (!storeSupported) return 'Geri yükleme telefonda yapılır.';
+    if (!storeSupported) return tr('Geri yükleme telefonda yapılır.');
     try {
       await InAppPurchase.instance.restorePurchases();
       return null;
     } catch (e) {
-      return 'Geri yüklenemedi: $e';
+      return tr('Geri yüklenemedi: {0}', [e]);
     }
   }
 
@@ -128,9 +132,9 @@ class ProService {
         case PurchaseStatus.purchased:
         case PurchaseStatus.restored:
           _store?.confirmPro(p.productID);
-          if (p.status == PurchaseStatus.purchased) _events.add('Netice Pro etkinleştirildi. Teşekkürler!');
+          if (p.status == PurchaseStatus.purchased) _events.add(tr('Netice Pro etkinleştirildi. Teşekkürler!'));
         case PurchaseStatus.error:
-          _events.add('Satın alma tamamlanamadı.');
+          _events.add(tr('Satın alma tamamlanamadı.'));
         case PurchaseStatus.canceled:
         case PurchaseStatus.pending:
           break;

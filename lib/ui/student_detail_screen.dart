@@ -7,6 +7,7 @@ import 'exam_screen.dart';
 import 'sheet_image_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
+import '../l10n/l10n.dart';
 
 /// Öğrencinin sınav geçmişi, gelişim grafiği ve güçlü/zayıf kazanımları.
 class StudentDetailScreen extends StatelessWidget {
@@ -34,9 +35,9 @@ class StudentDetailScreen extends StatelessWidget {
     final summary = outcomeSummary(h).entries.toList()..sort((a, b) => b.value.$1.compareTo(a.value.$1));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Öğrenci'), actions: [
+      appBar: AppBar(title: Text(tr('Öğrenci')), actions: [
         if (onEdit != null)
-          IconButton(tooltip: 'Düzenle', icon: const Icon(Icons.edit_outlined), onPressed: () => onEdit!(s)),
+          IconButton(tooltip: tr('Düzenle'), icon: const Icon(Icons.edit_outlined), onPressed: () => onEdit!(s)),
       ]),
       body: Watermark(
         child: ListView(padding: const EdgeInsets.fromLTRB(20, 8, 20, 32), children: [
@@ -56,9 +57,9 @@ class StudentDetailScreen extends StatelessWidget {
                   Text('No ${s.number} · ${s.className}', style: const TextStyle(color: Colors.white70)),
                   const SizedBox(height: 10),
                   Wrap(spacing: 18, runSpacing: 8, children: [
-                    _Mini('Sınav', '${h.length}'),
-                    _Mini('Ortalama', '%${avg.round()}'),
-                    if (trend != null) _Mini('Son değişim', '${trend >= 0 ? '+' : ''}${trend.round()}'),
+                    _Mini(tr('Sınav'), '${h.length}'),
+                    _Mini(tr('Ortalama'), '%${avg.round()}'),
+                    if (trend != null) _Mini(tr('Son değişim'), '${trend >= 0 ? '+' : ''}${trend.round()}'),
                   ]),
                 ]),
               ),
@@ -70,19 +71,18 @@ class StudentDetailScreen extends StatelessWidget {
               color: NColors.amber.withValues(alpha: 0.14),
               child: ListTile(
                 leading: const Icon(Icons.priority_high_rounded, color: NColors.amber),
-                title: const Text('Destek gerekebilir', style: TextStyle(fontWeight: FontWeight.w700)),
-                subtitle: Text('${warn.reason[0].toUpperCase()}${warn.reason.substring(1)}. '
-                    'Bu yalnızca size gösterilen bir hatırlatmadır.'),
+                title: Text(tr('Destek gerekebilir'), style: TextStyle(fontWeight: FontWeight.w700)),
+                subtitle: Text(tr('{0}{1}. Bu yalnızca size gösterilen bir hatırlatmadır.', [warn.reason[0].toUpperCase(), warn.reason.substring(1)])),
               ),
             ),
           ],
           if (h.isEmpty)
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(top: 24),
-              child: Text('Bu öğrencinin henüz okunmuş bir kâğıdı yok.'),
+              child: Text(tr('Bu öğrencinin henüz okunmuş bir kâğıdı yok.')),
             )
           else ...[
-            const SectionTitle('Gelişim'),
+            SectionTitle(tr('Gelişim')),
             Card(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(12, 18, 16, 12),
@@ -90,21 +90,20 @@ class StudentDetailScreen extends StatelessWidget {
                   SizedBox(height: 170, child: _TrendChart(h)),
                   const SizedBox(height: 8),
                   Wrap(spacing: 16, children: [
-                    _Legend(NColors.emerald, 'Öğrenci'),
-                    _Legend(t.colorScheme.onSurface.withValues(alpha: 0.35), 'Sınıf ortalaması'),
+                    _Legend(NColors.emerald, tr('Öğrenci')),
+                    _Legend(t.colorScheme.onSurface.withValues(alpha: 0.35), tr('Sınıf ortalaması')),
                   ]),
                 ]),
               ),
             ),
-            const SectionTitle('Sınavlar'),
+            SectionTitle(tr('Sınavlar')),
             Card(
               clipBehavior: Clip.antiAlias,
               child: Column(children: [
                 for (final e in h.reversed)
                   ListTile(
                     title: Text(e.exam.name, style: const TextStyle(fontWeight: FontWeight.w600)),
-                    subtitle: Text('${dmy(e.exam.date)} · Sıra ${e.standing.rank}/${e.classSize} · '
-                        'Sınıf ort. ${fmt1(e.classMean)} · ${e.standing.level.name}'),
+                    subtitle: Text(tr('{0} · Sıra {1}/{2} · Sınıf ort. {3} · {4}', [dmy(e.exam.date), e.standing.rank, e.classSize, fmt1(e.classMean), e.standing.level.name])),
                     trailing: Row(mainAxisSize: MainAxisSize.min, children: [
                       Text(fmt1(e.standing.result.score),
                           style: t.textTheme.titleLarge?.copyWith(
@@ -113,17 +112,17 @@ class StudentDetailScreen extends StatelessWidget {
                               color: e.passed ? null : NColors.coral)),
                       if (hasSheetImage(context, e.standing.result.sheet))
                         IconButton(
-                          tooltip: 'İşaretli kâğıt',
+                          tooltip: tr('İşaretli kâğıt'),
                           icon: const Icon(Icons.image_search_rounded),
                           onPressed: () => openSheetImage(context, e.exam, e.standing.result),
                         ),
                       IconButton(
-                        tooltip: 'Karneyi önizle',
+                        tooltip: tr('Karneyi önizle'),
                         icon: const Icon(Icons.badge_outlined),
                         onPressed: () => openCardsPreview(context, e.exam, studentId: s.id),
                       ),
                       IconButton(
-                        tooltip: 'Karneyi veliye gönder',
+                        tooltip: tr('Karneyi veliye gönder'),
                         icon: const Icon(Icons.send_outlined),
                         onPressed: () => shareStudentCard(context, e.exam, s.id),
                       ),
@@ -134,7 +133,7 @@ class StudentDetailScreen extends StatelessWidget {
               ]),
             ),
             if (summary.isNotEmpty) ...[
-              const SectionTitle('Kazanımlar (tüm sınavlar)'),
+              SectionTitle(tr('Kazanımlar (tüm sınavlar)')),
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
@@ -147,7 +146,7 @@ class StudentDetailScreen extends StatelessWidget {
                             Expanded(child: Text(e.key, style: const TextStyle(fontWeight: FontWeight.w600))),
                             Text('%${(e.value.$1 * 100).round()}',
                                 style: const TextStyle(fontWeight: FontWeight.w800, fontFeatures: tabular)),
-                            Text('  sınıf %${(e.value.$2 * 100).round()}', style: TextStyle(color: muted, fontSize: 12)),
+                            Text(tr('  sınıf %{0}', [(e.value.$2 * 100).round()]), style: TextStyle(color: muted, fontSize: 12)),
                           ]),
                           const SizedBox(height: 5),
                           ClipRRect(
@@ -169,8 +168,7 @@ class StudentDetailScreen extends StatelessWidget {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        'Güçlü: ${summary.first.key}'
-                        '${summary.length > 1 ? ' · Geliştirilmeli: ${summary.last.key}' : ''}',
+                        tr('Güçlü: {0}{1}', [summary.first.key, summary.length > 1 ? tr(' · Geliştirilmeli: {0}', [summary.last.key]) : '']),
                         style: TextStyle(color: muted),
                       ),
                     ),

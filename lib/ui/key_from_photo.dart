@@ -5,12 +5,13 @@ import 'package:material_ui/material_ui.dart';
 import '../omr/form_layout.dart';
 import '../omr/omr_reader.dart';
 import 'widgets.dart';
+import '../l10n/l10n.dart';
 
 /// Öğretmenin doğru cevaplarla doldurduğu optik formun fotoğrafından
 /// cevap anahtarını okur. Her soru için işaretli şıkları döndürür
 /// (boş bırakılan sorular boş küme). İptal edilirse veya okunamazsa null.
 Future<List<Set<int>>?> readKeyFromPhoto(BuildContext context, {required int questions, required int choices}) async {
-  final files = await FilePicker.pickFiles(dialogTitle: 'Cevap anahtarı formunun fotoğrafı', type: FileType.image);
+  final files = await FilePicker.pickFiles(dialogTitle: tr('Cevap anahtarı formunun fotoğrafı'), type: FileType.image);
   if (files.isEmpty || !context.mounted) return null;
   final bytes = await files.first.readAsBytes();
   if (!context.mounted) return null;
@@ -18,17 +19,17 @@ Future<List<Set<int>>?> readKeyFromPhoto(BuildContext context, {required int que
     final r = await compute(_readKey, _KeyJob(bytes, questions, choices));
     if (!context.mounted) return null;
     if (r == null) {
-      toast(context, 'Fotoğraf çözülemedi. Başka bir fotoğraf deneyin.');
+      toast(context, tr('Fotoğraf çözülemedi. Başka bir fotoğraf deneyin.'));
       return null;
     }
     final filled = r.where((s) => s.isNotEmpty).length;
-    toast(context, '$filled / $questions sorunun cevabı okundu. Lütfen kontrol edin.');
+    toast(context, tr('{0} / {1} sorunun cevabı okundu. Lütfen kontrol edin.', [filled, questions]));
     return r;
   } on OmrException catch (e) {
-    if (context.mounted) toast(context, e.message);
+    if (context.mounted) toast(context, tr(e.message));
     return null;
   } catch (_) {
-    if (context.mounted) toast(context, 'Form okunamadı. Dört köşe karesi görünecek şekilde yeniden çekin.');
+    if (context.mounted) toast(context, tr('Form okunamadı. Dört köşe karesi görünecek şekilde yeniden çekin.'));
     return null;
   }
 }

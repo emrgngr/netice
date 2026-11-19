@@ -5,6 +5,7 @@ import '../core/scoring.dart';
 import '../main.dart';
 import 'theme.dart';
 import 'widgets.dart';
+import '../l10n/l10n.dart';
 
 /// Klasik (açık uçlu) soru puanlarının girişi. Her değişiklik anında kaydedilir.
 class OpenScoresScreen extends StatefulWidget {
@@ -19,7 +20,7 @@ class _OpenScoresScreenState extends State<OpenScoresScreen> {
   final _ctrl = <String, List<TextEditingController>>{};
   final _sheets = <String, Sheet>{};
 
-  static String _num(double v) => v == v.roundToDouble() ? v.toInt().toString() : v.toString().replaceAll('.', ',');
+  static String _num(double v) => v == v.roundToDouble() ? v.toInt().toString() : v.toString().replaceAll('.', L10n.decimal);
 
   String _key(Sheet s, int i) => '${s.studentId ?? 'x'}#$i';
 
@@ -74,18 +75,17 @@ class _OpenScoresScreenState extends State<OpenScoresScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Text('Klasik puan girişi'),
-          Text('${exam.name} · $done / ${entries.length} öğrenci tamam',
+          Text(tr('Klasik puan girişi')),
+          Text(tr('{0} · {1} / {2} öğrenci tamam', [exam.name, done, entries.length]),
               style: t.textTheme.bodySmall, maxLines: 1, overflow: TextOverflow.ellipsis),
         ]),
       ),
       body: Watermark(
         child: entries.isEmpty
-            ? const Center(child: Text('Önce kâğıtları okutun; klasik puanlar okunan kâğıtlara eklenir.'))
+            ? Center(child: Text(tr('Önce kâğıtları okutun; klasik puanlar okunan kâğıtlara eklenir.')))
             : ListView(padding: const EdgeInsets.fromLTRB(16, 8, 16, 40), children: [
                 Text(
-                  'Her sorunun puanını yazın, kendiliğinden kaydedilir. '
-                  'Test kısmı ${_num(exam.testMax)}, klasik kısım ${_num(exam.openMax)} puan.',
+                  tr('Her sorunun puanını yazın, kendiliğinden kaydedilir. Test kısmı {0}, klasik kısım {1} puan.', [_num(exam.testMax), _num(exam.openMax)]),
                   style: TextStyle(color: muted),
                 ),
                 const SizedBox(height: 12),
@@ -101,7 +101,7 @@ class _OpenScoresScreenState extends State<OpenScoresScreen> {
                           Row(children: [
                             Expanded(
                               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                Text(st?.fullName ?? 'Eşleşmeyen kâğıt',
+                                Text(st?.fullName ?? tr('Eşleşmeyen kâğıt'),
                                     style: const TextStyle(fontWeight: FontWeight.w700)),
                                 Text('${st?.number ?? ''} · test ${_num(r.testScore)}',
                                     style: TextStyle(color: muted, fontSize: 12)),
@@ -134,8 +134,8 @@ class _OpenScoresScreenState extends State<OpenScoresScreen> {
                                     errorText: () {
                                       final v = double.tryParse(_ctrl[key]![q].text.trim().replaceAll(',', '.'));
                                       if (_ctrl[key]![q].text.trim().isEmpty) return null;
-                                      if (v == null) return 'sayı';
-                                      if (v > exam.openQuestions[q].maxPoints) return 'en çok ${_num(exam.openQuestions[q].maxPoints)}';
+                                      if (v == null) return tr('sayı');
+                                      if (v > exam.openQuestions[q].maxPoints) return tr('en çok {0}', [_num(exam.openQuestions[q].maxPoints)]);
                                       return null;
                                     }(),
                                   ),

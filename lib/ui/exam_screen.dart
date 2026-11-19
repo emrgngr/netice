@@ -26,6 +26,7 @@ import 'theme.dart';
 import 'widgets.dart';
 import 'illustrations.dart';
 import 'charts.dart';
+import '../l10n/l10n.dart';
 
 class ExamScreen extends StatelessWidget {
   final String examId;
@@ -46,12 +47,11 @@ class ExamScreen extends StatelessWidget {
         final go = await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: const Text('Bu sınav başka firma formuyla okunuyor'),
-            content: Text('Sınav ayarlarında "${tpl.name}" şablonu seçili; öğrenciler o formu dolduracak. '
-                'Yine de Netice formu basarsanız, okutmadan önce Form türünü "Netice formu" yapın.'),
+            title: Text(tr('Bu sınav başka firma formuyla okunuyor')),
+            content: Text(tr('Sınav ayarlarında "{0}" şablonu seçili; öğrenciler o formu dolduracak. Yine de Netice formu basarsanız, okutmadan önce Form türünü "Netice formu" yapın.', [tpl.name])),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Vazgeç')),
-              FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Yine de bas')),
+              TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr('Vazgeç'))),
+              FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(tr('Yine de bas'))),
             ],
           ),
         );
@@ -71,18 +71,18 @@ class ExamScreen extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const ListTile(
-                    title: Text('Optik form yazdır', style: TextStyle(fontWeight: FontWeight.w800)),
-                    subtitle: Text('A4, %100 ölçekle yazdırın. Önce önizleme açılır.'),
+                  ListTile(
+                    title: Text(tr('Optik form yazdır'), style: TextStyle(fontWeight: FontWeight.w800)),
+                    subtitle: Text(tr('A4, %100 ölçekle yazdırın. Önce önizleme açılır.')),
                   ),
                   ListTile(
                     enabled: cls.isNotEmpty,
                     leading: const Icon(Icons.badge_outlined),
-                    title: const Text('İsimli öğrenci formları'),
+                    title: Text(tr('İsimli öğrenci formları')),
                     subtitle: Text(
                       cls.isEmpty
-                          ? 'Bu sınıfta kayıtlı öğrenci yok'
-                          : '${cls.length} öğrenci · ad, sınıf ve numara basılı gelir',
+                          ? tr('Bu sınıfta kayıtlı öğrenci yok')
+                          : tr('{0} öğrenci · ad, sınıf ve numara basılı gelir', [cls.length]),
                     ),
                     onTap: () => Navigator.pop(ctx, 'named'),
                   ),
@@ -91,12 +91,12 @@ class ExamScreen extends StatelessWidget {
                       contentPadding: const EdgeInsets.only(left: 72, right: 16),
                       value: alternate,
                       onChanged: (v) => setSheet(() => alternate = v),
-                      title: const Text('Kitapçıkları sırayla A, B dağıt'),
-                      subtitle: const Text('Kapalıysa öğrenci kitapçığını formda kendisi işaretler'),
+                      title: Text(tr('Kitapçıkları sırayla A, B dağıt')),
+                      subtitle: Text(tr('Kapalıysa öğrenci kitapçığını formda kendisi işaretler')),
                     ),
                   ListTile(
                     leading: const Icon(Icons.description_outlined),
-                    title: const Text('Boş öğrenci formu'),
+                    title: Text(tr('Boş öğrenci formu')),
                     subtitle: Padding(
                       padding: const EdgeInsets.only(top: 6),
                       child: Wrap(
@@ -116,14 +116,14 @@ class ExamScreen extends StatelessWidget {
                   ),
                   ListTile(
                     leading: const Icon(Icons.key_outlined),
-                    title: const Text('Cevap anahtarı'),
-                    subtitle: const Text('Doğru şıklar karartılmış form ve anahtar listesi'),
+                    title: Text(tr('Cevap anahtarı')),
+                    subtitle: Text(tr('Doğru şıklar karartılmış form ve anahtar listesi')),
                     onTap: () => Navigator.pop(ctx, 'key'),
                   ),
                   ListTile(
                     leading: const Icon(Icons.edit_note_outlined),
-                    title: const Text('Boş cevap anahtarı formu'),
-                    subtitle: const Text('Elle doldurup Sınav ayarlarından fotoğrafla okutun'),
+                    title: Text(tr('Boş cevap anahtarı formu')),
+                    subtitle: Text(tr('Elle doldurup Sınav ayarlarından fotoğrafla okutun')),
                     onTap: () => Navigator.pop(ctx, 'keyBlank'),
                   ),
                   const SizedBox(height: 8),
@@ -139,28 +139,28 @@ class ExamScreen extends StatelessWidget {
         case 'named':
           await ReportPreviewScreen.open(
             context,
-            title: 'Öğrenci formları',
+            title: tr('Öğrenci formları'),
             fileName: '${name}_optik_form.pdf',
             build: () => buildFormsPdf(exam, cls, school: store.reportSchool, alternateBooklets: alternate),
           );
         case 'blank':
           await ReportPreviewScreen.open(
             context,
-            title: 'Boş optik form ($copies adet)',
+            title: tr('Boş optik form ({0} adet)', [copies]),
             fileName: '${name}_bos_form_$copies.pdf',
             build: () => buildFormsPdf(exam, const [], blankCopies: copies, school: store.reportSchool),
           );
         case 'key':
           await ReportPreviewScreen.open(
             context,
-            title: 'Cevap anahtarı',
+            title: tr('Cevap anahtarı'),
             fileName: '${name}_cevap_anahtari.pdf',
             build: () => buildAnswerKeyPdf(exam, school: store.reportSchool),
           );
         case 'keyBlank':
           await ReportPreviewScreen.open(
             context,
-            title: 'Boş cevap anahtarı formu',
+            title: tr('Boş cevap anahtarı formu'),
             fileName: '${name}_bos_anahtar.pdf',
             build: () => buildAnswerKeyPdf(exam, filled: false, school: store.reportSchool),
           );
@@ -168,15 +168,15 @@ class ExamScreen extends StatelessWidget {
     }
 
     Future<void> pdfReport() async {
-      if (results.isEmpty) return toast(context, 'Rapor için önce kâğıt okutun.');
+      if (results.isEmpty) return toast(context, tr('Rapor için önce kâğıt okutun.'));
       await ReportPreviewScreen.open(context,
-          title: 'Sınav raporu',
+          title: tr('Sınav raporu'),
           fileName: '${_safe(exam.name)}_sinav_raporu.pdf',
           build: () => buildResultsPdf(exam: exam, results: results, students: store.studentById, school: store.reportSchool));
     }
 
     Future<void> studentCards() async {
-      if (results.isEmpty) return toast(context, 'Karne için önce kâğıt okutun.');
+      if (results.isEmpty) return toast(context, tr('Karne için önce kâğıt okutun.'));
       await openCardsPreview(context, exam);
     }
 
@@ -191,20 +191,20 @@ class ExamScreen extends StatelessWidget {
 
     Future<void> eokul() async {
       final cls = store.studentsOf(exam.className);
-      if (cls.isEmpty) return toast(context, 'Bu sınıfta kayıtlı öğrenci yok.');
+      if (cls.isEmpty) return toast(context, tr('Bu sınıfta kayıtlı öğrenci yok.'));
       final choice = await showModalBottomSheet<String>(
         context: context,
         showDragHandle: true,
         builder: (ctx) => SafeArea(
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            const ListTile(title: Text('e-Okul not giriş listesi', style: TextStyle(fontWeight: FontWeight.w800))),
+            ListTile(title: Text(tr('e-Okul not giriş listesi'), style: TextStyle(fontWeight: FontWeight.w800))),
             ListTile(
                 leading: const Icon(Icons.picture_as_pdf_outlined),
-                title: const Text('PDF (yazdırmak için)'),
+                title: Text(tr('PDF (yazdırmak için)')),
                 onTap: () => Navigator.pop(ctx, 'pdf')),
             ListTile(
                 leading: const Icon(Icons.table_view_outlined),
-                title: const Text('Excel'),
+                title: Text(tr('Excel')),
                 onTap: () => Navigator.pop(ctx, 'xls')),
           ]),
         ),
@@ -212,7 +212,7 @@ class ExamScreen extends StatelessWidget {
       if (choice == 'pdf') {
         if (!context.mounted) return;
         await ReportPreviewScreen.open(context,
-            title: 'e-Okul listesi',
+            title: tr('e-Okul listesi'),
             fileName: '${_safe(exam.name)}_eokul.pdf',
             build: () => buildEokulPdf(exam: exam, results: results, classStudents: cls, school: store.reportSchool));
       } else if (choice == 'xls') {
@@ -225,24 +225,24 @@ class ExamScreen extends StatelessWidget {
     }
 
     Future<void> labels() async {
-      if (results.isEmpty) return toast(context, 'Etiket için önce kâğıt okutun.');
+      if (results.isEmpty) return toast(context, tr('Etiket için önce kâğıt okutun.'));
       await ReportPreviewScreen.open(context,
-          title: 'Sonuç etiketleri',
+          title: tr('Sonuç etiketleri'),
           fileName: '${_safe(exam.name)}_etiketler.pdf',
           build: () => buildLabelsPdf(exam: exam, results: results, students: store.studentById));
     }
 
     final actions = [
-      _Action(Icons.print_outlined, 'Form yazdır', printForms),
+      _Action(Icons.print_outlined, tr('Form yazdır'), printForms),
       if (exam.hasOpen)
-        _Action(Icons.edit_note_rounded, 'Klasik puan gir', () async {
+        _Action(Icons.edit_note_rounded, tr('Klasik puan gir'), () async {
           await Navigator.of(context).push(MaterialPageRoute(builder: (_) => OpenScoresScreen(examId: exam.id)));
         }),
-      _Action(Icons.picture_as_pdf_outlined, 'Sınav raporu', pdfReport),
-      _Action(Icons.badge_outlined, 'Öğrenci karnesi', studentCards),
-      _Action(Icons.table_view_outlined, 'Excel', excel),
-      _Action(Icons.school_outlined, 'e-Okul listesi', eokul),
-      _Action(Icons.label_outline, 'Sonuç etiketi', labels),
+      _Action(Icons.picture_as_pdf_outlined, tr('Sınav raporu'), pdfReport),
+      _Action(Icons.badge_outlined, tr('Öğrenci karnesi'), studentCards),
+      _Action(Icons.table_view_outlined, tr('Excel'), excel),
+      _Action(Icons.school_outlined, tr('e-Okul listesi'), eokul),
+      _Action(Icons.label_outline, tr('Sonuç etiketi'), labels),
     ];
 
     return DefaultTabController(
@@ -258,7 +258,7 @@ class ExamScreen extends StatelessWidget {
           ]),
           actions: [
             IconButton(
-              tooltip: 'Sınav ayarları',
+              tooltip: tr('Sınav ayarları'),
               icon: const Icon(Icons.tune),
               onPressed: () => Navigator.of(context)
                   .push(MaterialPageRoute(builder: (_) => ExamSettingsScreen(examId: exam.id))),
@@ -279,9 +279,9 @@ class ExamScreen extends StatelessWidget {
             const SizedBox(width: 8),
           ],
           bottom: TabBar(tabs: [
-            const Tab(text: 'Sonuçlar'),
-            const Tab(text: 'Analiz'),
-            Tab(text: review > 0 ? 'Kontrol ($review)' : 'Kontrol'),
+            Tab(text: tr('Sonuçlar')),
+            Tab(text: tr('Analiz')),
+            Tab(text: review > 0 ? 'Kontrol ($review)' : tr('Kontrol')),
           ]),
         ),
         floatingActionButton: FloatingActionButton.extended(
@@ -289,11 +289,11 @@ class ExamScreen extends StatelessWidget {
           foregroundColor: NColors.ink,
           onPressed: () => Navigator.of(context).push(scanRoute(exam.id)),
           icon: const Icon(Icons.document_scanner_outlined),
-          label: const Text('Okut', style: TextStyle(fontWeight: FontWeight.w700)),
+          label: Text(tr('Okut'), style: TextStyle(fontWeight: FontWeight.w700)),
         ),
         body: Watermark(child: TabBarView(children: [
           _ResultsTab(exam: exam, results: results),
-          _AnalysisTab(exam: exam, results: results, reports: actions.where((a) => a.label != 'Form yazdır' && a.label != 'Klasik puan gir').toList()),
+          _AnalysisTab(exam: exam, results: results, reports: actions.where((a) => a.label != tr('Form yazdır') && a.label != tr('Klasik puan gir')).toList()),
           SafeArea(top: false, child: ReviewList(exam: exam)),
         ])),
       ),
@@ -323,13 +323,12 @@ class _ResultsTab extends StatelessWidget {
     final st = Analysis.examStats(exam, results);
     final t = Theme.of(context);
     if (results.isEmpty) {
-      return const Center(
+      return Center(
         child: SingleChildScrollView(
           child: EmptyState(
             kind: IllustrationKind.scan,
-            title: 'Henüz okunan kâğıt yok',
-            message: 'Aşağıdaki "Okut" düğmesine dokunun ve kâğıtları sırayla kameraya gösterin. '
-                'Formları henüz basmadıysanız önce "Form yazdır"ı kullanın.',
+            title: tr('Henüz okunan kâğıt yok'),
+            message: tr('Aşağıdaki "Okut" düğmesine dokunun ve kâğıtları sırayla kameraya gösterin. Formları henüz basmadıysanız önce "Form yazdır"ı kullanın.'),
           ),
         ),
       );
@@ -346,9 +345,9 @@ class _ResultsTab extends StatelessWidget {
             clipBehavior: Clip.antiAlias,
             child: ExpansionTile(
               leading: const Icon(Icons.person_search_rounded, color: NColors.amber),
-              title: Text('${absent.length} öğrencinin kâğıdı okutulmadı',
+              title: Text(tr('{0} öğrencinin kâğıdı okutulmadı', [absent.length]),
                   style: const TextStyle(fontWeight: FontWeight.w700)),
-              subtitle: const Text('Sınava girmediyse sorun yok; kâğıt atlandıysa okutun.'),
+              subtitle: Text(tr('Sınava girmediyse sorun yok; kâğıt atlandıysa okutun.')),
               childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
               expandedAlignment: Alignment.centerLeft,
               children: [
@@ -366,13 +365,13 @@ class _ResultsTab extends StatelessWidget {
             color: NColors.amber.withValues(alpha: 0.14),
             child: ListTile(
               leading: const Icon(Icons.edit_note_rounded, color: NColors.amber),
-              title: Text('$openMissing öğrencinin klasik puanı eksik',
+              title: Text(tr('{0} öğrencinin klasik puanı eksik', [openMissing]),
                   style: const TextStyle(fontWeight: FontWeight.w700)),
-              subtitle: const Text('Puanlar girilene kadar toplamda yalnızca test kısmı görünür.'),
+              subtitle: Text(tr('Puanlar girilene kadar toplamda yalnızca test kısmı görünür.')),
               trailing: FilledButton(
                 onPressed: () => Navigator.of(context)
                     .push(MaterialPageRoute(builder: (_) => OpenScoresScreen(examId: exam.id))),
-                child: const Text('Gir'),
+                child: Text(tr('Gir')),
               ),
             ),
           ),
@@ -388,27 +387,27 @@ class _ResultsTab extends StatelessWidget {
           const SizedBox(width: 22),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Text('SINIF ORTALAMASI',
+              Text(tr('SINIF ORTALAMASI'),
                   style: TextStyle(color: Colors.white60, fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 1)),
               const SizedBox(height: 10),
               Wrap(spacing: 22, runSpacing: 12, children: [
-                _HeroStat('Medyan', fmt1(st.median)),
+                _HeroStat(tr('Medyan'), fmt1(st.median)),
                 _HeroStat('Std. sapma', fmt1(st.stdDev)),
                 _HeroStat('KR-20', st.kr20 == null ? '–' : fmt2(st.kr20!)),
-                _HeroStat('Okunan', '${st.count}'),
+                _HeroStat(tr('Okunan'), '${st.count}'),
               ]),
             ]),
           ),
         ]),
       ),
-      const SectionTitle('Puan dağılımı'),
+      SectionTitle(tr('Puan dağılımı')),
       Card(
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: _Histogram(st.histogram),
         ),
       ),
-      const SectionTitle('Öğrenciler'),
+      SectionTitle(tr('Öğrenciler')),
       Card(
         clipBehavior: Clip.antiAlias,
         child: Column(children: [
@@ -427,7 +426,7 @@ class _ResultsTab extends StatelessWidget {
                     style: t.textTheme.titleSmall?.copyWith(
                         fontFeatures: tabular, fontWeight: FontWeight.w800, color: i < 3 ? NColors.ink : null)),
               ),
-              title: Text(students[sorted[i].sheet.studentId]?.fullName ?? 'Eşleşmeyen kâğıt',
+              title: Text(students[sorted[i].sheet.studentId]?.fullName ?? tr('Eşleşmeyen kâğıt'),
                   style: TextStyle(
                       fontWeight: FontWeight.w600,
                       color: sorted[i].sheet.studentId == null ? NColors.amber : null)),
@@ -452,7 +451,7 @@ void showSheetDetail(BuildContext context, Exam exam, Result r) {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(st?.fullName ?? 'Eşleşmeyen kâğıt', style: Theme.of(ctx).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+          Text(st?.fullName ?? tr('Eşleşmeyen kâğıt'), style: Theme.of(ctx).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
           Text('No ${st?.number ?? '–'} · Puan ${fmt1(r.score)} · Net ${fmt2(r.net)}'),
           if (st != null)
             Align(
@@ -464,7 +463,7 @@ void showSheetDetail(BuildContext context, Exam exam, Result r) {
                       .push(MaterialPageRoute(builder: (_) => StudentDetailScreen(studentId: st.id)));
                 },
                 icon: const Icon(Icons.timeline, size: 18),
-                label: const Text('Öğrenci geçmişi ve gelişimi'),
+                label: Text(tr('Öğrenci geçmişi ve gelişimi')),
               ),
             ),
           if (hasSheetImage(context, r.sheet))
@@ -476,7 +475,7 @@ void showSheetDetail(BuildContext context, Exam exam, Result r) {
                   openSheetImage(context, exam, r);
                 },
                 icon: const Icon(Icons.image_search_rounded, size: 18),
-                label: const Text('İşaretli kâğıdı gör'),
+                label: Text(tr('İşaretli kâğıdı gör')),
               ),
             ),
           if (st != null)
@@ -488,7 +487,7 @@ void showSheetDetail(BuildContext context, Exam exam, Result r) {
                   openCardsPreview(context, exam, studentId: st.id);
                 },
                 icon: const Icon(Icons.badge_outlined, size: 18),
-                label: const Text('Karneyi önizle'),
+                label: Text(tr('Karneyi önizle')),
               ),
             ),
           if (st != null)
@@ -497,7 +496,7 @@ void showSheetDetail(BuildContext context, Exam exam, Result r) {
               child: TextButton.icon(
                 onPressed: () => shareStudentCard(context, exam, st.id),
                 icon: const Icon(Icons.send_outlined, size: 18),
-                label: const Text('Karneyi veliye gönder'),
+                label: Text(tr('Karneyi veliye gönder')),
               ),
             ),
           const SizedBox(height: 12),
@@ -582,12 +581,12 @@ class _AnalysisTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (results.isEmpty) {
-      return const Center(
+      return Center(
         child: SingleChildScrollView(
           child: EmptyState(
             kind: IllustrationKind.results,
-            title: 'Analiz kâğıtları bekliyor',
-            message: 'Kâğıtları okuttuğunuzda başarı dağılımı, soru analizi ve kazanım başarısı burada belirir.',
+            title: tr('Analiz kâğıtları bekliyor'),
+            message: tr('Kâğıtları okuttuğunuzda başarı dağılımı, soru analizi ve kazanım başarısı burada belirir.'),
           ),
         ),
       );
@@ -619,14 +618,14 @@ class _AnalysisTab extends StatelessWidget {
             const SizedBox(width: 14),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text('Doğru oranı %${(it.p * 100).round()} · ${it.difficultyLabel}',
+                Text(tr('Doğru oranı %{0} · {1}', [(it.p * 100).round(), it.difficultyLabel]),
                     style: const TextStyle(fontWeight: FontWeight.w600)),
                 if (code != null && code.isNotEmpty) Text(code, style: t.textTheme.bodySmall?.copyWith(color: muted)),
                 const SizedBox(height: 2),
                 Text(
                   warn
-                      ? '! Üst grubun çoğu ${letter(it.suspiciousChoice!)} şıkkını seçti; anahtarı kontrol edin'
-                      : 'Ayırt edicilik ${fmt2(it.d)} · ${it.discriminationLabel}',
+                      ? tr('! Üst grubun çoğu {0} şıkkını seçti; anahtarı kontrol edin', [letter(it.suspiciousChoice!)])
+                      : tr('Ayırt edicilik {0} · {1}', [fmt2(it.d), it.discriminationLabel]),
                   style: TextStyle(color: warn ? NColors.amber : t.colorScheme.onSurface.withValues(alpha: 0.65)),
                 ),
                 const SizedBox(height: 6),
@@ -638,19 +637,19 @@ class _AnalysisTab extends StatelessWidget {
                           fontWeight: exam.questions[it.no - 1].correct.contains(c) ? FontWeight.w800 : FontWeight.w400,
                           color: exam.questions[it.no - 1].correct.contains(c) ? NColors.emerald : null,
                         )),
-                  Text('Boş: ${it.blankCount}', style: const TextStyle(color: NColors.gray)),
+                  Text(tr('Boş: {0}', [it.blankCount]), style: const TextStyle(color: NColors.gray)),
                 ]),
                 if (it.nonFunctional.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
-                    child: Text('İşlevsiz çeldirici: ${it.nonFunctional.map(letter).join(', ')} (kimse seçmedi)',
+                    child: Text(tr('İşlevsiz çeldirici: {0} (kimse seçmedi)', [it.nonFunctional.map(letter).join(', ')]),
                         style: t.textTheme.bodySmall?.copyWith(color: muted)),
                   ),
               ]),
             ),
             if (warn)
               IconButton(
-                tooltip: 'Bu soruyu iptal et',
+                tooltip: tr('Bu soruyu iptal et'),
                 icon: const Icon(Icons.block),
                 onPressed: () => _cancelQuestion(context, it.no),
               ),
@@ -661,48 +660,48 @@ class _AnalysisTab extends StatelessWidget {
 
     final kr = s.kr20;
     final stats = <StatCard>[
-      StatCard(label: 'Ortalama', value: fmt1(s.mean), hint: 'Medyan ${fmt1(s.median)}', icon: Icons.functions),
+      StatCard(label: tr('Ortalama'), value: fmt1(s.mean), hint: tr('Medyan {0}', [fmt1(s.median)]), icon: Icons.functions),
       StatCard(
-          label: 'Başarı oranı',
+          label: tr('Başarı oranı'),
           value: '%${(rep.passRate * 100).round()}',
-          hint: 'Geçme puanı ${exam.rule.pass.round()} ve üzeri',
+          hint: tr('Geçme puanı {0} ve üzeri', [exam.rule.pass.round()]),
           icon: Icons.emoji_events_outlined),
-      StatCard(label: 'En yüksek', value: fmt1(s.max), hint: 'En düşük ${fmt1(s.min)}', icon: Icons.trending_up),
+      StatCard(label: tr('En yüksek'), value: fmt1(s.max), hint: tr('En düşük {0}', [fmt1(s.min)]), icon: Icons.trending_up),
       StatCard(
           label: 'Std. sapma',
           value: fmt1(s.stdDev),
-          hint: rep.cv == null ? null : 'Değişim %${rep.cv!.round()}',
+          hint: rep.cv == null ? null : tr('Değişim %{0}', [rep.cv!.round()]),
           icon: Icons.stacked_line_chart),
       StatCard(
-          label: 'Çeyrekler',
+          label: tr('Çeyrekler'),
           value: '${fmt1(rep.q1)}–${fmt1(rep.q3)}',
-          hint: 'Ortadaki yarı',
+          hint: tr('Ortadaki yarı'),
           icon: Icons.align_horizontal_center),
       StatCard(
-          label: 'Ortalama net',
+          label: tr('Ortalama net'),
           value: fmt2(rep.meanNet),
           hint: '${fmt1(rep.meanCorrect)} D · ${fmt1(rep.meanWrong)} Y · ${fmt1(rep.meanBlank)} B',
           icon: Icons.check_circle_outline),
       StatCard(
-          label: 'Güvenirlik',
+          label: tr('Güvenirlik'),
           value: kr == null ? '–' : fmt2(kr),
           hint: kr == null
-              ? 'KR-20 hesaplanamadı'
+              ? tr('KR-20 hesaplanamadı')
               : kr >= 0.8
-                  ? 'KR-20 · yüksek'
+                  ? tr('KR-20 · yüksek')
                   : kr >= 0.7
-                      ? 'KR-20 · kabul edilebilir'
-                      : 'KR-20 · düşük',
+                      ? tr('KR-20 · kabul edilebilir')
+                      : tr('KR-20 · düşük'),
           accent: kr != null && kr < 0.7 ? NColors.amber : null,
           icon: Icons.verified_outlined),
       StatCard(
-          label: 'Ölçme hatası',
+          label: tr('Ölçme hatası'),
           value: rep.sem == null ? '–' : '±${fmt1(rep.sem!)}',
           hint: 'SEM, puan',
           icon: Icons.blur_on),
-      StatCard(label: 'Güçlük (p)', value: fmt2(rep.meanP), hint: 'Doğru oranı', icon: Icons.speed),
-      StatCard(label: 'Ayırt edicilik', value: fmt2(rep.meanD), hint: 'Üst − alt grup', icon: Icons.compare_arrows),
-      StatCard(label: 'Üst %27 ort.', value: fmt1(rep.upperMean), accent: NColors.emerald, icon: Icons.north_east),
+      StatCard(label: tr('Güçlük (p)'), value: fmt2(rep.meanP), hint: tr('Doğru oranı'), icon: Icons.speed),
+      StatCard(label: tr('Ayırt edicilik'), value: fmt2(rep.meanD), hint: tr('Üst − alt grup'), icon: Icons.compare_arrows),
+      StatCard(label: tr('Üst %27 ort.'), value: fmt1(rep.upperMean), accent: NColors.emerald, icon: Icons.north_east),
       StatCard(label: 'Alt %27 ort.', value: fmt1(rep.lowerMean), accent: NColors.coral, icon: Icons.south_east),
     ];
 
@@ -712,10 +711,10 @@ class _AnalysisTab extends StatelessWidget {
       HeroPanel(
         padding: const EdgeInsets.all(18),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Text('RAPOR AL',
+          Text(tr('RAPOR AL'),
               style: TextStyle(color: Colors.white60, fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 1)),
           const SizedBox(height: 4),
-          const Text('Grafikli sınav raporu, öğrenci karneleri ve Excel listesi',
+          Text(tr('Grafikli sınav raporu, öğrenci karneleri ve Excel listesi'),
               style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700)),
           const SizedBox(height: 12),
           Wrap(spacing: 8, runSpacing: 8, children: [
@@ -729,7 +728,7 @@ class _AnalysisTab extends StatelessWidget {
           ]),
         ]),
       ),
-      const SectionTitle('Genel istatistikler'),
+      SectionTitle(tr('Genel istatistikler')),
       GridView(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
@@ -737,7 +736,7 @@ class _AnalysisTab extends StatelessWidget {
             maxCrossAxisExtent: 240, mainAxisExtent: 134, crossAxisSpacing: 12, mainAxisSpacing: 12),
         children: stats,
       ),
-      const SectionTitle('Otomatik değerlendirme'),
+      SectionTitle(tr('Otomatik değerlendirme')),
       Card(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -757,12 +756,12 @@ class _AnalysisTab extends StatelessWidget {
         ),
       ),
       if (!StoreScope.of(context).isPro) ...[
-        const SectionTitle('Grafikler'),
+        SectionTitle(tr('Grafikler')),
         const ProLocked(ProFeature.advancedCharts),
       ] else ...[
-      const SectionTitle('Grafikler'),
+      SectionTitle(tr('Grafikler')),
       _ChartsPanel(rep: rep),
-      const SectionTitle('Puanların yayılımı'),
+      SectionTitle(tr('Puanların yayılımı')),
       Card(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -770,7 +769,7 @@ class _AnalysisTab extends StatelessWidget {
               min: s.min, q1: rep.q1, median: s.median, q3: rep.q3, max: s.max, mean: s.mean, scaleMax: exam.rule.maxScore),
         ),
       ),
-      const SectionTitle('Madde haritası'),
+      SectionTitle(tr('Madde haritası')),
       Card(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -781,20 +780,20 @@ class _AnalysisTab extends StatelessWidget {
         ),
       ),
       if (rep.outcomes.length >= 3) ...[
-        const SectionTitle('Kazanım radarı'),
+        SectionTitle(tr('Kazanım radarı')),
         Card(
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Column(children: [
               RadarChart(axes: [for (final o in rep.outcomes) (o.code, o.rate)]),
-              Text('Yeşil alan: sınıfın doğru oranı · sarı çizgi: %70 hedef',
+              Text(tr('Yeşil alan: sınıfın doğru oranı · sarı çizgi: %70 hedef'),
                   style: t.textTheme.bodySmall?.copyWith(color: muted)),
             ]),
           ),
         ),
       ],
       ],
-      const SectionTitle('Başarı düzeyleri'),
+      SectionTitle(tr('Başarı düzeyleri')),
       Card(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -830,30 +829,30 @@ class _AnalysisTab extends StatelessWidget {
           ]),
         ),
       ),
-      const SectionTitle('Soru güçlük grafiği'),
+      SectionTitle(tr('Soru güçlük grafiği')),
       Card(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(12, 16, 12, 12),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             _DifficultyChart(exam: exam, items: items),
             const SizedBox(height: 8),
-            Text('Çubuk: doğru oranı · yeşil kolay, lacivert orta, mercan zor',
+            Text(tr('Çubuk: doğru oranı · yeşil kolay, lacivert orta, mercan zor'),
                 style: t.textTheme.bodySmall?.copyWith(color: muted)),
           ]),
         ),
       ),
-      const SectionTitle('Soru kalitesi'),
+      SectionTitle(tr('Soru kalitesi')),
       Card(
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Güçlük', style: t.textTheme.labelLarge?.copyWith(color: muted)),
+            Text(tr('Güçlük'), style: t.textTheme.labelLarge?.copyWith(color: muted)),
             const SizedBox(height: 6),
             Wrap(spacing: 8, runSpacing: 8, children: [
               for (final e in rep.difficultyCounts.entries) Chip(label: Text('${e.key}: ${e.value}')),
             ]),
             const SizedBox(height: 12),
-            Text('Ayırt edicilik', style: t.textTheme.labelLarge?.copyWith(color: muted)),
+            Text(tr('Ayırt edicilik'), style: t.textTheme.labelLarge?.copyWith(color: muted)),
             const SizedBox(height: 6),
             Wrap(spacing: 8, runSpacing: 8, children: [
               for (final e in rep.discriminationCounts.entries) Chip(label: Text('${e.key}: ${e.value}')),
@@ -861,17 +860,17 @@ class _AnalysisTab extends StatelessWidget {
           ]),
         ),
       ),
-      SectionTitle('Kazanım / konu analizi',
+      SectionTitle(tr('Kazanım / konu analizi'),
           trailing: TextButton.icon(
             onPressed: () => _editOutcomes(context),
             icon: const Icon(Icons.edit_outlined, size: 18),
-            label: const Text('Düzenle'),
+            label: Text(tr('Düzenle')),
           )),
       Card(
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: rep.outcomes.isEmpty
-              ? Text('Soruları konulara bağlarsanız her konunun başarısı burada ve raporda görünür. "Düzenle"ye dokunun.',
+              ? Text(tr('Soruları konulara bağlarsanız her konunun başarısı burada ve raporda görünür. "Düzenle"ye dokunun.'),
                   style: TextStyle(color: muted))
               : Column(children: [
                   for (final o in [...rep.outcomes]..sort((a, b) => a.rate.compareTo(b.rate)))
@@ -905,7 +904,7 @@ class _AnalysisTab extends StatelessWidget {
         ),
       ),
       if (rep.outcomes.isNotEmpty) ...[
-        const SectionTitle('Kazanım ısı haritası'),
+        SectionTitle(tr('Kazanım ısı haritası')),
         Card(
           clipBehavior: Clip.antiAlias,
           child: SingleChildScrollView(
@@ -918,12 +917,12 @@ class _AnalysisTab extends StatelessWidget {
       if (results.length < Analysis.reliableGroupSize)
         Padding(
           padding: const EdgeInsets.only(top: 12),
-          child: Text('${results.length} öğrenci ile madde istatistikleri güvenilir değildir; yol gösterici olarak okuyun.',
+          child: Text(tr('{0} öğrenci ile madde istatistikleri güvenilir değildir; yol gösterici olarak okuyun.', [results.length]),
               style: t.textTheme.bodySmall?.copyWith(color: NColors.amber)),
         ),
-      const SectionTitle('En çok yanlış yapılan sorular'),
+      SectionTitle(tr('En çok yanlış yapılan sorular')),
       for (final it in worst.take(5)) Padding(padding: const EdgeInsets.only(bottom: 10), child: itemCard(it)),
-      const SectionTitle('Tüm sorular'),
+      SectionTitle(tr('Tüm sorular')),
       for (final it in items) Padding(padding: const EdgeInsets.only(bottom: 10), child: itemCard(it)),
     ]);
   }
@@ -934,7 +933,7 @@ class _AnalysisTab extends StatelessWidget {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Kazanımlar / konular'),
+        title: Text(tr('Kazanımlar / konular')),
         content: SizedBox(
           width: 420,
           child: TextField(
@@ -942,15 +941,15 @@ class _AnalysisTab extends StatelessWidget {
             autofocus: true,
             minLines: 4,
             maxLines: 10,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               hintText: '1-5 Hareket\n6-10 Kuvvet',
-              helperText: 'Her satıra soru aralığı ve konu adı yazın.',
+              helperText: tr('Her satıra soru aralığı ve konu adı yazın.'),
             ),
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Vazgeç')),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Kaydet')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr('Vazgeç'))),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(tr('Kaydet'))),
         ],
       ),
     );
@@ -960,7 +959,7 @@ class _AnalysisTab extends StatelessWidget {
       for (final q in exam.questions)
         Question(no: q.no, correct: q.correct, points: q.points, cancelled: q.cancelled, outcomeCode: m[q.no]),
     ]));
-    if (context.mounted) toast(context, 'Kazanımlar kaydedildi.');
+    if (context.mounted) toast(context, tr('Kazanımlar kaydedildi.'));
   }
 
   void _cancelQuestion(BuildContext context, int no) {
@@ -968,7 +967,7 @@ class _AnalysisTab extends StatelessWidget {
     final qs = [...exam.questions];
     qs[no - 1] = qs[no - 1].copyWith(cancelled: true);
     store.upsertExam(exam.copyWith(questions: qs));
-    toast(context, '$no. soru iptal edildi; tüm puanlar yeniden hesaplandı.');
+    toast(context, tr('{0}. soru iptal edildi; tüm puanlar yeniden hesaplandı.', [no]));
   }
 }
 
@@ -982,7 +981,7 @@ class _ChartsPanel extends StatefulWidget {
 
 class _ChartsPanelState extends State<_ChartsPanel> {
   int _tab = 0;
-  static const _tabs = ['Düzeyler', 'Cevaplar', 'Geçme', 'Güçlük'];
+  static List<String> get _tabs => [tr('Düzeyler'), tr('Cevaplar'), tr('Geçme'), tr('Güçlük')];
   static const _levelColors = [NColors.emerald, Color(0xFF34D399), NColors.amber, Color(0xFFF59E0B), NColors.coral];
 
   @override
@@ -994,24 +993,24 @@ class _ChartsPanelState extends State<_ChartsPanel> {
     final w = rep.results.fold<int>(0, (a, r) => a + r.wrong);
     final b = rep.results.fold<int>(0, (a, r) => a + r.blank);
     final chart = switch (_tab) {
-      0 => DonutChart(key: const ValueKey(0), pie: true, centerLabel: 'öğrenci', unit: ' kişi', slices: [
+      0 => DonutChart(key: const ValueKey(0), pie: true, centerLabel: tr('öğrenci'), unit: tr(' kişi'), slices: [
           for (var i = 0; i < Level.all.length; i++)
             Slice(Level.all[i].name, rep.levelCounts[i].toDouble(), _levelColors[i],
-                detail: '${Level.all[i].name}: tam puanın %${Level.all[i].minPct.round()} ve üzeri'),
+                detail: tr('{0}: tam puanın %{1} ve üzeri', [Level.all[i].name, Level.all[i].minPct.round()])),
         ]),
       1 => DonutChart(key: const ValueKey(1), centerLabel: 'cevap', slices: [
-          Slice('Doğru', c.toDouble(), NColors.emerald, detail: 'Öğrenci başına ${fmt1(n == 0 ? 0 : c / n)} doğru'),
-          Slice('Yanlış', w.toDouble(), NColors.coral, detail: 'Öğrenci başına ${fmt1(n == 0 ? 0 : w / n)} yanlış'),
-          Slice('Boş', b.toDouble(), NColors.gray, detail: 'Öğrenci başına ${fmt1(n == 0 ? 0 : b / n)} boş'),
+          Slice(tr('Doğru'), c.toDouble(), NColors.emerald, detail: tr('Öğrenci başına {0} doğru', [fmt1(n == 0 ? 0 : c / n)])),
+          Slice(tr('Yanlış'), w.toDouble(), NColors.coral, detail: tr('Öğrenci başına {0} yanlış', [fmt1(n == 0 ? 0 : w / n)])),
+          Slice(tr('Boş'), b.toDouble(), NColors.gray, detail: tr('Öğrenci başına {0} boş', [fmt1(n == 0 ? 0 : b / n)])),
         ]),
-      2 => DonutChart(key: const ValueKey(2), centerLabel: 'öğrenci', unit: ' kişi', slices: [
-          Slice('Geçti', passed.toDouble(), NColors.emerald, detail: 'Geçme puanı ${rep.exam.rule.pass.round()}'),
-          Slice('Geçemedi', (n - passed).toDouble(), NColors.coral),
+      2 => DonutChart(key: const ValueKey(2), centerLabel: tr('öğrenci'), unit: tr(' kişi'), slices: [
+          Slice(tr('Geçti'), passed.toDouble(), NColors.emerald, detail: tr('Geçme puanı {0}', [rep.exam.rule.pass.round()])),
+          Slice(tr('Geçemedi'), (n - passed).toDouble(), NColors.coral),
         ]),
       _ => DonutChart(key: const ValueKey(3), centerLabel: 'soru', unit: ' soru', slices: [
-          Slice('Kolay', (rep.difficultyCounts['Kolay'] ?? 0).toDouble(), NColors.emerald, detail: 'Doğru oranı %80 üzeri'),
-          Slice('Orta', (rep.difficultyCounts['Orta'] ?? 0).toDouble(), NColors.ink, detail: 'Doğru oranı %30–80'),
-          Slice('Zor', (rep.difficultyCounts['Zor'] ?? 0).toDouble(), NColors.coral, detail: 'Doğru oranı %30 altı'),
+          Slice(tr('Kolay'), (rep.difficultyCounts['Kolay'] ?? 0).toDouble(), NColors.emerald, detail: tr('Doğru oranı %80 üzeri')),
+          Slice(tr('Orta'), (rep.difficultyCounts['Orta'] ?? 0).toDouble(), NColors.ink, detail: tr('Doğru oranı %30–80')),
+          Slice(tr('Zor'), (rep.difficultyCounts['Zor'] ?? 0).toDouble(), NColors.coral, detail: tr('Doğru oranı %30 altı')),
         ]),
     };
     return Card(
@@ -1035,7 +1034,7 @@ class _ChartsPanelState extends State<_ChartsPanel> {
           const SizedBox(height: 14),
           AnimatedSwitcher(duration: const Duration(milliseconds: 250), child: chart),
           const SizedBox(height: 6),
-          Text('Dilime veya açıklamaya dokunarak ayrıntıyı görün.',
+          Text(tr('Dilime veya açıklamaya dokunarak ayrıntıyı görün.'),
               style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.55))),
         ]),
       ),
@@ -1076,7 +1075,7 @@ class _DifficultyChart extends StatelessWidget {
                   ? (t.brightness == Brightness.dark ? const Color(0xFF6C7BB5) : NColors.ink)
                   : NColors.coral;
       return Tooltip(
-        message: cancelled ? '${it.no}. soru iptal' : '${it.no}. soru: %${(p * 100).round()} doğru',
+        message: cancelled ? tr('{0}. soru iptal', [it.no]) : tr('{0}. soru: %{1} doğru', [it.no, (p * 100).round()]),
         child: SizedBox(
           width: barW + 6,
           child: Column(mainAxisAlignment: MainAxisAlignment.end, children: [
@@ -1156,11 +1155,11 @@ class _Heatmap extends StatelessWidget {
       const SizedBox(height: 4),
       for (final st in rep.standings)
         Row(children: [
-          name(students[st.result.sheet.studentId]?.fullName ?? 'Eşleşmeyen kâğıt'),
+          name(students[st.result.sheet.studentId]?.fullName ?? tr('Eşleşmeyen kâğıt')),
           for (final o in rep.outcomes) cell(o.rateOf(rep.exam, st.result)),
         ]),
       Row(children: [
-        name('Sınıf', bold: true),
+        name(tr('Sınıf'), bold: true),
         for (final o in rep.outcomes) cell(o.rate, bold: true),
       ]),
     ]);
@@ -1179,7 +1178,7 @@ Future<void> openCardsPreview(BuildContext context, Exam exam, {String? studentI
   ]..sort((a, b) => a.$2.compareTo(b.$2));
   await Navigator.of(context).push(MaterialPageRoute(
     builder: (_) => StudentCardsPreview(
-      title: 'Öğrenci karnesi',
+      title: tr('Öğrenci karnesi'),
       baseFileName: '${_safe(exam.name)}_karne',
       students: students,
       initialStudentId: studentId,
@@ -1203,19 +1202,14 @@ Future<void> shareStudentCard(BuildContext context, Exam exam, String studentId)
         exam: exam, results: results, students: store.studentById, onlyStudentId: studentId, school: store.reportSchool);
     final rep = ExamReport.build(exam, results);
     final school = store.school.name.trim();
-    final body = 'Sayın Velimiz,\n\n'
-        '${st.fullName} adlı öğrencimizin "${exam.name}" (${dmy(exam.date)}) sınav karnesi ektedir.\n'
-        'Puanı: ${fmt1(r.score)} / ${fmt1(exam.rule.maxScore)} · Sınıf ortalaması: ${fmt1(rep.stats.mean)}\n\n'
-        'Saygılarımızla,\n${store.school.teacher.trim().isEmpty ? 'Ders öğretmeni' : store.school.teacher.trim()}'
-        '${school.isEmpty ? '' : '\n$school'}'
-        '$downloadSignature';
+    final body = tr('Sayın Velimiz,\n\n{0} adlı öğrencimizin "{1}" ({2}) sınav karnesi ektedir.\nPuanı: {3} / {4} · Sınıf ortalaması: {5}\n\nSaygılarımızla,\n{6}{7}{8}', [st.fullName, exam.name, dmy(exam.date), fmt1(r.score), fmt1(exam.rule.maxScore), fmt1(rep.stats.mean), store.school.teacher.trim().isEmpty ? tr('Ders öğretmeni') : store.school.teacher.trim(), school.isEmpty ? '' : '\n$school', downloadSignature]);
     await Printing.sharePdf(
       bytes: bytes,
       filename: '${_safe(st.fullName)}_${_safe(exam.name)}_karne.pdf',
-      subject: '${st.fullName} – ${exam.name} sınav karnesi',
+      subject: tr('{0} – {1} sınav karnesi', [st.fullName, exam.name]),
       body: body,
     );
   } catch (e) {
-    messenger?.showSnackBar(SnackBar(content: Text('Karne paylaşılamadı: $e')));
+    messenger?.showSnackBar(SnackBar(content: Text(tr('Karne paylaşılamadı: {0}', [e]))));
   }
 }

@@ -1,6 +1,7 @@
 import 'models.dart';
 import 'report.dart';
 import 'store.dart';
+import '../l10n/l10n.dart';
 
 /// Eğitim-öğretim yılının bir dönemi.
 class Term {
@@ -15,9 +16,9 @@ class Term {
   static List<Term> around(DateTime now) {
     final y = now.month >= 9 ? now.year : now.year - 1;
     return [
-      Term('1. dönem ($y-${y + 1})', DateTime(y, 9), DateTime(y + 1, 2)),
-      Term('2. dönem ($y-${y + 1})', DateTime(y + 1, 2), DateTime(y + 1, 9)),
-      Term('Tüm yıl ($y-${y + 1})', DateTime(y, 9), DateTime(y + 1, 9)),
+      Term(tr('1. dönem ({0}-{1})', [y, y + 1]), DateTime(y, 9), DateTime(y + 1, 2)),
+      Term(tr('2. dönem ({0}-{1})', [y, y + 1]), DateTime(y + 1, 2), DateTime(y + 1, 9)),
+      Term(tr('Tüm yıl ({0}-{1})', [y, y + 1]), DateTime(y, 9), DateTime(y + 1, 9)),
     ];
   }
 

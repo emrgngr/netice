@@ -3,13 +3,16 @@ import 'dart:math' as math;
 import 'analysis.dart';
 import 'models.dart';
 import 'scoring.dart';
+import '../l10n/l10n.dart';
 
 /// Başarı düzeyi (100'lük sisteme göre, puan tam puana oranlanır).
 class Level {
-  final String name;
+  final String _name;
   final int grade; // 5..1
   final double minPct;
-  const Level(this.name, this.grade, this.minPct);
+  const Level(this._name, this.grade, this.minPct);
+
+  String get name => tr(_name);
 
   static const all = [
     Level('Pekiyi', 5, 85),
@@ -262,60 +265,58 @@ class ExamReport {
     );
   }
 
-  static String _c(String v) => v.replaceAll('.', ',');
+  static String _c(String v) => v.replaceAll('.', L10n.decimal);
 
   List<String> _buildComments() {
     if (results.isEmpty) return const [];
     String pct(double v) => '%${(v * 100).round()}';
     final c = <String>[];
     c.add(meanP < 0.40
-        ? 'Sınav zor: soruların ortalama doğru oranı ${pct(meanP)}.'
+        ? tr('Sınav zor: soruların ortalama doğru oranı {0}.', [pct(meanP)])
         : meanP <= 0.70
-            ? 'Sınav orta güçlükte: soruların ortalama doğru oranı ${pct(meanP)}.'
-            : 'Sınav kolay: soruların ortalama doğru oranı ${pct(meanP)}.');
-    c.add('Öğrencilerin ${pct(passRate)}\'i geçme puanını (${exam.rule.pass.round()}) aldı.');
+            ? tr('Sınav orta güçlükte: soruların ortalama doğru oranı {0}.', [pct(meanP)])
+            : tr('Sınav kolay: soruların ortalama doğru oranı {0}.', [pct(meanP)]));
+    c.add(tr('Öğrencilerin {0}\'i geçme puanını ({1}) aldı.', [pct(passRate), exam.rule.pass.round()]));
     final kr = stats.kr20;
     if (kr != null) {
       c.add(kr >= 0.80
-          ? 'Güvenirlik yüksek (KR-20 = ${_c(kr.toStringAsFixed(2))}): sınav tutarlı ölçüyor.'
+          ? tr('Güvenirlik yüksek (KR-20 = {0}): sınav tutarlı ölçüyor.', [_c(kr.toStringAsFixed(2))])
           : kr >= 0.70
-              ? 'Güvenirlik kabul edilebilir (KR-20 = ${_c(kr.toStringAsFixed(2))}).'
-              : 'Güvenirlik düşük (KR-20 = ${_c(kr.toStringAsFixed(2))}): soru sayısını artırmak veya zayıf soruları gözden geçirmek önerilir.');
+              ? tr('Güvenirlik kabul edilebilir (KR-20 = {0}).', [_c(kr.toStringAsFixed(2))])
+              : tr('Güvenirlik düşük (KR-20 = {0}): soru sayısını artırmak veya zayıf soruları gözden geçirmek önerilir.', [_c(kr.toStringAsFixed(2))]));
     }
     if (skewness > 0.5) {
-      c.add('Puanlar düşük tarafta toplanmış: sınıfın çoğu ortalamanın altında kaldı.');
+      c.add(tr('Puanlar düşük tarafta toplanmış: sınıfın çoğu ortalamanın altında kaldı.'));
     } else if (skewness < -0.5) {
-      c.add('Puanlar yüksek tarafta toplanmış: sınıfın çoğu ortalamanın üstünde.');
+      c.add(tr('Puanlar yüksek tarafta toplanmış: sınıfın çoğu ortalamanın üstünde.'));
     } else {
-      c.add('Puanlar ortalama çevresinde dengeli dağılmış.');
+      c.add(tr('Puanlar ortalama çevresinde dengeli dağılmış.'));
     }
-    c.add('En başarılı %27 ile en düşük %27 arasındaki fark ${_c((upperMean - lowerMean).toStringAsFixed(1))} puan.');
+    c.add(tr('En başarılı %27 ile en düşük %27 arasındaki fark {0} puan.', [_c((upperMean - lowerMean).toStringAsFixed(1))]));
     final suspicious = items.where((i) => i.suspiciousChoice != null).map((i) => i.no).toList();
     if (suspicious.isNotEmpty) {
-      c.add('Cevap anahtarı kontrol edilmeli: ${suspicious.join(', ')}. soru (başarılı öğrencilerin çoğu başka şıkkı seçti).');
+      c.add(tr('Cevap anahtarı kontrol edilmeli: {0}. soru (başarılı öğrencilerin çoğu başka şıkkı seçti).', [suspicious.join(', ')]));
     }
     final weak = items
         .where((i) => !exam.questions[i.no - 1].cancelled && i.d < 0.20 && i.suspiciousChoice == null)
         .map((i) => i.no)
         .toList();
     if (weak.isNotEmpty) {
-      c.add('Ayırt ediciliği düşük sorular: ${weak.join(', ')}. Bu sorular başarılı ve başarısız öğrenciyi ayırmakta zorlanıyor.');
+      c.add(tr('Ayırt ediciliği düşük sorular: {0}. Bu sorular başarılı ve başarısız öğrenciyi ayırmakta zorlanıyor.', [weak.join(', ')]));
     }
     final dead = items.where((i) => i.nonFunctional.isNotEmpty).toList();
     if (dead.isNotEmpty) {
-      c.add('İşlevsiz çeldirici (hiç seçilmeyen şık) olan sorular: '
-          '${dead.map((i) => '${i.no} (${i.nonFunctional.map((x) => String.fromCharCode(65 + x)).join('/')})').join(', ')}. '
-          'Bu şıklar daha inandırıcı hâle getirilebilir.');
+      c.add(tr('İşlevsiz çeldirici (hiç seçilmeyen şık) olan sorular: {0}. Bu şıklar daha inandırıcı hâle getirilebilir.', [dead.map((i) => '${i.no} (${i.nonFunctional.map((x) => String.fromCharCode(65 + x)).join('/')})').join(', ')]));
     }
     if (outcomes.isNotEmpty) {
       final s = [...outcomes]..sort((a, b) => a.rate.compareTo(b.rate));
       final weakest = s.take(3).map((o) => '${o.code} (${pct(o.rate)})').join(', ');
       c.add(s.length == 1
-          ? 'Kazanım başarısı: $weakest.'
-          : 'En çok tekrar gereken ${math.min(3, s.length)} kazanım: $weakest.');
+          ? tr('Kazanım başarısı: {0}.', [weakest])
+          : tr('En çok tekrar gereken {0} kazanım: {1}.', [math.min(3, s.length), weakest]));
     }
     if (results.length < Analysis.reliableGroupSize) {
-      c.add('Not: ${results.length} öğrenci ile madde istatistikleri yol göstericidir, kesin hüküm değildir.');
+      c.add(tr('Not: {0} öğrenci ile madde istatistikleri yol göstericidir, kesin hüküm değildir.', [results.length]));
     }
     return c;
   }

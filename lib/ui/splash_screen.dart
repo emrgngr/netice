@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:material_ui/material_ui.dart';
 
 import 'theme.dart';
+import '../l10n/l10n.dart';
 
 /// Açılış animasyonu. Gündüz (07:00–19:00) inci beyazı zeminde nane ve
 /// şampanya tonlu yumuşak ışık; gece derin lacivertte zümrüt ve çivit ışık.
@@ -131,7 +132,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                         stops: [0, (x - 0.12).clamp(0.0, 1.0), x.clamp(0.0, 1.0)],
                       ).createShader(r);
                     },
-                    child: Text('Netice',
+                    child: Text(tr('Netice'),
                         style: TextStyle(
                             fontFamily: 'PlusJakartaSans',
                             fontSize: 46,
@@ -158,7 +159,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                 const SizedBox(height: 14),
                 Opacity(
                   opacity: slogan,
-                  child: Text('KÂĞITTAN SONUCA, SANİYELER İÇİNDE',
+                  child: Text(tr('KÂĞITTAN SONUCA, SANİYELER İÇİNDE'),
                       style: TextStyle(
                           fontFamily: 'PlusJakartaSans',
                           fontSize: 11.5,
@@ -178,7 +179,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   Icon(Icons.lock_outline_rounded, size: 13, color: ink.withValues(alpha: 0.5)),
                   const SizedBox(width: 6),
                   Flexible(
-                    child: Text('Çevrimdışı çalışır · Verileriniz bu cihazda kalır',
+                    child: Text(tr('Çevrimdışı çalışır · Verileriniz bu cihazda kalır'),
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontFamily: 'PlusJakartaSans',

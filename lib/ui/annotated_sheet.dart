@@ -7,6 +7,7 @@ import '../core/scoring.dart';
 import '../omr/form_layout.dart';
 import '../omr/template.dart';
 import 'theme.dart';
+import '../l10n/l10n.dart';
 
 /// İşaretli kâğıt: düzleştirilmiş kâğıt fotoğrafının üzerine her soru için
 /// doğru (yeşil halka), yanlış (kırmızı halka + doğru şık yeşil kesik halka),
@@ -138,7 +139,7 @@ class SheetMarksPainter extends CustomPainter {
       final tp = TextPainter(
         text: TextSpan(children: [
           TextSpan(
-              text: result.score.toStringAsFixed(result.score % 1 == 0 ? 0 : 1).replaceAll('.', ','),
+              text: result.score.toStringAsFixed(result.score % 1 == 0 ? 0 : 1).replaceAll('.', L10n.decimal),
               style: TextStyle(fontFamily: 'PlusJakartaSans', color: Colors.white, fontSize: 9 * mm, fontWeight: FontWeight.w900)),
           TextSpan(
               text: '\n${result.correct} D · ${result.wrong} Y · ${result.blank} B',

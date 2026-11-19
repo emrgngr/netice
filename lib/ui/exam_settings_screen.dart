@@ -6,6 +6,7 @@ import 'key_from_photo.dart';
 import 'theme.dart';
 import 'widgets.dart';
 import 'template_screen.dart';
+import '../l10n/l10n.dart';
 
 /// Sınav ayarları: ad, tarih, puanlama, geçme puanı ve soru bazında
 /// cevap anahtarı / puan / kazanım / iptal. Kaydedince tüm kâğıtlar
@@ -61,7 +62,7 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
     _loaded = true;
   }
 
-  static String _num(double v) => v == v.roundToDouble() ? v.toInt().toString() : v.toString().replaceAll('.', ',');
+  static String _num(double v) => v == v.roundToDouble() ? v.toInt().toString() : v.toString().replaceAll('.', L10n.decimal);
   static double? _parse(String s) => double.tryParse(s.trim().replaceAll(',', '.'));
 
   void _toggle(int i, int c) => setState(() {
@@ -82,25 +83,25 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
 
   Future<void> _pickDate() async {
     final d = await showDatePicker(
-        context: context, initialDate: _date, firstDate: DateTime(2020), lastDate: DateTime(2100), helpText: 'Sınav tarihi');
+        context: context, initialDate: _date, firstDate: DateTime(2020), lastDate: DateTime(2100), helpText: tr('Sınav tarihi'));
     if (d != null) setState(() => _date = DateTime(d.year, d.month, d.day, _date.hour, _date.minute));
   }
 
   Future<void> _pickTime() async {
-    final t = await showTimePicker(context: context, initialTime: TimeOfDay.fromDateTime(_date), helpText: 'Sınav saati');
+    final t = await showTimePicker(context: context, initialTime: TimeOfDay.fromDateTime(_date), helpText: tr('Sınav saati'));
     if (t != null) setState(() => _date = DateTime(_date.year, _date.month, _date.day, t.hour, t.minute));
   }
 
   void _save() {
     final max = _parse(_max.text);
     final pass = _parse(_pass.text);
-    if (_name.text.trim().isEmpty) return toast(context, 'Sınava bir ad verin.');
-    if (max == null || max <= 0) return toast(context, 'Tam puan geçerli bir sayı olmalı.');
-    if (pass == null || pass < 0 || pass > max) return toast(context, 'Geçme puanı 0 ile tam puan arasında olmalı.');
+    if (_name.text.trim().isEmpty) return toast(context, tr('Sınava bir ad verin.'));
+    if (max == null || max <= 0) return toast(context, tr('Tam puan geçerli bir sayı olmalı.'));
+    if (pass == null || pass < 0 || pass > max) return toast(context, tr('Geçme puanı 0 ile tam puan arasında olmalı.'));
     final qs = <Question>[];
     for (var i = 0; i < _qs.length; i++) {
       final p = _parse(_points[i].text);
-      if (p == null || p <= 0) return toast(context, '${i + 1}. sorunun puanı geçerli değil.');
+      if (p == null || p <= 0) return toast(context, tr('{0}. sorunun puanı geçerli değil.', [i + 1]));
       final code = _codes[i].text.trim();
       qs.add(Question(
           no: _qs[i].no,
@@ -112,26 +113,26 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
     final open = <OpenQuestion>[];
     for (var i = 0; i < _open.length; i++) {
       final m = _parse(_open[i].$2.text);
-      if (m == null || m <= 0) return toast(context, '${i + 1}. klasik sorunun puanı geçerli değil.');
+      if (m == null || m <= 0) return toast(context, tr('{0}. klasik sorunun puanı geçerli değil.', [i + 1]));
       final label = _open[i].$1.text.trim();
-      open.add(OpenQuestion(label: label.isEmpty ? 'Klasik ${i + 1}' : label, maxPoints: m));
+      open.add(OpenQuestion(label: label.isEmpty ? tr('Klasik {0}', [i + 1]) : label, maxPoints: m));
     }
     final openSum = open.fold(0.0, (a, q) => a + q.maxPoints);
     if (openSum >= max) {
-      return toast(context, 'Klasik soruların toplamı (${_num(openSum)}) tam puandan küçük olmalı; kalanı test kısmıdır.');
+      return toast(context, tr('Klasik soruların toplamı ({0}) tam puandan küçük olmalı; kalanı test kısmıdır.', [_num(openSum)]));
     }
     final tpl = StoreScope.of(context).templateById(_template);
     if (tpl != null && _booklet) {
-      return toast(context, 'Başka firma formlarında A/B kitapçık okunamaz; kitapçık seçeneğini kapatın.');
+      return toast(context, tr('Başka firma formlarında A/B kitapçık okunamaz; kitapçık seçeneğini kapatın.'));
     }
     if (tpl != null && tpl.questionCount < _qs.length) {
-      return toast(context, '"${tpl.name}" şablonunda ${tpl.questionCount} soru var; sınavda ${_qs.length} soru var. Şablona blok ekleyin.');
+      return toast(context, tr('"{0}" şablonunda {1} soru var; sınavda {2} soru var. Şablona blok ekleyin.', [tpl.name, tpl.questionCount, _qs.length]));
     }
     List<int>? order;
     if (_booklet) {
       order = Exam.parseBookletOrder(_order.text, _qs.length);
       if (order == null) {
-        return toast(context, 'B kitapçığı sırası 1–${_qs.length} arasındaki her numarayı bir kez içermeli.');
+        return toast(context, tr('B kitapçığı sırası 1–{0} arasındaki her numarayı bir kez içermeli.', [_qs.length]));
       }
     }
     StoreScope.of(context).upsertExam(_exam.copyWith(
@@ -146,7 +147,7 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
       questions: qs,
       rule: ScoringRule(wrongsPerCorrect: _wpc, maxScore: max, passScore: pass),
     ));
-    toast(context, 'Kaydedildi; tüm puanlar yeniden hesaplandı.');
+    toast(context, tr('Kaydedildi; tüm puanlar yeniden hesaplandı.'));
     Navigator.pop(context);
   }
 
@@ -154,14 +155,14 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Sınav silinsin mi?'),
-        content: Text('"${_exam.name}" ve okunan tüm kâğıtları kalıcı olarak silinecek.'),
+        title: Text(tr('Sınav silinsin mi?')),
+        content: Text(tr('"{0}" ve okunan tüm kâğıtları kalıcı olarak silinecek.', [_exam.name])),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Vazgeç')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr('Vazgeç'))),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: NColors.coral, foregroundColor: Colors.white),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Sil'),
+            child: Text(tr('Sil')),
           ),
         ],
       ),
@@ -177,13 +178,13 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
     final t = Theme.of(context);
     final muted = t.colorScheme.onSurface.withValues(alpha: 0.6);
     return Scaffold(
-      appBar: AppBar(title: const Text('Sınav ayarları'), actions: [
-        IconButton(tooltip: 'Sınavı sil', onPressed: _delete, icon: const Icon(Icons.delete_outline)),
+      appBar: AppBar(title: Text(tr('Sınav ayarları')), actions: [
+        IconButton(tooltip: tr('Sınavı sil'), onPressed: _delete, icon: const Icon(Icons.delete_outline)),
       ]),
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
-          child: FilledButton(onPressed: _save, child: const Text('Kaydet ve yeniden puanla')),
+          child: FilledButton(onPressed: _save, child: Text(tr('Kaydet ve yeniden puanla'))),
         ),
       ),
       body: Watermark(
@@ -191,9 +192,9 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 760),
             child: ListView(padding: const EdgeInsets.all(20), children: [
-              TextField(controller: _name, decoration: const InputDecoration(labelText: 'Sınav adı')),
+              TextField(controller: _name, decoration: InputDecoration(labelText: tr('Sınav adı'))),
               const SizedBox(height: 12),
-              TextField(controller: _class, decoration: const InputDecoration(labelText: 'Sınıf / şube')),
+              TextField(controller: _class, decoration: InputDecoration(labelText: tr('Sınıf / şube'))),
               const SizedBox(height: 12),
               Row(children: [
                 Expanded(
@@ -204,13 +205,13 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
                     child: OutlinedButton.icon(
                         onPressed: _pickTime, icon: const Icon(Icons.schedule_rounded, size: 18), label: Text(hm(_date)))),
               ]),
-              const SectionTitle('Puanlama'),
+              SectionTitle(tr('Puanlama')),
               Row(children: [
                 Expanded(
                   child: TextField(
                     controller: _max,
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(labelText: 'Tam puan'),
+                    decoration: InputDecoration(labelText: tr('Tam puan')),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -218,31 +219,31 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
                   child: TextField(
                     controller: _pass,
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(labelText: 'Geçme puanı'),
+                    decoration: InputDecoration(labelText: tr('Geçme puanı')),
                   ),
                 ),
               ]),
               const SizedBox(height: 12),
               DropdownButtonFormField<int>(
                 initialValue: _wpc,
-                decoration: const InputDecoration(labelText: 'Yanlış götürme'),
-                items: const [
-                  DropdownMenuItem(value: 0, child: Text('Yok')),
-                  DropdownMenuItem(value: 3, child: Text('3 yanlış 1 doğru')),
-                  DropdownMenuItem(value: 4, child: Text('4 yanlış 1 doğru')),
+                decoration: InputDecoration(labelText: tr('Yanlış götürme')),
+                items: [
+                  DropdownMenuItem(value: 0, child: Text(tr('Yok'))),
+                  DropdownMenuItem(value: 3, child: Text(tr('3 yanlış 1 doğru'))),
+                  DropdownMenuItem(value: 4, child: Text(tr('4 yanlış 1 doğru'))),
                 ],
                 onChanged: (v) => setState(() => _wpc = v ?? 0),
               ),
-              const SectionTitle('Form türü'),
+              SectionTitle(tr('Form türü')),
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                     DropdownButtonFormField<String?>(
                       initialValue: StoreScope.of(context).templateById(_template)?.id,
-                      decoration: const InputDecoration(labelText: 'Öğrencilerin dolduracağı form'),
+                      decoration: InputDecoration(labelText: tr('Öğrencilerin dolduracağı form')),
                       items: [
-                        const DropdownMenuItem(value: null, child: Text('Netice formu (önerilen)')),
+                        DropdownMenuItem(value: null, child: Text(tr('Netice formu (önerilen)'))),
                         for (final tp in StoreScope.of(context).templates)
                           DropdownMenuItem(value: tp.id, child: Text(tp.name, overflow: TextOverflow.ellipsis)),
                       ],
@@ -250,7 +251,7 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Yayınevi ya da başka firmanın formunu kullanıyorsanız önce o form için şablon oluşturun.',
+                      tr('Yayınevi ya da başka firmanın formunu kullanıyorsanız önce o form için şablon oluşturun.'),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     Align(
@@ -261,22 +262,21 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
                           if (mounted) setState(() {});
                         },
                         icon: const Icon(Icons.grid_on_rounded),
-                        label: const Text('Başka firma formları'),
+                        label: Text(tr('Başka firma formları')),
                       ),
                     ),
                   ]),
                 ),
               ),
-              const SectionTitle('Kitapçık türü'),
+              SectionTitle(tr('Kitapçık türü')),
               Card(
                 clipBehavior: Clip.antiAlias,
                 child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                   SwitchListTile(
                     value: _booklet,
                     onChanged: (v) => setState(() => _booklet = v),
-                    title: const Text('A ve B kitapçığı var', style: TextStyle(fontWeight: FontWeight.w700)),
-                    subtitle: const Text('Kopya önlemek için soruların yeri değişik ikinci kitapçık. '
-                        'Formda kitapçık dairesi çıkar, kâğıtlar kendiliğinden doğru anahtarla puanlanır.'),
+                    title: Text(tr('A ve B kitapçığı var'), style: TextStyle(fontWeight: FontWeight.w700)),
+                    subtitle: Text(tr('Kopya önlemek için soruların yeri değişik ikinci kitapçık. Formda kitapçık dairesi çıkar, kâğıtlar kendiliğinden doğru anahtarla puanlanır.')),
                   ),
                   if (_booklet)
                     Padding(
@@ -288,12 +288,12 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
                           minLines: 1,
                           maxLines: 3,
                           decoration: InputDecoration(
-                            labelText: 'B kitapçığındaki soruların A\'daki numaraları',
-                            hintText: 'Örn. 3, 1, 4, 2, …  (B\'nin 1. sorusu A\'nın 3. sorusu)',
+                            labelText: tr('B kitapçığındaki soruların A\'daki numaraları'),
+                            hintText: tr('Örn. 3, 1, 4, 2, …  (B\'nin 1. sorusu A\'nın 3. sorusu)'),
                             errorText: _order.text.trim().isEmpty ||
                                     Exam.parseBookletOrder(_order.text, _qs.length) != null
                                 ? null
-                                : '1–${_qs.length} arası her numara bir kez yazılmalı',
+                                : tr('1–{0} arası her numara bir kez yazılmalı', [_qs.length]),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -302,11 +302,11 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
                             child: Text(
                               () {
                                 final o = Exam.parseBookletOrder(_order.text, _qs.length);
-                                if (o == null) return 'B anahtarı sıra girilince burada görünür.';
-                                return 'B anahtarı: ${[
+                                if (o == null) return tr('B anahtarı sıra girilince burada görünür.');
+                                return tr('B anahtarı: {0}', [[
                                   for (final i in o)
                                     _qs[i].correct.isEmpty ? '–' : _qs[i].correct.map((c) => String.fromCharCode(65 + c)).join('/')
-                                ].join(' ')}';
+                                ].join(' ')]);
                               }(),
                               style: t.textTheme.bodySmall?.copyWith(color: muted),
                             ),
@@ -315,27 +315,25 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
                             onPressed: () => setState(() =>
                                 _order.text = ([for (var i = 1; i <= _qs.length; i++) i]..shuffle()).join(', ')),
                             icon: const Icon(Icons.shuffle_rounded, size: 18),
-                            label: const Text('Karışık sıra öner'),
+                            label: Text(tr('Karışık sıra öner')),
                           ),
                         ]),
                       ]),
                     ),
                 ]),
               ),
-              const SectionTitle('Klasik (yazılı) sorular'),
+              SectionTitle(tr('Klasik (yazılı) sorular')),
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                     Text(
                       _open.isEmpty
-                          ? 'Sınavda açık uçlu sorular da varsa ekleyin. Puanlarını kâğıtları okuttuktan sonra '
-                              '"Klasik puan gir" ekranından girersiniz.'
+                          ? tr('Sınavda açık uçlu sorular da varsa ekleyin. Puanlarını kâğıtları okuttuktan sonra "Klasik puan gir" ekranından girersiniz.')
                           : () {
                               final sum = _open.fold(0.0, (a, o) => a + (_parse(o.$2.text) ?? 0));
                               final max = _parse(_max.text) ?? 0;
-                              return 'Klasik toplam ${_num(sum)} puan · test kısmı ${_num((max - sum).clamp(0, max).toDouble())} '
-                                  'puan üzerinden hesaplanır · tam puan ${_num(max)}';
+                              return tr('Klasik toplam {0} puan · test kısmı {1} puan üzerinden hesaplanır · tam puan {2}', [_num(sum), _num((max - sum).clamp(0, max).toDouble()), _num(max)]);
                             }(),
                       style: t.textTheme.bodySmall?.copyWith(color: muted),
                     ),
@@ -347,7 +345,7 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
                             flex: 3,
                             child: TextField(
                               controller: _open[i].$1,
-                              decoration: InputDecoration(labelText: 'Soru adı', hintText: 'Klasik ${i + 1}'),
+                              decoration: InputDecoration(labelText: tr('Soru adı'), hintText: tr('Klasik {0}', [i + 1])),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -357,11 +355,11 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
                               controller: _open[i].$2,
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
                               onChanged: (_) => setState(() {}),
-                              decoration: const InputDecoration(labelText: 'Puan'),
+                              decoration: InputDecoration(labelText: tr('Puan')),
                             ),
                           ),
                           IconButton(
-                            tooltip: 'Kaldır',
+                            tooltip: tr('Kaldır'),
                             onPressed: () => setState(() => _open.removeAt(i)),
                             icon: const Icon(Icons.remove_circle_outline),
                           ),
@@ -372,24 +370,23 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
                       alignment: Alignment.centerLeft,
                       child: TextButton.icon(
                         onPressed: () => setState(() => _open.add((
-                              TextEditingController(text: 'Klasik ${_open.length + 1}'),
+                              TextEditingController(text: tr('Klasik {0}', [_open.length + 1])),
                               TextEditingController(text: '10'),
                             ))),
                         icon: const Icon(Icons.add),
-                        label: const Text('Klasik soru ekle'),
+                        label: Text(tr('Klasik soru ekle')),
                       ),
                     ),
                   ]),
                 ),
               ),
-              SectionTitle('Sorular',
+              SectionTitle(tr('Sorular'),
                   trailing: TextButton.icon(
                     onPressed: _fromPhoto,
                     icon: const Icon(Icons.photo_camera_outlined, size: 18),
-                    label: const Text('Anahtarı fotoğraftan oku'),
+                    label: Text(tr('Anahtarı fotoğraftan oku')),
                   )),
-              Text('Doğru şıkka dokunun; birden çok şık seçerseniz hepsi doğru sayılır. '
-                  'Puan ağırlıklı sorular içindir.',
+              Text(tr('Doğru şıkka dokunun; birden çok şık seçerseniz hepsi doğru sayılır. Puan ağırlıklı sorular içindir.'),
                   style: t.textTheme.bodySmall?.copyWith(color: muted)),
               const SizedBox(height: 10),
               for (var i = 0; i < _qs.length; i++)
@@ -428,14 +425,14 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
                             child: TextField(
                               controller: _points[i],
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                              decoration: const InputDecoration(labelText: 'Puan', isDense: true),
+                              decoration: InputDecoration(labelText: tr('Puan'), isDense: true),
                             ),
                           ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: TextField(
                               controller: _codes[i],
-                              decoration: const InputDecoration(labelText: 'Kazanım / konu', isDense: true),
+                              decoration: InputDecoration(labelText: tr('Kazanım / konu'), isDense: true),
                             ),
                           ),
                           const SizedBox(width: 4),
@@ -445,7 +442,7 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
                               activeThumbColor: NColors.coral,
                               onChanged: (v) => setState(() => _qs[i] = _qs[i].copyWith(cancelled: v)),
                             ),
-                            Text('İptal', style: t.textTheme.labelSmall),
+                            Text(tr('İptal'), style: t.textTheme.labelSmall),
                           ]),
                         ]),
                       ]),

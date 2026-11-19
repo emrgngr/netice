@@ -24,6 +24,7 @@ import 'pro_screen.dart';
 import '../core/pro.dart';
 import 'theme.dart';
 import 'widgets.dart';
+import '../l10n/l10n.dart';
 
 /// Ana sayfa / pano. Geniş ekranda (masaüstü) yan menülü pano,
 /// dar ekranda (telefon) büyük "Okut" düğmeli mobil düzen.
@@ -81,9 +82,9 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: EdgeInsets.symmetric(vertical: 20),
               child: NeticeMark(size: 36),
             ),
-            destinations: const [
-              NavigationRailDestination(icon: Icon(Icons.space_dashboard_outlined), selectedIcon: Icon(Icons.space_dashboard), label: Text('Pano')),
-              NavigationRailDestination(icon: Icon(Icons.groups_outlined), selectedIcon: Icon(Icons.groups), label: Text('Sınıflar')),
+            destinations: [
+              NavigationRailDestination(icon: Icon(Icons.space_dashboard_outlined), selectedIcon: Icon(Icons.space_dashboard), label: Text(tr('Pano'))),
+              NavigationRailDestination(icon: Icon(Icons.groups_outlined), selectedIcon: Icon(Icons.groups), label: Text(tr('Sınıflar'))),
             ],
           ),
           VerticalDivider(width: 1, color: Theme.of(context).colorScheme.outlineVariant),
@@ -96,9 +97,9 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _tab,
         onDestinationSelected: (i) => setState(() => _tab = i),
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Ana sayfa'),
-          NavigationDestination(icon: Icon(Icons.groups_outlined), selectedIcon: Icon(Icons.groups), label: 'Sınıflar'),
+        destinations: [
+          NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: tr('Ana sayfa')),
+          NavigationDestination(icon: Icon(Icons.groups_outlined), selectedIcon: Icon(Icons.groups), label: tr('Sınıflar')),
         ],
       ),
     );
@@ -121,9 +122,9 @@ class _Dashboard extends StatelessWidget {
         showDragHandle: true,
         builder: (ctx) => SafeArea(
           child: ListView(shrinkWrap: true, children: [
-            const Padding(
+            Padding(
               padding: EdgeInsets.fromLTRB(20, 0, 20, 8),
-              child: Text('Hangi sınavı okutacaksınız?', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+              child: Text(tr('Hangi sınavı okutacaksınız?'), style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
             ),
             for (final e in store.exams)
               ListTile(
@@ -158,35 +159,35 @@ class _Dashboard extends StatelessWidget {
 
     final stats = [
       StatCard(
-          label: 'Okunan',
+          label: tr('Okunan'),
           value: '${store.readCount}',
-          hint: 'kâğıt · ${store.exams.length} sınav',
+          hint: tr('kâğıt · {0} sınav', [store.exams.length]),
           icon: Icons.description_outlined,
           accent: const Color(0xFF6C7FD8)),
       StatCard(
-          label: 'Ortalama',
+          label: tr('Ortalama'),
           value: fmt1(avg),
-          hint: '100 üzerinden',
+          hint: tr('100 üzerinden'),
           icon: Icons.insights_outlined,
           accent: NColors.emerald),
       StatCard(
-        label: 'Kontrol',
+        label: tr('Kontrol'),
         value: '$reviewCount',
-        hint: reviewCount > 0 ? 'kâğıt bekliyor' : 'Her şey yolunda',
+        hint: reviewCount > 0 ? tr('kâğıt bekliyor') : tr('Her şey yolunda'),
         accent: reviewCount > 0 ? NColors.amber : NColors.emerald,
         icon: reviewCount > 0 ? Icons.priority_high_rounded : Icons.verified_outlined,
       ),
       StatCard(
-        label: 'Kazanılan süre',
-        value: '${saved.inHours} sa ${saved.inMinutes % 60} dk',
-        hint: 'Kâğıt başına elle ~1,5 dk',
+        label: tr('Kazanılan süre'),
+        value: tr('{0} sa {1} dk', [saved.inHours, saved.inMinutes % 60]),
+        hint: tr('Kâğıt başına elle ~1,5 dk'),
         icon: Icons.timer_outlined,
         accent: const Color(0xFFE29A3B),
       ),
     ];
 
     final hour = DateTime.now().hour;
-    final greeting = hour < 11 ? 'Günaydın' : (hour < 18 ? 'İyi günler' : 'İyi akşamlar');
+    final greeting = hour < 11 ? tr('Günaydın') : (hour < 18 ? tr('İyi günler') : tr('İyi akşamlar'));
     void newExam() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NewExamScreen()));
     void openSettings() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsScreen()));
     void openHelp() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const HelpScreen()));
@@ -199,27 +200,27 @@ class _Dashboard extends StatelessWidget {
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(greeting, style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500)),
-              const Text('Netice',
+              Text(tr('Netice'),
                   style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800, letterSpacing: -0.5)),
             ]),
           ),
           IconButton.filledTonal(
             style: IconButton.styleFrom(backgroundColor: Colors.white.withValues(alpha: 0.12), foregroundColor: Colors.white),
-            tooltip: 'Yardım ve SSS',
+            tooltip: tr('Yardım ve SSS'),
             onPressed: openHelp,
             icon: const Icon(Icons.help_outline_rounded),
           ),
           const SizedBox(width: 8),
           IconButton.filledTonal(
             style: IconButton.styleFrom(backgroundColor: Colors.white.withValues(alpha: 0.12), foregroundColor: Colors.white),
-            tooltip: 'Ayarlar',
+            tooltip: tr('Ayarlar'),
             onPressed: openSettings,
             icon: const Icon(Icons.settings_outlined),
           ),
           const SizedBox(width: 8),
           IconButton.filledTonal(
             style: IconButton.styleFrom(backgroundColor: Colors.white.withValues(alpha: 0.12), foregroundColor: Colors.white),
-            tooltip: 'Yeni sınav',
+            tooltip: tr('Yeni sınav'),
             onPressed: newExam,
             icon: const Icon(Icons.add_rounded),
           ),
@@ -227,17 +228,17 @@ class _Dashboard extends StatelessWidget {
         const SizedBox(height: 16),
         const LiveClock(onDark: true),
         const SizedBox(height: 18),
-        Text('Kâğıttan sonuca, saniyeler içinde.',
+        Text(tr('Kâğıttan sonuca, saniyeler içinde.'),
             style: TextStyle(color: Colors.white.withValues(alpha: 0.92), fontSize: 18, fontWeight: FontWeight.w700)),
         const SizedBox(height: 4),
         Text(
           store.readCount == 0
-              ? 'İlk sınavınızı okutun; sonuçlar ve analiz kendiliğinden hazırlanır.'
-              : 'Bu dönem ${store.readCount} kâğıt okundu, yaklaşık ${saved.inHours} sa ${saved.inMinutes % 60} dk kazandınız.',
+              ? tr('İlk sınavınızı okutun; sonuçlar ve analiz kendiliğinden hazırlanır.')
+              : tr('Bu dönem {0} kâğıt okundu, yaklaşık {1} sa {2} dk kazandınız.', [store.readCount, saved.inHours, saved.inMinutes % 60]),
           style: TextStyle(color: Colors.white.withValues(alpha: 0.65), fontSize: 13, height: 1.4),
         ),
         const SizedBox(height: 20),
-        GlowButton(label: 'Okut', icon: Icons.document_scanner_outlined, onPressed: () => _startScan(context)),
+        GlowButton(label: tr('Okut'), icon: Icons.document_scanner_outlined, onPressed: () => _startScan(context)),
         const SizedBox(height: 16),
         const OfflineNotice(onDark: true),
       ]),
@@ -252,21 +253,21 @@ class _Dashboard extends StatelessWidget {
               child: Row(children: [
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text(greeting, style: t.textTheme.bodyMedium?.copyWith(color: t.colorScheme.onSurface.withValues(alpha: 0.6))),
-                  Text('Pano', style: t.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800, letterSpacing: -0.5)),
+                  Text(tr('Pano'), style: t.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800, letterSpacing: -0.5)),
                 ]),
                 const Spacer(),
                 const LiveClock(),
                 const SizedBox(width: 8),
-                IconButton(tooltip: 'Yardım ve SSS', onPressed: openHelp, icon: const Icon(Icons.help_outline_rounded)),
-                IconButton(tooltip: 'Ayarlar', onPressed: openSettings, icon: const Icon(Icons.settings_outlined)),
+                IconButton(tooltip: tr('Yardım ve SSS'), onPressed: openHelp, icon: const Icon(Icons.help_outline_rounded)),
+                IconButton(tooltip: tr('Ayarlar'), onPressed: openSettings, icon: const Icon(Icons.settings_outlined)),
                 const SizedBox(width: 8),
                 OutlinedButton.icon(
                   onPressed: () => _startScan(context),
                   icon: const Icon(Icons.upload_file),
-                  label: const Text('PDF / tarama yükle'),
+                  label: Text(tr('PDF / tarama yükle')),
                 ),
                 const SizedBox(width: 10),
-                FilledButton.icon(onPressed: newExam, icon: const Icon(Icons.add), label: const Text('Yeni sınav')),
+                FilledButton.icon(onPressed: newExam, icon: const Icon(Icons.add), label: Text(tr('Yeni sınav'))),
               ]),
             ),
           )
@@ -293,7 +294,7 @@ class _Dashboard extends StatelessWidget {
         ),
         SliverPadding(
           padding: EdgeInsets.symmetric(horizontal: wide ? 28 : 16),
-          sliver: const SliverToBoxAdapter(child: SectionTitle('Son sınavlar')),
+          sliver: SliverToBoxAdapter(child: SectionTitle(tr('Son sınavlar'))),
         ),
         if (store.exams.isEmpty)
           SliverPadding(
@@ -302,12 +303,12 @@ class _Dashboard extends StatelessWidget {
               child: Card(
                 child: EmptyState(
                   kind: IllustrationKind.exams,
-                  title: 'İlk sınavınızı oluşturun',
-                  message: 'Cevap anahtarını girin, formları yazdırın ve kâğıtları okutun. Sonuçlar burada listelenir.',
+                  title: tr('İlk sınavınızı oluşturun'),
+                  message: tr('Cevap anahtarını girin, formları yazdırın ve kâğıtları okutun. Sonuçlar burada listelenir.'),
                   action: FilledButton.icon(
                     onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NewExamScreen())),
                     icon: const Icon(Icons.add_rounded),
-                    label: const Text('Yeni sınav'),
+                    label: Text(tr('Yeni sınav')),
                   ),
                 ),
               ),
@@ -351,7 +352,7 @@ class _Dashboard extends StatelessWidget {
                             const SizedBox(height: 4),
                             Row(children: [
                               const Icon(Icons.priority_high_rounded, size: 14, color: NColors.amber),
-                              Text(' $review kâğıt kontrol bekliyor',
+                              Text(tr(' {0} kâğıt kontrol bekliyor', [review]),
                                   style: t.textTheme.bodySmall?.copyWith(color: NColors.amber, fontWeight: FontWeight.w600)),
                             ]),
                           ],
@@ -394,15 +395,15 @@ class _Insights extends StatelessWidget {
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           leading: IconBadge(Icons.account_balance_outlined,
               color: school.isEmpty ? NColors.amber : NColors.emerald),
-          title: Text(school.isEmpty ? 'Okul bilgilerini girin' : school.name,
+          title: Text(school.isEmpty ? tr('Okul bilgilerini girin') : school.name,
               style: const TextStyle(fontWeight: FontWeight.w700)),
           subtitle: Text(school.isEmpty
-              ? 'Raporlarda resmi yazı başlığı olarak kullanılır'
+              ? tr('Raporlarda resmi yazı başlığı olarak kullanılır')
               : [
                   if (school.district.isNotEmpty || school.province.isNotEmpty)
                     [school.district, school.province].where((e) => e.isNotEmpty).join(' / '),
                   if (school.subject.isNotEmpty) school.subject,
-                  school.official ? 'Resmi başlık açık' : 'Resmi başlık kapalı',
+                  school.official ? tr('Resmi başlık açık') : tr('Resmi başlık kapalı'),
                 ].join(' · ')),
           trailing: const Icon(Icons.chevron_right),
           onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SchoolScreen())),
@@ -415,8 +416,8 @@ class _Insights extends StatelessWidget {
         child: ListTile(
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           leading: const IconBadge(Icons.compare_arrows_rounded, color: NColors.emerald),
-          title: const Text('Şube karşılaştırması', style: TextStyle(fontWeight: FontWeight.w700)),
-          subtitle: const Text('Aynı sınavı farklı şubelerde yan yana görün'),
+          title: Text(tr('Şube karşılaştırması'), style: TextStyle(fontWeight: FontWeight.w700)),
+          subtitle: Text(tr('Aynı sınavı farklı şubelerde yan yana görün')),
           trailing: const Icon(Icons.chevron_right),
           onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CompareScreen())),
         ),
@@ -427,8 +428,8 @@ class _Insights extends StatelessWidget {
         child: ListTile(
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           leading: const IconBadge(Icons.workspace_premium_outlined, color: NColors.ink),
-          title: const Text('Dönem raporu', style: TextStyle(fontWeight: FontWeight.w700)),
-          subtitle: const Text('Dönem sonu notu ve öğrenci kazanım karneleri'),
+          title: Text(tr('Dönem raporu'), style: TextStyle(fontWeight: FontWeight.w700)),
+          subtitle: Text(tr('Dönem sonu notu ve öğrenci kazanım karneleri')),
           trailing: const Icon(Icons.chevron_right),
           onTap: () async {
             if (await requirePro(context, ProFeature.termReport) && context.mounted) {
@@ -449,9 +450,9 @@ class _Insights extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text('Dikkat gerektiren öğrenciler (${warnings.length})',
+                    Text(tr('Dikkat gerektiren öğrenciler ({0})', [warnings.length]),
                         style: const TextStyle(fontWeight: FontWeight.w700)),
-                    Text('Yalnızca size gösterilen bir hatırlatmadır.', style: TextStyle(color: muted, fontSize: 12)),
+                    Text(tr('Yalnızca size gösterilen bir hatırlatmadır.'), style: TextStyle(color: muted, fontSize: 12)),
                   ]),
                 ),
               ]),
@@ -491,7 +492,7 @@ class _Insights extends StatelessWidget {
                     ),
                   ),
                 ),
-                child: Text('Tümünü göster (${warnings.length})'),
+                child: Text(tr('Tümünü göster ({0})', [warnings.length])),
               ),
             const SizedBox(height: 6),
           ]),
@@ -506,21 +507,16 @@ class OfflineNotice extends StatelessWidget {
   final bool onDark;
   const OfflineNotice({super.key, this.onDark = false});
 
-  static const title = 'Çevrimdışı çalışır · Verileriniz bu cihazda';
-  static const detail = 'Netice internet olmadan çalışır. Öğrenci, sınav ve sonuç bilgileriniz yalnızca '
-      'bu telefonda (veya bilgisayarda), uygulamanın kendi klasöründe saklanır; geliştiriciye ya da '
-      'başka bir sunucuya gönderilmez.\n\nYalnızca sizin seçtiğiniz durumlarda veri cihazdan çıkar: '
-      'bir raporu veya yedeği paylaştığınızda ya da Ayarlar > Hesap bölümünden isteğe bağlı Google Drive '
-      'yedeğini açtığınızda (yedek kendi Google hesabınıza gider).\n\nUygulamayı silmeden önce yedek alın; '
-      'aksi hâlde veriler telefonla birlikte silinir.';
+  static String get title => tr('Çevrimdışı çalışır · Verileriniz bu cihazda');
+  static String get detail => tr('Netice internet olmadan çalışır. Öğrenci, sınav ve sonuç bilgileriniz yalnızca bu telefonda (veya bilgisayarda), uygulamanın kendi klasöründe saklanır; geliştiriciye ya da başka bir sunucuya gönderilmez.\n\nYalnızca sizin seçtiğiniz durumlarda veri cihazdan çıkar: bir raporu veya yedeği paylaştığınızda ya da Ayarlar > Hesap bölümünden isteğe bağlı Google Drive yedeğini açtığınızda (yedek kendi Google hesabınıza gider).\n\nUygulamayı silmeden önce yedek alın; aksi hâlde veriler telefonla birlikte silinir.');
 
   static void show(BuildContext context) => showDialog<void>(
         context: context,
         builder: (ctx) => AlertDialog(
           icon: const Icon(Icons.phonelink_lock_rounded, color: NColors.emerald),
-          title: const Text('Verileriniz sizde kalır'),
-          content: const Text(detail),
-          actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Anladım'))],
+          title: Text(tr('Verileriniz sizde kalır')),
+          content: Text(detail),
+          actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: Text(tr('Anladım')))],
         ),
       );
 

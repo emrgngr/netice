@@ -13,6 +13,7 @@ import '../omr/sheet_reader.dart';
 import '../omr/template.dart';
 import 'models.dart';
 import 'scoring.dart';
+import '../l10n/l10n.dart';
 
 /// Uygulamanın tüm verisi. İlk sürümde cihazda tek bir JSON dosyasında
 /// tutulur (internet gerekmez). Sonraki adım: şifreli SQLite + eşitleme.
@@ -41,6 +42,9 @@ class AppStore extends ChangeNotifier {
 
   /// Google hesabı (yalnızca ad ve e-posta; parola veya anahtar saklanmaz).
   String? googleEmail;
+
+  /// Uygulama dili (null = cihazın dili).
+  String? language;
   String? googleName;
 
   /// Google Drive'a son yedek zamanı ve otomatik bulut yedeği açık mı.
@@ -175,6 +179,7 @@ class AppStore extends ChangeNotifier {
         'rating': rating,
         'ratePrompted': ratePrompted,
         'googleEmail': googleEmail,
+        if (language != null) 'language': language,
         'googleName': googleName,
         'lastCloudBackup': lastCloudBackup?.toIso8601String(),
         'cloudAuto': cloudAuto,
@@ -208,12 +213,20 @@ class AppStore extends ChangeNotifier {
     proConfirmedAt = DateTime.tryParse('${j['proConfirmedAt'] ?? ''}') ?? proConfirmedAt;
     promoHiddenUntil = DateTime.tryParse('${j['promoHiddenUntil'] ?? ''}') ?? promoHiddenUntil;
     ratePrompted = j['ratePrompted'] as bool? ?? ratePrompted;
+    language = j['language'] as String? ?? language;
     if (j.containsKey('googleEmail')) {
       googleEmail = j['googleEmail'] as String?;
       googleName = j['googleName'] as String?;
       lastCloudBackup = DateTime.tryParse(j['lastCloudBackup'] as String? ?? '');
       cloudAuto = j['cloudAuto'] as bool? ?? true;
     }
+  }
+
+  /// Dili değiştirir; arayüz bu dilde yeniden çizilir.
+  void setLanguage(String? code) {
+    language = code;
+    L10n.use(code);
+    _changed();
   }
 
   void setGoogleAccount(String? email, String? name) {
@@ -259,7 +272,7 @@ class AppStore extends ChangeNotifier {
       j = jsonDecode(text) as Map<String, dynamic>;
       if (j['students'] is! List || j['exams'] is! List || j['sheets'] is! List) throw const FormatException();
     } catch (_) {
-      throw const FormatException('Bu dosya bir Netice yedeği değil.');
+      throw FormatException(tr('Bu dosya bir Netice yedeği değil.'));
     }
     // Önce mevcut hâlin bir yedeğini al; yanlış dosya seçilirse geri dönülebilsin.
     await _autoBackup(force: true);
@@ -649,7 +662,7 @@ class AppStore extends ChangeNotifier {
   /// diye: 9-A için daha eski bir quiz, 9-B şubesi için aynı quiz.
   void _seedExtra(int nA) {
     final rnd = math.Random(11);
-    const topics = ['Hareket', 'Kuvvet', 'Enerji', 'Isı ve sıcaklık'];
+    final topics = [tr('Hareket'), tr('Kuvvet'), tr('Enerji'), tr('Isı ve sıcaklık')];
     Exam tagged(Exam e) =>
         e.copyWith(questions: [for (final q in e.questions) q.copyWith(outcomeCode: topics[(q.no - 1) ~/ 5])]);
     List<Answer> answers(Exam e, double ability) => [
@@ -666,7 +679,7 @@ class AppStore extends ChangeNotifier {
     // 9-A, Fizik Quiz 1: bazı öğrenciler bu sınavda daha iyiydi (düşüş örneği).
     final q1 = tagged(Exam.fromKeyString(
       id: 'demo_exam_q1',
-      name: 'Fizik Quiz 1 (örnek)',
+      name: tr('Fizik Quiz 1 (örnek)'),
       className: '9-A',
       key: 'CABDEBCADEACBDECABED',
       date: DateTime.now().subtract(const Duration(days: 16)),
@@ -679,7 +692,7 @@ class AppStore extends ChangeNotifier {
     }
 
     // 9-B şubesi ve aynı Quiz 2.
-    const namesB = [
+    final namesB = [
       ['Aras', 'Yılmaz'], ['Beren', 'Şen'], ['Cem', 'Avcı'], ['Damla', 'Işık'], ['Eren', 'Toprak'],
       ['Feyza', 'Keskin'], ['Göktuğ', 'Sarı'], ['Hira', 'Ekinci'], ['Kaan', 'Uysal'], ['Melis', 'Aksoy'],
       ['Onur', 'Çakır'], ['Rana', 'Gök'], ['Sarp', 'Duman'], ['Tuana', 'Bayram'], ['Yiğit', 'Coşkun'],
@@ -691,7 +704,7 @@ class AppStore extends ChangeNotifier {
     }
     final q2b = tagged(Exam.fromKeyString(
       id: 'demo_exam_b',
-      name: 'Fizik Quiz 2 (örnek)',
+      name: tr('Fizik Quiz 2 (örnek)'),
       className: '9-B',
       key: 'BDACEABDCEBADCEADBCE',
       date: DateTime.now().subtract(const Duration(days: 1)),
@@ -704,7 +717,7 @@ class AppStore extends ChangeNotifier {
   }
 
   void seedDemo() {
-    const names = [
+    final names = [
       ['Deniz', 'Arslan'], ['Elif', 'Kaya'], ['Mert', 'Yıldız'], ['Zeynep', 'Aydın'],
       ['Can', 'Demir'], ['Selin', 'Koç'], ['Ali', 'Şahin'], ['Ece', 'Çelik'],
       ['Burak', 'Öztürk'], ['Defne', 'Kılıç'], ['Emre', 'Aslan'], ['İpek', 'Doğan'],
@@ -723,13 +736,13 @@ class AppStore extends ChangeNotifier {
     }
     final exam = Exam.fromKeyString(
       id: 'demo_exam',
-      name: 'Fizik Quiz 2 (örnek)',
+      name: tr('Fizik Quiz 2 (örnek)'),
       className: '9-A',
       key: 'BDACEABDCEBADCEADBCE',
       date: DateTime.now().subtract(const Duration(days: 2)),
     );
     // Örnek kazanımlar: her 5 soru bir konu.
-    const topics = ['Hareket', 'Kuvvet', 'Enerji', 'Isı ve sıcaklık'];
+    final topics = [tr('Hareket'), tr('Kuvvet'), tr('Enerji'), tr('Isı ve sıcaklık')];
     exams.add(exam.copyWith(questions: [
       for (final q in exam.questions) q.copyWith(outcomeCode: topics[(q.no - 1) ~/ 5]),
     ]));

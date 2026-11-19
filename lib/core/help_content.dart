@@ -1,6 +1,8 @@
 /// Uygulama içi kullanma kılavuzu ve sık sorulan sorular.
 library;
 
+import '../l10n/l10n.dart';
+
 class GuideTopic {
   final String title;
   final List<String> steps;
@@ -22,172 +24,172 @@ class Faq {
   const Faq(this.category, this.q, this.a);
 }
 
-const guideSections = <GuideSection>[
-  GuideSection('Başlarken', 'start', [
-    GuideTopic('Okul bilgilerini girin', [
-      'Ana ekrandaki dişli simgesine (Ayarlar) dokunun.',
-      '"Okul bilgileri"ni açın; il, ilçe, okul adı, ders, öğretmen ve müdür adını yazın.',
-      '"Resmi yazı başlığı" açıksa tüm PDF raporların başında T.C. / Kaymakamlık / Müdürlük başlığı ve sonunda imza alanı çıkar.',
+List<GuideSection> get guideSections => <GuideSection>[
+  GuideSection(tr('Başlarken'), 'start', [
+    GuideTopic(tr('Okul bilgilerini girin'), [
+      tr('Ana ekrandaki dişli simgesine (Ayarlar) dokunun.'),
+      tr('"Okul bilgileri"ni açın; il, ilçe, okul adı, ders, öğretmen ve müdür adını yazın.'),
+      tr('"Resmi yazı başlığı" açıksa tüm PDF raporların başında T.C. / Kaymakamlık / Müdürlük başlığı ve sonunda imza alanı çıkar.'),
     ]),
-    GuideTopic('Öğrencileri ekleyin', [
-      'Alttaki "Sınıflar" sekmesine geçin.',
-      'Tek tek eklemek için "+" düğmesini, toplu eklemek için "Excel aktar"ı kullanın.',
-      'Excel dosyasında "Okul No, Adı, Soyadı, Sınıf" sütunları olması yeterlidir. e-Okul\'dan aldığınız liste de doğrudan okunur.',
-    ], tip: 'Okul numarası doğru girilirse kâğıtlar öğrenciyle kendiliğinden eşleşir.'),
-    GuideTopic('Örnek verileri silin', [
-      'Uygulama ilk açılışta örnek bir sınıf ve sınav gösterir.',
-      'Kendi verilerinizle çalışmaya başlamadan önce Ayarlar > "Örnek verileri sil" ile temizleyin.',
-    ]),
-  ]),
-  GuideSection('Sınav hazırlama', 'exam', [
-    GuideTopic('Yeni sınav oluşturun', [
-      'Ana ekranda "Yeni sınav"a dokunun.',
-      'Sınav adı, sınıf, tarih, soru sayısı ve şık sayısını seçin.',
-      'Cevap anahtarını şıklara dokunarak girin ya da "Fotoğraftan oku" ile doldurulmuş anahtar formunu okutun.',
-    ]),
-    GuideTopic('Puanlama ayarları', [
-      'Sınav ekranında sağ üstteki ayar simgesine dokunun.',
-      'Tam puan, geçme puanı ve "kaç yanlış bir doğruyu götürür" ayarlanabilir.',
-      'Bir soruyu iptal edebilir, birden çok doğru cevap verebilir, sorulara farklı puan ve kazanım kodu yazabilirsiniz.',
-    ]),
-    GuideTopic('Klasik (açık uçlu) sorular', [
-      'Sınav ayarlarında "Klasik sorular" kartından soru ekleyin ve her birinin puanını yazın.',
-      'Test kısmı kalan puana göre hesaplanır. Örnek: 100 puanlık sınavda 2 klasik soru 20\'şer puansa test 60 puan üzerinden değerlendirilir.',
-      'Kâğıtları okuttuktan sonra sınav ekranındaki "Klasik puan gir" ile her öğrencinin puanını yazın.',
-    ]),
-    GuideTopic('A/B kitapçık', [
-      'Sınav ayarlarında "Kitapçık türü"nü açın ve B kitapçığındaki soru sırasını girin (veya "Karışık sıra öner").',
-      'B kitapçığı alan öğrenci formunda B\'yi işaretler; uygulama cevapları kendiliğinden A sırasına çevirir.',
+    GuideTopic(tr('Öğrencileri ekleyin'), [
+      tr('Alttaki "Sınıflar" sekmesine geçin.'),
+      tr('Tek tek eklemek için "+" düğmesini, toplu eklemek için "Excel aktar"ı kullanın.'),
+      tr('Excel dosyasında "Okul No, Adı, Soyadı, Sınıf" sütunları olması yeterlidir. e-Okul\'dan aldığınız liste de doğrudan okunur.'),
+    ], tip: tr('Okul numarası doğru girilirse kâğıtlar öğrenciyle kendiliğinden eşleşir.')),
+    GuideTopic(tr('Örnek verileri silin'), [
+      tr('Uygulama ilk açılışta örnek bir sınıf ve sınav gösterir.'),
+      tr('Kendi verilerinizle çalışmaya başlamadan önce Ayarlar > "Örnek verileri sil" ile temizleyin.'),
     ]),
   ]),
-  GuideSection('Form yazdırma', 'print', [
-    GuideTopic('Başka firma formu (yayınevi formu) kullanma', [
-      'Ayarlar > "Başka firma formları" > "Yeni şablon"a dokunun ve formun fotoğrafını seçin. Kâğıdı koyu bir zemine koyun; dört kenarı görünsün.',
-      '"Cevap bloğu ekle" ile her soru sütununu tanımlayın: ilk sorunun A şıkkına, sonra son sorunun son şıkkına dokunun. Aradaki daireler kendiliğinden çizilir.',
-      'Öğrenci numarası bölümü varsa "Numara bloğu ekle" ile ilk basamağın 0\'ına ve son basamağın 9\'una dokunun.',
-      'Dolu bir formun fotoğrafıyla "Bu fotoğrafla dene"ye basın; yeşil daireler doğru yerlerdeyse kaydedin.',
-      'Sınav ayarları > "Form türü"nden şablonu seçin. Okutma, Netice formundaki gibi çalışır.',
-    ], tip: 'Netice formu köşe kareleri sayesinde daha hızlı ve güvenilir okunur; mümkünse Netice formunu basın.'),
-    GuideTopic('Optik formu yazdırın', [
-      'Sınav ekranında "Form yazdır"a dokunun.',
-      '"İsimli öğrenci formları" her öğrenci için adı ve numarası basılı bir sayfa üretir; "Boş öğrenci formu" ile istediğiniz kadar boş kâğıt alırsınız.',
-      'A4 kâğıda, ölçeklendirme yapmadan (gerçek boyut / %100) yazdırın.',
-    ], tip: 'Formun sol kenarındaki kareler makine kodudur (barkod). Sınavı ve öğrenciyi tanıtır; üzerine yazmayın.'),
-    GuideTopic('Cevap anahtarı formu', [
-      '"Cevap anahtarı" seçeneği doğru cevapları işaretlenmiş bir form ve okunaklı bir liste verir.',
-      '"Boş cevap anahtarı formu"nu elle doldurup Sınav ayarlarındaki "Anahtarı fotoğraftan oku" ile uygulamaya aktarabilirsiniz.',
+  GuideSection(tr('Sınav hazırlama'), 'exam', [
+    GuideTopic(tr('Yeni sınav oluşturun'), [
+      tr('Ana ekranda "Yeni sınav"a dokunun.'),
+      tr('Sınav adı, sınıf, tarih, soru sayısı ve şık sayısını seçin.'),
+      tr('Cevap anahtarını şıklara dokunarak girin ya da "Fotoğraftan oku" ile doldurulmuş anahtar formunu okutun.'),
+    ]),
+    GuideTopic(tr('Puanlama ayarları'), [
+      tr('Sınav ekranında sağ üstteki ayar simgesine dokunun.'),
+      tr('Tam puan, geçme puanı ve "kaç yanlış bir doğruyu götürür" ayarlanabilir.'),
+      tr('Bir soruyu iptal edebilir, birden çok doğru cevap verebilir, sorulara farklı puan ve kazanım kodu yazabilirsiniz.'),
+    ]),
+    GuideTopic(tr('Klasik (açık uçlu) sorular'), [
+      tr('Sınav ayarlarında "Klasik sorular" kartından soru ekleyin ve her birinin puanını yazın.'),
+      tr('Test kısmı kalan puana göre hesaplanır. Örnek: 100 puanlık sınavda 2 klasik soru 20\'şer puansa test 60 puan üzerinden değerlendirilir.'),
+      tr('Kâğıtları okuttuktan sonra sınav ekranındaki "Klasik puan gir" ile her öğrencinin puanını yazın.'),
+    ]),
+    GuideTopic(tr('A/B kitapçık'), [
+      tr('Sınav ayarlarında "Kitapçık türü"nü açın ve B kitapçığındaki soru sırasını girin (veya "Karışık sıra öner").'),
+      tr('B kitapçığı alan öğrenci formunda B\'yi işaretler; uygulama cevapları kendiliğinden A sırasına çevirir.'),
     ]),
   ]),
-  GuideSection('Kâğıt okutma', 'scan', [
-    GuideTopic('Kamerayla seri okuma', [
-      'Sınav ekranında "Okut"a dokunun.',
-      'Kâğıdı düz bir zemine koyun; dört köşedeki siyah kareler ekranda görünsün.',
-      'Kâğıt tanınınca uygulama kendiliğinden çeker, sesli/titreşimli onay verir ve bir sonraki kâğıdı bekler. Kâğıtları sırayla değiştirmeniz yeterli.',
-      'Aynı kâğıdı yanlışlıkla iki kez okutursanız ikinci okuma eklenmez. Aynı numarayla farklı cevaplı bir kâğıt gelirse "Kontrol" listesine alınır ve numarası en yakın öğrenciler önerilir.',
-      'Sonuç ekranında kâğıdı okutulmamış öğrenciler ayrıca listelenir.',
-      'Okuma gecikirse ekranın üstündeki sarı ampullü ipucuna bakın: "Biraz yaklaşın", "Telefonu kâğıda paralel tutun", "Işık yansıyor", "Ortam karanlık · feneri açın" gibi.',
-    ], tip: 'Gölge düşürmemeye çalışın; gün ışığı veya tavan ışığı en iyisidir.'),
-    GuideTopic('Fotoğraf veya PDF\'ten okuma', [
-      'Bilgisayarda "PDF / tarama yükle" ile tarayıcıdan aldığınız çok sayfalı PDF\'i veya fotoğrafları seçin.',
-      'Her sayfa ayrı bir kâğıt olarak okunur.',
-      'Telefonda okutma ekranındaki "Galeriden" ile önceden çektiğiniz fotoğrafların hepsini birden seçebilirsiniz. Uygulama hepsini sırayla okur, ilerlemeyi gösterir ve sonunda kaç kâğıdın okunduğunu, hangilerinin kontrol beklediğini özetler.',
-      '"Yalnızca sorunlular" ile okunamayan veya kontrol bekleyen kâğıtları ayıklayabilirsiniz.',
-    ]),
-    GuideTopic('Kontrol ve düzeltme', [
-      'Okunan bir kâğıda dokunun; işaretlenen şıklar görünür.',
-      'Belirsiz (iki şık işaretli veya çok silik) sorular sarı uyarıyla gösterilir; dokunarak düzeltebilirsiniz.',
-      'Eşleşmeyen kâğıtta öğrenciyi listeden seçin.',
+  GuideSection(tr('Form yazdırma'), 'print', [
+    GuideTopic(tr('Başka firma formu (yayınevi formu) kullanma'), [
+      tr('Ayarlar > "Başka firma formları" > "Yeni şablon"a dokunun ve formun fotoğrafını seçin. Kâğıdı koyu bir zemine koyun; dört kenarı görünsün.'),
+      tr('"Cevap bloğu ekle" ile her soru sütununu tanımlayın: ilk sorunun A şıkkına, sonra son sorunun son şıkkına dokunun. Aradaki daireler kendiliğinden çizilir.'),
+      tr('Öğrenci numarası bölümü varsa "Numara bloğu ekle" ile ilk basamağın 0\'ına ve son basamağın 9\'una dokunun.'),
+      tr('Dolu bir formun fotoğrafıyla "Bu fotoğrafla dene"ye basın; yeşil daireler doğru yerlerdeyse kaydedin.'),
+      tr('Sınav ayarları > "Form türü"nden şablonu seçin. Okutma, Netice formundaki gibi çalışır.'),
+    ], tip: tr('Netice formu köşe kareleri sayesinde daha hızlı ve güvenilir okunur; mümkünse Netice formunu basın.')),
+    GuideTopic(tr('Optik formu yazdırın'), [
+      tr('Sınav ekranında "Form yazdır"a dokunun.'),
+      tr('"İsimli öğrenci formları" her öğrenci için adı ve numarası basılı bir sayfa üretir; "Boş öğrenci formu" ile istediğiniz kadar boş kâğıt alırsınız.'),
+      tr('A4 kâğıda, ölçeklendirme yapmadan (gerçek boyut / %100) yazdırın.'),
+    ], tip: tr('Formun sol kenarındaki kareler makine kodudur (barkod). Sınavı ve öğrenciyi tanıtır; üzerine yazmayın.')),
+    GuideTopic(tr('Cevap anahtarı formu'), [
+      tr('"Cevap anahtarı" seçeneği doğru cevapları işaretlenmiş bir form ve okunaklı bir liste verir.'),
+      tr('"Boş cevap anahtarı formu"nu elle doldurup Sınav ayarlarındaki "Anahtarı fotoğraftan oku" ile uygulamaya aktarabilirsiniz.'),
     ]),
   ]),
-  GuideSection('Sonuçlar ve raporlar', 'report', [
-    GuideTopic('Sınav raporu', [
-      'Sınav ekranındaki "Analiz" bölümünde ortalama, başarı dağılımı, soru analizi ve kazanım başarısı görünür.',
-      '"Sınav raporu" tüm bunları resmi formatta, yazdırılabilir şekilde verir.',
+  GuideSection(tr('Kâğıt okutma'), 'scan', [
+    GuideTopic(tr('Kamerayla seri okuma'), [
+      tr('Sınav ekranında "Okut"a dokunun.'),
+      tr('Kâğıdı düz bir zemine koyun; dört köşedeki siyah kareler ekranda görünsün.'),
+      tr('Kâğıt tanınınca uygulama kendiliğinden çeker, sesli/titreşimli onay verir ve bir sonraki kâğıdı bekler. Kâğıtları sırayla değiştirmeniz yeterli.'),
+      tr('Aynı kâğıdı yanlışlıkla iki kez okutursanız ikinci okuma eklenmez. Aynı numarayla farklı cevaplı bir kâğıt gelirse "Kontrol" listesine alınır ve numarası en yakın öğrenciler önerilir.'),
+      tr('Sonuç ekranında kâğıdı okutulmamış öğrenciler ayrıca listelenir.'),
+      tr('Okuma gecikirse ekranın üstündeki sarı ampullü ipucuna bakın: "Biraz yaklaşın", "Telefonu kâğıda paralel tutun", "Işık yansıyor", "Ortam karanlık · feneri açın" gibi.'),
+    ], tip: tr('Gölge düşürmemeye çalışın; gün ışığı veya tavan ışığı en iyisidir.')),
+    GuideTopic(tr('Fotoğraf veya PDF\'ten okuma'), [
+      tr('Bilgisayarda "PDF / tarama yükle" ile tarayıcıdan aldığınız çok sayfalı PDF\'i veya fotoğrafları seçin.'),
+      tr('Her sayfa ayrı bir kâğıt olarak okunur.'),
+      tr('Telefonda okutma ekranındaki "Galeriden" ile önceden çektiğiniz fotoğrafların hepsini birden seçebilirsiniz. Uygulama hepsini sırayla okur, ilerlemeyi gösterir ve sonunda kaç kâğıdın okunduğunu, hangilerinin kontrol beklediğini özetler.'),
+      tr('"Yalnızca sorunlular" ile okunamayan veya kontrol bekleyen kâğıtları ayıklayabilirsiniz.'),
     ]),
-    GuideTopic('Öğrenci karnesi ve veliye gönderme', [
-      'Sonuç listesinde bir öğrenciye dokunun.',
-      '"Karneyi önizle" ile PDF karnesini görün, "Karneyi veliye gönder" ile WhatsApp, e-posta veya başka bir uygulamayla paylaşın.',
-      'Tüm sınıfın karnelerini tek PDF olarak almak için sınav ekranındaki "Öğrenci karnesi"ni kullanın.',
-    ]),
-    GuideTopic('Excel ve e-Okul', [
-      '"Excel" tüm sonuçları, soru ve kazanım ayrıntılarıyla Excel\'in açabildiği bir dosyaya kaydeder.',
-      '"e-Okul listesi" okul numarasına göre sıralı, tam sayıya yuvarlanmış puanları verir; e-Okul\'a not girerken yanınızda açık tutun.',
-    ]),
-    GuideTopic('Dönem raporu', [
-      'Ana ekrandaki "Dönem raporu"nu açın; sınıfı ve dönemi seçin.',
-      'Dahil edilecek sınavları işaretleyin ve gerekirse ağırlık verin (1×, 2×, 3×).',
-      '"Not çizelgesi" dönem sonu notlarını, "Kazanım karneleri" her öğrencinin dönem boyunca kazanım başarısını verir.',
-    ]),
-    GuideTopic('Şube karşılaştırması', [
-      'Aynı sınavı birden çok şubede yaptıysanız ana ekrandaki "Şube karşılaştırması" şubeleri yan yana gösterir.',
+    GuideTopic(tr('Kontrol ve düzeltme'), [
+      tr('Okunan bir kâğıda dokunun; işaretlenen şıklar görünür.'),
+      tr('Belirsiz (iki şık işaretli veya çok silik) sorular sarı uyarıyla gösterilir; dokunarak düzeltebilirsiniz.'),
+      tr('Eşleşmeyen kâğıtta öğrenciyi listeden seçin.'),
     ]),
   ]),
-  GuideSection('Verileriniz', 'data', [
-    GuideTopic('Yedekleme', [
-      'Netice çevrimdışı çalışır; verilerinizi yalnızca bu telefonda (veya bilgisayarda) saklar, internete göndermez.',
-      'Uygulama her gün kendiliğinden bir yedek alır (son 14 gün).',
-      'Telefon değiştirirken veya bilgisayara geçerken Ayarlar > "Yedeği dosyaya kaydet" ile yedek alın, yeni cihazda "Yedekten geri yükle" ile açın.',
-    ], tip: 'Uygulamayı silmeden önce mutlaka yedeği dosyaya kaydedin; aksi hâlde veriler silinir.'),
-    GuideTopic('Verileri silme', [
-      'Tek bir öğrenciyi, sınavı veya kâğıdı kendi ekranından silebilirsiniz.',
-      'Okunan kâğıtların görüntüsü (İşaretli kâğıdı gör) yalnızca bu cihazda durur ve yedeğe eklenmez; sınavı sildiğinizde görüntüler de silinir.',
-      'Ayarlar > "Tüm verileri sil" bu cihazdaki bütün bilgileri siler; onay için "SİL" yazmanız istenir.',
-      'Google Drive yedeğini Ayarlar > Hesap > "Drive\'daki yedeği sil" ile kaldırabilirsiniz.',
+  GuideSection(tr('Sonuçlar ve raporlar'), 'report', [
+    GuideTopic(tr('Sınav raporu'), [
+      tr('Sınav ekranındaki "Analiz" bölümünde ortalama, başarı dağılımı, soru analizi ve kazanım başarısı görünür.'),
+      tr('"Sınav raporu" tüm bunları resmi formatta, yazdırılabilir şekilde verir.'),
+    ]),
+    GuideTopic(tr('Öğrenci karnesi ve veliye gönderme'), [
+      tr('Sonuç listesinde bir öğrenciye dokunun.'),
+      tr('"Karneyi önizle" ile PDF karnesini görün, "Karneyi veliye gönder" ile WhatsApp, e-posta veya başka bir uygulamayla paylaşın.'),
+      tr('Tüm sınıfın karnelerini tek PDF olarak almak için sınav ekranındaki "Öğrenci karnesi"ni kullanın.'),
+    ]),
+    GuideTopic(tr('Excel ve e-Okul'), [
+      tr('"Excel" tüm sonuçları, soru ve kazanım ayrıntılarıyla Excel\'in açabildiği bir dosyaya kaydeder.'),
+      tr('"e-Okul listesi" okul numarasına göre sıralı, tam sayıya yuvarlanmış puanları verir; e-Okul\'a not girerken yanınızda açık tutun.'),
+    ]),
+    GuideTopic(tr('Dönem raporu'), [
+      tr('Ana ekrandaki "Dönem raporu"nu açın; sınıfı ve dönemi seçin.'),
+      tr('Dahil edilecek sınavları işaretleyin ve gerekirse ağırlık verin (1×, 2×, 3×).'),
+      tr('"Not çizelgesi" dönem sonu notlarını, "Kazanım karneleri" her öğrencinin dönem boyunca kazanım başarısını verir.'),
+    ]),
+    GuideTopic(tr('Şube karşılaştırması'), [
+      tr('Aynı sınavı birden çok şubede yaptıysanız ana ekrandaki "Şube karşılaştırması" şubeleri yan yana gösterir.'),
+    ]),
+  ]),
+  GuideSection(tr('Verileriniz'), 'data', [
+    GuideTopic(tr('Yedekleme'), [
+      tr('Netice çevrimdışı çalışır; verilerinizi yalnızca bu telefonda (veya bilgisayarda) saklar, internete göndermez.'),
+      tr('Uygulama her gün kendiliğinden bir yedek alır (son 14 gün).'),
+      tr('Telefon değiştirirken veya bilgisayara geçerken Ayarlar > "Yedeği dosyaya kaydet" ile yedek alın, yeni cihazda "Yedekten geri yükle" ile açın.'),
+    ], tip: tr('Uygulamayı silmeden önce mutlaka yedeği dosyaya kaydedin; aksi hâlde veriler silinir.')),
+    GuideTopic(tr('Verileri silme'), [
+      tr('Tek bir öğrenciyi, sınavı veya kâğıdı kendi ekranından silebilirsiniz.'),
+      tr('Okunan kâğıtların görüntüsü (İşaretli kâğıdı gör) yalnızca bu cihazda durur ve yedeğe eklenmez; sınavı sildiğinizde görüntüler de silinir.'),
+      tr('Ayarlar > "Tüm verileri sil" bu cihazdaki bütün bilgileri siler; onay için "SİL" yazmanız istenir.'),
+      tr('Google Drive yedeğini Ayarlar > Hesap > "Drive\'daki yedeği sil" ile kaldırabilirsiniz.'),
     ]),
   ]),
 ];
 
-const faqs = <Faq>[
-  Faq('Okutma', 'Kâğıt okunmuyor, ne yapmalıyım?',
-      'Dört köşedeki siyah karelerin görüntüde tam göründüğünden emin olun. Kâğıdı düz bir zemine koyun, gölge ve parlamayı önleyin, telefonu kâğıda paralel tutun. Kâğıt buruşuksa düzeltin.'),
-  Faq('Okutma', 'Kurşun kalem mi, tükenmez kalem mi kullanılmalı?',
-      'Koyu yumuşak kurşun kalem (2B) en iyi sonucu verir. Tükenmez ve keçeli kalem de okunur. Daireyi taşırmadan tamamen doldurmak yeterlidir.'),
-  Faq('Okutma', 'Öğrenci yanlış şıkkı silip başkasını işaretlemiş. Ne olur?',
-      'İyi silinen işaretler boş sayılır. Silgi izi koyu kalırsa uygulama o soruyu "belirsiz" diye sarıyla gösterir; kâğıda dokunup düzeltebilirsiniz.'),
-  Faq('Okutma', 'Kâğıt yanlış öğrenciyle eşleşti.',
-      'Kâğıda dokunun ve doğru öğrenciyi listeden seçin. Eşleşme okul numarasına göre yapılır; öğrencinin numarayı doğru kodladığından ve listedeki numaranın doğru olduğundan emin olun.'),
-  Faq('Okutma', 'Formlar barkodlu mu?',
-      'Evet. Formun sol kenarındaki kare dizisi makine kodudur. Hangi sınava ve hangi öğrenciye ait olduğunu taşır; başka sınavın kâğıdı okutulursa uygulama bunu fark edip doğru sınava kaydeder.'),
-  Faq('Okutma', 'Bir kâğıdı iki kez okuttum.',
-      'Aynı öğrenciye ait ikinci okuma eskisinin yerine geçer; çift kayıt oluşmaz.'),
-  Faq('Formlar', 'Formu fotokopiyle çoğaltabilir miyim?',
-      'Evet. Fotokopinin küçültülmemiş (%100) ve köşe karelerinin net olması yeterlidir. İsimli formlar yerine boş öğrenci formunu çoğaltıp öğrencilerin numaralarını kodlamasını isteyebilirsiniz.'),
-  Faq('Formlar', 'Kaç soruya kadar form hazırlanabilir?',
-      'Bir sınavda 5 ile 100 arasında soru olabilir; sorular 4 veya 5 şıklıdır.'),
-  Faq('Puanlama', 'Yanlışlar doğruyu götürüyor mu?',
-      'Varsayılan olarak hayır. Sınav ayarlarında "3 yanlış 1 doğruyu götürür" gibi bir kural seçebilirsiniz.'),
-  Faq('Puanlama', 'Hatalı bir soruyu iptal edersem ne olur?',
-      'İptal edilen soru kimsenin puanına katılmaz; puanlar kalan sorulara göre yeniden hesaplanır. Okutulmuş kâğıtları yeniden okutmanız gerekmez.'),
-  Faq('Puanlama', 'Cevap anahtarında hata yaptım, kâğıtları yeniden mi okutmalıyım?',
-      'Hayır. Anahtarı düzeltin; tüm sonuçlar anında yeniden hesaplanır.'),
-  Faq('Puanlama', 'Klasik soru puanları nasıl eklenir?',
-      'Sınav ayarlarında klasik soruları tanımlayın, kâğıtları okutun, ardından "Klasik puan gir" ekranından her öğrencinin puanını yazın. Eksik puan kalırsa sonuç ekranında uyarı görünür.'),
-  Faq('Raporlar', 'Raporlarda okul adım görünmüyor.',
-      'Ayarlar > Okul bilgileri ekranından okul adını ve diğer bilgileri girin. "Resmi yazı başlığı" açıksa tüm PDF\'lerde resmi başlık çıkar.'),
-  Faq('Raporlar', 'Karneyi veliye nasıl gönderirim?',
-      'Sonuç listesinde öğrenciye dokunun ve "Karneyi veliye gönder"i seçin. Açılan paylaşım menüsünden WhatsApp, e-posta veya istediğiniz uygulamayı seçin; hazır bir mesaj da eklenir.'),
-  Faq('Raporlar', 'Dönem sonu notu nasıl hesaplanıyor?',
-      'Seçtiğiniz sınavların puanları 100 üzerinden alınır ve verdiğiniz ağırlıklarla ortalaması hesaplanır. Öğrencinin girmediği sınav ortalamaya katılmaz. Dönem notu, ortalamanın tam sayıya yuvarlanmış hâlidir.'),
-  Faq('Raporlar', 'Notları e-Okul\'a otomatik aktarabilir miyim?',
-      'e-Okul dışarıdan otomatik veri girişine izin vermez. "e-Okul listesi" numara sırasına göre hazırlandığı için notları elle girmek birkaç dakika sürer.'),
-  Faq('Veriler', 'Verilerim nerede saklanıyor?',
-      'Yalnızca bu cihazda, uygulamanın kendi klasöründe. Hiçbir veri internete gönderilmez; bu nedenle KVKK açısından da güvenlidir. Yalnızca isteğe bağlı Google Drive yedeğini açarsanız yedek, kendi Google hesabınıza kaydedilir.'),
-  Faq('Veriler', 'Telefonu değiştirirsem verilerim ne olur?',
-      'Eski telefonda Ayarlar > "Yedeği dosyaya kaydet" ile yedek alın, dosyayı yeni cihaza aktarın ve "Yedekten geri yükle"yi seçin.'),
-  Faq('Veriler', 'Telefon ve bilgisayar birbirini görüyor mu?',
-      'Hayır, her cihazın verisi ayrıdır. Bir cihazdaki yedeği diğerine geri yükleyerek verileri taşıyabilirsiniz.'),
-  Faq('Veriler', 'Verilerimi nasıl silerim?',
-      'Ayarlar > "Tüm verileri sil" bu cihazdaki öğrenci, sınav, kâğıt ve okul bilgilerini siler. İsterseniz otomatik yedekleri de birlikte silebilirsiniz. Google Drive yedeği kullanıyorsanız Ayarlar > Hesap > "Drive\'daki yedeği sil" ile onu da kaldırabilirsiniz.'),
-  Faq('Veriler', 'Yanlışlıkla bir şeyi sildim.',
-      'Ayarlar > Yedekleme bölümündeki otomatik yedekler listesinden, silmeden önceki günün yedeğini "Geri yükle" ile açabilirsiniz.'),
-  Faq('Netice Pro', 'Netice ücretsiz mi?',
-      'Evet. Kâğıt okutma, sonuçlar, temel istatistikler, sonuç listesi ve Excel her zaman ücretsizdir. Dönem raporu, öğrenci ve kazanım karneleri, karneyi veliye gönderme, Google Drive yedeği, gelişmiş grafikler ve resmi yazı başlığı Netice Pro ile açılır.'),
-  Faq('Netice Pro', 'Ücretsiz deneme var mı?',
-      'Evet. Uygulamayı kurduğunuz andan itibaren 14 gün boyunca tüm Pro özellikleri ücretsizdir; kart bilgisi istenmez ve süre bitince ücret çekilmez. Kalan gün sayısını Ayarlar > Netice Pro bölümünde görebilirsiniz.'),
-  Faq('Netice Pro', 'Aboneliğimi nasıl iptal ederim?',
-      'Google Play > Profil > Ödemeler ve abonelikler > Abonelikler bölümünden Netice Pro\'yu seçip iptal edin. Abonelik dönem sonuna kadar geçerli kalır. Ayarlar > Netice Pro > "Aboneliği yönet" de sizi aynı sayfaya götürür.'),
-  Faq('Netice Pro', 'Telefonu değiştirdim, Pro\'m ne olacak?',
-      'Aynı Google hesabıyla girdiğiniz yeni telefonda Ayarlar > Netice Pro > "Satın alımları geri yükle"ye dokunun.'),
-  Faq('Genel', 'İnternet gerekiyor mu?',
-      'Hayır. Netice tamamen çevrimdışı çalışır ve tüm veriler telefonunuzda kalır. İnternet yalnızca isteğe bağlı Google Drive yedeği ve paylaşım için kullanılır.'),
+List<Faq> get faqs => <Faq>[
+  Faq(tr('Okutma'), tr('Kâğıt okunmuyor, ne yapmalıyım?'),
+      tr('Dört köşedeki siyah karelerin görüntüde tam göründüğünden emin olun. Kâğıdı düz bir zemine koyun, gölge ve parlamayı önleyin, telefonu kâğıda paralel tutun. Kâğıt buruşuksa düzeltin.')),
+  Faq(tr('Okutma'), tr('Kurşun kalem mi, tükenmez kalem mi kullanılmalı?'),
+      tr('Koyu yumuşak kurşun kalem (2B) en iyi sonucu verir. Tükenmez ve keçeli kalem de okunur. Daireyi taşırmadan tamamen doldurmak yeterlidir.')),
+  Faq(tr('Okutma'), tr('Öğrenci yanlış şıkkı silip başkasını işaretlemiş. Ne olur?'),
+      tr('İyi silinen işaretler boş sayılır. Silgi izi koyu kalırsa uygulama o soruyu "belirsiz" diye sarıyla gösterir; kâğıda dokunup düzeltebilirsiniz.')),
+  Faq(tr('Okutma'), tr('Kâğıt yanlış öğrenciyle eşleşti.'),
+      tr('Kâğıda dokunun ve doğru öğrenciyi listeden seçin. Eşleşme okul numarasına göre yapılır; öğrencinin numarayı doğru kodladığından ve listedeki numaranın doğru olduğundan emin olun.')),
+  Faq(tr('Okutma'), tr('Formlar barkodlu mu?'),
+      tr('Evet. Formun sol kenarındaki kare dizisi makine kodudur. Hangi sınava ve hangi öğrenciye ait olduğunu taşır; başka sınavın kâğıdı okutulursa uygulama bunu fark edip doğru sınava kaydeder.')),
+  Faq(tr('Okutma'), tr('Bir kâğıdı iki kez okuttum.'),
+      tr('Aynı öğrenciye ait ikinci okuma eskisinin yerine geçer; çift kayıt oluşmaz.')),
+  Faq(tr('Formlar'), tr('Formu fotokopiyle çoğaltabilir miyim?'),
+      tr('Evet. Fotokopinin küçültülmemiş (%100) ve köşe karelerinin net olması yeterlidir. İsimli formlar yerine boş öğrenci formunu çoğaltıp öğrencilerin numaralarını kodlamasını isteyebilirsiniz.')),
+  Faq(tr('Formlar'), tr('Kaç soruya kadar form hazırlanabilir?'),
+      tr('Bir sınavda 5 ile 100 arasında soru olabilir; sorular 4 veya 5 şıklıdır.')),
+  Faq(tr('Puanlama'), tr('Yanlışlar doğruyu götürüyor mu?'),
+      tr('Varsayılan olarak hayır. Sınav ayarlarında "3 yanlış 1 doğruyu götürür" gibi bir kural seçebilirsiniz.')),
+  Faq(tr('Puanlama'), tr('Hatalı bir soruyu iptal edersem ne olur?'),
+      tr('İptal edilen soru kimsenin puanına katılmaz; puanlar kalan sorulara göre yeniden hesaplanır. Okutulmuş kâğıtları yeniden okutmanız gerekmez.')),
+  Faq(tr('Puanlama'), tr('Cevap anahtarında hata yaptım, kâğıtları yeniden mi okutmalıyım?'),
+      tr('Hayır. Anahtarı düzeltin; tüm sonuçlar anında yeniden hesaplanır.')),
+  Faq(tr('Puanlama'), tr('Klasik soru puanları nasıl eklenir?'),
+      tr('Sınav ayarlarında klasik soruları tanımlayın, kâğıtları okutun, ardından "Klasik puan gir" ekranından her öğrencinin puanını yazın. Eksik puan kalırsa sonuç ekranında uyarı görünür.')),
+  Faq(tr('Raporlar'), tr('Raporlarda okul adım görünmüyor.'),
+      tr('Ayarlar > Okul bilgileri ekranından okul adını ve diğer bilgileri girin. "Resmi yazı başlığı" açıksa tüm PDF\'lerde resmi başlık çıkar.')),
+  Faq(tr('Raporlar'), tr('Karneyi veliye nasıl gönderirim?'),
+      tr('Sonuç listesinde öğrenciye dokunun ve "Karneyi veliye gönder"i seçin. Açılan paylaşım menüsünden WhatsApp, e-posta veya istediğiniz uygulamayı seçin; hazır bir mesaj da eklenir.')),
+  Faq(tr('Raporlar'), tr('Dönem sonu notu nasıl hesaplanıyor?'),
+      tr('Seçtiğiniz sınavların puanları 100 üzerinden alınır ve verdiğiniz ağırlıklarla ortalaması hesaplanır. Öğrencinin girmediği sınav ortalamaya katılmaz. Dönem notu, ortalamanın tam sayıya yuvarlanmış hâlidir.')),
+  Faq(tr('Raporlar'), tr('Notları e-Okul\'a otomatik aktarabilir miyim?'),
+      tr('e-Okul dışarıdan otomatik veri girişine izin vermez. "e-Okul listesi" numara sırasına göre hazırlandığı için notları elle girmek birkaç dakika sürer.')),
+  Faq(tr('Veriler'), tr('Verilerim nerede saklanıyor?'),
+      tr('Yalnızca bu cihazda, uygulamanın kendi klasöründe. Hiçbir veri internete gönderilmez; bu nedenle KVKK açısından da güvenlidir. Yalnızca isteğe bağlı Google Drive yedeğini açarsanız yedek, kendi Google hesabınıza kaydedilir.')),
+  Faq(tr('Veriler'), tr('Telefonu değiştirirsem verilerim ne olur?'),
+      tr('Eski telefonda Ayarlar > "Yedeği dosyaya kaydet" ile yedek alın, dosyayı yeni cihaza aktarın ve "Yedekten geri yükle"yi seçin.')),
+  Faq(tr('Veriler'), tr('Telefon ve bilgisayar birbirini görüyor mu?'),
+      tr('Hayır, her cihazın verisi ayrıdır. Bir cihazdaki yedeği diğerine geri yükleyerek verileri taşıyabilirsiniz.')),
+  Faq(tr('Veriler'), tr('Verilerimi nasıl silerim?'),
+      tr('Ayarlar > "Tüm verileri sil" bu cihazdaki öğrenci, sınav, kâğıt ve okul bilgilerini siler. İsterseniz otomatik yedekleri de birlikte silebilirsiniz. Google Drive yedeği kullanıyorsanız Ayarlar > Hesap > "Drive\'daki yedeği sil" ile onu da kaldırabilirsiniz.')),
+  Faq(tr('Veriler'), tr('Yanlışlıkla bir şeyi sildim.'),
+      tr('Ayarlar > Yedekleme bölümündeki otomatik yedekler listesinden, silmeden önceki günün yedeğini "Geri yükle" ile açabilirsiniz.')),
+  Faq(tr('Netice Pro'), tr('Netice ücretsiz mi?'),
+      tr('Evet. Kâğıt okutma, sonuçlar, temel istatistikler, sonuç listesi ve Excel her zaman ücretsizdir. Dönem raporu, öğrenci ve kazanım karneleri, karneyi veliye gönderme, Google Drive yedeği, gelişmiş grafikler ve resmi yazı başlığı Netice Pro ile açılır.')),
+  Faq(tr('Netice Pro'), tr('Ücretsiz deneme var mı?'),
+      tr('Evet. Uygulamayı kurduğunuz andan itibaren 14 gün boyunca tüm Pro özellikleri ücretsizdir; kart bilgisi istenmez ve süre bitince ücret çekilmez. Kalan gün sayısını Ayarlar > Netice Pro bölümünde görebilirsiniz.')),
+  Faq(tr('Netice Pro'), tr('Aboneliğimi nasıl iptal ederim?'),
+      tr('Google Play > Profil > Ödemeler ve abonelikler > Abonelikler bölümünden Netice Pro\'yu seçip iptal edin. Abonelik dönem sonuna kadar geçerli kalır. Ayarlar > Netice Pro > "Aboneliği yönet" de sizi aynı sayfaya götürür.')),
+  Faq(tr('Netice Pro'), tr('Telefonu değiştirdim, Pro\'m ne olacak?'),
+      tr('Aynı Google hesabıyla girdiğiniz yeni telefonda Ayarlar > Netice Pro > "Satın alımları geri yükle"ye dokunun.')),
+  Faq(tr('Genel'), tr('İnternet gerekiyor mu?'),
+      tr('Hayır. Netice tamamen çevrimdışı çalışır ve tüm veriler telefonunuzda kalır. İnternet yalnızca isteğe bağlı Google Drive yedeği ve paylaşım için kullanılır.')),
 ];

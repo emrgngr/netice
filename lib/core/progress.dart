@@ -1,6 +1,7 @@
 import 'models.dart';
 import 'report.dart';
 import 'store.dart';
+import '../l10n/l10n.dart';
 
 /// Bir öğrencinin bir sınavdaki sonucu ve sınıf içindeki yeri.
 class HistoryEntry {
@@ -73,12 +74,12 @@ List<EarlyWarning> earlyWarnings(AppStore store) {
     final last = h.last;
     final reasons = <String>[];
     if (h.length >= 3 && h[h.length - 1].$2.pct < h[h.length - 2].$2.pct && h[h.length - 2].$2.pct < h[h.length - 3].$2.pct) {
-      reasons.add('art arda iki sınavda düşüş');
+      reasons.add(tr('art arda iki sınavda düşüş'));
     } else if (h.length >= 2 && last.$2.pct <= h[h.length - 2].$2.pct - 15) {
-      reasons.add('son sınavda belirgin düşüş (${(h[h.length - 2].$2.pct - last.$2.pct).round()} puan)');
+      reasons.add(tr('son sınavda belirgin düşüş ({0} puan)', [(h[h.length - 2].$2.pct - last.$2.pct).round()]));
     }
     if (last.$2.result.score < last.$1.rule.pass) {
-      reasons.add('son sınavda geçme puanının altında');
+      reasons.add(tr('son sınavda geçme puanının altında'));
     }
     if (reasons.isNotEmpty) out.add(EarlyWarning(s, reasons.join(', '), last.$2.pct));
   }

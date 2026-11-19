@@ -5,6 +5,7 @@ import '../core/promo.dart';
 import '../main.dart';
 import 'theme.dart';
 import 'widgets.dart';
+import '../l10n/l10n.dart';
 
 /// Ana sayfanın altındaki sade, kapatılabilir öneri kartı.
 class PromoCard extends StatefulWidget {
@@ -30,9 +31,9 @@ class _PromoCardState extends State<PromoCard> {
   Future<void> _open(String url) async {
     try {
       final ok = await launchUrl(PromoFeed.tagged(url), mode: LaunchMode.externalApplication);
-      if (!ok && mounted) toast(context, 'Bağlantı açılamadı.');
+      if (!ok && mounted) toast(context, tr('Bağlantı açılamadı.'));
     } catch (_) {
-      if (mounted) toast(context, 'Bağlantı açılamadı.');
+      if (mounted) toast(context, tr('Bağlantı açılamadı.'));
     }
   }
 
@@ -53,19 +54,19 @@ class _PromoCardState extends State<PromoCard> {
                 border: Border.all(color: muted.withValues(alpha: 0.4)),
                 borderRadius: BorderRadius.circular(6),
               ),
-              child: Text('Önerilen', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: muted)),
+              child: Text(tr('Önerilen'), style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: muted)),
             ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(_feed.store, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15)),
             ),
             IconButton(
-              tooltip: 'Bir hafta gösterme',
+              tooltip: tr('Bir hafta gösterme'),
               visualDensity: VisualDensity.compact,
               icon: Icon(Icons.close_rounded, size: 18, color: muted),
               onPressed: () {
                 StoreScope.of(context).hidePromo();
-                toast(context, 'Öneriler bir hafta gösterilmeyecek.');
+                toast(context, tr('Öneriler bir hafta gösterilmeyecek.'));
               },
             ),
           ]),
@@ -89,10 +90,10 @@ class _PromoCardState extends State<PromoCard> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Text('${_feed.store} mağazasını keşfedin',
+                        Text(tr('{0} mağazasını keşfedin', [_feed.store]),
                             style: const TextStyle(fontWeight: FontWeight.w700)),
                         const SizedBox(height: 2),
-                        Text('Netice\'yi ücretsiz sunmamıza destek olan mağazamız',
+                        Text(tr('Netice\'yi ücretsiz sunmamıza destek olan mağazamız'),
                             style: TextStyle(color: muted, fontSize: 12.5)),
                       ]),
                     ),
@@ -203,7 +204,7 @@ class _WideProduct extends StatelessWidget {
               FilledButton.tonal(
                 onPressed: onTap,
                 style: FilledButton.styleFrom(visualDensity: VisualDensity.compact),
-                child: const Text('İncele'),
+                child: Text(tr('İncele')),
               ),
             ]),
           ]),

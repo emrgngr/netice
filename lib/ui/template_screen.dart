@@ -10,6 +10,7 @@ import '../omr/omr_reader.dart';
 import '../omr/template.dart';
 import 'theme.dart';
 import 'widgets.dart';
+import '../l10n/l10n.dart';
 
 /// Başka firma formları için şablon listesi.
 class TemplatesScreen extends StatelessWidget {
@@ -20,29 +21,27 @@ class TemplatesScreen extends StatelessWidget {
     final store = StoreScope.of(context);
     final muted = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6);
     return Scaffold(
-      appBar: AppBar(title: const Text('Başka firma formları')),
+      appBar: AppBar(title: Text(tr('Başka firma formları'))),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TemplateEditorScreen())),
         icon: const Icon(Icons.add_rounded),
-        label: const Text('Yeni şablon'),
+        label: Text(tr('Yeni şablon')),
       ),
       body: ListView(padding: const EdgeInsets.fromLTRB(20, 8, 20, 100), children: [
         Text(
-          'Okulunuzda yayınevi ya da başka bir firmanın optik formu kullanılıyorsa, boş (veya dolu) bir formun '
-          'fotoğrafından şablon oluşturun. Sonra Sınav ayarları > Form türü bölümünden bu şablonu seçin.',
+          tr('Okulunuzda yayınevi ya da başka bir firmanın optik formu kullanılıyorsa, boş (veya dolu) bir formun fotoğrafından şablon oluşturun. Sonra Sınav ayarları > Form türü bölümünden bu şablonu seçin.'),
           style: TextStyle(color: muted),
         ),
         const SizedBox(height: 16),
         if (store.templates.isEmpty)
-          const EmptyNote(icon: Icons.grid_on_rounded, text: 'Henüz şablon yok.')
+          EmptyNote(icon: Icons.grid_on_rounded, text: tr('Henüz şablon yok.'))
         else
           for (final t in store.templates)
             Card(
               child: ListTile(
                 leading: const Icon(Icons.grid_on_rounded, color: NColors.emerald),
                 title: Text(t.name, style: const TextStyle(fontWeight: FontWeight.w700)),
-                subtitle: Text('${t.questionCount} soru · ${t.choiceCount} şık'
-                    '${t.number == null ? ' · numara bloğu yok' : ' · ${t.number!.digits} haneli numara'}'),
+                subtitle: Text(tr('{0} soru · {1} şık{2}', [t.questionCount, t.choiceCount, t.number == null ? tr(' · numara bloğu yok') : tr(' · {0} haneli numara', [t.number!.digits])])),
                 trailing: const Icon(Icons.chevron_right_rounded),
                 onTap: () => Navigator.of(context)
                     .push(MaterialPageRoute(builder: (_) => TemplateEditorScreen(template: t))),
@@ -129,11 +128,11 @@ class _TemplateEditorScreenState extends State<TemplateEditorScreen> {
         final f = await ImagePicker().pickImage(source: camera ? ImageSource.camera : ImageSource.gallery, requestFullMetadata: false);
         bytes = await f?.readAsBytes();
       } else {
-        final files = await FilePicker.pickFiles(dialogTitle: 'Formun fotoğrafını seçin', type: FileType.image);
+        final files = await FilePicker.pickFiles(dialogTitle: tr('Formun fotoğrafını seçin'), type: FileType.image);
         if (files.isNotEmpty) bytes = await files.first.readAsBytes();
       }
     } catch (e) {
-      if (mounted) toast(context, 'Görüntü açılamadı: $e');
+      if (mounted) toast(context, tr('Görüntü açılamadı: {0}', [e]));
       return;
     }
     if (bytes == null) return;
@@ -144,15 +143,14 @@ class _TemplateEditorScreenState extends State<TemplateEditorScreen> {
       _busy = false;
       _test = null;
       if (out == null) {
-        toast(context, 'Görüntü açılamadı.');
+        toast(context, tr('Görüntü açılamadı.'));
         return;
       }
       _gray = out.$1;
       _corners = out.$2;
       _page = out.$3;
       if (!out.$4) {
-        toast(context, 'Kâğıdın kenarları bulunamadı; görüntünün tamamı sayfa sayıldı. '
-            'En iyi sonuç için kâğıdı koyu bir zemine koyup tamamı görünecek şekilde çekin.');
+        toast(context, tr('Kâğıdın kenarları bulunamadı; görüntünün tamamı sayfa sayıldı. En iyi sonuç için kâğıdı koyu bir zemine koyup tamamı görünecek şekilde çekin.'));
       }
     });
   }
@@ -168,40 +166,40 @@ class _TemplateEditorScreenState extends State<TemplateEditorScreen> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, set) => AlertDialog(
-          title: Text(replace == null ? 'Cevap bloğu ekle' : 'Bloğu yeniden işaretle'),
+          title: Text(replace == null ? tr('Cevap bloğu ekle') : tr('Bloğu yeniden işaretle')),
           content: SingleChildScrollView(
             child: Column(mainAxisSize: MainAxisSize.min, children: [
-              const Text('Formdaki bir sütun (ya da blok) soruyu tanımlayın.'),
+              Text(tr('Formdaki bir sütun (ya da blok) soruyu tanımlayın.')),
               const SizedBox(height: 12),
               Row(children: [
                 Expanded(
                   child: TextField(
                       controller: start,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(labelText: 'İlk soru no')),
+                      decoration: InputDecoration(labelText: tr('İlk soru no'))),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: TextField(
                       controller: count,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(labelText: 'Soru sayısı')),
+                      decoration: InputDecoration(labelText: tr('Soru sayısı'))),
                 ),
               ]),
               const SizedBox(height: 12),
               SegmentedButton<int>(
-                segments: const [
-                  ButtonSegment(value: 4, label: Text('4 şık')),
-                  ButtonSegment(value: 5, label: Text('5 şık')),
+                segments: [
+                  ButtonSegment(value: 4, label: Text(tr('4 şık'))),
+                  ButtonSegment(value: 5, label: Text(tr('5 şık'))),
                 ],
                 selected: {choices},
                 onSelectionChanged: (v) => set(() => choices = v.first),
               ),
               const SizedBox(height: 12),
               SegmentedButton<bool>(
-                segments: const [
-                  ButtonSegment(value: true, label: Text('Şıklar yan yana')),
-                  ButtonSegment(value: false, label: Text('Şıklar alt alta')),
+                segments: [
+                  ButtonSegment(value: true, label: Text(tr('Şıklar yan yana'))),
+                  ButtonSegment(value: false, label: Text(tr('Şıklar alt alta'))),
                 ],
                 selected: {rows},
                 onSelectionChanged: (v) => set(() => rows = v.first),
@@ -209,15 +207,15 @@ class _TemplateEditorScreenState extends State<TemplateEditorScreen> {
             ]),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Vazgeç')),
-            FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Daireleri işaretle')),
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr('Vazgeç'))),
+            FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(tr('Daireleri işaretle'))),
           ],
         ),
       ),
     );
     if (ok != true || !mounted) return;
     final s = int.tryParse(start.text), c = int.tryParse(count.text);
-    if (s == null || s < 1 || c == null || c < 1 || c > 200) return toast(context, 'Soru numaralarını kontrol edin.');
+    if (s == null || s < 1 || c == null || c < 1 || c > 200) return toast(context, tr('Soru numaralarını kontrol edin.'));
     setState(() {
       _pendingBlock = (start: s, count: c, choices: choices, rows: rows);
       _replaceIndex = replace;
@@ -231,24 +229,24 @@ class _TemplateEditorScreenState extends State<TemplateEditorScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Öğrenci numarası bloğu'),
+        title: Text(tr('Öğrenci numarası bloğu')),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Text('Her sütun bir basamak, 0–9 yukarıdan aşağıya olmalı.'),
+          Text(tr('Her sütun bir basamak, 0–9 yukarıdan aşağıya olmalı.')),
           const SizedBox(height: 12),
           TextField(
               controller: digits,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Basamak (sütun) sayısı')),
+              decoration: InputDecoration(labelText: tr('Basamak (sütun) sayısı'))),
         ]),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Vazgeç')),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Daireleri işaretle')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr('Vazgeç'))),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(tr('Daireleri işaretle'))),
         ],
       ),
     );
     if (ok != true || !mounted) return;
     final d = int.tryParse(digits.text);
-    if (d == null || d < 1 || d > 12) return toast(context, 'Basamak sayısı 1–12 olmalı.');
+    if (d == null || d < 1 || d > 12) return toast(context, tr('Basamak sayısı 1–12 olmalı.'));
     setState(() {
       _pendingDigits = d;
       _tap = _Tap.numberFirst;
@@ -292,12 +290,12 @@ class _TemplateEditorScreenState extends State<TemplateEditorScreen> {
 
   String get _prompt => switch (_tap) {
         _Tap.blockFirst => _pendingBlock!.rows
-            ? '${_pendingBlock!.start}. sorunun A şıkkının ortasına dokunun'
-            : '${_pendingBlock!.start}. sorunun A şıkkının ortasına dokunun (en üstteki)',
+            ? tr('{0}. sorunun A şıkkının ortasına dokunun', [_pendingBlock!.start])
+            : tr('{0}. sorunun A şıkkının ortasına dokunun (en üstteki)', [_pendingBlock!.start]),
         _Tap.blockLast =>
-          '${_pendingBlock!.start + _pendingBlock!.count - 1}. sorunun ${String.fromCharCode(64 + _pendingBlock!.choices)} şıkkının ortasına dokunun',
-        _Tap.numberFirst => 'Numaranın ilk basamağındaki 0 dairesine dokunun',
-        _Tap.numberLast => 'Numaranın son basamağındaki 9 dairesine dokunun',
+          tr('{0}. sorunun {1} şıkkının ortasına dokunun', [_pendingBlock!.start + _pendingBlock!.count - 1, String.fromCharCode(64 + _pendingBlock!.choices)]),
+        _Tap.numberFirst => tr('Numaranın ilk basamağındaki 0 dairesine dokunun'),
+        _Tap.numberLast => tr('Numaranın son basamağındaki 9 dairesine dokunun'),
         _Tap.none => '',
       };
 
@@ -312,15 +310,15 @@ class _TemplateEditorScreenState extends State<TemplateEditorScreen> {
       _test = r;
     });
     final marked = r.questions.where((q) => q.answer.marked.isNotEmpty).length;
-    toast(context, '$marked soruda işaret bulundu${r.studentNumber == null ? '' : ' · numara ${int.parse(r.studentNumber!)}'}.');
+    toast(context, tr('{0} soruda işaret bulundu{1}.', [marked, r.studentNumber == null ? '' : ' · numara ${int.parse(r.studentNumber!)}']));
   }
 
   void _save() {
     final name = _name.text.trim();
-    if (name.isEmpty) return toast(context, 'Şablona bir ad verin (örn. "X Yayınları 40 soruluk").');
-    if (_t.blocks.isEmpty) return toast(context, 'En az bir cevap bloğu ekleyin.');
+    if (name.isEmpty) return toast(context, tr('Şablona bir ad verin (örn. "X Yayınları 40 soruluk").'));
+    if (_t.blocks.isEmpty) return toast(context, tr('En az bir cevap bloğu ekleyin.'));
     StoreScope.of(context).saveTemplate(_t.copyWith(name: name));
-    toast(context, 'Şablon kaydedildi. Sınav ayarlarında "Form türü"nden seçebilirsiniz.');
+    toast(context, tr('Şablon kaydedildi. Sınav ayarlarında "Form türü"nden seçebilirsiniz.'));
     Navigator.pop(context);
   }
 
@@ -328,14 +326,14 @@ class _TemplateEditorScreenState extends State<TemplateEditorScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Şablon silinsin mi?'),
-        content: const Text('Bu şablonu kullanan sınavlar Netice formuna döner. Okunmuş kâğıtlar silinmez.'),
+        title: Text(tr('Şablon silinsin mi?')),
+        content: Text(tr('Bu şablonu kullanan sınavlar Netice formuna döner. Okunmuş kâğıtlar silinmez.')),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Vazgeç')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr('Vazgeç'))),
           FilledButton(
               style: FilledButton.styleFrom(backgroundColor: NColors.coral),
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Sil')),
+              child: Text(tr('Sil'))),
         ],
       ),
     );
@@ -351,12 +349,12 @@ class _TemplateEditorScreenState extends State<TemplateEditorScreen> {
     final editing = widget.template != null;
     return Scaffold(
       appBar: AppBar(
-        title: Text(editing ? 'Şablonu düzenle' : 'Yeni şablon'),
+        title: Text(editing ? tr('Şablonu düzenle') : tr('Yeni şablon')),
         actions: [
-          if (editing) IconButton(tooltip: 'Sil', onPressed: _delete, icon: const Icon(Icons.delete_outline_rounded)),
+          if (editing) IconButton(tooltip: tr('Sil'), onPressed: _delete, icon: const Icon(Icons.delete_outline_rounded)),
           Padding(
             padding: const EdgeInsets.only(right: 8),
-            child: FilledButton(onPressed: _save, child: const Text('Kaydet')),
+            child: FilledButton(onPressed: _save, child: Text(tr('Kaydet'))),
           ),
         ],
       ),
@@ -365,28 +363,27 @@ class _TemplateEditorScreenState extends State<TemplateEditorScreen> {
         final controls = ListView(padding: const EdgeInsets.fromLTRB(20, 8, 20, 40), shrinkWrap: !wide, physics: wide ? null : const NeverScrollableScrollPhysics(), children: [
           TextField(
             controller: _name,
-            decoration: const InputDecoration(labelText: 'Şablon adı', hintText: 'Örn. X Yayınları 40 soruluk form'),
+            decoration: InputDecoration(labelText: tr('Şablon adı'), hintText: tr('Örn. X Yayınları 40 soruluk form')),
           ),
           const SizedBox(height: 12),
-          Text('1. Formun fotoğrafını seçin. Kâğıdı koyu bir zemine koyun, dört kenarı görünsün. '
-              '2. Her soru bloğu için ilk ve son daireye dokunun. 3. Dolu bir formla "Dene"ye basıp sonucu kontrol edin.',
+          Text(tr('1. Formun fotoğrafını seçin. Kâğıdı koyu bir zemine koyun, dört kenarı görünsün. 2. Her soru bloğu için ilk ve son daireye dokunun. 3. Dolu bir formla "Dene"ye basıp sonucu kontrol edin.'),
               style: TextStyle(color: muted)),
           const SizedBox(height: 12),
           Wrap(spacing: 8, runSpacing: 8, children: [
             FilledButton.tonalIcon(
               onPressed: _busy ? null : () => _pickImage(),
               icon: const Icon(Icons.photo_library_outlined),
-              label: Text(_page == null ? 'Form fotoğrafı seç' : 'Başka fotoğraf'),
+              label: Text(_page == null ? tr('Form fotoğrafı seç') : tr('Başka fotoğraf')),
             ),
             if (_mobile)
               OutlinedButton.icon(
                 onPressed: _busy ? null : () => _pickImage(camera: true),
                 icon: const Icon(Icons.photo_camera_outlined),
-                label: const Text('Fotoğraf çek'),
+                label: Text(tr('Fotoğraf çek')),
               ),
           ]),
-          const SectionTitle('Cevap blokları'),
-          if (_t.blocks.isEmpty) Text('Henüz blok yok.', style: TextStyle(color: muted)),
+          SectionTitle(tr('Cevap blokları')),
+          if (_t.blocks.isEmpty) Text(tr('Henüz blok yok.'), style: TextStyle(color: muted)),
           for (final (i, b) in _t.blocks.indexed)
             Card(
               child: ListTile(
@@ -396,15 +393,15 @@ class _TemplateEditorScreenState extends State<TemplateEditorScreen> {
                     backgroundColor: _blockColor(i).withValues(alpha: 0.2),
                     child: Text('${i + 1}', style: TextStyle(color: _blockColor(i), fontWeight: FontWeight.w800))),
                 title: Text('Soru ${b.start}–${b.start + b.count - 1}'),
-                subtitle: Text('${b.choices} şık · ${b.rows ? 'yan yana' : 'alt alta'}'),
+                subtitle: Text(tr('{0} şık · {1}', [b.choices, b.rows ? tr('yan yana') : tr('alt alta')])),
                 trailing: Row(mainAxisSize: MainAxisSize.min, children: [
                   IconButton(
-                    tooltip: 'Yeniden işaretle',
+                    tooltip: tr('Yeniden işaretle'),
                     onPressed: _page == null ? null : () => _addBlock(replace: i),
                     icon: const Icon(Icons.edit_location_alt_outlined),
                   ),
                   IconButton(
-                    tooltip: 'Kaldır',
+                    tooltip: tr('Kaldır'),
                     onPressed: () => setState(() => _t = _t.copyWith(blocks: [..._t.blocks]..removeAt(i))),
                     icon: const Icon(Icons.close_rounded),
                   ),
@@ -415,41 +412,40 @@ class _TemplateEditorScreenState extends State<TemplateEditorScreen> {
           OutlinedButton.icon(
             onPressed: _page == null || _busy ? null : () => _addBlock(),
             icon: const Icon(Icons.add_rounded),
-            label: const Text('Cevap bloğu ekle'),
+            label: Text(tr('Cevap bloğu ekle')),
           ),
-          const SectionTitle('Öğrenci numarası'),
+          SectionTitle(tr('Öğrenci numarası')),
           if (_t.number != null)
             Card(
               child: ListTile(
                 dense: true,
                 leading: const Icon(Icons.pin_outlined, color: NColors.amber),
-                title: Text('${_t.number!.digits} haneli numara'),
+                title: Text(tr('{0} haneli numara', [_t.number!.digits])),
                 trailing: IconButton(
-                  tooltip: 'Kaldır',
+                  tooltip: tr('Kaldır'),
                   onPressed: () => setState(() => _t = _t.copyWith(clearNumber: true)),
                   icon: const Icon(Icons.close_rounded),
                 ),
               ),
             )
           else
-            Text('Numara bloğu yoksa kâğıtlar "Kontrol" ekranında öğrenciye elle atanır.', style: TextStyle(color: muted)),
+            Text(tr('Numara bloğu yoksa kâğıtlar "Kontrol" ekranında öğrenciye elle atanır.'), style: TextStyle(color: muted)),
           const SizedBox(height: 4),
           OutlinedButton.icon(
             onPressed: _page == null || _busy ? null : _addNumber,
             icon: const Icon(Icons.pin_outlined),
-            label: Text(_t.number == null ? 'Numara bloğu ekle' : 'Numara bloğunu yeniden işaretle'),
+            label: Text(_t.number == null ? tr('Numara bloğu ekle') : tr('Numara bloğunu yeniden işaretle')),
           ),
           const SizedBox(height: 16),
           FilledButton.icon(
             onPressed: _page == null || _t.blocks.isEmpty || _busy ? null : _tryRead,
             icon: const Icon(Icons.play_arrow_rounded),
-            label: const Text('Bu fotoğrafla dene'),
+            label: Text(tr('Bu fotoğrafla dene')),
           ),
           if (_test != null) ...[
             const SizedBox(height: 8),
             Text(
-              'Yeşil dolu daireler okunan işaretlerdir. Doğru yerlerdeyse şablon hazır; '
-              'kayıksa ilgili bloğu yeniden işaretleyin.',
+              tr('Yeşil dolu daireler okunan işaretlerdir. Doğru yerlerdeyse şablon hazır; kayıksa ilgili bloğu yeniden işaretleyin.'),
               style: TextStyle(color: muted),
             ),
           ],
@@ -459,7 +455,7 @@ class _TemplateEditorScreenState extends State<TemplateEditorScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(32),
                   child: Text(
-                    editing ? 'Şablonu değiştirmek için formun fotoğrafını yeniden seçin.' : 'Formun fotoğrafı burada görünecek.',
+                    editing ? tr('Şablonu değiştirmek için formun fotoğrafını yeniden seçin.') : tr('Formun fotoğrafı burada görünecek.'),
                     textAlign: TextAlign.center,
                     style: TextStyle(color: muted),
                   ),
@@ -484,7 +480,7 @@ class _TemplateEditorScreenState extends State<TemplateEditorScreen> {
                     Expanded(child: Text(_prompt, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700))),
                     TextButton(
                       onPressed: () => setState(() => _tap = _Tap.none),
-                      child: const Text('Vazgeç', style: TextStyle(color: Colors.white70)),
+                      child: Text(tr('Vazgeç'), style: TextStyle(color: Colors.white70)),
                     ),
                   ]),
                 ),

@@ -6,6 +6,7 @@ import 'pro_screen.dart';
 import '../core/pro.dart';
 import 'theme.dart';
 import 'widgets.dart';
+import '../l10n/l10n.dart';
 
 /// Ayarların başındaki hesap kartı: Google ile giriş ve Drive yedeği.
 class AccountCard extends StatefulWidget {
@@ -25,7 +26,7 @@ class _AccountCardState extends State<AccountCard> {
     } on _Cancelled {
       // Kullanıcı vazgeçti.
     } catch (e) {
-      if (mounted) toast(context, 'İşlem tamamlanamadı: ${_friendly(e)}');
+      if (mounted) toast(context, tr('İşlem tamamlanamadı: {0}', [_friendly(e)]));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -33,17 +34,17 @@ class _AccountCardState extends State<AccountCard> {
 
   String _friendly(Object e) {
     final s = '$e';
-    if (s.contains('canceled') || s.contains('cancel')) return 'giriş iptal edildi.';
-    if (s.contains('SocketException') || s.contains('Failed host')) return 'internet bağlantısı yok.';
+    if (s.contains('canceled') || s.contains('cancel')) return tr('giriş iptal edildi.');
+    if (s.contains('SocketException') || s.contains(tr('Failed host'))) return tr('internet bağlantısı yok.');
     return s.length > 120 ? '${s.substring(0, 120)}…' : s;
   }
 
   String _ago(DateTime t) {
     final d = DateTime.now().difference(t);
-    if (d.inMinutes < 1) return 'az önce';
-    if (d.inHours < 1) return '${d.inMinutes} dk önce';
-    if (d.inDays < 1) return '${d.inHours} sa önce';
-    return '${d.inDays} gün önce';
+    if (d.inMinutes < 1) return tr('az önce');
+    if (d.inHours < 1) return tr('{0} dk önce', [d.inMinutes]);
+    if (d.inDays < 1) return tr('{0} sa önce', [d.inHours]);
+    return tr('{0} gün önce', [d.inDays]);
   }
 
   @override
@@ -57,18 +58,17 @@ class _AccountCardState extends State<AccountCard> {
       return Card(
         child: ListTile(
           leading: const IconBadge(Icons.cloud_off_outlined, color: NColors.gray),
-          title: const Text('Google hesabı', style: TextStyle(fontWeight: FontWeight.w700)),
-          subtitle: const Text('Google ile giriş ve Drive yedeği telefon uygulamasında. '
-              'Bilgisayarda "Yedeği dosyaya kaydet / geri yükle" ile taşıyabilirsiniz.'),
+          title: Text(tr('Google hesabı'), style: TextStyle(fontWeight: FontWeight.w700)),
+          subtitle: Text(tr('Google ile giriş ve Drive yedeği telefon uygulamasında. Bilgisayarda "Yedeği dosyaya kaydet / geri yükle" ile taşıyabilirsiniz.')),
         ),
       );
     }
     if (!CloudConfig.configured) {
-      return const Card(
+      return Card(
         child: ListTile(
           leading: IconBadge(Icons.cloud_outlined, color: NColors.amber),
-          title: Text('Google ile giriş', style: TextStyle(fontWeight: FontWeight.w700)),
-          subtitle: Text('Yakında: Google hesabınızla girip verilerinizi kendi Google Drive\'ınıza yedekleyebileceksiniz.'),
+          title: Text(tr('Google ile giriş'), style: TextStyle(fontWeight: FontWeight.w700)),
+          subtitle: Text(tr('Yakında: Google hesabınızla girip verilerinizi kendi Google Drive\'ınıza yedekleyebileceksiniz.')),
         ),
       );
     }
@@ -84,14 +84,13 @@ class _AccountCardState extends State<AccountCard> {
               const IconBadge(Icons.account_circle_outlined, color: NColors.emerald),
               const SizedBox(width: 12),
               Expanded(
-                child: Text('Google hesabınızla giriş yapın',
+                child: Text(tr('Google hesabınızla giriş yapın'),
                     style: t.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
               ),
             ]),
             const SizedBox(height: 8),
             Text(
-              'Verileriniz yine bu cihazda kalır. Giriş yaparsanız her gün kendi Google Drive\'ınıza gizli bir yedek alınır; '
-              'telefon değişse de sınıflarınız ve sınavlarınız kaybolmaz.',
+              tr('Verileriniz yine bu cihazda kalır. Giriş yaparsanız her gün kendi Google Drive\'ınıza gizli bir yedek alınır; telefon değişse de sınıflarınız ve sınavlarınız kaybolmaz.'),
               style: TextStyle(color: muted, height: 1.4),
             ),
             const SizedBox(height: 14),
@@ -116,11 +115,11 @@ class _AccountCardState extends State<AccountCard> {
                             }
                           }
                           await cloud.backup(store);
-                        }, ok: 'Giriş yapıldı. Verileriniz Google Drive\'a yedeklendi.'),
+                        }, ok: tr('Giriş yapıldı. Verileriniz Google Drive\'a yedeklendi.')),
                 icon: _busy
                     ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2))
                     : const _GoogleG(),
-                label: const Text('Google ile giriş yap'),
+                label: Text(tr('Google ile giriş yap')),
               ),
             ),
           ]),
@@ -138,70 +137,69 @@ class _AccountCardState extends State<AccountCard> {
             child: Text((store.googleName ?? store.googleEmail ?? '?').characters.first.toUpperCase(),
                 style: const TextStyle(fontWeight: FontWeight.w800, color: NColors.emerald)),
           ),
-          title: Text(store.googleName ?? 'Google hesabı', style: const TextStyle(fontWeight: FontWeight.w700)),
+          title: Text(store.googleName ?? tr('Google hesabı'), style: const TextStyle(fontWeight: FontWeight.w700)),
           subtitle: Text(store.googleEmail!),
           trailing: TextButton(
-            onPressed: _busy ? null : () => _run(() => cloud.signOut(store), ok: 'Çıkış yapıldı.'),
-            child: const Text('Çıkış'),
+            onPressed: _busy ? null : () => _run(() => cloud.signOut(store), ok: tr('Çıkış yapıldı.')),
+            child: Text(tr('Çıkış')),
           ),
         ),
         const Divider(height: 1),
         ListTile(
           leading: Icon(store.lastCloudBackup == null ? Icons.cloud_queue_rounded : Icons.cloud_done_rounded,
               color: NColors.emerald),
-          title: const Text('Google Drive yedeği'),
-          subtitle: Text(store.lastCloudBackup == null ? 'Henüz yedek alınmadı' : 'Son yedek: ${_ago(store.lastCloudBackup!)}'),
+          title: Text(tr('Google Drive yedeği')),
+          subtitle: Text(store.lastCloudBackup == null ? tr('Henüz yedek alınmadı') : tr('Son yedek: {0}', [_ago(store.lastCloudBackup!)])),
           trailing: _busy
               ? const SizedBox.square(dimension: 22, child: CircularProgressIndicator(strokeWidth: 2))
               : TextButton(
-                  onPressed: () => _run(() => cloud.backup(store), ok: 'Google Drive\'a yedeklendi.'),
-                  child: const Text('Şimdi yedekle'),
+                  onPressed: () => _run(() => cloud.backup(store), ok: tr('Google Drive\'a yedeklendi.')),
+                  child: Text(tr('Şimdi yedekle')),
                 ),
         ),
         SwitchListTile(
           value: store.cloudAuto,
           onChanged: store.setCloudAuto,
-          title: const Text('Her gün otomatik yedekle'),
-          subtitle: const Text('İnternet varken, günde bir kez arka planda'),
+          title: Text(tr('Her gün otomatik yedekle')),
+          subtitle: Text(tr('İnternet varken, günde bir kez arka planda')),
         ),
         ListTile(
           leading: const Icon(Icons.cloud_download_outlined),
-          title: const Text('Drive\'daki yedeği geri yükle'),
-          subtitle: const Text('Yeni telefona geçtiğinizde kullanın'),
+          title: Text(tr('Drive\'daki yedeği geri yükle')),
+          subtitle: Text(tr('Yeni telefona geçtiğinizde kullanın')),
           onTap: _busy
               ? null
               : () => _run(() async {
                     final info = await cloud.latest();
-                    if (info == null) throw 'Drive\'da yedek bulunamadı.';
+                    if (info == null) throw tr('Drive\'da yedek bulunamadı.');
                     if (await _askRestore(info) != true) throw _Cancelled();
                     await cloud.restore(store);
-                  }, ok: 'Yedek geri yüklendi.'),
+                  }, ok: tr('Yedek geri yüklendi.')),
         ),
         ListTile(
           leading: const Icon(Icons.cloud_off_rounded, color: NColors.coral),
-          title: const Text('Drive\'daki yedeği sil'),
-          subtitle: const Text('Yedek, Google hesabınızdan kalıcı olarak kaldırılır'),
+          title: Text(tr('Drive\'daki yedeği sil')),
+          subtitle: Text(tr('Yedek, Google hesabınızdan kalıcı olarak kaldırılır')),
           onTap: _busy
               ? null
               : () => _run(() async {
                     final ok = await showDialog<bool>(
                       context: context,
                       builder: (ctx) => AlertDialog(
-                        title: const Text('Drive yedeği silinsin mi?'),
-                        content: const Text('Google Drive\'daki Netice yedeği kalıcı olarak silinir. '
-                            'Bu cihazdaki verilere dokunulmaz. Otomatik Drive yedeği açıksa ertesi gün yeniden yedek alınır.'),
+                        title: Text(tr('Drive yedeği silinsin mi?')),
+                        content: Text(tr('Google Drive\'daki Netice yedeği kalıcı olarak silinir. Bu cihazdaki verilere dokunulmaz. Otomatik Drive yedeği açıksa ertesi gün yeniden yedek alınır.')),
                         actions: [
-                          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Vazgeç')),
+                          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr('Vazgeç'))),
                           FilledButton(
                               style: FilledButton.styleFrom(backgroundColor: NColors.coral),
                               onPressed: () => Navigator.pop(ctx, true),
-                              child: const Text('Sil')),
+                              child: Text(tr('Sil'))),
                         ],
                       ),
                     );
                     if (ok != true) throw _Cancelled();
-                    if (!await cloud.deleteBackup(store)) throw 'Drive\'da silinecek yedek yok.';
-                  }, ok: 'Drive yedeği silindi.'),
+                    if (!await cloud.deleteBackup(store)) throw tr('Drive\'da silinecek yedek yok.');
+                  }, ok: tr('Drive yedeği silindi.')),
         ),
       ]),
     );
@@ -210,12 +208,11 @@ class _AccountCardState extends State<AccountCard> {
   Future<bool?> _askRestore(CloudBackupInfo info) => showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text('Drive\'daki yedek yüklensin mi?'),
-          content: Text('${info.modified == null ? '' : '${dmy(info.modified!.toLocal())} ${hm(info.modified!.toLocal())} tarihli '}'
-              'yedek bulundu. Bu cihazdaki verilerin yerine geçer; mevcut hâlin bir kopyası önce otomatik yedeklere eklenir.'),
+          title: Text(tr('Drive\'daki yedek yüklensin mi?')),
+          content: Text(tr('{0}yedek bulundu. Bu cihazdaki verilerin yerine geçer; mevcut hâlin bir kopyası önce otomatik yedeklere eklenir.', [info.modified == null ? '' : '${dmy(info.modified!.toLocal())} ${hm(info.modified!.toLocal())} tarihli '])),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Vazgeç')),
-            FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Geri yükle')),
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr('Vazgeç'))),
+            FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(tr('Geri yükle'))),
           ],
         ),
       );

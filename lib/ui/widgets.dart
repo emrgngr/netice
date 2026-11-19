@@ -5,6 +5,7 @@ import 'package:material_ui/material_ui.dart';
 import '../core/models.dart';
 import 'logo.dart';
 import 'theme.dart';
+import '../l10n/l10n.dart';
 
 /// Rakam önde: büyük, tabular rakamlı istatistik kartı.
 class StatCard extends StatelessWidget {
@@ -85,8 +86,8 @@ String letter(int i) => String.fromCharCode(65 + i);
 
 String answerText(Answer a) => a.marked.isEmpty ? '–' : a.marked.map(letter).join('/');
 
-String fmt1(double v) => v.toStringAsFixed(1).replaceAll('.', ',');
-String fmt2(double v) => v.toStringAsFixed(2).replaceAll('.', ',');
+String fmt1(double v) => v.toStringAsFixed(1).replaceAll('.', L10n.decimal);
+String fmt2(double v) => v.toStringAsFixed(2).replaceAll('.', L10n.decimal);
 
 void toast(BuildContext context, String msg) {
   ScaffoldMessenger.of(context)
@@ -324,18 +325,19 @@ class Watermark extends StatelessWidget {
   }
 }
 
-const _months = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
-const _days = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
+List<String> get _months => [tr('Ocak'), tr('Şubat'), tr('Mart'), tr('Nisan'), tr('Mayıs'), tr('Haziran'), tr('Temmuz'), tr('Ağustos'), tr('Eylül'), tr('Ekim'), tr('Kasım'), tr('Aralık')];
+List<String> get _days => [tr('Pazartesi'), tr('Salı'), tr('Çarşamba'), tr('Perşembe'), tr('Cuma'), tr('Cumartesi'), tr('Pazar')];
 String _two(int v) => v.toString().padLeft(2, '0');
 
 /// 18.11.2026
-String dmy(DateTime d) => '${_two(d.day)}.${_two(d.month)}.${d.year}';
+String dmy(DateTime d) => L10n.date(d);
 
 /// 10:04
 String hm(DateTime d) => '${_two(d.hour)}:${_two(d.minute)}';
 
 /// 18 Kasım 2026, Çarşamba
-String longDate(DateTime d) => '${d.day} ${_months[d.month - 1]} ${d.year}, ${_days[d.weekday - 1]}';
+/// Uzun tarih; sıralama dile göre çeviride ayarlanır (ör. Japonca: 2026年11月19日).
+String longDate(DateTime d) => tr('{0} {1} {2}, {3}', [d.day, _months[d.month - 1], d.year, _days[d.weekday - 1]]);
 
 /// Dakikada bir yenilenen tarih ve saat göstergesi.
 class LiveClock extends StatefulWidget {

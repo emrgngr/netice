@@ -18,6 +18,7 @@ import '../omr/sheet_reader.dart';
 import 'review_screen.dart' show unmatchedLabel;
 import 'theme.dart';
 import 'widgets.dart';
+import '../l10n/l10n.dart';
 
 /// Okuma ekranı. İlk sürüm: fotoğraf/tarama dosyaları ve çok sayfalı PDF
 /// toplu okuma. Kamerayla seri mod bir sonraki adımda eklenecek.
@@ -72,24 +73,24 @@ class _ScanScreenState extends State<ScanScreen> {
         return;
       }
       if (status == ScanStatus.conflict) {
-        toast(context, 'Bu numarayla farklı cevaplı bir kâğıt zaten var. Kâğıt "Kontrol" listesine alındı.');
+        toast(context, tr('Bu numarayla farklı cevaplı bir kâğıt zaten var. Kâğıt "Kontrol" listesine alındı.'));
       }
       if (sheet.examId != exam.id) {
-        toast(context, 'Bu kâğıt "${store.examById(sheet.examId)?.name}" sınavına ait; oraya kaydedildi.');
+        toast(context, tr('Bu kâğıt "{0}" sınavına ait; oraya kaydedildi.', [store.examById(sheet.examId)?.name]));
       }
       HapticFeedback.lightImpact();
       SystemSound.play(SystemSoundType.click);
       setState(() => _entries.insert(0, _ScanEntry(source, sheet: sheet)));
     } on OmrException catch (e) {
-      setState(() => _entries.insert(0, _ScanEntry(source, error: e.message)));
+      setState(() => _entries.insert(0, _ScanEntry(source, error: tr(e.message))));
     } catch (e) {
-      setState(() => _entries.insert(0, _ScanEntry(source, error: 'Okunamadı: $e')));
+      setState(() => _entries.insert(0, _ScanEntry(source, error: tr('Okunamadı: {0}', [e]))));
     }
   }
 
   Future<void> _pickFiles() async {
     final files = await FilePicker.pickFiles(
-      dialogTitle: 'Cevap kâğıtlarını seçin',
+      dialogTitle: tr('Cevap kâğıtlarını seçin'),
       type: FileType.custom,
       allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
     );
@@ -103,7 +104,7 @@ class _ScanScreenState extends State<ScanScreen> {
     try {
       files = await ImagePicker().pickMultiImage(requestFullMetadata: false);
     } catch (e) {
-      if (mounted) toast(context, 'Galeri açılamadı: $e');
+      if (mounted) toast(context, tr('Galeri açılamadı: {0}', [e]));
       return;
     }
     if (files.isEmpty) return;
@@ -126,7 +127,7 @@ class _ScanScreenState extends State<ScanScreen> {
         await for (final raster in Printing.raster(bytes, dpi: 150)) {
           if (_cancel || !mounted) break;
           page++;
-          setState(() => _status = '${f.name} · sayfa $page okunuyor');
+          setState(() => _status = tr('{0} · sayfa {1} okunuyor', [f.name, page]));
           await _readGray('${f.name} · s.$page', _rgbaToGray(raster.pixels, raster.width, raster.height));
         }
       } else {
@@ -134,7 +135,7 @@ class _ScanScreenState extends State<ScanScreen> {
         final gray = await compute(_decodeJob, bytes);
         if (!mounted) return;
         if (gray == null) {
-          setState(() => _entries.insert(0, _ScanEntry(f.name, error: 'Görüntü açılamadı.')));
+          setState(() => _entries.insert(0, _ScanEntry(f.name, error: tr('Görüntü açılamadı.'))));
         } else {
           await _readGray(f.name, gray);
         }
@@ -151,11 +152,11 @@ class _ScanScreenState extends State<ScanScreen> {
       _busy = false;
       _batchTotal = 0;
       _status = [
-        if (_cancel) 'Durduruldu',
+        if (_cancel) tr('Durduruldu'),
         '$ok okundu',
-        if (review > 0) '$review kontrol bekliyor',
-        if (dup > 0) '$dup zaten okunmuştu',
-        if (err > 0) '$err okunamadı',
+        if (review > 0) tr('{0} kontrol bekliyor', [review]),
+        if (dup > 0) tr('{0} zaten okunmuştu', [dup]),
+        if (err > 0) tr('{0} okunamadı', [err]),
       ].join(' · ');
       _onlyProblems = false;
     });
@@ -177,7 +178,7 @@ class _ScanScreenState extends State<ScanScreen> {
     final number = st == null ? null : (int.tryParse(st.number) ?? 0).toString().padLeft(FormLayout.studentDigits, '0');
     setState(() => _busy = true);
     final gray = await compute(_sampleJob, _Sample(exam.questionCount, exam.choiceCount, answers, number));
-    await _readGray('Örnek form${st == null ? '' : ' · ${st.fullName}'}', gray);
+    await _readGray(tr('Örnek form{0}', [st == null ? '' : ' · ${st.fullName}']), gray);
     setState(() => _busy = false);
   }
 
@@ -200,7 +201,7 @@ class _ScanScreenState extends State<ScanScreen> {
         foregroundColor: Colors.white,
         title: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('${exam.className} · ${exam.name}', style: const TextStyle(color: Colors.white)),
-          Text('${exam.questionCount} soru · ${exam.choiceCount} şık',
+          Text(tr('{0} soru · {1} şık', [exam.questionCount, exam.choiceCount]),
               style: t.textTheme.bodySmall?.copyWith(color: Colors.white70)),
         ]),
       ),
@@ -241,7 +242,7 @@ class _ScanScreenState extends State<ScanScreen> {
                     Text('$_batchDone / $_batchTotal', style: const TextStyle(color: Colors.white, fontFeatures: tabular)),
                     TextButton(
                       onPressed: _cancel ? null : () => setState(() => _cancel = true),
-                      child: const Text('Durdur', style: TextStyle(color: NColors.coral)),
+                      child: Text(tr('Durdur'), style: TextStyle(color: NColors.coral)),
                     ),
                   ]),
                 ),
@@ -252,7 +253,7 @@ class _ScanScreenState extends State<ScanScreen> {
                     Expanded(child: Text(_status, style: const TextStyle(color: Colors.white70))),
                     if (!_busy && _entries.any((e) => e.sheet == null || e.duplicate || e.sheet!.needsReview))
                       FilterChip(
-                        label: const Text('Yalnızca sorunlular'),
+                        label: Text(tr('Yalnızca sorunlular')),
                         selected: _onlyProblems,
                         onSelected: (v) => setState(() => _onlyProblems = v),
                       ),
@@ -265,16 +266,15 @@ class _ScanScreenState extends State<ScanScreen> {
                         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                           const Icon(Icons.document_scanner_outlined, size: 72, color: NColors.emerald),
                           const SizedBox(height: 16),
-                          const Text(
-                            'Cevap kâğıtlarının fotoğraflarını ya da tarayıcıdan çıkan çok sayfalı PDF\'i seçin. '
-                            'Kâğıdın dört köşesindeki siyah kareler görünür olmalı.',
+                          Text(
+                            tr('Cevap kâğıtlarının fotoğraflarını ya da tarayıcıdan çıkan çok sayfalı PDF\'i seçin. Kâğıdın dört köşesindeki siyah kareler görünür olmalı.'),
                             textAlign: TextAlign.center,
                             style: TextStyle(color: Colors.white70, height: 1.5),
                           ),
                           const SizedBox(height: 16),
                           TextButton(
                             onPressed: _busy ? null : _trySample,
-                            child: const Text('Kâğıt basmadan örnek formla dene', style: TextStyle(color: NColors.emerald)),
+                            child: Text(tr('Kâğıt basmadan örnek formla dene'), style: TextStyle(color: NColors.emerald)),
                           ),
                         ]),
                       )
@@ -302,7 +302,7 @@ class _ScanScreenState extends State<ScanScreen> {
                                 leading: const Icon(Icons.content_copy_rounded, color: Colors.white54),
                                 title: Text(e.source, style: const TextStyle(color: Colors.white)),
                                 subtitle: Text(
-                                    'Bu kâğıt zaten okunmuştu${who == null ? '' : ' (${who.fullName})'}; tekrar eklenmedi.',
+                                    tr('Bu kâğıt zaten okunmuştu{0}; tekrar eklenmedi.', [who == null ? '' : ' (${who.fullName})']),
                                     style: const TextStyle(color: Colors.white70)),
                               ),
                             );
@@ -320,7 +320,7 @@ class _ScanScreenState extends State<ScanScreen> {
                               title: Text(st == null ? unmatchedLabel(e.sheet!) : '${st.fullName} · ${st.number}',
                                   style: const TextStyle(fontWeight: FontWeight.w700)),
                               subtitle: reviewN > 0
-                                  ? Text('$reviewN işaret kontrol bekliyor', style: const TextStyle(color: NColors.amber))
+                                  ? Text(tr('{0} işaret kontrol bekliyor', [reviewN]), style: const TextStyle(color: NColors.amber))
                                   : DybText(r.correct, r.wrong, r.blank),
                               trailing: Text(fmt1(r.score),
                                   style: t.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800, fontFeatures: tabular)),
@@ -337,7 +337,7 @@ class _ScanScreenState extends State<ScanScreen> {
                       style: OutlinedButton.styleFrom(foregroundColor: Colors.white, side: const BorderSide(color: Colors.white24)),
                       onPressed: _busy ? null : _trySample,
                       icon: const Icon(Icons.auto_awesome),
-                      label: const Text('Örnek form'),
+                      label: Text(tr('Örnek form')),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -347,12 +347,12 @@ class _ScanScreenState extends State<ScanScreen> {
                       child: FilledButton.icon(
                         onPressed: _busy ? null : _pickGallery,
                         icon: const Icon(Icons.photo_library_outlined),
-                        label: const Text('Galeriden seç'),
+                        label: Text(tr('Galeriden seç')),
                       ),
                     ),
                     const SizedBox(width: 8),
                     IconButton.outlined(
-                      tooltip: 'Dosya veya PDF seç',
+                      tooltip: tr('Dosya veya PDF seç'),
                       style: IconButton.styleFrom(foregroundColor: Colors.white, side: const BorderSide(color: Colors.white24)),
                       onPressed: _busy ? null : _pickFiles,
                       icon: const Icon(Icons.picture_as_pdf_outlined),
@@ -363,7 +363,7 @@ class _ScanScreenState extends State<ScanScreen> {
                       child: FilledButton.icon(
                         onPressed: _busy ? null : _pickFiles,
                         icon: const Icon(Icons.add_photo_alternate_outlined),
-                        label: const Text('Fotoğraf / PDF seç'),
+                        label: Text(tr('Fotoğraf / PDF seç')),
                       ),
                     ),
                 ]),
@@ -372,7 +372,7 @@ class _ScanScreenState extends State<ScanScreen> {
                 padding: const EdgeInsets.only(bottom: 12),
                 child: TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Bitir ve sonuçlar', style: TextStyle(color: Colors.white)),
+                  child: Text(tr('Bitir ve sonuçlar'), style: TextStyle(color: Colors.white)),
                 ),
               ),
             ]),

@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:material_ui/material_ui.dart';
 
 import 'theme.dart';
+import '../l10n/l10n.dart';
 
 /// Pasta / halka grafik dilimi.
 class Slice {
@@ -225,9 +226,8 @@ class _ItemMapState extends State<ItemMap> {
       const SizedBox(height: 6),
       Text(
         sel == null
-            ? 'Bir noktaya dokunun. Sağ üst: iyi soru · alt şerit (D < 0,20): gözden geçirin.'
-            : 'Soru ${sel.$1}: doğru oranı %${(sel.$2 * 100).round()}, ayırt edicilik ${sel.$3.toStringAsFixed(2).replaceAll('.', ',')}'
-                '${sel.$3 < 0.2 ? ' · gözden geçirilmeli' : sel.$3 >= 0.4 ? ' · çok iyi ayırt ediyor' : ''}',
+            ? tr('Bir noktaya dokunun. Sağ üst: iyi soru · alt şerit (D < 0,20): gözden geçirin.')
+            : tr('Soru {0}: doğru oranı %{1}, ayırt edicilik {2}{3}', [sel.$1, (sel.$2 * 100).round(), sel.$3.toStringAsFixed(2).replaceAll('.', L10n.decimal), sel.$3 < 0.2 ? tr(' · gözden geçirilmeli') : sel.$3 >= 0.4 ? tr(' · çok iyi ayırt ediyor') : '']),
         style: TextStyle(fontSize: 12, color: sel == null ? muted : null, fontWeight: sel == null ? null : FontWeight.w600),
       ),
     ]);
@@ -254,7 +254,7 @@ class _ItemMapPainter extends CustomPainter {
       ..strokeWidth = 1;
     for (final d in [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]) {
       canvas.drawLine(pos(0, d), pos(1, d), lp);
-      _text(canvas, d.toStringAsFixed(1).replaceAll('.', ','), pos(0, d) - const Offset(26, 6), 9);
+      _text(canvas, d.toStringAsFixed(1).replaceAll('.', L10n.decimal), pos(0, d) - const Offset(26, 6), 9);
     }
     for (final p in [0.0, 0.25, 0.5, 0.75, 1.0]) {
       _text(canvas, '%${(p * 100).round()}', pos(p, -0.2) + const Offset(-8, 4), 9);
@@ -302,7 +302,7 @@ class BoxPlot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context);
-    String f(double v) => v.toStringAsFixed(1).replaceAll('.', ',');
+    String f(double v) => v.toStringAsFixed(1).replaceAll('.', L10n.decimal);
     return Column(children: [
       SizedBox(
         height: 64,
@@ -314,7 +314,7 @@ class BoxPlot extends StatelessWidget {
       ),
       const SizedBox(height: 8),
       Wrap(spacing: 14, runSpacing: 4, alignment: WrapAlignment.center, children: [
-        for (final (l, v) in [('En düşük', min), ('1. çeyrek', q1), ('Medyan', median), ('3. çeyrek', q3), ('En yüksek', max)])
+        for (final (l, v) in [(tr('En düşük'), min), (tr('1. çeyrek'), q1), (tr('Medyan'), median), (tr('3. çeyrek'), q3), (tr('En yüksek'), max)])
           Text.rich(TextSpan(children: [
             TextSpan(text: '$l ', style: TextStyle(color: t.colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 12)),
             TextSpan(text: f(v), style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12, fontFeatures: tabular)),

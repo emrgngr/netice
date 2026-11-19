@@ -5,6 +5,7 @@ import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 
 import 'theme.dart';
+import '../l10n/l10n.dart';
 
 /// PDF raporların paylaşmadan/yazdırmadan önce uygulama içinde
 /// sayfa sayfa önizlemesi. Üstteki [header] (ör. öğrenci seçici)
@@ -104,13 +105,13 @@ class _StudentCardsPreviewState extends State<StudentCardsPreview> {
         child: DropdownButtonFormField<String?>(
           initialValue: _id,
           isExpanded: true,
-          decoration: const InputDecoration(
-            labelText: 'Karnesi gösterilecek öğrenci',
+          decoration: InputDecoration(
+            labelText: tr('Karnesi gösterilecek öğrenci'),
             prefixIcon: Icon(Icons.person_search_outlined),
             isDense: true,
           ),
           items: [
-            const DropdownMenuItem<String?>(value: null, child: Text('Tüm sınıf (her öğrenciye bir sayfa)')),
+            DropdownMenuItem<String?>(value: null, child: Text(tr('Tüm sınıf (her öğrenciye bir sayfa)'))),
             for (final s in widget.students) DropdownMenuItem<String?>(value: s.$1, child: Text(s.$2)),
           ],
           onChanged: (v) => setState(() => _id = v),
