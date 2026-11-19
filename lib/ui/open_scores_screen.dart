@@ -83,7 +83,7 @@ class _OpenScoresScreenState extends State<OpenScoresScreen> {
       body: Watermark(
         child: entries.isEmpty
             ? Center(child: Text(tr('Önce kâğıtları okutun; klasik puanlar okunan kâğıtlara eklenir.')))
-            : ListView(padding: const EdgeInsets.fromLTRB(16, 8, 16, 40), children: [
+            : ListView(padding: EdgeInsets.fromLTRB(16, 8, 16, 40 + MediaQuery.paddingOf(context).bottom), children: [
                 Text(
                   tr('Her sorunun puanını yazın, kendiliğinden kaydedilir. Test kısmı {0}, klasik kısım {1} puan.', [_num(exam.testMax), _num(exam.openMax)]),
                   style: TextStyle(color: muted),

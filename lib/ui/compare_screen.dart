@@ -53,7 +53,7 @@ class _CompareScreenState extends State<CompareScreen> {
         IconButton(tooltip: tr('PDF rapor'), onPressed: pdf, icon: const Icon(Icons.picture_as_pdf_outlined)),
       ]),
       body: Watermark(
-        child: ListView(padding: const EdgeInsets.fromLTRB(20, 8, 20, 40), children: [
+        child: ListView(padding: EdgeInsets.fromLTRB(20, 8, 20, 40 + MediaQuery.paddingOf(context).bottom), children: [
           Text(tr('Karşılaştırmak istediğiniz sınavları seçin. Aynı adlı sınavlar (farklı şubeler) hızlı seçim olarak üstte.'),
               style: TextStyle(color: muted)),
           if (groups.isNotEmpty) ...[

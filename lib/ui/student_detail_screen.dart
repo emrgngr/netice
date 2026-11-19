@@ -40,7 +40,7 @@ class StudentDetailScreen extends StatelessWidget {
           IconButton(tooltip: tr('Düzenle'), icon: const Icon(Icons.edit_outlined), onPressed: () => onEdit!(s)),
       ]),
       body: Watermark(
-        child: ListView(padding: const EdgeInsets.fromLTRB(20, 8, 20, 32), children: [
+        child: ListView(padding: EdgeInsets.fromLTRB(20, 8, 20, 32 + MediaQuery.paddingOf(context).bottom), children: [
           HeroPanel(
             child: Row(children: [
               ScoreRing(

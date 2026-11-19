@@ -136,7 +136,7 @@ class _TermScreenState extends State<TermScreen> {
       ),
       body: Watermark(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 40),
+          padding: EdgeInsets.fromLTRB(20, 8, 20, 40 + MediaQuery.paddingOf(context).bottom),
           children: [
             Text(
               tr('Sınıfı ve dönemi seçin; o dönemdeki sınavlardan dönem sonu notu ve her öğrenci için kazanım karnesi hazırlanır.'),

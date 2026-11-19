@@ -120,7 +120,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         builder: (_) => Scaffold(
           appBar: AppBar(title: Text(title)),
           body: SelectionArea(
-            child: ListView(padding: const EdgeInsets.fromLTRB(20, 8, 20, 40), children: [
+            child: ListView(padding: EdgeInsets.fromLTRB(20, 8, 20, 40 + MediaQuery.paddingOf(context).bottom), children: [
               for (final para in text.split('\n\n'))
                 Padding(
                   padding: const EdgeInsets.only(bottom: 14),
@@ -208,7 +208,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(tr('Ayarlar'))),
       body: Watermark(
-        child: ListView(padding: const EdgeInsets.fromLTRB(16, 8, 16, 40), children: [
+        child: ListView(padding: EdgeInsets.fromLTRB(16, 8, 16, 40 + MediaQuery.paddingOf(context).bottom), children: [
           SectionTitle(tr('Dil')),
           Card(
             clipBehavior: Clip.antiAlias,

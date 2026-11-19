@@ -26,7 +26,7 @@ class ProfileScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text(tr('Profil'))),
-      body: ListView(padding: const EdgeInsets.fromLTRB(16, 8, 16, 40), children: [
+      body: ListView(padding: EdgeInsets.fromLTRB(16, 8, 16, 40 + MediaQuery.paddingOf(context).bottom), children: [
         HeroPanel(
           child: Row(children: [
             Container(

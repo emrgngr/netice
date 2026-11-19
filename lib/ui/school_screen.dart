@@ -89,7 +89,7 @@ class _SchoolScreenState extends State<SchoolScreen> {
         ),
       ]),
       body: Watermark(
-        child: ListView(padding: const EdgeInsets.fromLTRB(20, 8, 20, 40), children: [
+        child: ListView(padding: EdgeInsets.fromLTRB(20, 8, 20, 40 + MediaQuery.paddingOf(context).bottom), children: [
           Text(tr('Bu bilgiler sınav raporu, karne, e-Okul listesi, şube karşılaştırması ve optik formlarda başlık olarak yer alır. Boş bıraktığınız alanlar basılmaz.'),
               style: TextStyle(color: muted)),
           const SizedBox(height: 16),
