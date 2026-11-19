@@ -100,7 +100,7 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
       });
       await c.startImageStream(_onFrame);
     } on CameraException catch (e) {
-      setState(() => _error = e.code.contains(tr('Denied'))
+      setState(() => _error = e.code.contains('Denied')
           ? tr('Kamera izni verilmedi. Telefonun Ayarlar > Uygulamalar > Netice > İzinler bölümünden kameraya izin verin.')
           : tr('Kamera açılamadı: {0}', [e.description ?? e.code]));
     }

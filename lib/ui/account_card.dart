@@ -35,7 +35,7 @@ class _AccountCardState extends State<AccountCard> {
   String _friendly(Object e) {
     final s = '$e';
     if (s.contains('canceled') || s.contains('cancel')) return tr('giriş iptal edildi.');
-    if (s.contains('SocketException') || s.contains(tr('Failed host'))) return tr('internet bağlantısı yok.');
+    if (s.contains('SocketException') || s.contains('Failed host')) return tr('internet bağlantısı yok.');
     return s.length > 120 ? '${s.substring(0, 120)}…' : s;
   }
 

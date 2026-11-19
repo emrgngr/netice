@@ -92,14 +92,14 @@ class CloudService {
     final client = _account!.authorizationClient;
     final auth = await client.authorizationForScopes(_scopes) ??
         (interactive ? await client.authorizeScopes(_scopes) : throw StateError(tr('Drive izni yok')));
-    return {'Authorization': tr('Bearer {0}', [auth.accessToken])};
+    return {'Authorization': 'Bearer ${auth.accessToken}'};
   }
 
   Future<CloudBackupInfo?> latest({bool interactive = true}) async {
     final h = await _headers(interactive: interactive);
     final uri = Uri.https('www.googleapis.com', '/drive/v3/files', {
       'spaces': 'appDataFolder',
-      'q': tr('name = \'{0}\' and trashed = false', [_fileName]),
+      'q': "name = '$_fileName' and trashed = false",
       'fields': 'files(id,modifiedTime,size)',
     });
     final r = await http.get(uri, headers: h);
