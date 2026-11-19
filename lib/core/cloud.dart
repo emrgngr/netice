@@ -16,7 +16,8 @@ class CloudConfig {
   /// Google Cloud Console'da oluşturulan "Web uygulaması" türündeki OAuth
   /// istemci kimliği (Android'de giriş için gereklidir). Boşsa Google girişi
   /// kapalıdır ve ayarlarda kurulum bekleniyor yazar.
-  static const serverClientId = String.fromEnvironment('GOOGLE_SERVER_CLIENT_ID');
+  static const serverClientId = String.fromEnvironment('GOOGLE_SERVER_CLIENT_ID',
+      defaultValue: '1093981917860-mn8966rkp1ttq34fag13b8o8qtc0mbhp.apps.googleusercontent.com');
 
   /// iOS istemci kimliği (iOS için).
   static const iosClientId = String.fromEnvironment('GOOGLE_IOS_CLIENT_ID');

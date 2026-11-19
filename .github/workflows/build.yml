@@ -91,8 +91,8 @@ jobs:
           else
             echo "::warning::ANDROID_KEYSTORE_BASE64 yok; deneme anahtarıyla imzalanıyor."
           fi
-      - run: flutter build apk --release --build-number=${{ github.run_number }} --dart-define=GOOGLE_SERVER_CLIENT_ID=${{ secrets.GOOGLE_SERVER_CLIENT_ID }}
-      - run: flutter build appbundle --release --build-number=${{ github.run_number }} --dart-define=GOOGLE_SERVER_CLIENT_ID=${{ secrets.GOOGLE_SERVER_CLIENT_ID }}
+      - run: flutter build apk --release --build-number=${{ github.run_number }}
+      - run: flutter build appbundle --release --build-number=${{ github.run_number }}
       - uses: actions/upload-artifact@v5
         with:
           name: Netice-Android
