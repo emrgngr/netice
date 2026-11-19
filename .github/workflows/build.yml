@@ -34,9 +34,29 @@ jobs:
           cache: true
       - run: flutter pub get
       - run: flutter build windows --release
+      - name: Visual C++ kitaplıklarını programın yanına koy
+        shell: pwsh
+        run: |
+          foreach ($d in 'msvcp140.dll','vcruntime140.dll','vcruntime140_1.dll') {
+            Copy-Item "$env:WINDIR\System32\$d" build/windows/x64/runner/Release/
+          }
+      - name: Kurulum programını oluştur
+        shell: pwsh
+        run: |
+          if (-not (Get-Command iscc -ErrorAction SilentlyContinue)) { choco install innosetup -y --no-progress }
+          $iscc = (Get-Command iscc -ErrorAction SilentlyContinue).Source
+          if (-not $iscc) { $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" }
+          $v = (Select-String -Path pubspec.yaml -Pattern '^version:\s*([0-9.]+)').Matches[0].Groups[1].Value
+          & $iscc "/DAppVersion=$v" windows/installer/netice.iss
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - uses: actions/upload-artifact@v5
         with:
-          name: Netice-Windows
+          name: Netice-Windows-Kurulum
+          path: build/installer/Netice-Kurulum.exe
+          compression-level: 0
+      - uses: actions/upload-artifact@v5
+        with:
+          name: Netice-Windows-Klasor
           path: build/windows/x64/runner/Release/
 
   android:
