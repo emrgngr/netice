@@ -105,7 +105,7 @@ class ExamScreen extends StatelessWidget {
                         children: [
                           for (final n in const [1, 10, 20, 30, 40])
                             ChoiceChip(
-                              label: Text('$n adet'),
+                              label: Text(tr('{0} adet', [n])),
                               selected: copies == n,
                               onSelected: (_) => setSheet(() => copies = n),
                             ),
@@ -251,7 +251,7 @@ class ExamScreen extends StatelessWidget {
         appBar: AppBar(
           title: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(exam.name, maxLines: 1, overflow: TextOverflow.ellipsis),
-            Text('${exam.className} · ${dmy(exam.date)} ${hm(exam.date)} · ${exam.questionCount} soru',
+            Text('${exam.className} · ${dmy(exam.date)} ${hm(exam.date)} · ${tr('{0} soru', [exam.questionCount])}',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.bodySmall),
@@ -452,7 +452,7 @@ void showSheetDetail(BuildContext context, Exam exam, Result r) {
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(st?.fullName ?? tr('Eşleşmeyen kâğıt'), style: Theme.of(ctx).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
-          Text('No ${st?.number ?? '–'} · Puan ${fmt1(r.score)} · Net ${fmt2(r.net)}'),
+          Text('${tr('No')} ${st?.number ?? '–'} · ${tr('Puan')} ${fmt1(r.score)} · ${tr('Net')} ${fmt2(r.net)}'),
           if (st != null)
             Align(
               alignment: Alignment.centerLeft,
@@ -697,12 +697,12 @@ class _AnalysisTab extends StatelessWidget {
       StatCard(
           label: tr('Ölçme hatası'),
           value: rep.sem == null ? '–' : '±${fmt1(rep.sem!)}',
-          hint: 'SEM, puan',
+          hint: tr('SEM, puan'),
           icon: Icons.blur_on),
       StatCard(label: tr('Güçlük (p)'), value: fmt2(rep.meanP), hint: tr('Doğru oranı'), icon: Icons.speed),
       StatCard(label: tr('Ayırt edicilik'), value: fmt2(rep.meanD), hint: tr('Üst − alt grup'), icon: Icons.compare_arrows),
       StatCard(label: tr('Üst %27 ort.'), value: fmt1(rep.upperMean), accent: NColors.emerald, icon: Icons.north_east),
-      StatCard(label: 'Alt %27 ort.', value: fmt1(rep.lowerMean), accent: NColors.coral, icon: Icons.south_east),
+      StatCard(label: tr('Alt %27 ort.'), value: fmt1(rep.lowerMean), accent: NColors.coral, icon: Icons.south_east),
     ];
 
     const levelColors = [NColors.emerald, Color(0xFF34D399), NColors.amber, Color(0xFFF59E0B), NColors.coral];
@@ -879,7 +879,7 @@ class _AnalysisTab extends StatelessWidget {
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         Row(children: [
                           Expanded(
-                              child: Text('${o.code}  ·  ${o.questionNos.length} soru',
+                              child: Text('${o.code}  ·  ${tr('{0} soru', [o.questionNos.length])}',
                                   style: const TextStyle(fontWeight: FontWeight.w600))),
                           Text('%${(o.rate * 100).round()}',
                               style: const TextStyle(fontWeight: FontWeight.w800, fontFeatures: tabular)),
@@ -1007,7 +1007,7 @@ class _ChartsPanelState extends State<_ChartsPanel> {
           Slice(tr('Geçti'), passed.toDouble(), NColors.emerald, detail: tr('Geçme puanı {0}', [rep.exam.rule.pass.round()])),
           Slice(tr('Geçemedi'), (n - passed).toDouble(), NColors.coral),
         ]),
-      _ => DonutChart(key: const ValueKey(3), centerLabel: 'soru', unit: ' soru', slices: [
+      _ => DonutChart(key: const ValueKey(3), centerLabel: tr('soru'), unit: ' ${tr('soru')}', slices: [
           Slice(tr('Kolay'), (rep.difficultyCounts['Kolay'] ?? 0).toDouble(), NColors.emerald, detail: tr('Doğru oranı %80 üzeri')),
           Slice(tr('Orta'), (rep.difficultyCounts['Orta'] ?? 0).toDouble(), NColors.ink, detail: tr('Doğru oranı %30–80')),
           Slice(tr('Zor'), (rep.difficultyCounts['Zor'] ?? 0).toDouble(), NColors.coral, detail: tr('Doğru oranı %30 altı')),

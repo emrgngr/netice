@@ -392,7 +392,7 @@ class _TemplateEditorScreenState extends State<TemplateEditorScreen> {
                     radius: 14,
                     backgroundColor: _blockColor(i).withValues(alpha: 0.2),
                     child: Text('${i + 1}', style: TextStyle(color: _blockColor(i), fontWeight: FontWeight.w800))),
-                title: Text('Soru ${b.start}–${b.start + b.count - 1}'),
+                title: Text(tr('Soru {0}–{1}', [b.start, b.start + b.count - 1])),
                 subtitle: Text(tr('{0} şık · {1}', [b.choices, b.rows ? tr('yan yana') : tr('alt alta')])),
                 trailing: Row(mainAxisSize: MainAxisSize.min, children: [
                   IconButton(

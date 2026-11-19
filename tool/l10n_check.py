@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """l10n/work parçalarını denetler: JSON, yer tutucu, eksik sıra."""
 import glob, json, re, sys
-src = json.load(open('l10n/_kaynak.json', encoding='utf-8'))
+src = json.load(open('l10n/work/_kaynak_v1.json', encoding='utf-8'))
 ok = True
 for p in sorted(glob.glob('l10n/work/*.json')):
     try:

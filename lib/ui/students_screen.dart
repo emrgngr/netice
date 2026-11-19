@@ -222,7 +222,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
               ListTile(
                 leading: CircleAvatar(child: Text(s.firstName.isEmpty ? '?' : s.firstName.characters.first)),
                 title: Text(s.fullName),
-                subtitle: Text('No ${s.number}'),
+                subtitle: Text('${tr('No')} ${s.number}'),
                 trailing: IconButton(
                   tooltip: tr('Düzenle'),
                   icon: const Icon(Icons.edit_outlined, size: 18),

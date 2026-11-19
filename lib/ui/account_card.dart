@@ -209,7 +209,7 @@ class _AccountCardState extends State<AccountCard> {
         context: context,
         builder: (ctx) => AlertDialog(
           title: Text(tr('Drive\'daki yedek yüklensin mi?')),
-          content: Text(tr('{0}yedek bulundu. Bu cihazdaki verilerin yerine geçer; mevcut hâlin bir kopyası önce otomatik yedeklere eklenir.', [info.modified == null ? '' : '${dmy(info.modified!.toLocal())} ${hm(info.modified!.toLocal())} tarihli '])),
+          content: Text(tr('{0}yedek bulundu. Bu cihazdaki verilerin yerine geçer; mevcut hâlin bir kopyası önce otomatik yedeklere eklenir.', [info.modified == null ? '' : tr('{0} tarihli ', ['${dmy(info.modified!.toLocal())} ${hm(info.modified!.toLocal())}'])])),
           actions: [
             TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr('Vazgeç'))),
             FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(tr('Geri yükle'))),

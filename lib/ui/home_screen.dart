@@ -129,7 +129,7 @@ class _Dashboard extends StatelessWidget {
             for (final e in store.exams)
               ListTile(
                 title: Text(e.name),
-                subtitle: Text('${e.className} · ${e.questionCount} soru'),
+                subtitle: Text('${e.className} · ${tr('{0} soru', [e.questionCount])}'),
                 onTap: () => Navigator.pop(ctx, e),
               ),
           ]),
@@ -345,7 +345,7 @@ class _Dashboard extends StatelessWidget {
                         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                           Text(e.name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
                           const SizedBox(height: 3),
-                          Text('${dmy(e.date)} ${hm(e.date)} · ${e.questionCount} soru · '
+                          Text('${dmy(e.date)} ${hm(e.date)} · ${tr('{0} soru', [e.questionCount])} · '
                               '${rs.length}${total > 0 ? '/$total' : ''} okundu',
                               style: t.textTheme.bodySmall?.copyWith(color: t.colorScheme.onSurface.withValues(alpha: 0.6))),
                           if (review > 0) ...[

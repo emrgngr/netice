@@ -54,7 +54,7 @@ class StudentDetailScreen extends StatelessWidget {
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text(s.fullName,
                       style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
-                  Text('No ${s.number} · ${s.className}', style: const TextStyle(color: Colors.white70)),
+                  Text('${tr('No')} ${s.number} · ${s.className}', style: const TextStyle(color: Colors.white70)),
                   const SizedBox(height: 10),
                   Wrap(spacing: 18, runSpacing: 8, children: [
                     _Mini(tr('Sınav'), '${h.length}'),

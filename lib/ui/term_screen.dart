@@ -205,7 +205,7 @@ class _TermScreenState extends State<TermScreen> {
                           onChanged: (v) => setState(() => v == true ? _off.remove(e.id) : _off.add(e.id)),
                           title: Text(e.name, style: const TextStyle(fontWeight: FontWeight.w600)),
                           subtitle: Text(
-                            tr('{0} · {1} kâğıt{2}', [dmy(e.date), store.sheetsOf(e.id).length, _off.contains(e.id) || totalW == 0 ? '' : ' · notun %${((_weights[e.id] ?? 1) / totalW * 100).round()}\'i']),
+                            tr('{0} · {1} kâğıt{2}', [dmy(e.date), store.sheetsOf(e.id).length, _off.contains(e.id) || totalW == 0 ? '' : ' · ${tr('notun %{0}\'i', [((_weights[e.id] ?? 1) / totalW * 100).round()])}']),
                           ),
                           secondary: DropdownButton<double>(
                             value: _weights[e.id] ?? 1,
@@ -279,14 +279,14 @@ class _TermScreenState extends State<TermScreen> {
                           dense: true,
                           title: Text(r.student.fullName, style: const TextStyle(fontWeight: FontWeight.w600)),
                           subtitle: Text(
-                            'No ${r.student.number} · '
-                            '${[for (final s in r.scores) s == null ? 'G' : s.round().toString()].join(' · ')}',
+                            '${tr('No')} ${r.student.number} · '
+                            '${[for (final s in r.scores) s == null ? tr('G') : s.round().toString()].join(' · ')}',
                           ),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                r.grade == null ? 'G' : '${r.grade}',
+                                r.grade == null ? tr('G') : '${r.grade}',
                                 style: t.textTheme.titleLarge?.copyWith(
                                   fontWeight: FontWeight.w800,
                                   fontFeatures: tabular,

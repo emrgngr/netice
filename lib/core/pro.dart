@@ -91,7 +91,7 @@ class ProService {
       return [
         for (final f in fallbackPlans)
           if (byId[f.id] != null)
-            ProPlan(f.id, f.title, '${byId[f.id]!.price} / ${f.id == proYearlyId ? 'yıl' : 'ay'}', f.note, byId[f.id])
+            ProPlan(f.id, f.title, '${byId[f.id]!.price} / ${f.id == proYearlyId ? tr('yıl') : tr('ay')}', f.note, byId[f.id])
           else
             f,
       ];

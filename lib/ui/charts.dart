@@ -320,7 +320,7 @@ class BoxPlot extends StatelessWidget {
             TextSpan(text: f(v), style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12, fontFeatures: tabular)),
           ])),
         Text.rich(TextSpan(children: [
-          const TextSpan(text: '◆ Ortalama ', style: TextStyle(color: NColors.amber, fontSize: 12, fontWeight: FontWeight.w700)),
+          TextSpan(text: '◆ ${tr('Ortalama')} ', style: const TextStyle(color: NColors.amber, fontSize: 12, fontWeight: FontWeight.w700)),
           TextSpan(text: f(mean), style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12)),
         ])),
       ]),

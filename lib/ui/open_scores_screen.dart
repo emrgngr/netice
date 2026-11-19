@@ -114,7 +114,7 @@ class _OpenScoresScreenState extends State<OpenScoresScreen> {
                                       fontSize: 20,
                                       fontFeatures: tabular,
                                       color: r.openMissing ? muted : NColors.emerald)),
-                              Text(r.openMissing ? 'eksik' : 'toplam', style: TextStyle(color: muted, fontSize: 11)),
+                              Text(r.openMissing ? tr('eksik') : tr('toplam'), style: TextStyle(color: muted, fontSize: 11)),
                             ]),
                           ]),
                           const SizedBox(height: 10),

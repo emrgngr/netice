@@ -180,7 +180,7 @@ class _ReviewCardState extends State<_ReviewCard> {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 560),
           child: ListView(padding: const EdgeInsets.all(20), children: [
-            Text('${student.fullName} · ${qIndex + 1}. soru',
+            Text('${student.fullName} · ${tr('{0}. soru', [qIndex + 1])}',
                 style: t.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
             const SizedBox(height: 4),
             Text(reason, style: const TextStyle(color: NColors.amber)),
