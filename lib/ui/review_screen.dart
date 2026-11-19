@@ -62,7 +62,7 @@ class _ReviewCardState extends State<_ReviewCard> {
   }
 
   void _assignStudent(String studentId) {
-    StoreScope.of(context).replaceSheet(widget.sheet, widget.sheet.copyWith(studentId: studentId));
+    StoreScope.of(context).assignSheet(widget.sheet, studentId);
   }
 
   @override
@@ -81,6 +81,7 @@ class _ReviewCardState extends State<_ReviewCard> {
           .where((s) => !taken.contains(s.id) && !suggested.contains(s))
           .toList();
       final read = sheet.readNumber;
+      final owner = store.conflictOwner(sheet);
       Widget tile(Student s, {bool best = false}) => Card(
             margin: const EdgeInsets.only(bottom: 8),
             color: best ? NColors.emerald.withValues(alpha: 0.10) : null,
@@ -111,6 +112,29 @@ class _ReviewCardState extends State<_ReviewCard> {
                 : 'Bu numara listede yok. Kâğıt kimin? (${widget.remaining} kâğıt kontrol bekliyor)',
             style: t.textTheme.bodySmall),
         const SizedBox(height: 12),
+        if (owner != null) ...[
+          Card(
+            color: NColors.amber.withValues(alpha: 0.12),
+            margin: const EdgeInsets.only(bottom: 12),
+            child: ListTile(
+              leading: const Icon(Icons.swap_horiz_rounded, color: NColors.amber),
+              title: Text('${owner.fullName} (${owner.number}) için zaten bir kâğıt okunmuştu',
+                  style: const TextStyle(fontWeight: FontWeight.w700)),
+              subtitle: const Text('Cevaplar çok farklı. Bu kâğıt gerçekten onunsa öncekinin yerine geçirin; '
+                  'numarayı yanlış işaretleyen başka bir öğrenciyse aşağıdan seçin.'),
+              isThreeLine: true,
+            ),
+          ),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: OutlinedButton.icon(
+              onPressed: () => _assignStudent(owner.id),
+              icon: const Icon(Icons.swap_horiz_rounded),
+              label: Text('${owner.fullName} · öncekinin yerine geçsin'),
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
         if (suggested.isNotEmpty) ...[
           Text('Önerilen', style: t.textTheme.labelLarge?.copyWith(color: NColors.emerald, fontWeight: FontWeight.w800)),
           const SizedBox(height: 6),

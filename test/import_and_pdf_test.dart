@@ -38,11 +38,16 @@ void main() {
     final exam = store.exams.first;
     expect(store.sheetsOf(exam.id).length, 24);
 
-    // Elif Kaya (1041) için örnek formu oku: önceki kâğıdı yenisiyle değiştirmeli.
+    // Elif Kaya (1041) için örnek formu oku: cevaplar öncekinden çok farklı,
+    // kâğıt kontrole düşer; öğretmen "öncekinin yerine geçsin" der.
     final raster = FormRaster(FormLayout(questionCount: exam.questionCount, choiceCount: exam.choiceCount));
     final key = {for (var q = 0; q < exam.questionCount; q++) q: [exam.questions[q].correct.first]};
     final r = readerFor(exam).read(GrayImage.fromImage(raster.render(answers: key, studentNumber: '001041')));
-    final sheet = store.addScan(exam, r);
+    final scanned = store.addScan(exam, r);
+    expect(store.lastScanStatus, ScanStatus.conflict);
+    expect(store.conflictOwner(scanned)?.fullName, 'Elif Kaya');
+    store.assignSheet(scanned, store.conflictOwner(scanned)!.id);
+    final sheet = store.sheetsOf(exam.id).firstWhere((s) => s.answers == scanned.answers);
     expect(store.studentById[sheet.studentId]!.fullName, 'Elif Kaya');
     expect(store.sheetsOf(exam.id).length, 24);
     expect(Scorer.score(exam, sheet).score, 100);

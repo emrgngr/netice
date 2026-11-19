@@ -543,6 +543,31 @@ class AppStore extends ChangeNotifier {
     return d;
   }
 
+  /// Kontroldeki kâğıdı öğrenciye verir; öğrencinin bu sınavda başka kâğıdı
+  /// varsa o silinir (yeni kâğıt onun yerine geçer).
+  void assignSheet(Sheet sheet, String studentId) {
+    final i = sheets.indexOf(sheet);
+    if (i < 0) return;
+    for (final old in sheets.where((s) => s.examId == sheet.examId && s.studentId == studentId && !identical(s, sheet))) {
+      _deleteImage(old);
+    }
+    sheets.removeWhere((s) => s.examId == sheet.examId && s.studentId == studentId && !identical(s, sheet));
+    sheets[sheets.indexOf(sheet)] = sheet.copyWith(studentId: studentId);
+    _changed();
+  }
+
+  /// Okunan numarası birebir tutan ve bu sınavda zaten kâğıdı olan öğrenci
+  /// (çakışan kâğıt için "öncekinin yerine geçsin" seçeneği).
+  Student? conflictOwner(Sheet sheet) {
+    final read = sheet.readNumber;
+    final exam = examById(sheet.examId);
+    if (read == null || read.contains('?') || exam == null) return null;
+    final have = sheetsOf(exam.id).map((s) => s.studentId).toSet();
+    return studentsOf(exam.className)
+        .where((s) => have.contains(s.id) && numberDistance(read, s.number) == 0)
+        .firstOrNull;
+  }
+
   /// Bu sınavda kâğıdı okutulmamış öğrenciler.
   List<Student> missingStudents(Exam exam) {
     final have = sheetsOf(exam.id).map((s) => s.studentId).toSet();
