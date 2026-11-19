@@ -1115,5 +1115,10 @@
 "Öğretmen": "先生",
 "1-5 Hareket\n6-10 Kuvvet": "1-5 運動\n6-10 力",
 "Excel'e aktar": "Excel に書き出す",
-"{0} tasarruf": "{0} お得"
+"{0} tasarruf": "{0} お得",
+"Açılıştan raporlara kadar, sesli anlatımla adım adım.": "起動からレポートまで、音声付きで順を追って説明します。",
+"Tekrar dene": "再試行",
+"Video açılamadı. Videoyu izlemek için internet bağlantısı gerekir.": "動画を開けませんでした。視聴にはインターネット接続が必要です。",
+"Video dili": "動画の言語",
+"Video rehber": "動画ガイド"
 }

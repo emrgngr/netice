@@ -1115,5 +1115,10 @@
 "Öğretmen": "Teacher",
 "1-5 Hareket\n6-10 Kuvvet": "1-5 Motion\n6-10 Force",
 "Excel'e aktar": "Export to Excel",
-"{0} tasarruf": "Save {0}"
+"{0} tasarruf": "Save {0}",
+"Açılıştan raporlara kadar, sesli anlatımla adım adım.": "From launch to reports, step by step with voice narration.",
+"Tekrar dene": "Try again",
+"Video açılamadı. Videoyu izlemek için internet bağlantısı gerekir.": "The video could not be opened. Watching the video requires an internet connection.",
+"Video dili": "Video language",
+"Video rehber": "Video guide"
 }

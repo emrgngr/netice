@@ -36,5 +36,10 @@
  "Öğretmen": "المعلم",
  "1-5 Hareket\n6-10 Kuvvet": "1-5 الحركة\n6-10 القوة",
  "Excel'e aktar": "تصدير إلى Excel",
- "{0} tasarruf": "وفّر {0}"
+ "{0} tasarruf": "وفّر {0}",
+ "Açılıştan raporlara kadar, sesli anlatımla adım adım.": "من فتح التطبيق إلى التقارير، خطوة بخطوة مع شرح صوتي.",
+ "Tekrar dene": "أعد المحاولة",
+ "Video açılamadı. Videoyu izlemek için internet bağlantısı gerekir.": "تعذر فتح الفيديو. تحتاج مشاهدة الفيديو إلى اتصال بالإنترنت.",
+ "Video dili": "لغة الفيديو",
+ "Video rehber": "دليل الفيديو"
 }

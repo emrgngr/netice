@@ -1115,5 +1115,10 @@
 "Öğretmen": "Docente",
 "1-5 Hareket\n6-10 Kuvvet": "1-5 Moto\n6-10 Forza",
 "Excel'e aktar": "Esporta in Excel",
-"{0} tasarruf": "Risparmia {0}"
+"{0} tasarruf": "Risparmia {0}",
+"Açılıştan raporlara kadar, sesli anlatımla adım adım.": "Dall'avvio ai report, passo dopo passo con voce narrante.",
+"Tekrar dene": "Riprova",
+"Video açılamadı. Videoyu izlemek için internet bağlantısı gerekir.": "Impossibile aprire il video. Per guardarlo serve una connessione a Internet.",
+"Video dili": "Lingua del video",
+"Video rehber": "Guida video"
 }

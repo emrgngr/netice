@@ -1115,5 +1115,10 @@
 "Öğretmen": "Учитель",
 "1-5 Hareket\n6-10 Kuvvet": "1-5 Движение\n6-10 Сила",
 "Excel'e aktar": "Экспорт в Excel",
-"{0} tasarruf": "Экономия {0}"
+"{0} tasarruf": "Экономия {0}",
+"Açılıştan raporlara kadar, sesli anlatımla adım adım.": "От запуска до отчётов, шаг за шагом с озвучкой.",
+"Tekrar dene": "Повторить",
+"Video açılamadı. Videoyu izlemek için internet bağlantısı gerekir.": "Не удалось открыть видео. Для просмотра нужно подключение к интернету.",
+"Video dili": "Язык видео",
+"Video rehber": "Видеоинструкция"
 }

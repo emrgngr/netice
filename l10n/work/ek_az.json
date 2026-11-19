@@ -36,5 +36,10 @@
  "Öğretmen": "Müəllim",
  "1-5 Hareket\n6-10 Kuvvet": "1-5 Hərəkət\n6-10 Qüvvə",
  "Excel'e aktar": "Excel-ə köçür",
- "{0} tasarruf": "{0} qənaət"
+ "{0} tasarruf": "{0} qənaət",
+ "Açılıştan raporlara kadar, sesli anlatımla adım adım.": "Açılışdan hesabatlara qədər, səsli izahla addım-addım.",
+ "Tekrar dene": "Yenidən cəhd edin",
+ "Video açılamadı. Videoyu izlemek için internet bağlantısı gerekir.": "Video açılmadı. Videonu izləmək üçün internet bağlantısı lazımdır.",
+ "Video dili": "Video dili",
+ "Video rehber": "Video bələdçi"
 }
