@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/services.dart' show rootBundle;
+
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
@@ -59,6 +61,12 @@ class PromoService {
   /// güncellenip ana dala alınır.
   static const feedUrl = 'https://raw.githubusercontent.com/emrgngr/netice/main/promo/oneriler.json';
 
+  /// Ana dal henüz yoksa (ilk sürüm birleştirilmeden önce) bu daldan okunur.
+  static const _altFeedUrl = 'https://raw.githubusercontent.com/emrgngr/netice/ilk-surum/promo/oneriler.json';
+
+  /// Uygulamayla gelen liste: internet hiç yokken ya da ilk açılışta gösterilir.
+  static const bundledAsset = 'promo/oneriler.json';
+
   PromoFeed feed = PromoFeed.fallback;
   bool _started = false;
 
@@ -69,6 +77,12 @@ class PromoService {
 
   /// Önbellekteki listeyi yükler, gerekiyorsa arka planda tazeler.
   Future<PromoFeed> load({void Function(PromoFeed)? onUpdate}) async {
+    if (feed.items.isEmpty) {
+      try {
+        feed = PromoFeed.fromJson(jsonDecode(await rootBundle.loadString(bundledAsset)) as Map<String, dynamic>);
+        onUpdate?.call(feed);
+      } catch (_) {}
+    }
     try {
       final f = await _cache();
       if (await f.exists()) {
@@ -78,7 +92,8 @@ class PromoService {
       }
       if (_started) return feed;
       _started = true;
-      final r = await http.get(Uri.parse(feedUrl)).timeout(const Duration(seconds: 6));
+      var r = await http.get(Uri.parse(feedUrl)).timeout(const Duration(seconds: 6));
+      if (r.statusCode == 404) r = await http.get(Uri.parse(_altFeedUrl)).timeout(const Duration(seconds: 6));
       if (r.statusCode == 200) {
         final next = PromoFeed.fromJson(jsonDecode(utf8.decode(r.bodyBytes)) as Map<String, dynamic>);
         await f.writeAsString(utf8.decode(r.bodyBytes));

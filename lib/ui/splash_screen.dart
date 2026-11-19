@@ -11,6 +11,9 @@ import '../l10n/l10n.dart';
 /// dolar, köşedeki daire onaya dönüşür, karonun üstünden ışık geçer; ardından
 /// "Netice" yazısı soldan sağa açılır.
 class SplashScreen extends StatefulWidget {
+  /// Animasyon bir kez sonuna kadar oynadı mı (uygulama açık kaldıkça tekrar oynamaz).
+  static bool played = false;
+
   final Widget next;
 
   /// null: saate göre; true/false: zorla gece/gündüz (önizleme için).
@@ -69,6 +72,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     }
     _c.forward().whenComplete(() {
       if (!mounted) return;
+      SplashScreen.played = true;
       Navigator.of(context).pushReplacement(PageRouteBuilder(
         transitionDuration: const Duration(milliseconds: 600),
         pageBuilder: (_, _, _) => widget.next,

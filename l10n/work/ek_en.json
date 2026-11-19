@@ -30,5 +30,8 @@
 "{0} soru": "{0} questions",
 "{0}. soru": "question {0}",
 "İşlevsiz: {0}": "Non-functioning: {0}",
-"Std. sapma": "Std. dev."
+"Std. sapma": "Std. dev.",
+"Google hesabı bağlı değil": "No Google account linked",
+"Profil": "Profile",
+"Öğretmen": "Teacher"
 }

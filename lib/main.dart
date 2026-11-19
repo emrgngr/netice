@@ -21,8 +21,10 @@ void main() {
 }
 
 class NeticeApp extends StatelessWidget {
-  /// Açılış animasyonu yalnızca ilk açılışta (dil değişince yeniden oynamaz).
-  static bool _splashShown = false;
+  /// Açılış animasyonu yalnızca ilk açılışta oynar. Veri her değiştiğinde
+  /// uygulama yeniden çizildiği için aynı açılış ekranı nesnesi saklanır;
+  /// aksi hâlde ilk değişiklikte animasyon yarıda kesilip ana sayfa açılıyordu.
+  static Widget? _splashScreen;
 
   final AppStore store;
 
@@ -31,9 +33,8 @@ class NeticeApp extends StatelessWidget {
   const NeticeApp({super.key, required this.store, this.splash = true});
 
   Widget _home() {
-    if (!splash || _splashShown) return const HomeScreen();
-    _splashShown = true;
-    return const SplashScreen(next: HomeScreen());
+    if (!splash || SplashScreen.played) return const HomeScreen();
+    return _splashScreen ??= const SplashScreen(next: HomeScreen());
   }
 
   @override

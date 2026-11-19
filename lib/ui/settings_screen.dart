@@ -5,16 +5,12 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:material_ui/material_ui.dart';
 
-import '../core/store.dart';
 import '../core/legal.dart';
 import '../main.dart';
 import 'logo.dart';
 import 'onboarding_screen.dart';
 import 'rate_share.dart';
-import 'account_card.dart';
 import 'help_screen.dart';
-import 'school_screen.dart';
-import 'pro_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
 import 'template_screen.dart';
@@ -226,44 +222,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onTap: () => pickLanguage(context),
             ),
           ),
-          SectionTitle(tr('Netice Pro')),
-          Card(
-            clipBehavior: Clip.antiAlias,
-            child: ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-              leading: const IconBadge(Icons.workspace_premium_rounded, color: Color(0xFFD4A24C)),
-              title: Row(children: [
-                Text(tr('Netice Pro'), style: TextStyle(fontWeight: FontWeight.w800)),
-                const SizedBox(width: 8),
-                if (store.isPro) const ProBadge(),
-              ]),
-              subtitle: Text(store.hasSubscription
-                  ? tr('Aboneliğiniz etkin. Teşekkürler!')
-                  : store.inTrial
-                      ? tr('Ücretsiz deneme: {0} gün kaldı', [store.trialDaysLeft])
-                      : AppStore.proFreeOnThisPlatform
-                          ? tr('Bilgisayar sürümünde Pro özellikleri şimdilik açık')
-                          : tr('Dönem raporu, karne, veliye gönderme ve daha fazlası')),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProScreen(), fullscreenDialog: true)),
-            ),
-          ),
-          SectionTitle(tr('Hesap')),
-          const AccountCard(),
-          SectionTitle(tr('Okul')),
-          Card(
-            clipBehavior: Clip.antiAlias,
-            child: tile(
-              Icons.account_balance_outlined,
-              store.school.isEmpty ? NColors.amber : NColors.emerald,
-              tr('Okul bilgileri'),
-              store.school.isEmpty ? tr('Raporlarda resmi başlık için girin') : store.school.name,
-              () async {
-                await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SchoolScreen()));
-                if (mounted) setState(() {});
-              },
-            ),
-          ),
+          // Netice Pro, hesap ve okul bilgileri Profil sekmesinde.
           SectionTitle(tr('Formlar')),
           Card(
             clipBehavior: Clip.antiAlias,

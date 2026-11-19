@@ -77,6 +77,8 @@ flutter:
     - assets/fonts/
     - assets/icon/
     - assets/pdf_fonts/
+    - promo/oneriler.json
+    - promo/img/
 
   fonts:
     - family: PlusJakartaSans

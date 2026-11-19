@@ -149,7 +149,7 @@ class _Product extends StatelessWidget {
               width: 140,
               child: item.image == null
                   ? placeholder()
-                  : Image.network(item.image!, fit: BoxFit.cover, errorBuilder: (_, _, _) => placeholder()),
+                  : _promoImage(item.image!, placeholder),
             ),
           ),
           const SizedBox(height: 8),
@@ -186,7 +186,7 @@ class _WideProduct extends StatelessWidget {
             dimension: 84,
             child: item.image == null
                 ? _promoPlaceholder()
-                : Image.network(item.image!, fit: BoxFit.cover, errorBuilder: (_, _, _) => _promoPlaceholder()),
+                : _promoImage(item.image!, _promoPlaceholder),
           ),
         ),
         const SizedBox(width: 14),
@@ -212,4 +212,16 @@ class _WideProduct extends StatelessWidget {
       ]),
     );
   }
+}
+
+/// Uygulamayla gelen ürün görselleri (promo/img); listede aynı adlı görsel
+/// varsa internetten indirmek yerine bu kullanılır.
+const _bundledImages = {'aselya_gunes_kremi.jpg', 'kuyruk_bamya_tohumu.jpg', 'magic_patch.jpg'};
+
+Widget _promoImage(String url, Widget Function() placeholder) {
+  final name = url.split('/').last;
+  if (_bundledImages.contains(name)) {
+    return Image.asset('promo/img/$name', fit: BoxFit.cover, errorBuilder: (_, _, _) => placeholder());
+  }
+  return Image.network(url, fit: BoxFit.cover, errorBuilder: (_, _, _) => placeholder());
 }

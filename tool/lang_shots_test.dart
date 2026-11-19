@@ -44,7 +44,11 @@ void main() {
       await tester.runAsync(() => store.load(dir: Directory.systemTemp.createTempSync('shots')));
       store.onboardingDone = true;
       store.ratePrompted = true;
-      await shot(tester, NeticeApp(store: store, splash: false), const Size(390, 844), 'dil_${lang}_ana_sayfa');
+      await shot(tester, NeticeApp(store: store, splash: false), const Size(390, 1500), 'dil_${lang}_ana_sayfa');
+      for (final (tab, name) in [(tr('Profil'), 'profil'), (tr('Ayarlar'), 'ayarlar'), (tr('Yardım'), 'yardim'), (tr('Sınıflar'), 'siniflar')]) {
+        await shot(tester, NeticeApp(store: store, splash: false), const Size(390, 844), 'dil_${lang}_$name',
+            then: () async => tester.tap(find.byTooltip(tab).last));
+      }
       await shot(
           tester,
           StoreScope(

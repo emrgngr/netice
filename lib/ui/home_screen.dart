@@ -6,6 +6,7 @@ import '../core/models.dart';
 import '../core/progress.dart';
 import '../main.dart';
 import 'compare_screen.dart';
+import 'profile_screen.dart';
 import 'onboarding_screen.dart';
 import 'school_screen.dart';
 import 'settings_screen.dart';
@@ -61,7 +62,20 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     }
     final wide = MediaQuery.sizeOf(context).width >= 900;
-    final body = _tab == 0 ? const _Dashboard() : const StudentsScreen(embedded: true);
+    final body = switch (_tab) {
+      0 => const _Dashboard(),
+      1 => const StudentsScreen(embedded: true),
+      2 => const HelpScreen(),
+      3 => const ProfileScreen(),
+      _ => const SettingsScreen(),
+    };
+    final tabs = [
+      (Icons.home_outlined, Icons.home_rounded, tr('Ana sayfa')),
+      (Icons.groups_outlined, Icons.groups_rounded, tr('Sınıflar')),
+      (Icons.help_outline_rounded, Icons.help_rounded, tr('Yardım')),
+      (Icons.person_outline_rounded, Icons.person_rounded, tr('Profil')),
+      (Icons.settings_outlined, Icons.settings_rounded, tr('Ayarlar')),
+    ];
 
     if (wide) {
       // Masaüstü kısayolları: Ctrl+N yeni sınav, Ctrl+K şube karşılaştırması.
@@ -83,8 +97,11 @@ class _HomeScreenState extends State<HomeScreen> {
               child: NeticeMark(size: 36),
             ),
             destinations: [
-              NavigationRailDestination(icon: Icon(Icons.space_dashboard_outlined), selectedIcon: Icon(Icons.space_dashboard), label: Text(tr('Pano'))),
-              NavigationRailDestination(icon: Icon(Icons.groups_outlined), selectedIcon: Icon(Icons.groups), label: Text(tr('Sınıflar'))),
+              for (final (i, (icon, sel, label)) in tabs.indexed)
+                NavigationRailDestination(
+                    icon: Icon(i == 0 ? Icons.space_dashboard_outlined : icon),
+                    selectedIcon: Icon(i == 0 ? Icons.space_dashboard : sel),
+                    label: Text(i == 0 ? tr('Pano') : label)),
             ],
           ),
           VerticalDivider(width: 1, color: Theme.of(context).colorScheme.outlineVariant),
@@ -94,14 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     return Scaffold(
       body: Watermark(child: body),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _tab,
-        onDestinationSelected: (i) => setState(() => _tab = i),
-        destinations: [
-          NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: tr('Ana sayfa')),
-          NavigationDestination(icon: Icon(Icons.groups_outlined), selectedIcon: Icon(Icons.groups), label: tr('Sınıflar')),
-        ],
-      ),
+      bottomNavigationBar: _Dock(tabs: tabs, index: _tab, onSelect: (i) => setState(() => _tab = i)),
     );
   }
 }
@@ -206,20 +216,6 @@ class _Dashboard extends StatelessWidget {
           ),
           IconButton.filledTonal(
             style: IconButton.styleFrom(backgroundColor: Colors.white.withValues(alpha: 0.12), foregroundColor: Colors.white),
-            tooltip: tr('Yardım ve SSS'),
-            onPressed: openHelp,
-            icon: const Icon(Icons.help_outline_rounded),
-          ),
-          const SizedBox(width: 8),
-          IconButton.filledTonal(
-            style: IconButton.styleFrom(backgroundColor: Colors.white.withValues(alpha: 0.12), foregroundColor: Colors.white),
-            tooltip: tr('Ayarlar'),
-            onPressed: openSettings,
-            icon: const Icon(Icons.settings_outlined),
-          ),
-          const SizedBox(width: 8),
-          IconButton.filledTonal(
-            style: IconButton.styleFrom(backgroundColor: Colors.white.withValues(alpha: 0.12), foregroundColor: Colors.white),
             tooltip: tr('Yeni sınav'),
             onPressed: newExam,
             icon: const Icon(Icons.add_rounded),
@@ -288,6 +284,11 @@ class _Dashboard extends StatelessWidget {
             delegate: SliverChildListDelegate(stats),
           ),
         ),
+        if (store.showPromo)
+          SliverPadding(
+            padding: EdgeInsets.fromLTRB(wide ? 28 : 16, 4, wide ? 28 : 16, 4),
+            sliver: const SliverToBoxAdapter(child: PromoCard()),
+          ),
         SliverPadding(
           padding: EdgeInsets.fromLTRB(wide ? 28 : 16, 12, wide ? 28 : 16, 0),
           sliver: SliverToBoxAdapter(child: _Insights(warnings: earlyWarnings(store))),
@@ -367,11 +368,6 @@ class _Dashboard extends StatelessWidget {
             },
           ),
         ),
-        if (store.showPromo)
-          SliverPadding(
-            padding: EdgeInsets.fromLTRB(wide ? 28 : 16, 8, wide ? 28 : 16, 24),
-            sliver: const SliverToBoxAdapter(child: PromoCard()),
-          ),
       ]),
     );
   }
@@ -536,6 +532,87 @@ class OfflineNotice extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(child: Text(title, style: TextStyle(color: fg, fontSize: 12.5, fontWeight: FontWeight.w600))),
             Icon(Icons.info_outline_rounded, size: 16, color: fg),
+          ]),
+        ),
+      ),
+    );
+  }
+}
+
+/// Alt menü: yüzen, yuvarlatılmış bir bar. Seçili sekme zümrüt bir hap
+/// içinde simge ve adıyla öne çıkar, diğerleri yalnızca simgeyle durur.
+class _Dock extends StatelessWidget {
+  final List<(IconData, IconData, String)> tabs;
+  final int index;
+  final ValueChanged<int> onSelect;
+  const _Dock({required this.tabs, required this.index, required this.onSelect});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context);
+    final dark = t.brightness == Brightness.dark;
+    final muted = t.colorScheme.onSurface.withValues(alpha: 0.55);
+    return SafeArea(
+      minimum: const EdgeInsets.only(bottom: 10),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
+        child: Container(
+          height: 66,
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          decoration: BoxDecoration(
+            color: dark ? NColors.darkSurface : Colors.white,
+            borderRadius: BorderRadius.circular(26),
+            border: Border.all(color: t.colorScheme.outlineVariant.withValues(alpha: 0.5)),
+            boxShadow: [
+              BoxShadow(color: NColors.ink.withValues(alpha: dark ? 0.4 : 0.12), blurRadius: 24, offset: const Offset(0, 10)),
+            ],
+          ),
+          child: Row(children: [
+            for (final (i, (icon, sel, label)) in tabs.indexed)
+              Expanded(
+                flex: i == index ? 2 : 1,
+                child: Semantics(
+                  button: true,
+                  selected: i == index,
+                  label: label,
+                  child: Tooltip(
+                    message: label,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(20),
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        onSelect(i);
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 240),
+                        curve: Curves.easeOutCubic,
+                        margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 9),
+                        decoration: BoxDecoration(
+                          color: i == index ? NColors.emerald.withValues(alpha: dark ? 0.22 : 0.14) : Colors.transparent,
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                          Icon(i == index ? sel : icon,
+                              size: 24, color: i == index ? (dark ? NColors.emerald : const Color(0xFF047857)) : muted),
+                          if (i == index) ...[
+                            const SizedBox(width: 6),
+                            Flexible(
+                              child: Text(label,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.fade,
+                                  softWrap: false,
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 13,
+                                      color: dark ? NColors.emerald : const Color(0xFF047857))),
+                            ),
+                          ],
+                        ]),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
           ]),
         ),
       ),
