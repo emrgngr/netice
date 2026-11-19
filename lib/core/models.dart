@@ -342,6 +342,9 @@ class Sheet {
   /// İşaretli kâğıt görüntüsünün dosya adı (cihazdaki kagitlar/ klasöründe).
   final String? imageId;
 
+  /// Öğrenci eşleşmediğinde kâğıttan okunan numara ('?' = okunamayan rakam).
+  final String? readNumber;
+
   const Sheet({
     required this.examId,
     this.studentId,
@@ -349,6 +352,7 @@ class Sheet {
     this.booklet = 0,
     this.openScores = const [],
     this.imageId,
+    this.readNumber,
   });
 
   bool get needsReview =>
@@ -361,6 +365,7 @@ class Sheet {
         booklet: booklet,
         openScores: openScores ?? this.openScores,
         imageId: imageId ?? this.imageId,
+        readNumber: readNumber,
       );
 
   Map<String, dynamic> toJson() => {
@@ -370,6 +375,7 @@ class Sheet {
         if (booklet != 0) 'booklet': booklet,
         if (openScores.isNotEmpty) 'openScores': openScores,
         if (imageId != null) 'imageId': imageId,
+        if (readNumber != null) 'readNumber': readNumber,
       };
 
   factory Sheet.fromJson(Map<String, dynamic> j) => Sheet(
@@ -381,6 +387,7 @@ class Sheet {
         booklet: j['booklet'] as int? ?? 0,
         openScores: [for (final v in (j['openScores'] as List?) ?? const []) (v as num?)?.toDouble()],
         imageId: j['imageId'] as String?,
+        readNumber: j['readNumber'] as String?,
       );
 }
 

@@ -440,7 +440,13 @@ class AppStore extends ChangeNotifier {
     }
     final booklet = target.hasBooklets ? (r.booklet ?? code?.booklet ?? 0) : 0;
     final answers = booklet == 1 ? target.toBookletA(r.answers) : r.answers;
-    final sheet = Sheet(examId: target.id, studentId: st?.id, answers: answers, booklet: booklet);
+    final sheet = Sheet(
+      examId: target.id,
+      studentId: st?.id,
+      answers: answers,
+      booklet: booklet,
+      readNumber: st == null ? (r.numberPattern ?? r.studentNumber) : null,
+    );
     if (st != null) {
       for (final old in sheets.where((s) => s.examId == target.id && s.studentId == st!.id)) {
         _deleteImage(old);
@@ -501,6 +507,39 @@ class AppStore extends ChangeNotifier {
         } catch (_) {}
       }
     }
+  }
+
+  /// Eşleşmeyen kâğıt için olası öğrenciler: okunan numaraya en yakın olanlar
+  /// (bu sınavda kâğıdı olmayanlar). Okunamayan rakamlar ('?') her rakama uyar;
+  /// en fazla iki rakam farkı olanlar, en yakından uzağa sıralanır.
+  List<Student> suggestStudents(Sheet sheet, {int limit = 3}) {
+    final read = sheet.readNumber;
+    final exam = examById(sheet.examId);
+    if (read == null || exam == null) return const [];
+    final taken = sheetsOf(exam.id).map((s) => s.studentId).toSet();
+    final scored = <(Student, int)>[];
+    for (final s in studentsOf(exam.className)) {
+      if (taken.contains(s.id)) continue;
+      final d = numberDistance(read, s.number);
+      if (d != null && d <= 2) scored.add((s, d));
+    }
+    scored.sort((a, b) => a.$2.compareTo(b.$2));
+    return [for (final e in scored.take(limit)) e.$1];
+  }
+
+  /// Okunan numara ile öğrenci numarası arasındaki rakam farkı; numara
+  /// karşılaştırılamıyorsa null.
+  static int? numberDistance(String read, String number) {
+    final digits = number.replaceAll(RegExp(r'\D'), '');
+    if (digits.isEmpty || digits.length > read.length) return null;
+    final n = digits.padLeft(read.length, '0');
+    var d = 0;
+    for (var i = 0; i < read.length; i++) {
+      if (read[i] != '?' && read[i] != n[i]) d++;
+    }
+    // Hepsi okunamadıysa öneri anlamsız.
+    if (!read.split('').any((c) => c != '?')) return null;
+    return d;
   }
 
   void replaceSheet(Sheet old, Sheet updated) {

@@ -13,6 +13,7 @@ import '../omr/omr_reader.dart';
 import '../omr/rectify.dart';
 import '../omr/serial_scanner.dart';
 import 'exam_screen.dart';
+import 'review_screen.dart' show unmatchedLabel;
 import 'scan_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
@@ -382,7 +383,7 @@ class _LastCard extends StatelessWidget {
         const SizedBox(width: 12),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(st == null ? 'Öğrenci eşleşmedi' : '${st.fullName} · ${st.number}',
+            Text(st == null ? unmatchedLabel(sheet) : '${st.fullName} · ${st.number}',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(color: NColors.ink, fontWeight: FontWeight.w700, fontSize: 16)),

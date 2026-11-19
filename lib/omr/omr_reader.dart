@@ -109,6 +109,10 @@ class OmrResult {
   /// Okunan öğrenci numarası; okunamadıysa null.
   final String? studentNumber;
 
+  /// Numaranın okunabilen hâli: emin olunamayan rakamlar '?' (ör. "00?042").
+  /// Numara düzeltme önerisi için kullanılır.
+  final String? numberPattern;
+
   /// Bulunan köşe işaretlerinin görüntüdeki merkezleri.
   final List<Pt> markers;
 
@@ -124,6 +128,7 @@ class OmrResult {
     required this.markers,
     this.code,
     this.booklet,
+    this.numberPattern,
   });
 
   List<Answer> get answers => questions.map((q) => q.answer).toList();
@@ -198,6 +203,7 @@ class OmrReader {
           digits.write(order[0]);
         } else {
           numberOk = false;
+          digits.write('?');
         }
       }
     }
@@ -224,6 +230,7 @@ class OmrReader {
     return OmrResult(
       questions: questions,
       studentNumber: numberOk ? digits.toString() : null,
+      numberPattern: digits.toString().replaceAll('?', '').isEmpty ? null : digits.toString(),
       markers: markers,
       code: FormCode.decode(bits),
       booklet: booklet,

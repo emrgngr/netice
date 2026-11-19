@@ -13,6 +13,7 @@ import '../omr/form_layout.dart';
 import '../omr/form_raster.dart';
 import '../omr/omr_reader.dart';
 import '../omr/rectify.dart';
+import 'review_screen.dart' show unmatchedLabel;
 import 'theme.dart';
 import 'widgets.dart';
 
@@ -203,7 +204,7 @@ class _ScanScreenState extends State<ScanScreen> {
                                 child: Icon(e.sheet!.needsReview ? Icons.priority_high : Icons.check,
                                     color: e.sheet!.needsReview ? NColors.amber : NColors.emerald),
                               ),
-                              title: Text(st == null ? 'Öğrenci eşleşmedi' : '${st.fullName} · ${st.number}',
+                              title: Text(st == null ? unmatchedLabel(e.sheet!) : '${st.fullName} · ${st.number}',
                                   style: const TextStyle(fontWeight: FontWeight.w700)),
                               subtitle: reviewN > 0
                                   ? Text('$reviewN işaret kontrol bekliyor', style: const TextStyle(color: NColors.amber))

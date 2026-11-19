@@ -75,18 +75,55 @@ class _ReviewCardState extends State<_ReviewCard> {
 
     if (student == null) {
       final taken = store.sheetsOf(exam.id).map((s) => s.studentId).toSet();
-      final candidates = store.studentsOf(exam.className).where((s) => !taken.contains(s.id)).toList();
-      return ListView(padding: const EdgeInsets.all(20), children: [
-        Text('Bu kâğıttaki öğrenci numarası okunamadı ya da listede yok.', style: t.textTheme.titleMedium),
-        const SizedBox(height: 4),
-        Text('Kâğıt kimin? (${widget.remaining} kâğıt kontrol bekliyor)', style: t.textTheme.bodySmall),
-        const SizedBox(height: 12),
-        for (final s in candidates)
-          Card(
+      final suggested = store.suggestStudents(sheet);
+      final candidates = store
+          .studentsOf(exam.className)
+          .where((s) => !taken.contains(s.id) && !suggested.contains(s))
+          .toList();
+      final read = sheet.readNumber;
+      Widget tile(Student s, {bool best = false}) => Card(
             margin: const EdgeInsets.only(bottom: 8),
-            child: ListTile(title: Text(s.fullName), subtitle: Text(s.number), onTap: () => _assignStudent(s.id)),
-          ),
-        if (candidates.isEmpty) const Text('Listede kâğıdı okunmamış öğrenci kalmadı. Öğrenci listesini kontrol edin.'),
+            color: best ? NColors.emerald.withValues(alpha: 0.10) : null,
+            shape: best
+                ? RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    side: BorderSide(color: NColors.emerald.withValues(alpha: 0.5)),
+                  )
+                : null,
+            child: ListTile(
+              leading: best ? const Icon(Icons.auto_fix_high_rounded, color: NColors.emerald) : null,
+              title: Text(s.fullName, style: TextStyle(fontWeight: best ? FontWeight.w700 : null)),
+              subtitle: read == null ? Text(s.number) : _NumberDiff(read: read, number: s.number),
+              trailing: best ? const Text('Bu öğrenci', style: TextStyle(color: NColors.emerald, fontWeight: FontWeight.w700)) : null,
+              onTap: () => _assignStudent(s.id),
+            ),
+          );
+      return ListView(padding: const EdgeInsets.all(20), children: [
+        Text(
+            read == null
+                ? 'Bu kâğıttaki öğrenci numarası okunamadı.'
+                : 'Kâğıtta okunan numara: ${read.replaceAll('?', '•')}',
+            style: t.textTheme.titleMedium),
+        const SizedBox(height: 4),
+        Text(
+            read != null && read.contains('?')
+                ? '• ile gösterilen rakamlar okunamadı. Kâğıt kimin? (${widget.remaining} kâğıt kontrol bekliyor)'
+                : 'Bu numara listede yok. Kâğıt kimin? (${widget.remaining} kâğıt kontrol bekliyor)',
+            style: t.textTheme.bodySmall),
+        const SizedBox(height: 12),
+        if (suggested.isNotEmpty) ...[
+          Text('Önerilen', style: t.textTheme.labelLarge?.copyWith(color: NColors.emerald, fontWeight: FontWeight.w800)),
+          const SizedBox(height: 6),
+          for (final (i, s) in suggested.indexed) tile(s, best: i == 0),
+          if (candidates.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text('Diğer öğrenciler', style: t.textTheme.labelLarge),
+            const SizedBox(height: 6),
+          ],
+        ],
+        for (final s in candidates) tile(s),
+        if (candidates.isEmpty && suggested.isEmpty)
+          const Text('Listede kâğıdı okunmamış öğrenci kalmadı. Öğrenci listesini kontrol edin.'),
       ]);
     }
 
@@ -182,5 +219,35 @@ class _ReviewCardState extends State<_ReviewCard> {
         ),
       ),
     );
+  }
+}
+
+/// Eşleşmeyen kâğıt için kısa etiket (okunan numarayla).
+String unmatchedLabel(Sheet s) {
+  final r = s.readNumber;
+  return r == null ? 'Öğrenci eşleşmedi' : 'Öğrenci eşleşmedi · no ${r.replaceAll('?', '•')}';
+}
+
+/// Öğrenci numarasını, okunan numarayla farklı rakamları vurgulayarak gösterir.
+class _NumberDiff extends StatelessWidget {
+  final String read;
+  final String number;
+  const _NumberDiff({required this.read, required this.number});
+
+  @override
+  Widget build(BuildContext context) {
+    final digits = number.replaceAll(RegExp(r'\D'), '');
+    if (digits.isEmpty || digits.length > read.length) return Text(number);
+    final tail = read.substring(read.length - digits.length);
+    final base = DefaultTextStyle.of(context).style.copyWith(fontFeatures: tabular);
+    return Text.rich(TextSpan(children: [
+      for (var i = 0; i < digits.length; i++)
+        TextSpan(
+          text: digits[i],
+          style: tail[i] == '?' || tail[i] == digits[i]
+              ? base
+              : base.copyWith(color: NColors.coral, fontWeight: FontWeight.w800, decoration: TextDecoration.underline),
+        ),
+    ]));
   }
 }
