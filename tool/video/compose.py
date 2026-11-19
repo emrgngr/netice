@@ -51,7 +51,8 @@ def wrap(draw, text, fnt, width, lang):
     lines, cur = [], ''
     for u in units:
         t = (cur + sep + u) if cur else u
-        if draw.textlength(t, font=fnt, direction='rtl' if lang == 'ar' else None) <= width:
+        # Satır başına noktalama düşmesin (Japonca/Çince kuralı): sığmasa da önceki satıra ekle.
+        if draw.textlength(t, font=fnt, direction='rtl' if lang == 'ar' else None) <= width or (cur and u in '。、，．！？」』）)!?.,:;：；'):
             cur = t
         else:
             if cur:

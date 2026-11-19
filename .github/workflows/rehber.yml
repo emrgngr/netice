@@ -45,7 +45,12 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
-      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg libraqm0 >/dev/null
+      - run: |
+          for i in 1 2 3 4 5; do
+            sudo apt-get update -qq && sudo apt-get install -y -qq -o Acquire::Retries=5 ffmpeg libraqm0 >/dev/null && break
+            sleep $((i*20))
+          done
+          which ffmpeg
       - run: pip install --quiet pillow
       - name: Video
         env:
