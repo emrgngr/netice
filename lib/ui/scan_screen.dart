@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:file_picker/file_picker.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
@@ -32,13 +33,28 @@ class _ScanEntry {
   final String source;
   final Sheet? sheet;
   final String? error;
-  _ScanEntry(this.source, {this.sheet, this.error});
+
+  /// Aynı kâğıt zaten okunmuştu (hata değil, bilgi).
+  final bool duplicate;
+  _ScanEntry(this.source, {this.sheet, this.error, this.duplicate = false});
+}
+
+/// Toplu okumada sırayla işlenecek bir dosya.
+class _Input {
+  final String name;
+  final Future<Uint8List> Function() bytes;
+  _Input(this.name, this.bytes);
 }
 
 class _ScanScreenState extends State<ScanScreen> {
   final List<_ScanEntry> _entries = [];
   bool _busy = false;
   String _status = '';
+  int _batchTotal = 0, _batchDone = 0;
+  bool _cancel = false;
+  bool _onlyProblems = false;
+
+  static bool get _mobile => defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS;
 
   Exam get _exam => StoreScope.of(context).examById(widget.examId)!;
 
@@ -52,7 +68,7 @@ class _ScanScreenState extends State<ScanScreen> {
       final status = store.lastScanStatus;
       if (jpeg != null && status != ScanStatus.duplicate) store.attachSheetImage(sheet, jpeg);
       if (status == ScanStatus.duplicate) {
-        setState(() => _entries.insert(0, _ScanEntry(source, error: 'Bu kâğıt zaten okunmuştu; tekrar eklenmedi.')));
+        setState(() => _entries.insert(0, _ScanEntry(source, sheet: sheet, duplicate: true)));
         return;
       }
       if (status == ScanStatus.conflict) {
@@ -78,32 +94,70 @@ class _ScanScreenState extends State<ScanScreen> {
       allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
     );
     if (files.isEmpty) return;
-    setState(() => _busy = true);
-    var n = 0;
-    for (final f in files) {
-      final bytes = await f.readAsBytes();
+    await _processAll([for (final f in files) _Input(f.name, f.readAsBytes)]);
+  }
+
+  /// Telefonun galerisinden birden çok fotoğraf seçip sırayla okur.
+  Future<void> _pickGallery() async {
+    List<XFile> files;
+    try {
+      files = await ImagePicker().pickMultiImage(requestFullMetadata: false);
+    } catch (e) {
+      if (mounted) toast(context, 'Galeri açılamadı: $e');
+      return;
+    }
+    if (files.isEmpty) return;
+    await _processAll([for (final f in files) _Input(f.name, f.readAsBytes)]);
+  }
+
+  Future<void> _processAll(List<_Input> inputs) async {
+    final startEntries = _entries.length;
+    setState(() {
+      _busy = true;
+      _cancel = false;
+      _batchTotal = inputs.length;
+      _batchDone = 0;
+    });
+    for (final f in inputs) {
+      if (_cancel || !mounted) break;
+      final bytes = await f.bytes();
       if (f.name.toLowerCase().endsWith('.pdf')) {
         var page = 0;
         await for (final raster in Printing.raster(bytes, dpi: 150)) {
+          if (_cancel || !mounted) break;
           page++;
           setState(() => _status = '${f.name} · sayfa $page okunuyor');
           await _readGray('${f.name} · s.$page', _rgbaToGray(raster.pixels, raster.width, raster.height));
-          n++;
         }
       } else {
         setState(() => _status = '${f.name} okunuyor');
         final gray = await compute(_decodeJob, bytes);
+        if (!mounted) return;
         if (gray == null) {
           setState(() => _entries.insert(0, _ScanEntry(f.name, error: 'Görüntü açılamadı.')));
         } else {
           await _readGray(f.name, gray);
         }
-        n++;
       }
+      if (mounted) setState(() => _batchDone++);
     }
+    if (!mounted) return;
+    final batch = _entries.sublist(0, _entries.length - startEntries);
+    final ok = batch.where((e) => e.sheet != null && !e.duplicate && !e.sheet!.needsReview).length;
+    final review = batch.where((e) => e.sheet != null && !e.duplicate && e.sheet!.needsReview).length;
+    final dup = batch.where((e) => e.duplicate).length;
+    final err = batch.where((e) => e.sheet == null).length;
     setState(() {
       _busy = false;
-      _status = '$n kâğıt işlendi';
+      _batchTotal = 0;
+      _status = [
+        if (_cancel) 'Durduruldu',
+        '$ok okundu',
+        if (review > 0) '$review kontrol bekliyor',
+        if (dup > 0) '$dup zaten okunmuştu',
+        if (err > 0) '$err okunamadı',
+      ].join(' · ');
+      _onlyProblems = false;
     });
   }
 
@@ -135,6 +189,9 @@ class _ScanScreenState extends State<ScanScreen> {
     final read = store.sheetsOf(exam.id).length;
     final total = store.studentsOf(exam.className).length;
     final t = Theme.of(context);
+    final shown = _onlyProblems
+        ? _entries.where((e) => e.sheet == null || e.duplicate || e.sheet!.needsReview).toList()
+        : _entries;
 
     return Scaffold(
       backgroundColor: NColors.darkBg,
@@ -165,8 +222,42 @@ class _ScanScreenState extends State<ScanScreen> {
                   if (_busy) const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)),
                 ]),
               ),
+              if (_batchTotal > 0)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  child: Row(children: [
+                    Expanded(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: LinearProgressIndicator(
+                          value: _batchDone / _batchTotal,
+                          minHeight: 8,
+                          color: NColors.emerald,
+                          backgroundColor: Colors.white12,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text('$_batchDone / $_batchTotal', style: const TextStyle(color: Colors.white, fontFeatures: tabular)),
+                    TextButton(
+                      onPressed: _cancel ? null : () => setState(() => _cancel = true),
+                      child: const Text('Durdur', style: TextStyle(color: NColors.coral)),
+                    ),
+                  ]),
+                ),
               if (_status.isNotEmpty)
-                Text(_status, style: const TextStyle(color: Colors.white70)),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(children: [
+                    Expanded(child: Text(_status, style: const TextStyle(color: Colors.white70))),
+                    if (!_busy && _entries.any((e) => e.sheet == null || e.duplicate || e.sheet!.needsReview))
+                      FilterChip(
+                        label: const Text('Yalnızca sorunlular'),
+                        selected: _onlyProblems,
+                        onSelected: (v) => setState(() => _onlyProblems = v),
+                      ),
+                  ]),
+                ),
               Expanded(
                 child: _entries.isEmpty
                     ? Padding(
@@ -189,10 +280,10 @@ class _ScanScreenState extends State<ScanScreen> {
                       )
                     : ListView.separated(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
-                        itemCount: _entries.length,
+                        itemCount: shown.length,
                         separatorBuilder: (_, _) => const SizedBox(height: 8),
                         itemBuilder: (_, i) {
-                          final e = _entries[i];
+                          final e = shown[i];
                           if (e.sheet == null) {
                             return Card(
                               color: NColors.darkSurface,
@@ -200,6 +291,19 @@ class _ScanScreenState extends State<ScanScreen> {
                                 leading: const Icon(Icons.error_outline, color: NColors.coral),
                                 title: Text(e.source, style: const TextStyle(color: Colors.white)),
                                 subtitle: Text(e.error ?? '', style: const TextStyle(color: Colors.white70)),
+                              ),
+                            );
+                          }
+                          if (e.duplicate) {
+                            final who = students[e.sheet!.studentId];
+                            return Card(
+                              color: NColors.darkSurface,
+                              child: ListTile(
+                                leading: const Icon(Icons.content_copy_rounded, color: Colors.white54),
+                                title: Text(e.source, style: const TextStyle(color: Colors.white)),
+                                subtitle: Text(
+                                    'Bu kâğıt zaten okunmuştu${who == null ? '' : ' (${who.fullName})'}; tekrar eklenmedi.',
+                                    style: const TextStyle(color: Colors.white70)),
                               ),
                             );
                           }
@@ -237,14 +341,31 @@ class _ScanScreenState extends State<ScanScreen> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Expanded(
-                    flex: 2,
-                    child: FilledButton.icon(
-                      onPressed: _busy ? null : _pickFiles,
-                      icon: const Icon(Icons.add_photo_alternate_outlined),
-                      label: const Text('Fotoğraf / PDF seç'),
+                  if (_mobile) ...[
+                    Expanded(
+                      flex: 2,
+                      child: FilledButton.icon(
+                        onPressed: _busy ? null : _pickGallery,
+                        icon: const Icon(Icons.photo_library_outlined),
+                        label: const Text('Galeriden seç'),
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 8),
+                    IconButton.outlined(
+                      tooltip: 'Dosya veya PDF seç',
+                      style: IconButton.styleFrom(foregroundColor: Colors.white, side: const BorderSide(color: Colors.white24)),
+                      onPressed: _busy ? null : _pickFiles,
+                      icon: const Icon(Icons.picture_as_pdf_outlined),
+                    ),
+                  ] else
+                    Expanded(
+                      flex: 2,
+                      child: FilledButton.icon(
+                        onPressed: _busy ? null : _pickFiles,
+                        icon: const Icon(Icons.add_photo_alternate_outlined),
+                        label: const Text('Fotoğraf / PDF seç'),
+                      ),
+                    ),
                 ]),
               ),
               Padding(

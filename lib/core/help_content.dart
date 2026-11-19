@@ -83,6 +83,8 @@ const guideSections = <GuideSection>[
     GuideTopic('Fotoğraf veya PDF\'ten okuma', [
       'Bilgisayarda "PDF / tarama yükle" ile tarayıcıdan aldığınız çok sayfalı PDF\'i veya fotoğrafları seçin.',
       'Her sayfa ayrı bir kâğıt olarak okunur.',
+      'Telefonda okutma ekranındaki "Galeriden" ile önceden çektiğiniz fotoğrafların hepsini birden seçebilirsiniz. Uygulama hepsini sırayla okur, ilerlemeyi gösterir ve sonunda kaç kâğıdın okunduğunu, hangilerinin kontrol beklediğini özetler.',
+      '"Yalnızca sorunlular" ile okunamayan veya kontrol bekleyen kâğıtları ayıklayabilirsiniz.',
     ]),
     GuideTopic('Kontrol ve düzeltme', [
       'Okunan bir kâğıda dokunun; işaretlenen şıklar görünür.',
