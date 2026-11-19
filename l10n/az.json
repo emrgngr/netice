@@ -1100,5 +1100,14 @@
 "soru": "sual",
 "toplam": "cəmi",
 "{0} adet": "{0} ədəd",
-"{0} tarihli ": "{0} tarixli "
+"{0} tarihli ": "{0} tarixli ",
+"{0} SINIFI": "{0} SİNFİ",
+"ay": "ay",
+"notun %{0}'i": "qiymətin {0}%-i",
+"puan / {0}": "bal / {0}",
+"yıl": "il",
+"{0} soru": "{0} sual",
+"{0}. soru": "{0}-ci sual",
+"İşlevsiz: {0}": "İşləməyən: {0}",
+"Std. sapma": "Std. kənarlaşma"
 }

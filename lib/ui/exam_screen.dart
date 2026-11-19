@@ -392,7 +392,7 @@ class _ResultsTab extends StatelessWidget {
               const SizedBox(height: 10),
               Wrap(spacing: 22, runSpacing: 12, children: [
                 _HeroStat(tr('Medyan'), fmt1(st.median)),
-                _HeroStat('Std. sapma', fmt1(st.stdDev)),
+                _HeroStat(tr('Std. sapma'), fmt1(st.stdDev)),
                 _HeroStat('KR-20', st.kr20 == null ? '–' : fmt2(st.kr20!)),
                 _HeroStat(tr('Okunan'), '${st.count}'),
               ]),
@@ -663,12 +663,12 @@ class _AnalysisTab extends StatelessWidget {
       StatCard(label: tr('Ortalama'), value: fmt1(s.mean), hint: tr('Medyan {0}', [fmt1(s.median)]), icon: Icons.functions),
       StatCard(
           label: tr('Başarı oranı'),
-          value: '%${(rep.passRate * 100).round()}',
+          value: L10n.percent((rep.passRate * 100).round()),
           hint: tr('Geçme puanı {0} ve üzeri', [exam.rule.pass.round()]),
           icon: Icons.emoji_events_outlined),
       StatCard(label: tr('En yüksek'), value: fmt1(s.max), hint: tr('En düşük {0}', [fmt1(s.min)]), icon: Icons.trending_up),
       StatCard(
-          label: 'Std. sapma',
+          label: tr('Std. sapma'),
           value: fmt1(s.stdDev),
           hint: rep.cv == null ? null : tr('Değişim %{0}', [rep.cv!.round()]),
           icon: Icons.stacked_line_chart),
@@ -680,7 +680,7 @@ class _AnalysisTab extends StatelessWidget {
       StatCard(
           label: tr('Ortalama net'),
           value: fmt2(rep.meanNet),
-          hint: '${fmt1(rep.meanCorrect)} D · ${fmt1(rep.meanWrong)} Y · ${fmt1(rep.meanBlank)} B',
+          hint: '${fmt1(rep.meanCorrect)} ${tr('D')} · ${fmt1(rep.meanWrong)} ${tr('Y')} · ${fmt1(rep.meanBlank)} ${tr('B')}',
           icon: Icons.check_circle_outline),
       StatCard(
           label: tr('Güvenirlik'),
@@ -881,7 +881,7 @@ class _AnalysisTab extends StatelessWidget {
                           Expanded(
                               child: Text('${o.code}  ·  ${tr('{0} soru', [o.questionNos.length])}',
                                   style: const TextStyle(fontWeight: FontWeight.w600))),
-                          Text('%${(o.rate * 100).round()}',
+                          Text(L10n.percent((o.rate * 100).round()),
                               style: const TextStyle(fontWeight: FontWeight.w800, fontFeatures: tabular)),
                         ]),
                         const SizedBox(height: 6),
@@ -1008,9 +1008,9 @@ class _ChartsPanelState extends State<_ChartsPanel> {
           Slice(tr('Geçemedi'), (n - passed).toDouble(), NColors.coral),
         ]),
       _ => DonutChart(key: const ValueKey(3), centerLabel: tr('soru'), unit: ' ${tr('soru')}', slices: [
-          Slice(tr('Kolay'), (rep.difficultyCounts['Kolay'] ?? 0).toDouble(), NColors.emerald, detail: tr('Doğru oranı %80 üzeri')),
-          Slice(tr('Orta'), (rep.difficultyCounts['Orta'] ?? 0).toDouble(), NColors.ink, detail: tr('Doğru oranı %30–80')),
-          Slice(tr('Zor'), (rep.difficultyCounts['Zor'] ?? 0).toDouble(), NColors.coral, detail: tr('Doğru oranı %30 altı')),
+          Slice(tr('Kolay'), (rep.difficultyCounts[tr('Kolay')] ?? 0).toDouble(), NColors.emerald, detail: tr('Doğru oranı %80 üzeri')),
+          Slice(tr('Orta'), (rep.difficultyCounts[tr('Orta')] ?? 0).toDouble(), NColors.ink, detail: tr('Doğru oranı %30–80')),
+          Slice(tr('Zor'), (rep.difficultyCounts[tr('Zor')] ?? 0).toDouble(), NColors.coral, detail: tr('Doğru oranı %30 altı')),
         ]),
     };
     return Card(
@@ -1129,7 +1129,7 @@ class _Heatmap extends StatelessWidget {
           margin: const EdgeInsets.all(1.5),
           alignment: Alignment.center,
           decoration: BoxDecoration(color: colorOf(v).withValues(alpha: 0.22), borderRadius: BorderRadius.circular(6)),
-          child: Text('%${(v * 100).round()}',
+          child: Text(L10n.percent((v * 100).round()),
               style: TextStyle(fontSize: 12, fontFeatures: tabular, fontWeight: bold ? FontWeight.w800 : FontWeight.w600)),
         );
     Widget name(String s, {bool bold = false}) => SizedBox(

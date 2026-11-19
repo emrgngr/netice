@@ -54,6 +54,14 @@ class L10n {
   /// Ondalık ayırıcı: virgül kullanan diller ve nokta kullananlar.
   static String get decimal => const {'en', 'zh', 'ja', 'ar'}.contains(_code) ? '.' : ',';
 
+  /// Yüzde: Türkçe ve Azericede "%20", Almanca, Fransızca, Rusça ve İspanyolcada
+  /// "20 %", diğerlerinde "20%".
+  static String percent(Object n) => switch (_code) {
+        'tr' || 'az' => '%$n',
+        'de' || 'fr' || 'ru' || 'es' => '$n\u00A0%',
+        _ => '$n%',
+      };
+
   /// Ülkenin alışık olduğu tarih biçimi.
   static String date(DateTime d) {
     String two(int v) => v.toString().padLeft(2, '0');

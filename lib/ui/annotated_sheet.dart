@@ -142,7 +142,7 @@ class SheetMarksPainter extends CustomPainter {
               text: result.score.toStringAsFixed(result.score % 1 == 0 ? 0 : 1).replaceAll('.', L10n.decimal),
               style: TextStyle(fontFamily: 'PlusJakartaSans', color: Colors.white, fontSize: 9 * mm, fontWeight: FontWeight.w900)),
           TextSpan(
-              text: '\n${result.correct} D · ${result.wrong} Y · ${result.blank} B',
+              text: '\n${result.correct} ${tr('D')} · ${result.wrong} ${tr('Y')} · ${result.blank} ${tr('B')}',
               style: TextStyle(fontFamily: 'PlusJakartaSans', color: Colors.white70, fontSize: 2.9 * mm, fontWeight: FontWeight.w600)),
         ]),
         textAlign: TextAlign.center,

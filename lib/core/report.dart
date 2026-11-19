@@ -12,15 +12,55 @@ class Level {
   final double minPct;
   const Level(this._name, this.grade, this.minPct);
 
-  String get name => tr(_name);
+  String get name => _scales['tr']!.contains(this) ? tr(_name) : _name;
 
-  static const all = [
-    Level('Pekiyi', 5, 85),
-    Level('İyi', 4, 70),
-    Level('Orta', 3, 60),
-    Level('Geçer', 2, 50),
-    Level('Geçmez', 1, 0),
-  ];
+  /// Seçili dile göre ülkede yaygın kullanılan not ölçeği (5 basamak,
+  /// yüksekten düşüğe). Türkçe adlar çeviriden, diğerleri doğrudan gelir.
+  static List<Level> get all => _scales[L10n.code] ?? _scales['tr']!;
+
+  static const _scales = {
+    'tr': [Level('Pekiyi', 5, 85), Level('İyi', 4, 70), Level('Orta', 3, 60), Level('Geçer', 2, 50), Level('Geçmez', 1, 0)],
+    'az': [Level('Əla', 5, 85), Level('Yaxşı', 4, 70), Level('Kafi', 3, 50), Level('Zəif', 2, 30), Level('Çox zəif', 1, 0)],
+    'en': [Level('A', 5, 90), Level('B', 4, 80), Level('C', 3, 70), Level('D', 2, 60), Level('F', 1, 0)],
+    'de': [
+      Level('sehr gut (1)', 5, 92),
+      Level('gut (2)', 4, 81),
+      Level('befriedigend (3)', 3, 67),
+      Level('ausreichend (4)', 2, 50),
+      Level('mangelhaft (5–6)', 1, 0),
+    ],
+    'ar': [Level('ممتاز', 5, 90), Level('جيد جدًا', 4, 80), Level('جيد', 3, 65), Level('مقبول', 2, 50), Level('راسب', 1, 0)],
+    'es': [
+      Level('Sobresaliente', 5, 90),
+      Level('Notable', 4, 70),
+      Level('Bien', 3, 60),
+      Level('Suficiente', 2, 50),
+      Level('Insuficiente', 1, 0),
+    ],
+    'ru': [
+      Level('отлично (5)', 5, 85),
+      Level('хорошо (4)', 4, 70),
+      Level('удовл. (3)', 3, 50),
+      Level('неудовл. (2)', 2, 30),
+      Level('плохо (1)', 1, 0),
+    ],
+    'it': [
+      Level('Ottimo', 5, 90),
+      Level('Distinto', 4, 80),
+      Level('Buono', 3, 70),
+      Level('Sufficiente', 2, 60),
+      Level('Insufficiente', 1, 0),
+    ],
+    'fr': [
+      Level('Très bien', 5, 80),
+      Level('Bien', 4, 70),
+      Level('Assez bien', 3, 60),
+      Level('Passable', 2, 50),
+      Level('Insuffisant', 1, 0),
+    ],
+    'zh': [Level('优秀', 5, 90), Level('良好', 4, 80), Level('中等', 3, 70), Level('及格', 2, 60), Level('不及格', 1, 0)],
+    'ja': [Level('5', 5, 90), Level('4', 4, 75), Level('3', 3, 60), Level('2', 2, 40), Level('1', 1, 0)],
+  };
 
   static Level of(double pct) => all.firstWhere((l) => pct >= l.minPct);
 }
@@ -207,8 +247,9 @@ class ExamReport {
 
     // Soru kalitesi.
     final active = items.where((it) => !exam.questions[it.no - 1].cancelled).toList();
-    final diff = {'Kolay': 0, 'Orta': 0, 'Zor': 0};
-    final disc = {'Çok iyi': 0, 'İyi': 0, 'Düzeltilmeli': 0, 'Gözden geçirilmeli': 0};
+    // Anahtarlar seçili dildeki etiketlerdir (ItemStat.difficultyLabel ile aynı).
+    final diff = {tr('Kolay'): 0, tr('Orta'): 0, tr('Zor'): 0};
+    final disc = {tr('Çok iyi'): 0, tr('İyi'): 0, tr('Düzeltilmeli'): 0, tr('Gözden geçirilmeli'): 0};
     for (final it in active) {
       diff[it.difficultyLabel] = diff[it.difficultyLabel]! + 1;
       disc[it.discriminationLabel] = disc[it.discriminationLabel]! + 1;
@@ -269,7 +310,7 @@ class ExamReport {
 
   List<String> _buildComments() {
     if (results.isEmpty) return const [];
-    String pct(double v) => '%${(v * 100).round()}';
+    String pct(double v) => L10n.percent((v * 100).round());
     final c = <String>[];
     c.add(meanP < 0.40
         ? tr('Sınav zor: soruların ortalama doğru oranı {0}.', [pct(meanP)])

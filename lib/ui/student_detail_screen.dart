@@ -58,7 +58,7 @@ class StudentDetailScreen extends StatelessWidget {
                   const SizedBox(height: 10),
                   Wrap(spacing: 18, runSpacing: 8, children: [
                     _Mini(tr('Sınav'), '${h.length}'),
-                    _Mini(tr('Ortalama'), '%${avg.round()}'),
+                    _Mini(tr('Ortalama'), L10n.percent(avg.round())),
                     if (trend != null) _Mini(tr('Son değişim'), '${trend >= 0 ? '+' : ''}${trend.round()}'),
                   ]),
                 ]),
@@ -144,7 +144,7 @@ class StudentDetailScreen extends StatelessWidget {
                         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                           Row(children: [
                             Expanded(child: Text(e.key, style: const TextStyle(fontWeight: FontWeight.w600))),
-                            Text('%${(e.value.$1 * 100).round()}',
+                            Text(L10n.percent((e.value.$1 * 100).round()),
                                 style: const TextStyle(fontWeight: FontWeight.w800, fontFeatures: tabular)),
                             Text(tr('  sınıf %{0}', [(e.value.$2 * 100).round()]), style: TextStyle(color: muted, fontSize: 12)),
                           ]),

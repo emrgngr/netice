@@ -1100,5 +1100,14 @@
 "soru": "questions",
 "toplam": "total",
 "{0} adet": "{0} exemplaires",
-"{0} tarihli ": "du {0} "
+"{0} tarihli ": "du {0} ",
+"{0} SINIFI": "CLASSE {0}",
+"ay": "mois",
+"notun %{0}'i": "{0} % de la note",
+"puan / {0}": "points / {0}",
+"yıl": "an",
+"{0} soru": "{0} questions",
+"{0}. soru": "question {0}",
+"İşlevsiz: {0}": "Non fonctionnels : {0}",
+"Std. sapma": "Écart type"
 }

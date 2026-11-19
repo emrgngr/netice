@@ -462,7 +462,7 @@ class _Insights extends StatelessWidget {
                 dense: true,
                 title: Text(w.student.fullName, style: const TextStyle(fontWeight: FontWeight.w600)),
                 subtitle: Text('${w.student.className} · ${w.reason}'),
-                trailing: Text('%${w.lastPct.round()}',
+                trailing: Text(L10n.percent(w.lastPct.round()),
                     style: const TextStyle(fontWeight: FontWeight.w800, fontFeatures: tabular, color: NColors.coral)),
                 onTap: () => Navigator.of(context)
                     .push(MaterialPageRoute(builder: (_) => StudentDetailScreen(studentId: w.student.id))),
@@ -481,7 +481,7 @@ class _Insights extends StatelessWidget {
                           ListTile(
                             title: Text(w.student.fullName),
                             subtitle: Text('${w.student.className} · ${w.reason}'),
-                            trailing: Text('%${w.lastPct.round()}'),
+                            trailing: Text(L10n.percent(w.lastPct.round())),
                             onTap: () {
                               Navigator.pop(ctx);
                               Navigator.of(context).push(

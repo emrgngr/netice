@@ -3,6 +3,9 @@ import 'dart:typed_data';
 
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/pdf.dart';
+// Arapça harfleri tuvale yazmadan önce birleştirmek için (pw.Text bunu kendisi yapar).
+// ignore: implementation_imports
+import 'package:pdf/src/pdf/font/arabic.dart' as arabic_text;
 import 'package:pdf/widgets.dart' as pw;
 
 import '../core/models.dart';
@@ -28,14 +31,51 @@ const _levelColors = [_emerald, PdfColor.fromInt(0xFF34D399), _amber, PdfColor.f
 class _Fonts {
   final pw.Font regular;
   final pw.Font bold;
-  _Fonts(this.regular, this.bold);
+
+  /// Latin dışı harfler (Kiril, Arap, Çin, Japon) için yedek yazı tipleri.
+  final List<pw.Font> fallback;
+  _Fonts(this.regular, this.bold, this.fallback);
+
+  static _Fonts? _cache;
+  static String? _cacheLang;
+
+  pw.ThemeData get theme => pw.ThemeData.withFont(base: regular, bold: bold, fontFallback: fallback);
 
   static Future<_Fonts> load() async {
-    Future<pw.Font> f(String name) async =>
-        pw.Font.ttf(await rootBundle.load('assets/fonts/PlusJakartaSans_$name.ttf'));
-    return _Fonts(await f('400Regular'), await f('700Bold'));
+    if (_cache != null && _cacheLang == L10n.code) return _cache!;
+    Future<pw.Font> f(String path) async => pw.Font.ttf(await rootBundle.load(path));
+    final noto = await f('assets/pdf_fonts/NotoSans-Regular.ttf');
+    final arabic = await f('assets/pdf_fonts/NotoSansArabic-Regular.ttf');
+    final sc = await f('assets/pdf_fonts/NotoSansSC-Regular.ttf');
+    final jp = await f('assets/pdf_fonts/NotoSansJP-Regular.ttf');
+    // Japonca seçiliyse ortak Çince/Japonca karakterler Japon biçimiyle yazılsın.
+    final cjk = L10n.code == 'ja' ? [jp, sc] : [sc, jp];
+    _cacheLang = L10n.code;
+    final jakarta = await f('assets/fonts/PlusJakartaSans_400Regular.ttf');
+    final jakartaBold = await f('assets/fonts/PlusJakartaSans_700Bold.ttf');
+    // Arapçada harflerin birleşmesi için Arap yazı tipi ana yazı tipi olmalı.
+    if (L10n.rtl) {
+      return _cache = _Fonts(
+          arabic, await f('assets/pdf_fonts/NotoSansArabic-Bold.ttf'), [jakarta, noto, ...cjk]);
+    }
+    return _cache = _Fonts(jakarta, jakartaBold, [noto, arabic, ...cjk]);
+  }
+
+  /// Tuval üzerine doğrudan yazılan metin için, metindeki bütün harfleri
+  /// içeren yazı tipini seçer; Arapçayı birleştirip sağdan sola çevirir.
+  (PdfFont, String) pick(pw.Context ctx, String t, {bool bold = false}) {
+    final main = (bold ? this.bold : regular).getFont(ctx);
+    if (t.runes.every(main.isRuneSupported)) return (main, t);
+    final shaped = RegExp(r'[\u0600-\u06FF]').hasMatch(t) ? arabic_text.convert(t) : t;
+    for (final f in fallback) {
+      final font = f.getFont(ctx);
+      if (shaped.runes.every((r) => r == 32 || font.isRuneSupported(r))) return (font, shaped);
+    }
+    return (main, t);
   }
 }
+
+pw.TextDirection get _dir => L10n.rtl ? pw.TextDirection.rtl : pw.TextDirection.ltr;
 
 /// Basılı optik formlar. Her öğrenci için adı ve numarası yazılı bir sayfa
 /// üretir; [students] boşsa [blankCopies] adet boş form üretir.
@@ -47,7 +87,7 @@ Future<Uint8List> buildFormsPdf(Exam exam, List<Student> students,
   final fonts = await _Fonts.load();
   final layout =
       FormLayout(questionCount: exam.questionCount, choiceCount: exam.choiceCount, booklets: exam.hasBooklets);
-  final doc = pw.Document(title: tr('{0} · optik form', [exam.name]), author: tr('Netice'));
+  final doc = pw.Document(theme: fonts.theme, title: tr('{0} · optik form', [exam.name]), author: tr('Netice'));
   final pages = students.isEmpty
       ? List<Student?>.filled(math.max(1, blankCopies), null)
       : students.cast<Student?>();
@@ -66,21 +106,21 @@ Future<Uint8List> buildAnswerKeyPdf(Exam exam, {bool filled = true, SchoolInfo s
   final fonts = await _Fonts.load();
   final layout =
       FormLayout(questionCount: exam.questionCount, choiceCount: exam.choiceCount, booklets: exam.hasBooklets);
-  final doc = pw.Document(title: tr('{0} · cevap anahtarı', [exam.name]), author: tr('Netice'));
+  final doc = pw.Document(theme: fonts.theme, title: tr('{0} · cevap anahtarı', [exam.name]), author: tr('Netice'));
   doc.addPage(_formPage(layout, exam, fonts, school, key: true, keyFilled: filled, booklet: exam.hasBooklets ? 0 : null));
   if (exam.hasBooklets && filled) {
     doc.addPage(_formPage(layout, exam, fonts, school, key: true, keyFilled: true, booklet: 1));
   }
   if (filled) {
     final k = _Kit(exam, school, docTitle: tr('Cevap Anahtarı'));
-    final theme = pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold);
+    final theme = fonts.theme;
     final qs = exam.questions;
     String ans(Question q) => q.cancelled ? tr('İptal') : (q.correct.isEmpty ? '–' : q.correct.map(_letter).join(' / '));
     String pts(double v) => v == v.roundToDouble() ? '${v.round()}' : _f1(v);
     final possible = qs.where((q) => !q.cancelled).fold<double>(0, (a, q) => a + q.points);
     // Sorunun puan tablosundaki gerçek değeri (ağırlık, toplam puana ölçeklenir).
     double worth(Question q) => possible == 0 ? 0 : q.points / possible * exam.rule.maxScore;
-    doc.addPage(pw.MultiPage(
+    doc.addPage(pw.MultiPage(textDirection: _dir, 
       theme: theme,
       pageFormat: PdfPageFormat.a4,
       margin: const pw.EdgeInsets.fromLTRB(36, 32, 36, 28),
@@ -150,13 +190,13 @@ Future<Uint8List> buildAnswerKeyPdf(Exam exam, {bool filled = true, SchoolInfo s
 
 pw.Page _formPage(FormLayout layout, Exam exam, _Fonts fonts, SchoolInfo school,
         {Student? student, bool key = false, bool keyFilled = false, int? booklet}) =>
-    pw.Page(
+    pw.Page(textDirection: _dir, 
       pageFormat: PdfPageFormat.a4,
       margin: pw.EdgeInsets.zero,
       build: (ctx) => pw.CustomPaint(
         size: PdfPoint(PdfPageFormat.a4.width, PdfPageFormat.a4.height),
         painter: (canvas, size) => _paintForm(canvas, size, layout, exam, student,
-            (fonts.regular.getFont(ctx), fonts.bold.getFont(ctx)),
+            (String t, {bool bold = false}) => fonts.pick(ctx, t, bold: bold),
             key: key, keyFilled: keyFilled, school: school, booklet: booklet),
       ),
     );
@@ -167,22 +207,27 @@ const _tint = PdfColor.fromInt(0xFFF3F1EB);
 /// Optik formu çizer. Daireler ve köşe kareleri [FormLayout]'taki yerlerinde
 /// kalır (okuma motoru onları orada arar); süslemeler dairelerden en az
 /// 2,5 mm uzakta tutulur ve koyu dolgulu büyük şekil kullanılmaz.
-void _paintForm(PdfGraphics g, PdfPoint size, FormLayout layout, Exam exam, Student? s, (PdfFont, PdfFont) fonts,
+typedef _FontPicker = (PdfFont, String) Function(String t, {bool bold});
+
+void _paintForm(PdfGraphics g, PdfPoint size, FormLayout layout, Exam exam, Student? s, _FontPicker fonts,
     {bool key = false, bool keyFilled = false, SchoolInfo school = const SchoolInfo(), int? booklet}) {
   const mm = PdfPageFormat.mm;
   // PDF koordinatları sol alttan başlar; form mm koordinatları sol üstten.
   double x(double v) => v * mm;
   double y(double v) => size.y - v * mm;
 
-  double width(String t, double pt, {bool bold = false}) =>
-      (bold ? fonts.$2 : fonts.$1).stringMetrics(t).width * pt / mm;
+  double width(String t, double pt, {bool bold = false}) {
+    final (font, shaped) = fonts(t, bold: bold);
+    return font.stringMetrics(shaped).width * pt / mm;
+  }
 
   void text(String t, double px, double py, double pt,
       {bool bold = false, PdfColor color = _ink, bool right = false, bool center = false}) {
-    final w = width(t, pt, bold: bold);
+    final (font, shaped) = fonts(t, bold: bold);
+    final w = font.stringMetrics(shaped).width * pt / mm;
     final left = right ? px - w : (center ? px - w / 2 : px);
     g.setFillColor(color);
-    g.drawString(bold ? fonts.$2 : fonts.$1, pt, t, x(left), y(py));
+    g.drawString(font, pt, shaped, x(left), y(py));
   }
 
   void box(double x0, double y0, double x1, double y1,
@@ -445,20 +490,21 @@ void _paintForm(PdfGraphics g, PdfPoint size, FormLayout layout, Exam exam, Stud
   text(tr('Formu %100 ölçekle yazdırın; fotokopiyle çoğaltabilirsiniz.'), 186, 271.5, 5.6, right: true, color: _muted);
 }
 
-void _bubble(PdfGraphics g, double cx, double cy, double r, String label, (PdfFont, PdfFont) fonts) {
+void _bubble(PdfGraphics g, double cx, double cy, double r, String label, _FontPicker fonts) {
   g.setStrokeColor(PdfColors.grey600);
   g.setLineWidth(0.7);
   g.drawEllipse(cx, cy, r, r);
   g.strokePath();
   // Harf açık gri basılır; okuma motoru bunu "boş" sayar.
   g.setFillColor(PdfColors.grey400);
-  final w = fonts.$1.stringMetrics(label).width * 5.5;
-  g.drawString(fonts.$1, 5.5, label, cx - w / 2, cy - 1.9);
+  final (font, shaped) = fonts(label);
+  final w = font.stringMetrics(shaped).width * 5.5;
+  g.drawString(font, 5.5, shaped, cx - w / 2, cy - 1.9);
 }
 
 String _f1(double v) => v.toStringAsFixed(1).replaceAll('.', L10n.decimal);
 String _f2(double v) => v.toStringAsFixed(2).replaceAll('.', L10n.decimal);
-String _pct(double v) => '%${(v * 100).round()}';
+String _pct(double v) => L10n.percent((v * 100).round());
 String _letter(int i) => String.fromCharCode(65 + i);
 /// Rapor zaman damgası: 18.11.2026 10:04
 String reportStamp(DateTime d) =>
@@ -495,16 +541,14 @@ class _Kit {
   pw.Widget letterhead() {
     const bold = pw.TextStyle(fontSize: 10.5, color: PdfColors.black);
     final subject = school.subject.trim().isEmpty ? '' : tr(' {0} DERSİ', [SchoolInfo.upper(school.subject.trim())]);
-    final cls = classLine ?? '${SchoolInfo.upper(exam.className)} SINIFI';
+    final cls = classLine ?? tr('{0} SINIFI', [SchoolInfo.upper(exam.className)]);
     return pw.Container(
       margin: const pw.EdgeInsets.only(bottom: 14),
       padding: const pw.EdgeInsets.only(bottom: 8),
       decoration: const pw.BoxDecoration(border: pw.Border(bottom: pw.BorderSide(color: PdfColors.black, width: 0.8))),
       child: pw.Column(children: [
-        pw.Text('T.C.', style: bold.copyWith(fontWeight: pw.FontWeight.bold)),
-        if (school.authority.isNotEmpty)
-          pw.Text(school.authority, style: bold.copyWith(fontWeight: pw.FontWeight.bold)),
-        pw.Text(school.directorate, style: bold.copyWith(fontWeight: pw.FontWeight.bold), textAlign: pw.TextAlign.center),
+        for (final line in school.letterhead)
+          pw.Text(line, style: bold.copyWith(fontWeight: pw.FontWeight.bold), textAlign: pw.TextAlign.center),
         pw.SizedBox(height: 8),
         pw.Text(
           tr('{0} EĞİTİM-ÖĞRETİM YILI {1}{2}', [SchoolInfo.academicYear(exam.date), cls, subject]),
@@ -757,7 +801,7 @@ Future<Uint8List> buildResultsPdf({
   final k = _Kit(exam, school, docTitle: tr('Sınav Analiz Raporu'));
   final max = exam.rule.maxScore;
   final doc = pw.Document(
-    theme: pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold),
+    theme: fonts.theme,
     title: tr('{0} sınav raporu', [exam.name]),
     author: tr('Netice'),
   );
@@ -768,7 +812,7 @@ Future<Uint8List> buildResultsPdf({
   final cancelled = exam.questions.where((q) => q.cancelled).map((q) => q.no).toList();
 
   doc.addPage(
-    pw.MultiPage(
+    pw.MultiPage(textDirection: _dir, 
       pageFormat: PdfPageFormat.a4,
       margin: const pw.EdgeInsets.fromLTRB(36, 30, 36, 30),
       header: k.header,
@@ -882,9 +926,9 @@ Future<Uint8List> buildResultsPdf({
             pw.SizedBox(width: 6),
             pw.Expanded(
                 child: _pieBox(tr('Soru güçlüğü'), [
-              (tr('Kolay'), (r.difficultyCounts['Kolay'] ?? 0).toDouble(), _emerald),
-              (tr('Orta'), (r.difficultyCounts['Orta'] ?? 0).toDouble(), _ink),
-              (tr('Zor'), (r.difficultyCounts['Zor'] ?? 0).toDouble(), _coral),
+              (tr('Kolay'), (r.difficultyCounts[tr('Kolay')] ?? 0).toDouble(), _emerald),
+              (tr('Orta'), (r.difficultyCounts[tr('Orta')] ?? 0).toDouble(), _ink),
+              (tr('Zor'), (r.difficultyCounts[tr('Zor')] ?? 0).toDouble(), _coral),
             ], donut: true)),
           ]);
         }(),
@@ -1084,7 +1128,7 @@ Future<Uint8List> buildResultsPdf({
                 _f2(st.result.net),
                 if (exam.hasOpen) ...[_f1(st.result.testScore), st.result.openMissing ? tr('eksik') : _f1(st.result.openScore)],
                 _f1(st.result.score),
-                '%${st.percentile.round()}',
+                L10n.percent(st.percentile.round()),
                 _f1(st.t),
                 st.level.name,
               ],
@@ -1155,7 +1199,7 @@ Future<Uint8List> buildStudentCardsPdf({
   final k = _Kit(exam, school, docTitle: tr('Öğrenci Sınav Karnesi'), letterheadEveryPage: true);
   final max = exam.rule.maxScore;
   final doc = pw.Document(
-    theme: pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold),
+    theme: fonts.theme,
     title: tr('{0} öğrenci karneleri', [exam.name]),
     author: tr('Netice'),
   );
@@ -1186,7 +1230,7 @@ Future<Uint8List> buildStudentCardsPdf({
         if (res.outcomes[i] == Outcome.wrong || res.outcomes[i] == Outcome.blank) i,
     ];
     doc.addPage(
-      pw.Page(
+      pw.Page(textDirection: _dir, 
         pageFormat: PdfPageFormat.a4,
         margin: const pw.EdgeInsets.fromLTRB(36, 30, 36, 30),
         build: (ctx) => pw.Column(
@@ -1242,13 +1286,13 @@ Future<Uint8List> buildStudentCardsPdf({
             pw.SizedBox(height: 12),
             k.grid([
               k.statBox(tr('Sınıf sırası'), '${st.rank} / ${r.standings.length}'),
-              k.statBox(tr('Yüzdelik'), '%${st.percentile.round()}', hint: tr('sınıfın bu kadarından başarılı')),
+              k.statBox(tr('Yüzdelik'), L10n.percent(st.percentile.round()), hint: tr('sınıfın bu kadarından başarılı')),
               k.statBox(tr('T puanı'), _f1(st.t), hint: tr('50 = sınıf ortalaması')),
               k.statBox(tr('Net'), _f2(res.net)),
               k.statBox(tr('Doğru'), '${res.correct}', color: _emerald),
               k.statBox(tr('Yanlış'), '${res.wrong}', color: _coral),
               k.statBox(tr('Boş'), '${res.blank}', color: _gray),
-              k.statBox(tr('Başarı'), '%${st.pct.round()}'),
+              k.statBox(tr('Başarı'), L10n.percent(st.pct.round())),
               if (exam.hasOpen) ...[
                 k.statBox(tr('Test kısmı'), '${_f1(res.testScore)} / ${_f1(exam.testMax)}'),
                 k.statBox(tr('Klasik kısım'), res.openMissing ? tr('eksik') : '${_f1(res.openScore)} / ${_f1(exam.openMax)}'),
@@ -1343,7 +1387,7 @@ Future<Uint8List> buildStudentCardsPdf({
     );
   }
   if (r.standings.isEmpty) {
-    doc.addPage(pw.Page(build: (_) => pw.Center(child: pw.Text(tr('Henüz okunan kâğıt yok.')))));
+    doc.addPage(pw.Page(textDirection: _dir, build: (_) => pw.Center(child: pw.Text(tr('Henüz okunan kâğıt yok.')))));
   }
   return doc.save();
 }
@@ -1394,12 +1438,12 @@ pw.Widget _heatmap(ExamReport r, Map<String, Student> students) {
           for (final o in codes)
             () {
               final v = o.rateOf(exam, st.result);
-              return cell('%${(v * 100).round()}', color: _heatColor(v));
+              return cell(L10n.percent((v * 100).round()), color: _heatColor(v));
             }(),
         ]),
       pw.TableRow(children: [
         cell(tr('Sınıf'), bold: true, align: pw.Alignment.centerLeft),
-        for (final o in codes) cell('%${(o.rate * 100).round()}', color: _heatColor(o.rate), bold: true),
+        for (final o in codes) cell(L10n.percent((o.rate * 100).round()), color: _heatColor(o.rate), bold: true),
       ]),
     ],
   );
@@ -1413,11 +1457,11 @@ Future<Uint8List> buildComparePdf(List<BranchRow> rows, {SchoolInfo school = con
       docTitle: tr('Şube Karşılaştırma Raporu'),
       classLine: tr('{0} ŞUBELERİ', [rows.map((r) => SchoolInfo.upper(r.exam.className)).toSet().join(', ')]));
   final doc = pw.Document(
-      theme: pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold), title: tr('Şube karşılaştırması'), author: tr('Netice'));
+      theme: fonts.theme, title: tr('Şube karşılaştırması'), author: tr('Netice'));
   final best = rows.reduce((a, b) => a.report.stats.mean >= b.report.stats.mean ? a : b);
   final sameShape = rows.every((r) => r.exam.questionCount == rows.first.exam.questionCount);
   final codes = {for (final r in rows) ...r.report.outcomes.map((o) => o.code)}.toList();
-  doc.addPage(pw.MultiPage(
+  doc.addPage(pw.MultiPage(textDirection: _dir, 
     pageFormat: PdfPageFormat.a4,
     margin: const pw.EdgeInsets.fromLTRB(36, 30, 36, 30),
     header: (ctx) => k.header(ctx),
@@ -1498,9 +1542,9 @@ Future<Uint8List> buildEokulPdf({
   final fonts = await _Fonts.load();
   final k = _Kit(exam, school, docTitle: tr('Not Giriş Listesi'));
   final doc = pw.Document(
-      theme: pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold), title: tr('{0} e-Okul listesi', [exam.name]), author: tr('Netice'));
+      theme: fonts.theme, title: tr('{0} e-Okul listesi', [exam.name]), author: tr('Netice'));
   final rows = eokulRows(exam, results, classStudents);
-  doc.addPage(pw.MultiPage(
+  doc.addPage(pw.MultiPage(textDirection: _dir, 
     pageFormat: PdfPageFormat.a4,
     margin: const pw.EdgeInsets.fromLTRB(36, 30, 36, 30),
     header: k.header,
@@ -1545,14 +1589,14 @@ Future<Uint8List> buildLabelsPdf({
 }) async {
   final fonts = await _Fonts.load();
   final doc = pw.Document(
-      theme: pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold), title: tr('{0} sonuç etiketleri', [exam.name]), author: tr('Netice'));
+      theme: fonts.theme, title: tr('{0} sonuç etiketleri', [exam.name]), author: tr('Netice'));
   final sorted = [...results]..sort((a, b) => (students[a.sheet.studentId]?.fullName ?? '~')
       .compareTo(students[b.sheet.studentId]?.fullName ?? '~'));
   const perPage = 24;
   const mm = PdfPageFormat.mm;
   for (var p = 0; p < sorted.length; p += perPage) {
     final page = sorted.skip(p).take(perPage).toList();
-    doc.addPage(pw.Page(
+    doc.addPage(pw.Page(textDirection: _dir, 
       pageFormat: PdfPageFormat.a4,
       margin: pw.EdgeInsets.zero,
       build: (ctx) => pw.Column(children: [
@@ -1579,7 +1623,7 @@ Future<Uint8List> buildLabelsPdf({
                 pw.Row(crossAxisAlignment: pw.CrossAxisAlignment.end, children: [
                   pw.Expanded(
                     child: pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
-                      pw.Text('D ${r.correct}   Y ${r.wrong}   B ${r.blank}', style: const pw.TextStyle(fontSize: 8)),
+                      pw.Text('${tr('D')} ${r.correct}   ${tr('Y')} ${r.wrong}   ${tr('B')} ${r.blank}', style: const pw.TextStyle(fontSize: 8)),
                       pw.Text(tr('Net {0}', [_f2(r.net)]), style: const pw.TextStyle(fontSize: 8, color: _muted)),
                     ]),
                   ),
@@ -1592,7 +1636,7 @@ Future<Uint8List> buildLabelsPdf({
       ]),
     ));
   }
-  if (sorted.isEmpty) doc.addPage(pw.Page(build: (_) => pw.Center(child: pw.Text(tr('Henüz okunan kâğıt yok.')))));
+  if (sorted.isEmpty) doc.addPage(pw.Page(textDirection: _dir, build: (_) => pw.Center(child: pw.Text(tr('Henüz okunan kâğıt yok.')))));
   return doc.save();
 }
 
@@ -1632,7 +1676,7 @@ pw.Widget _pieBox(String title, List<(String, double, PdfColor)> data, {bool don
             pw.Container(width: 6, height: 6, decoration: pw.BoxDecoration(color: d.$3, borderRadius: pw.BorderRadius.circular(1.5))),
             pw.SizedBox(width: 4),
             pw.Expanded(child: pw.Text(d.$1, style: const pw.TextStyle(fontSize: 7))),
-            pw.Text('${d.$2.round()} · ${total == 0 ? '%0' : '%${(d.$2 / total * 100).round()}'}',
+            pw.Text('${d.$2.round()} · ${total == 0 ? L10n.percent(0) : L10n.percent((d.$2 / total * 100).round())}',
                 style: pw.TextStyle(fontSize: 7, fontWeight: pw.FontWeight.bold)),
           ]),
         ),
@@ -1656,14 +1700,15 @@ pw.Widget downloadNote() => pw.Padding(
       ),
     );
 
-String _short(String s, [int n = 14]) => s.length <= n ? s : '${s.substring(0, n - 1)}…';
+// Sağdan sola metin düzenleyicisi "…" karakterinde hata veriyor; Arapçada üç nokta kullanılır.
+String _short(String s, [int n = 14]) => s.length <= n ? s : '${s.substring(0, n - 1)}${L10n.rtl ? '...' : '…'}';
 
 _Kit _termKit(TermReport t, SchoolInfo school, String docTitle, {bool everyPage = false}) => _Kit(
       t.exams.last.exam,
       school,
       docTitle: docTitle,
       headerInfo: tr('{0} · {1} · {2} sınav', [t.term.label, t.className, t.exams.length]),
-      classLine: '${SchoolInfo.upper(t.className)} SINIFI',
+      classLine: tr('{0} SINIFI', [SchoolInfo.upper(t.className)]),
       letterheadEveryPage: everyPage,
     );
 
@@ -1673,11 +1718,11 @@ Future<Uint8List> buildTermGradesPdf(TermReport t, {SchoolInfo school = const Sc
   final fonts = await _Fonts.load();
   final k = _termKit(t, school, tr('Dönem Sonu Not Çizelgesi'));
   final doc = pw.Document(
-      theme: pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold), title: tr('Dönem not çizelgesi'), author: tr('Netice'));
+      theme: fonts.theme, title: tr('Dönem not çizelgesi'), author: tr('Netice'));
   final equal = t.exams.every((e) => e.weight == t.exams.first.weight);
   final totalW = t.exams.fold<double>(0, (a, e) => a + e.weight);
   final graded = t.rows.where((r) => r.average != null).toList();
-  doc.addPage(pw.MultiPage(
+  doc.addPage(pw.MultiPage(textDirection: _dir, 
     pageFormat: t.exams.length > 5 ? PdfPageFormat.a4.landscape : PdfPageFormat.a4,
     margin: const pw.EdgeInsets.fromLTRB(36, 30, 36, 30),
     header: k.header,
@@ -1699,7 +1744,7 @@ Future<Uint8List> buildTermGradesPdf(TermReport t, {SchoolInfo school = const Sc
             [
               e.exam.name,
               _date(e.exam.date),
-              totalW == 0 ? '–' : '%${(e.weight / totalW * 100).round()}',
+              totalW == 0 ? '–' : L10n.percent((e.weight / totalW * 100).round()),
               '${e.report.results.length}',
               _f1(e.mean100),
             ]
@@ -1741,10 +1786,10 @@ Future<Uint8List> buildTermCardsPdf(TermReport t, {SchoolInfo school = const Sch
   final fonts = await _Fonts.load();
   final k = _termKit(t, school, tr('Dönem Kazanım Karnesi'), everyPage: true);
   final doc = pw.Document(
-      theme: pw.ThemeData.withFont(base: fonts.regular, bold: fonts.bold), title: tr('Dönem kazanım karnesi'), author: tr('Netice'));
+      theme: fonts.theme, title: tr('Dönem kazanım karnesi'), author: tr('Netice'));
   final rows = t.rows.where((r) => r.average != null && (onlyStudentId == null || r.student.id == onlyStudentId)).toList();
   if (rows.isEmpty) {
-    doc.addPage(pw.Page(build: (_) => pw.Center(child: pw.Text(tr('Bu dönemde sonucu olan öğrenci yok.')))));
+    doc.addPage(pw.Page(textDirection: _dir, build: (_) => pw.Center(child: pw.Text(tr('Bu dönemde sonucu olan öğrenci yok.')))));
     return doc.save();
   }
   PdfColor tone(double v) => v >= 0.7 ? _emerald : (v >= 0.5 ? _amber : _coral);
@@ -1754,7 +1799,7 @@ Future<Uint8List> buildTermCardsPdf(TermReport t, {SchoolInfo school = const Sch
     final strong = out.where((e) => e.value.$1 >= 0.7).map((e) => e.key).take(4).toList();
     final weak = out.reversed.where((e) => e.value.$1 < 0.5).map((e) => e.key).take(4).toList();
     final taken = [for (var i = 0; i < t.exams.length; i++) if (r.scores[i] != null) i];
-    doc.addPage(pw.Page(
+    doc.addPage(pw.Page(textDirection: _dir, 
       pageFormat: PdfPageFormat.a4,
       margin: const pw.EdgeInsets.fromLTRB(36, 30, 36, 30),
       build: (ctx) => pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [

@@ -21,5 +21,13 @@
  "Orta",
  "Geçer",
  "Geçmez",
- "Rapor"
+ "Rapor",
+ "ay",
+ "notun %{0}'i",
+ "puan / {0}",
+ "yıl",
+ "{0} soru",
+ "{0}. soru",
+ "İşlevsiz: {0}",
+ "Std. sapma"
 ]

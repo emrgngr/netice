@@ -130,11 +130,8 @@ class _SchoolScreenState extends State<SchoolScreen> {
                   : !info.official
                       ? Text(info.name, style: paper.copyWith(fontWeight: FontWeight.w800))
                       : Column(children: [
-                          Text('T.C.', style: paper.copyWith(fontWeight: FontWeight.w800)),
-                          if (info.authority.isNotEmpty)
-                            Text(info.authority, style: paper.copyWith(fontWeight: FontWeight.w800)),
-                          Text(info.directorate,
-                              textAlign: TextAlign.center, style: paper.copyWith(fontWeight: FontWeight.w800)),
+                          for (final line in info.letterhead)
+                            Text(line, textAlign: TextAlign.center, style: paper.copyWith(fontWeight: FontWeight.w800)),
                           const SizedBox(height: 8),
                           Text(
                             tr('{0} EĞİTİM-ÖĞRETİM YILI 9-A SINIFI{1}', [SchoolInfo.academicYear(now), info.subject.isEmpty ? '' : tr(' {0} DERSİ', [SchoolInfo.upper(info.subject)])]),

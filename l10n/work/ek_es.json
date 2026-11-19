@@ -21,5 +21,14 @@
 "soru": "preguntas",
 "toplam": "total",
 "{0} adet": "{0} copias",
-"{0} tarihli ": "del {0} "
+"{0} tarihli ": "del {0} ",
+"{0} SINIFI": "CLASE {0}",
+"ay": "mes",
+"notun %{0}'i": "{0} % de la nota",
+"puan / {0}": "puntos / {0}",
+"yıl": "año",
+"{0} soru": "{0} preguntas",
+"{0}. soru": "pregunta {0}",
+"İşlevsiz: {0}": "Sin función: {0}",
+"Std. sapma": "Desv. est."
 }

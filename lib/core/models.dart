@@ -4,6 +4,8 @@
 /// soru, cevap anahtarı, öğrenci, öğrenci cevabı ve sonuç.
 library;
 
+import '../l10n/l10n.dart';
+
 /// Bir sorunun öğrenci formundaki okunma durumu.
 enum MarkState {
   /// Tek şık net biçimde işaretli.
@@ -37,7 +39,9 @@ class Student {
     required this.className,
   });
 
-  String get fullName => '$firstName $lastName';
+  /// Çince ve Japonca adlar arasında boşluk bırakılmaz (王伟).
+  String get fullName => _cjk.hasMatch(firstName) && _cjk.hasMatch(lastName) ? '$firstName$lastName' : '$firstName $lastName';
+  static final _cjk = RegExp(r'^[\u3040-\u30FF\u3400-\u9FFF]+$');
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -427,26 +431,40 @@ class SchoolInfo {
   /// Resmi başlık kullanılacak mı?
   bool get official => officialHeader && !isEmpty;
 
-  /// Türkçe büyük harf (i → İ, ı → I).
-  static String upper(String s) => s.replaceAll('i', 'İ').replaceAll('ı', 'I').toUpperCase();
+  /// Büyük harf; Türkçe ve Azericede i → İ, ı → I.
+  static String upper(String s) => L10n.code == 'tr' || L10n.code == 'az'
+      ? s.replaceAll('i', 'İ').replaceAll('ı', 'I').toUpperCase()
+      : s.toUpperCase();
+
+  /// Türkiye'deki resmi yazı biçimi mi (T.C. / Kaymakamlık / Müdürlük)?
+  static bool get turkishStyle => L10n.code == 'tr';
 
   /// "ÇANKAYA KAYMAKAMLIĞI" ya da "ANKARA VALİLİĞİ" (ilçe merkez veya boşsa).
+  /// Diğer dillerde yalnızca "İLÇE, İL".
   String get authority {
     final d = district.trim(), p = province.trim();
+    if (!turkishStyle) return [d, p].where((e) => e.isNotEmpty).map(upper).join(', ');
     if (d.isNotEmpty && upper(d) != 'MERKEZ') return '${upper(d)} KAYMAKAMLIĞI';
     if (p.isNotEmpty) return '${upper(p)} VALİLİĞİ';
     return '';
   }
 
-  /// "ATATÜRK ANADOLU LİSESİ MÜDÜRLÜĞÜ"
+  /// "ATATÜRK ANADOLU LİSESİ MÜDÜRLÜĞÜ"; diğer dillerde okulun adı.
   String get directorate {
     final n = upper(name.trim());
-    if (n.isEmpty) return '';
+    if (n.isEmpty || !turkishStyle) return n;
     return n.endsWith('MÜDÜRLÜĞÜ') ? n : '$n MÜDÜRLÜĞÜ';
   }
 
-  /// Eğitim-öğretim yılı: eylülden itibaren yeni yıl başlar.
+  /// Resmi başlığın üst satırları, yukarıdan aşağıya.
+  List<String> get letterhead => turkishStyle
+      ? ['T.C.', if (authority.isNotEmpty) authority, directorate]
+      : [directorate, if (authority.isNotEmpty) authority];
+
+  /// Eğitim-öğretim yılı: eylülden itibaren yeni yıl başlar (Japonyada
+  /// nisandan başlar ve tek yılla yazılır).
   static String academicYear(DateTime d) {
+    if (L10n.code == 'ja') return '${d.month >= 4 ? d.year : d.year - 1}';
     final start = d.month >= 9 ? d.year : d.year - 1;
     return '$start-${start + 1}';
   }

@@ -1100,5 +1100,14 @@
 "soru": "Fragen",
 "toplam": "gesamt",
 "{0} adet": "{0} Stück",
-"{0} tarihli ": "vom {0} "
+"{0} tarihli ": "vom {0} ",
+"{0} SINIFI": "KLASSE {0}",
+"ay": "Monat",
+"notun %{0}'i": "{0} % der Note",
+"puan / {0}": "Punkte / {0}",
+"yıl": "Jahr",
+"{0} soru": "{0} Fragen",
+"{0}. soru": "Frage {0}",
+"İşlevsiz: {0}": "Ungenutzt: {0}",
+"Std. sapma": "Std.-abw."
 }

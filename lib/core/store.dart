@@ -692,7 +692,7 @@ class AppStore extends ChangeNotifier {
     }
 
     // 9-B şubesi ve aynı Quiz 2.
-    final namesB = [
+    final namesB = _demoNames(18, 3) ?? [
       ['Aras', 'Yılmaz'], ['Beren', 'Şen'], ['Cem', 'Avcı'], ['Damla', 'Işık'], ['Eren', 'Toprak'],
       ['Feyza', 'Keskin'], ['Göktuğ', 'Sarı'], ['Hira', 'Ekinci'], ['Kaan', 'Uysal'], ['Melis', 'Aksoy'],
       ['Onur', 'Çakır'], ['Rana', 'Gök'], ['Sarp', 'Duman'], ['Tuana', 'Bayram'], ['Yiğit', 'Coşkun'],
@@ -716,8 +716,71 @@ class AppStore extends ChangeNotifier {
     }
   }
 
+  /// Türkçe dışındaki dillerde örnek öğrenciler o dile uygun adlarla gelir.
+  static List<List<String>>? _demoNames(int count, int shift) {
+    final pool = _demoNamePool[L10n.code];
+    if (pool == null) return null;
+    final (first, last) = pool;
+    // Rusçada kadın adlarıyla soyadı da dişil olur (Иванов → Иванова).
+    String fit(String f, String l) => L10n.code == 'ru' && RegExp(r'[ая]$').hasMatch(f) && RegExp(r'(ов|ев|ин)$').hasMatch(l) ? '${l}а' : l;
+    return [
+      for (var i = 0; i < count; i++)
+        // Çince ve Japoncada soyadı önce yazılır.
+        if (L10n.code == 'zh' || L10n.code == 'ja')
+          [last[(i * 5 + i ~/ last.length + shift * 3) % last.length], first[(i + shift) % first.length]]
+        else
+          [
+            first[(i + shift) % first.length],
+            fit(first[(i + shift) % first.length], last[(i * 5 + i ~/ last.length + shift * 3) % last.length])
+          ]
+    ];
+  }
+
+  static const _demoNamePool = {
+    'en': (
+      ['Olivia', 'Liam', 'Emma', 'Noah', 'Ava', 'Jack', 'Mia', 'Leo', 'Grace', 'Oscar', 'Ella', 'Harry'],
+      ['Smith', 'Jones', 'Taylor', 'Brown', 'Wilson', 'Evans', 'Walker', 'Clarke', 'Hughes', 'Wood', 'Hall', 'Green']
+    ),
+    'de': (
+      ['Emma', 'Paul', 'Mia', 'Leon', 'Hannah', 'Felix', 'Lea', 'Jonas', 'Lina', 'Max', 'Sophie', 'Lukas'],
+      ['Müller', 'Schmidt', 'Weber', 'Wagner', 'Becker', 'Hoffmann', 'Koch', 'Richter', 'Wolf', 'Klein', 'Braun', 'Krüger']
+    ),
+    'az': (
+      ['Aysel', 'Elvin', 'Nigar', 'Orxan', 'Leyla', 'Tural', 'Günay', 'Rəşad', 'Səbinə', 'Kənan', 'Aytən', 'Murad'],
+      ['Məmmədov', 'Əliyev', 'Həsənov', 'Hüseynov', 'Quliyev', 'İsmayılov', 'Rzayev', 'Kərimov', 'Abbasov', 'Nəsirov', 'Babayev', 'Cəfərov']
+    ),
+    'ar': (
+      ['محمد', 'فاطمة', 'أحمد', 'مريم', 'علي', 'سارة', 'يوسف', 'نور', 'عمر', 'ليلى', 'خالد', 'هدى'],
+      ['العلي', 'الحسن', 'السالم', 'الأحمد', 'الخطيب', 'المصري', 'النجار', 'الحداد', 'العمر', 'الزين', 'الشامي', 'الرفاعي']
+    ),
+    'es': (
+      ['Lucía', 'Hugo', 'Martina', 'Mateo', 'Sofía', 'Pablo', 'Julia', 'Daniel', 'Paula', 'Álvaro', 'Elena', 'Diego'],
+      ['García', 'López', 'Martínez', 'Sánchez', 'Pérez', 'Gómez', 'Ruiz', 'Díaz', 'Moreno', 'Muñoz', 'Romero', 'Navarro']
+    ),
+    'ru': (
+      ['Анна', 'Иван', 'Мария', 'Артём', 'Софья', 'Максим', 'Алиса', 'Дмитрий', 'Ева', 'Михаил', 'Полина', 'Кирилл'],
+      ['Иванов', 'Смирнов', 'Кузнецов', 'Попов', 'Соколов', 'Лебедев', 'Козлов', 'Новиков', 'Морозов', 'Волков', 'Зайцев', 'Павлов']
+    ),
+    'it': (
+      ['Giulia', 'Leonardo', 'Sofia', 'Francesco', 'Aurora', 'Lorenzo', 'Alice', 'Mattia', 'Ginevra', 'Tommaso', 'Emma', 'Riccardo'],
+      ['Rossi', 'Russo', 'Ferrari', 'Esposito', 'Bianchi', 'Romano', 'Colombo', 'Ricci', 'Marino', 'Greco', 'Bruno', 'Gallo']
+    ),
+    'fr': (
+      ['Louise', 'Gabriel', 'Jade', 'Raphaël', 'Emma', 'Louis', 'Alice', 'Arthur', 'Chloé', 'Jules', 'Léa', 'Hugo'],
+      ['Martin', 'Bernard', 'Dubois', 'Thomas', 'Robert', 'Petit', 'Durand', 'Leroy', 'Moreau', 'Simon', 'Laurent', 'Lefebvre']
+    ),
+    'zh': (
+      ['伟', '芳', '娜', '敏', '静', '磊', '洋', '婷', '杰', '欣', '浩', '雪'],
+      ['王', '李', '张', '刘', '陈', '杨', '黄', '赵', '吴', '周', '徐', '孙']
+    ),
+    'ja': (
+      ['陽翔', '結衣', '蓮', '葵', '湊', '陽菜', '大翔', '凛', '悠真', '芽依', '颯太', '美咲'],
+      ['佐藤', '鈴木', '高橋', '田中', '伊藤', '渡辺', '山本', '中村', '小林', '加藤', '吉田', '山田']
+    ),
+  };
+
   void seedDemo() {
-    final names = [
+    final names = _demoNames(24, 0) ?? [
       ['Deniz', 'Arslan'], ['Elif', 'Kaya'], ['Mert', 'Yıldız'], ['Zeynep', 'Aydın'],
       ['Can', 'Demir'], ['Selin', 'Koç'], ['Ali', 'Şahin'], ['Ece', 'Çelik'],
       ['Burak', 'Öztürk'], ['Defne', 'Kılıç'], ['Emre', 'Aslan'], ['İpek', 'Doğan'],

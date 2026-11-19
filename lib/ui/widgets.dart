@@ -75,9 +75,9 @@ class DybText extends StatelessWidget {
           Text(text, style: s.copyWith(color: color)),
         ]);
     return Wrap(spacing: 12, children: [
-      part(Icons.check, '$correct D', NColors.emerald),
-      part(Icons.close, '$wrong Y', NColors.coral),
-      part(Icons.remove, '$blank B', NColors.gray),
+      part(Icons.check, '$correct ${tr('D')}', NColors.emerald),
+      part(Icons.close, '$wrong ${tr('Y')}', NColors.coral),
+      part(Icons.remove, '$blank ${tr('B')}', NColors.gray),
     ]);
   }
 }

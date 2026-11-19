@@ -146,7 +146,7 @@ class _CompareScreenState extends State<CompareScreen> {
                         DataCell(Text(fmt1(r.report.stats.mean))),
                         DataCell(Text(fmt1(r.report.stats.median))),
                         DataCell(Text(fmt1(r.report.stats.stdDev))),
-                        DataCell(Text('%${(r.report.passRate * 100).round()}')),
+                        DataCell(Text(L10n.percent((r.report.passRate * 100).round()))),
                         DataCell(Text(fmt1(r.report.stats.max))),
                         DataCell(Text(r.report.stats.kr20 == null ? '–' : fmt2(r.report.stats.kr20!))),
                       ]),
@@ -212,7 +212,7 @@ class _CompareScreenState extends State<CompareScreen> {
                             SizedBox(
                               width: 72,
                               child: Text(
-                                '${r.exam.className} %${((r.report.outcomes.where((o) => o.code == code).firstOrNull?.rate ?? 0) * 100).round()}',
+                                '${r.exam.className} ${L10n.percent(((r.report.outcomes.where((o) => o.code == code).firstOrNull?.rate ?? 0) * 100).round())}',
                                 textAlign: TextAlign.right,
                                 style: const TextStyle(fontFeatures: tabular),
                               ),

@@ -63,7 +63,7 @@ class _DonutChartState extends State<DonutChart> with SingleTickerProviderStateM
     final t = Theme.of(context);
     final total = _total;
     final sel = _sel;
-    String pct(double v) => total == 0 ? '%0' : '%${(v / total * 100).round()}';
+    String pct(double v) => total == 0 ? L10n.percent(0) : L10n.percent((v / total * 100).round());
     final chart = SizedBox.square(
       dimension: widget.size,
       child: GestureDetector(
@@ -257,7 +257,7 @@ class _ItemMapPainter extends CustomPainter {
       _text(canvas, d.toStringAsFixed(1).replaceAll('.', L10n.decimal), pos(0, d) - const Offset(26, 6), 9);
     }
     for (final p in [0.0, 0.25, 0.5, 0.75, 1.0]) {
-      _text(canvas, '%${(p * 100).round()}', pos(p, -0.2) + const Offset(-8, 4), 9);
+      _text(canvas, L10n.percent((p * 100).round()), pos(p, -0.2) + const Offset(-8, 4), 9);
     }
     for (final it in items) {
       final c = pos(it.$2, it.$3.clamp(-0.15, 1.0));
@@ -438,7 +438,7 @@ class _RadarPainter extends CustomPainter {
               text: '$label\n',
               style: TextStyle(fontFamily: 'PlusJakartaSans', fontSize: 10, color: ink.withValues(alpha: 0.7))),
           TextSpan(
-              text: '%${(v * 100).round()}',
+              text: L10n.percent((v * 100).round()),
               style: TextStyle(
                   fontFamily: 'PlusJakartaSans',
                   fontSize: 11,

@@ -21,6 +21,11 @@ for lang in LANGS:
         print(f'{lang}: dosya yok')
         continue
     tr = json.load(open(path, encoding='utf-8'))
+    if lang == 'ar':
+        # Hareke işaretleri PDF'teki sağdan sola düzenleyiciyi bozuyor; Arapça metinler
+        # çoğunlukla harekesiz yazıldığından kaldırılır.
+        tr = {k: re.sub('[\u064B-\u0652]', '', v) for k, v in tr.items()}
+        tr = {k: v.replace('\u2026', '...') for k, v in tr.items()}
     extra = [k for k in tr if k not in srcset]
     missing = [k for k in src if k not in tr]
     bad = [k for k, v in tr.items() if sorted(re.findall(r'\{\d+\}', k)) != sorted(re.findall(r'\{\d+\}', v))]
