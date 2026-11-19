@@ -12,6 +12,7 @@ import '../main.dart';
 import '../omr/form_layout.dart';
 import '../omr/form_raster.dart';
 import '../omr/omr_reader.dart';
+import '../omr/rectify.dart';
 import 'theme.dart';
 import 'widgets.dart';
 
@@ -42,10 +43,11 @@ class _ScanScreenState extends State<ScanScreen> {
   Future<void> _readGray(String source, GrayImage gray) async {
     final exam = _exam;
     try {
-      final r = await compute(_readJob, _Job(gray, exam.questionCount, exam.choiceCount, exam.hasBooklets));
+      final (r, jpeg) = await compute(_readJob, _Job(gray, exam.questionCount, exam.choiceCount, exam.hasBooklets));
       if (!mounted) return;
       final store = StoreScope.of(context);
       final sheet = store.addScan(exam, r);
+      if (jpeg != null) store.attachSheetImage(sheet, jpeg);
       if (sheet.examId != exam.id) {
         toast(context, 'Bu kâğıt "${store.examById(sheet.examId)?.name}" sınavına ait; oraya kaydedildi.');
       }
@@ -266,8 +268,14 @@ class _Job {
   _Job(this.image, this.questions, this.choices, this.booklets);
 }
 
-OmrResult _readJob(_Job j) =>
-    OmrReader(FormLayout(questionCount: j.questions, choiceCount: j.choices, booklets: j.booklets)).read(j.image);
+(OmrResult, Uint8List?) _readJob(_Job j) {
+  final r = OmrReader(FormLayout(questionCount: j.questions, choiceCount: j.choices, booklets: j.booklets)).read(j.image);
+  Uint8List? jpeg;
+  try {
+    jpeg = rectifiedJpeg(j.image, r.markers);
+  } catch (_) {}
+  return (r, jpeg);
+}
 
 GrayImage? _decodeJob(Uint8List bytes) => GrayImage.decode(bytes);
 

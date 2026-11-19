@@ -101,6 +101,7 @@ class AppStore extends ChangeNotifier {
   bool get shouldAskRating => !ratePrompted && rating == 0 && sheets.length >= 30;
 
   File? _file;
+  static final _rnd = math.Random();
   bool loaded = false;
 
   /// Bu dönem okunan kâğıt sayısı (zaman kazancı sayacı için).
@@ -140,6 +141,7 @@ class AppStore extends ChangeNotifier {
       trialStart = DateTime.now();
       await save();
     }
+    _cleanImages();
     loaded = true;
     notifyListeners();
   }
@@ -342,6 +344,7 @@ class AppStore extends ChangeNotifier {
     exams.clear();
     sheets.clear();
     school = const SchoolInfo();
+    _cleanImages();
     if (backups) {
       for (final f in autoBackups()) {
         try {
@@ -363,6 +366,7 @@ class AppStore extends ChangeNotifier {
 
   void clearDemo() {
     sheets.removeWhere((s) => _isDemoExam(s.examId));
+    _cleanImages();
     exams.removeWhere((e) => _isDemoExam(e.id));
     students.removeWhere((s) => _isDemoStudent(s.id));
     _changed();
@@ -404,6 +408,7 @@ class AppStore extends ChangeNotifier {
   void deleteExam(String id) {
     exams.removeWhere((e) => e.id == id);
     sheets.removeWhere((s) => s.examId == id);
+    _cleanImages();
     _changed();
   }
 
@@ -437,11 +442,65 @@ class AppStore extends ChangeNotifier {
     final answers = booklet == 1 ? target.toBookletA(r.answers) : r.answers;
     final sheet = Sheet(examId: target.id, studentId: st?.id, answers: answers, booklet: booklet);
     if (st != null) {
+      for (final old in sheets.where((s) => s.examId == target.id && s.studentId == st!.id)) {
+        _deleteImage(old);
+      }
       sheets.removeWhere((s) => s.examId == target.id && s.studentId == st!.id);
     }
     sheets.add(sheet);
     _changed();
     return sheet;
+  }
+
+  /// İşaretli kâğıt görüntüleri: düzleştirilmiş fotoğraf, yalnızca bu cihazda.
+  Directory? get _imageDir =>
+      _file == null ? null : Directory('${_file!.parent.path}${Platform.pathSeparator}kagitlar');
+
+  File? sheetImageFile(Sheet s) {
+    final d = _imageDir;
+    if (d == null || s.imageId == null) return null;
+    final f = File('${d.path}${Platform.pathSeparator}${s.imageId}.jpg');
+    return f.existsSync() ? f : null;
+  }
+
+  /// Okunan kâğıdın görüntüsünü kaydeder ve kâğıda bağlar.
+  Future<Sheet?> attachSheetImage(Sheet sheet, Uint8List jpeg) async {
+    final d = _imageDir;
+    if (d == null) return null;
+    final i = sheets.indexOf(sheet);
+    if (i < 0) return null;
+    await d.create(recursive: true);
+    final id = '${DateTime.now().microsecondsSinceEpoch.toRadixString(36)}${_rnd.nextInt(1 << 20).toRadixString(36)}';
+    await File('${d.path}${Platform.pathSeparator}$id.jpg').writeAsBytes(jpeg, flush: true);
+    _deleteImage(sheet);
+    final j = sheets.indexOf(sheet);
+    if (j < 0) return null;
+    final updated = sheet.copyWith(imageId: id);
+    sheets[j] = updated;
+    _changed();
+    return updated;
+  }
+
+  void _deleteImage(Sheet s) {
+    final f = sheetImageFile(s);
+    if (f == null) return;
+    try {
+      f.deleteSync();
+    } catch (_) {}
+  }
+
+  /// Hiçbir kâğıda bağlı olmayan görüntüleri siler.
+  void _cleanImages() {
+    final d = _imageDir;
+    if (d == null || !d.existsSync()) return;
+    final used = {for (final s in sheets) if (s.imageId != null) '${s.imageId}.jpg'};
+    for (final f in d.listSync().whereType<File>()) {
+      if (!used.contains(f.uri.pathSegments.last)) {
+        try {
+          f.deleteSync();
+        } catch (_) {}
+      }
+    }
   }
 
   void replaceSheet(Sheet old, Sheet updated) {

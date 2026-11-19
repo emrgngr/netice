@@ -339,23 +339,28 @@ class Sheet {
   /// Klasik soru puanları (öğretmen girer; girilmeyen null).
   final List<double?> openScores;
 
+  /// İşaretli kâğıt görüntüsünün dosya adı (cihazdaki kagitlar/ klasöründe).
+  final String? imageId;
+
   const Sheet({
     required this.examId,
     this.studentId,
     required this.answers,
     this.booklet = 0,
     this.openScores = const [],
+    this.imageId,
   });
 
   bool get needsReview =>
       studentId == null || answers.any((a) => a.needsReview);
 
-  Sheet copyWith({String? studentId, List<Answer>? answers, List<double?>? openScores}) => Sheet(
+  Sheet copyWith({String? studentId, List<Answer>? answers, List<double?>? openScores, String? imageId}) => Sheet(
         examId: examId,
         studentId: studentId ?? this.studentId,
         answers: answers ?? this.answers,
         booklet: booklet,
         openScores: openScores ?? this.openScores,
+        imageId: imageId ?? this.imageId,
       );
 
   Map<String, dynamic> toJson() => {
@@ -364,6 +369,7 @@ class Sheet {
         'answers': answers.map((a) => a.toJson()).toList(),
         if (booklet != 0) 'booklet': booklet,
         if (openScores.isNotEmpty) 'openScores': openScores,
+        if (imageId != null) 'imageId': imageId,
       };
 
   factory Sheet.fromJson(Map<String, dynamic> j) => Sheet(
@@ -374,6 +380,7 @@ class Sheet {
             .toList(),
         booklet: j['booklet'] as int? ?? 0,
         openScores: [for (final v in (j['openScores'] as List?) ?? const []) (v as num?)?.toDouble()],
+        imageId: j['imageId'] as String?,
       );
 }
 

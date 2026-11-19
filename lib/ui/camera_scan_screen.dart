@@ -9,6 +9,7 @@ import '../core/scoring.dart';
 import '../main.dart';
 import '../omr/form_layout.dart';
 import '../omr/omr_reader.dart';
+import '../omr/rectify.dart';
 import '../omr/serial_scanner.dart';
 import 'exam_screen.dart';
 import 'scan_screen.dart';
@@ -30,6 +31,7 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
   CameraController? _controller;
   String? _error;
   bool _busy = false;
+  _FrameJob? _lastJob;
   bool _torch = false;
   DateTime _lastFrame = DateTime.fromMillisecondsSinceEpoch(0);
   final _scanner = SerialScanner();
@@ -117,6 +119,7 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
     );
     compute(_readFrame, job).then((r) {
       if (!mounted) return;
+      if (r != null) _lastJob = job;
       final accepted = _scanner.feed(r);
       if (accepted != null) {
         _accept(exam, accepted);
@@ -131,6 +134,13 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
   void _accept(Exam exam, OmrResult r) {
     final store = StoreScope.of(context);
     final sheet = store.addScan(exam, r);
+    // İşaretli kâğıt görüntüsü arka planda hazırlanıp kâğıda bağlanır.
+    final job = _lastJob;
+    if (job != null) {
+      compute(_rectifyFrame, job).then((jpeg) {
+        if (jpeg != null) store.attachSheetImage(sheet, jpeg);
+      });
+    }
     if (sheet.examId != exam.id) {
       toast(context, 'Bu kâğıt "${store.examById(sheet.examId)?.name}" sınavına ait; oraya kaydedildi.');
     }
@@ -410,6 +420,20 @@ class _FrameJob {
     this.booklets = false,
   });
   final bool booklets;
+}
+
+/// Karedeki formu yeniden bulup düzleştirilmiş JPEG üretir.
+Uint8List? _rectifyFrame(_FrameJob j) {
+  try {
+    final g = (j.bgra
+            ? GrayImage.fromBgra(j.bytes, j.width, j.height, j.bytesPerRow)
+            : GrayImage.fromLumaPlane(j.bytes, j.width, j.height, j.bytesPerRow))
+        .rotate(j.quarterTurns);
+    final r = OmrReader(FormLayout(questionCount: j.questions, choiceCount: j.choices, booklets: j.booklets)).read(g);
+    return rectifiedJpeg(g, r.markers);
+  } catch (_) {
+    return null;
+  }
 }
 
 OmrResult? _readFrame(_FrameJob j) {

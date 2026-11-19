@@ -118,6 +118,7 @@ const guideSections = <GuideSection>[
     ], tip: 'Uygulamayı silmeden önce mutlaka yedeği dosyaya kaydedin; aksi hâlde veriler silinir.'),
     GuideTopic('Verileri silme', [
       'Tek bir öğrenciyi, sınavı veya kâğıdı kendi ekranından silebilirsiniz.',
+      'Okunan kâğıtların görüntüsü (İşaretli kâğıdı gör) yalnızca bu cihazda durur ve yedeğe eklenmez; sınavı sildiğinizde görüntüler de silinir.',
       'Ayarlar > "Tüm verileri sil" bu cihazdaki bütün bilgileri siler; onay için "SİL" yazmanız istenir.',
       'Google Drive yedeğini Ayarlar > Hesap > "Drive\'daki yedeği sil" ile kaldırabilirsiniz.',
     ]),

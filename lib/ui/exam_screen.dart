@@ -21,6 +21,7 @@ import 'report_preview_screen.dart';
 import 'student_detail_screen.dart';
 import 'pro_screen.dart';
 import '../core/pro.dart';
+import 'sheet_image_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
 import 'illustrations.dart';
@@ -426,6 +427,18 @@ void showSheetDetail(BuildContext context, Exam exam, Result r) {
                 },
                 icon: const Icon(Icons.timeline, size: 18),
                 label: const Text('Öğrenci geçmişi ve gelişimi'),
+              ),
+            ),
+          if (hasSheetImage(context, r.sheet))
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  openSheetImage(context, exam, r);
+                },
+                icon: const Icon(Icons.image_search_rounded, size: 18),
+                label: const Text('İşaretli kâğıdı gör'),
               ),
             ),
           if (st != null)

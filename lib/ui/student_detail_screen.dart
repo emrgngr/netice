@@ -4,6 +4,7 @@ import '../core/models.dart';
 import '../core/progress.dart';
 import '../main.dart';
 import 'exam_screen.dart';
+import 'sheet_image_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
 
@@ -110,6 +111,12 @@ class StudentDetailScreen extends StatelessWidget {
                               fontWeight: FontWeight.w800,
                               fontFeatures: tabular,
                               color: e.passed ? null : NColors.coral)),
+                      if (hasSheetImage(context, e.standing.result.sheet))
+                        IconButton(
+                          tooltip: 'İşaretli kâğıt',
+                          icon: const Icon(Icons.image_search_rounded),
+                          onPressed: () => openSheetImage(context, e.exam, e.standing.result),
+                        ),
                       IconButton(
                         tooltip: 'Karneyi önizle',
                         icon: const Icon(Icons.badge_outlined),

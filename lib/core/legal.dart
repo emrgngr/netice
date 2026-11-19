@@ -51,7 +51,7 @@ Tutulan bilgiler
 Öğrenci adı, soyadı, okul numarası ve sınıfı; sınav adı, tarihi, cevap anahtarı ve kazanımları; okutulan kâğıtlardaki işaretler, puanlar ve istatistikler; okul ve öğretmen bilgileri. Bu bilgiler yalnızca bu cihazda, uygulamaya ait klasörde saklanır; hiçbir sunucuya yüklenmez.
 
 Kamera ve fotoğraflar
-Kamera yalnızca siz izin verdiğinizde, cevap kâğıtlarını okumak için kullanılır. Görüntüler cihazda işlenir; fotoğrafların kendisi saklanmaz ve gönderilmez.
+Kamera yalnızca siz izin verdiğinizde, cevap kâğıtlarını okumak için kullanılır. Görüntüler cihazda işlenir. Okunan her kâğıdın düzleştirilmiş görüntüsü, işaretli kâğıdı sonradan görebilmeniz için yalnızca bu cihazda saklanır; hiçbir yere gönderilmez ve sınavı veya verileri sildiğinizde silinir.
 
 Paylaşım ve yedek
 Rapor, liste ve yedek dosyalarını paylaşmayı siz seçersiniz. Paylaştığınız dosya, seçtiğiniz uygulamanın (e-posta, bulut, yazıcı) kurallarına tabidir. Yedek dosyaları öğrenci bilgisi içerir; güvenli bir yerde saklayın.
