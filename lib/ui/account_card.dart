@@ -34,9 +34,16 @@ class _AccountCardState extends State<AccountCard> {
 
   String _friendly(Object e) {
     final s = '$e';
+    // Credential Manager yapılandırma hatalarını da "canceled" diye bildirir;
+    // ayrıntısı varsa gösterilir ki sorun anlaşılsın.
+    if (s.contains('GoogleSignInExceptionCode.canceled')) {
+      final m = RegExp(r'canceled, (.*?)(, null)?\)$').firstMatch(s);
+      final d = m?.group(1);
+      return d == null || d == 'null' || d.isEmpty ? tr('giriş iptal edildi.') : '${tr('giriş iptal edildi.')} ($d)';
+    }
     if (s.contains('canceled') || s.contains('cancel')) return tr('giriş iptal edildi.');
     if (s.contains('SocketException') || s.contains('Failed host')) return tr('internet bağlantısı yok.');
-    return s.length > 120 ? '${s.substring(0, 120)}…' : s;
+    return s.length > 200 ? '${s.substring(0, 200)}…' : s;
   }
 
   String _ago(DateTime t) {
