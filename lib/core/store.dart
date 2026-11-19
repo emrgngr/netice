@@ -90,15 +90,7 @@ class AppStore extends ChangeNotifier {
   /// Raporlarda kullanılacak okul bilgisi: resmi başlık Pro özelliğidir.
   SchoolInfo get reportSchool => isPro
       ? school
-      : SchoolInfo(
-          province: school.province,
-          district: school.district,
-          name: school.name,
-          principal: school.principal,
-          teacher: school.teacher,
-          subject: school.subject,
-          officialHeader: false,
-        );
+      : school.copyWith(officialHeader: false);
 
   /// Ana sayfadaki öneri kartı bu tarihe kadar gizli.
   DateTime? promoHiddenUntil;

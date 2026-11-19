@@ -541,7 +541,7 @@ class _Kit {
   pw.Widget letterhead() {
     const bold = pw.TextStyle(fontSize: 10.5, color: PdfColors.black);
     final subject = school.subject.trim().isEmpty ? '' : tr(' {0} DERSİ', [SchoolInfo.upper(school.subject.trim())]);
-    final cls = classLine ?? tr('{0} SINIFI', [SchoolInfo.upper(exam.className)]);
+    final cls = classLine ?? school.classLine(exam.className);
     return pw.Container(
       margin: const pw.EdgeInsets.only(bottom: 14),
       padding: const pw.EdgeInsets.only(bottom: 8),
@@ -586,8 +586,8 @@ class _Kit {
         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
         crossAxisAlignment: pw.CrossAxisAlignment.end,
         children: [
-          sig(school.subject.trim().isEmpty ? tr('Ders Öğretmeni') : tr('{0} Öğretmeni', [school.subject.trim()]), school.teacher),
-          sig(tr('Okul Müdürü'), school.principal, top: 'UYGUNDUR\n${_date(createdAt)}'),
+          sig(school.instructorRole, school.teacher),
+          sig(school.headRole, school.principal, top: 'UYGUNDUR\n${_date(createdAt)}'),
         ],
       ),
     );
@@ -1708,7 +1708,7 @@ _Kit _termKit(TermReport t, SchoolInfo school, String docTitle, {bool everyPage 
       school,
       docTitle: docTitle,
       headerInfo: tr('{0} · {1} · {2} sınav', [t.term.label, t.className, t.exams.length]),
-      classLine: tr('{0} SINIFI', [SchoolInfo.upper(t.className)]),
+      classLine: school.classLine(t.className),
       letterheadEveryPage: everyPage,
     );
 

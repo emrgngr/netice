@@ -391,7 +391,7 @@ class _Insights extends StatelessWidget {
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           leading: IconBadge(Icons.account_balance_outlined,
               color: school.isEmpty ? NColors.amber : NColors.emerald),
-          title: Text(school.isEmpty ? tr('Okul bilgilerini girin') : school.name,
+          title: Text(school.isEmpty ? tr('Kurum bilgilerini girin') : school.name,
               style: const TextStyle(fontWeight: FontWeight.w700)),
           subtitle: Text(school.isEmpty
               ? tr('Raporlarda resmi yazı başlığı olarak kullanılır')

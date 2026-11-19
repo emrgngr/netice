@@ -404,16 +404,98 @@ class Sheet {
       );
 }
 
-/// Okul ve öğretmen bilgileri. Raporlarda resmi yazı başlığı olarak kullanılır.
-class SchoolInfo {
-  final String province; // il
-  final String district; // ilçe
-  final String name; // okul adı
-  final String principal; // okul müdürü
-  final String teacher; // ders öğretmeni
-  final String subject; // ders / branş
+/// Kurum türü: okul, üniversite/MYO, polis eğitim kurumları, askerî okullar,
+/// kurslar ve diğer kurumlar. Başlık, imza unvanları ve grup adı buna göre gelir.
+enum InstitutionType {
+  school,
+  university,
+  police,
+  military,
+  course,
+  other;
 
-  /// Raporlarda "T.C. ... Kaymakamlığı ... Müdürlüğü" başlığı ve imza alanı.
+  static InstitutionType byName(String? n) =>
+      InstitutionType.values.firstWhere((e) => e.name == n, orElse: () => InstitutionType.school);
+
+  String get label => switch (this) {
+        school => tr('Okul (ilkokul, ortaokul, lise)'),
+        university => tr('Üniversite, fakülte, meslek yüksekokulu'),
+        police => tr('Polis Akademisi, PMYO, POMEM'),
+        military => tr('Askerî okul, harp okulu, askerî üniversite'),
+        course => tr('Kurs, dershane, eğitim merkezi'),
+        other => tr('Diğer kurum (şirket, kamu eğitimi)'),
+      };
+
+  /// Üst kurum için örnek.
+  String get parentHint => switch (this) {
+        school => '',
+        university => tr('Örn. Ankara Üniversitesi'),
+        police => tr('Örn. Polis Akademisi Başkanlığı'),
+        military => tr('Örn. Millî Savunma Üniversitesi'),
+        course => tr('Örn. Millî Eğitim Bakanlığı'),
+        other => tr('Örn. Bakanlık ya da şirket adı'),
+      };
+
+  String get nameHint => switch (this) {
+        school => tr('Örn. Atatürk Anadolu Lisesi'),
+        university => tr('Örn. Sağlık Hizmetleri Meslek Yüksekokulu'),
+        police => tr('Örn. Ankara Polis Meslek Eğitim Merkezi Müdürlüğü'),
+        military => tr('Örn. Kara Harp Okulu Dekanlığı'),
+        course => tr('Örn. Bilgi Kurs Merkezi'),
+        other => tr('Örn. Eğitim Daire Başkanlığı'),
+      };
+
+  String get defaultHeadTitle => switch (this) {
+        school => tr('Okul Müdürü'),
+        university => tr('Müdür'),
+        police => tr('Müdür'),
+        military => tr('Komutan'),
+        course => tr('Kurum Müdürü'),
+        other => tr('Kurum Yöneticisi'),
+      };
+
+  String get defaultInstructorTitle => switch (this) {
+        school => tr('Ders Öğretmeni'),
+        university => tr('Öğretim Elemanı'),
+        police => tr('Öğretim Görevlisi'),
+        military => tr('Öğretim Elemanı'),
+        course => tr('Eğitmen'),
+        other => tr('Eğitmen'),
+      };
+
+  String get defaultGroupLabel => switch (this) {
+        school => tr('Sınıf'),
+        university => tr('Sınıf'),
+        police => tr('Sınıf'),
+        military => tr('Bölük'),
+        course => tr('Grup'),
+        other => tr('Grup'),
+      };
+}
+
+/// Kurum ve eğitici bilgileri. Raporlarda resmi yazı başlığı olarak kullanılır.
+class SchoolInfo {
+  final String province; // il / eyalet
+  final String district; // ilçe / şehir
+  final String name; // kurum adı
+  final String principal; // kurum amiri (müdür, dekan, komutan…)
+  final String teacher; // ders öğretmeni / eğitici
+  final String subject; // ders / branş
+  final InstitutionType type;
+
+  /// Bağlı olduğu üst kurum (üniversite, Polis Akademisi Başkanlığı, MSÜ…).
+  final String parent;
+  final String country;
+
+  /// Boşsa kurum türüne göre varsayılan kullanılır.
+  final String headTitle;
+  final String instructorTitle;
+  final String groupLabel;
+
+  /// Türkiye resmi yazı biçimi (T.C. ile başlar). null: uygulama diline göre.
+  final bool? turkishFormat;
+
+  /// Raporlarda resmi yazı başlığı ve imza alanı.
   final bool officialHeader;
 
   const SchoolInfo({
@@ -423,6 +505,13 @@ class SchoolInfo {
     this.principal = '',
     this.teacher = '',
     this.subject = '',
+    this.type = InstitutionType.school,
+    this.parent = '',
+    this.country = '',
+    this.headTitle = '',
+    this.instructorTitle = '',
+    this.groupLabel = '',
+    this.turkishFormat,
     this.officialHeader = true,
   });
 
@@ -436,30 +525,53 @@ class SchoolInfo {
       ? s.replaceAll('i', 'İ').replaceAll('ı', 'I').toUpperCase()
       : s.toUpperCase();
 
-  /// Türkiye'deki resmi yazı biçimi mi (T.C. / Kaymakamlık / Müdürlük)?
-  static bool get turkishStyle => L10n.code == 'tr';
+  /// Türkiye'deki resmi yazı biçimi mi (T.C. ile başlayan)?
+  bool get turkishStyle => turkishFormat ?? L10n.code == 'tr';
 
-  /// "ÇANKAYA KAYMAKAMLIĞI" ya da "ANKARA VALİLİĞİ" (ilçe merkez veya boşsa).
-  /// Diğer dillerde yalnızca "İLÇE, İL".
+  String get headRole => headTitle.trim().isNotEmpty ? headTitle.trim() : type.defaultHeadTitle;
+
+  String get instructorRole {
+    if (instructorTitle.trim().isNotEmpty) return instructorTitle.trim();
+    if (type == InstitutionType.school && subject.trim().isNotEmpty) return tr('{0} Öğretmeni', [subject.trim()]);
+    return type.defaultInstructorTitle;
+  }
+
+  String get group => groupLabel.trim().isNotEmpty ? groupLabel.trim() : type.defaultGroupLabel;
+
+  /// Başlıktaki grup ifadesi: okulda "9-A SINIFI", diğerlerinde "BÖLÜK: 3".
+  String classLine(String className) {
+    if (type == InstitutionType.school && groupLabel.trim().isEmpty) {
+      return tr('{0} SINIFI', [upper(className)]);
+    }
+    return '${upper(group)}: ${upper(className)}';
+  }
+
+  /// Okulda "ÇANKAYA KAYMAKAMLIĞI" ya da "ANKARA VALİLİĞİ" (ilçe merkez veya
+  /// boşsa); diğer kurumlarda üst kurum. Türkiye dışı biçimde yer bilgisi.
   String get authority {
     final d = district.trim(), p = province.trim();
-    if (!turkishStyle) return [d, p].where((e) => e.isNotEmpty).map(upper).join(', ');
+    if (!turkishStyle) return [d, p, country.trim()].where((e) => e.isNotEmpty).map(upper).join(', ');
+    if (type != InstitutionType.school) return upper(parent.trim());
     if (d.isNotEmpty && upper(d) != 'MERKEZ') return '${upper(d)} KAYMAKAMLIĞI';
     if (p.isNotEmpty) return '${upper(p)} VALİLİĞİ';
     return '';
   }
 
-  /// "ATATÜRK ANADOLU LİSESİ MÜDÜRLÜĞÜ"; diğer dillerde okulun adı.
+  /// Okulda "ATATÜRK ANADOLU LİSESİ MÜDÜRLÜĞÜ"; diğer kurumlarda adı olduğu gibi.
   String get directorate {
     final n = upper(name.trim());
-    if (n.isEmpty || !turkishStyle) return n;
+    if (n.isEmpty || !turkishStyle || type != InstitutionType.school) return n;
     return n.endsWith('MÜDÜRLÜĞÜ') ? n : '$n MÜDÜRLÜĞÜ';
   }
 
   /// Resmi başlığın üst satırları, yukarıdan aşağıya.
   List<String> get letterhead => turkishStyle
       ? ['T.C.', if (authority.isNotEmpty) authority, directorate]
-      : [directorate, if (authority.isNotEmpty) authority];
+      : [
+          if (parent.trim().isNotEmpty) upper(parent.trim()),
+          directorate,
+          if (authority.isNotEmpty) authority,
+        ];
 
   /// Eğitim-öğretim yılı: eylülden itibaren yeni yıl başlar (Japonyada
   /// nisandan başlar ve tek yılla yazılır).
@@ -476,6 +588,12 @@ class SchoolInfo {
     String? principal,
     String? teacher,
     String? subject,
+    InstitutionType? type,
+    String? parent,
+    String? country,
+    String? headTitle,
+    String? instructorTitle,
+    String? groupLabel,
     bool? officialHeader,
   }) =>
       SchoolInfo(
@@ -485,6 +603,13 @@ class SchoolInfo {
         principal: principal ?? this.principal,
         teacher: teacher ?? this.teacher,
         subject: subject ?? this.subject,
+        type: type ?? this.type,
+        parent: parent ?? this.parent,
+        country: country ?? this.country,
+        headTitle: headTitle ?? this.headTitle,
+        instructorTitle: instructorTitle ?? this.instructorTitle,
+        groupLabel: groupLabel ?? this.groupLabel,
+        turkishFormat: turkishFormat,
         officialHeader: officialHeader ?? this.officialHeader,
       );
 
@@ -495,6 +620,13 @@ class SchoolInfo {
         'principal': principal,
         'teacher': teacher,
         'subject': subject,
+        'type': type.name,
+        'parent': parent,
+        'country': country,
+        'headTitle': headTitle,
+        'instructorTitle': instructorTitle,
+        'groupLabel': groupLabel,
+        if (turkishFormat != null) 'turkishFormat': turkishFormat,
         'officialHeader': officialHeader,
       };
 
@@ -505,6 +637,13 @@ class SchoolInfo {
         principal: j['principal'] as String? ?? '',
         teacher: j['teacher'] as String? ?? '',
         subject: j['subject'] as String? ?? '',
+        type: InstitutionType.byName(j['type'] as String?),
+        parent: j['parent'] as String? ?? '',
+        country: j['country'] as String? ?? '',
+        headTitle: j['headTitle'] as String? ?? '',
+        instructorTitle: j['instructorTitle'] as String? ?? '',
+        groupLabel: j['groupLabel'] as String? ?? '',
+        turkishFormat: j['turkishFormat'] as bool?,
         officialHeader: j['officialHeader'] as bool? ?? true,
       );
 }

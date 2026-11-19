@@ -26,10 +26,10 @@ class Faq {
 
 List<GuideSection> get guideSections => <GuideSection>[
   GuideSection(tr('Başlarken'), 'start', [
-    GuideTopic(tr('Okul bilgilerini girin'), [
+    GuideTopic(tr('Kurum bilgilerini girin'), [
       tr('Ana ekrandaki dişli simgesine (Ayarlar) dokunun.'),
-      tr('"Okul bilgileri"ni açın; il, ilçe, okul adı, ders, öğretmen ve müdür adını yazın.'),
-      tr('"Resmi yazı başlığı" açıksa tüm PDF raporların başında T.C. / Kaymakamlık / Müdürlük başlığı ve sonunda imza alanı çıkar.'),
+      tr('"Kurum bilgileri"ni açın; kurum türünü (okul, üniversite, Polis Akademisi, askerî okul, kurs…) seçin, kurum adını, ders, öğretmen ve amir bilgilerini yazın.'),
+      tr('"Resmi yazı başlığı" açıksa tüm PDF raporların başında kurumunuzun resmi başlığı ve sonunda imza alanı çıkar. Türkiye dışında "Türkiye resmi yazı biçimi"ni kapatın.'),
     ]),
     GuideTopic(tr('Öğrencileri ekleyin'), [
       tr('Alttaki "Sınıflar" sekmesine geçin.'),
@@ -164,8 +164,10 @@ List<Faq> get faqs => <Faq>[
       tr('Hayır. Anahtarı düzeltin; tüm sonuçlar anında yeniden hesaplanır.')),
   Faq(tr('Puanlama'), tr('Klasik soru puanları nasıl eklenir?'),
       tr('Sınav ayarlarında klasik soruları tanımlayın, kâğıtları okutun, ardından "Klasik puan gir" ekranından her öğrencinin puanını yazın. Eksik puan kalırsa sonuç ekranında uyarı görünür.')),
-  Faq(tr('Raporlar'), tr('Raporlarda okul adım görünmüyor.'),
-      tr('Ayarlar > Okul bilgileri ekranından okul adını ve diğer bilgileri girin. "Resmi yazı başlığı" açıksa tüm PDF\'lerde resmi başlık çıkar.')),
+  Faq(tr('Raporlar'), tr('Raporlarda kurumumun adı görünmüyor.'),
+      tr('Profil > Kurum bilgileri ekranından kurum adını ve diğer bilgileri girin. "Resmi yazı başlığı" açıksa tüm PDF\'lerde resmi başlık çıkar.')),
+  Faq(tr('Raporlar'), tr('Polis Akademisi, askerî okul ya da üniversitede kullanılabilir mi?'),
+      tr('Evet. Profil > Kurum bilgileri ekranında kurum türünü seçin (üniversite, Polis Akademisi/PMYO/POMEM, askerî okul, kurs…). Başlık, amir ve öğretmen unvanları ile grup adı (sınıf, bölük, takım, grup) buna göre gelir; hepsini değiştirebilirsiniz. Başka ülkelerde "Türkiye resmi yazı biçimi"ni kapatın.')),
   Faq(tr('Raporlar'), tr('Karneyi veliye nasıl gönderirim?'),
       tr('Sonuç listesinde öğrenciye dokunun ve "Karneyi veliye gönder"i seçin. Açılan paylaşım menüsünden WhatsApp, e-posta veya istediğiniz uygulamayı seçin; hazır bir mesaj da eklenir.')),
   Faq(tr('Raporlar'), tr('Dönem sonu notu nasıl hesaplanıyor?'),

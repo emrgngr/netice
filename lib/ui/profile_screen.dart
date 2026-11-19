@@ -86,13 +86,13 @@ class ProfileScreen extends StatelessWidget {
         ),
         SectionTitle(tr('Hesap')),
         const AccountCard(),
-        SectionTitle(tr('Okul')),
+        SectionTitle(tr('Kurum')),
         Card(
           clipBehavior: Clip.antiAlias,
           child: ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             leading: IconBadge(Icons.account_balance_outlined, color: school.isEmpty ? NColors.amber : NColors.emerald),
-            title: Text(tr('Okul bilgileri'), style: const TextStyle(fontWeight: FontWeight.w700)),
+            title: Text(tr('Kurum bilgileri'), style: const TextStyle(fontWeight: FontWeight.w700)),
             subtitle: Text(school.isEmpty ? tr('Raporlarda resmi başlık için girin') : school.name),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SchoolScreen())),

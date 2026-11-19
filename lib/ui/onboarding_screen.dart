@@ -30,10 +30,10 @@ List<_Step> get _steps => [
     tr('Bir kâğıt ortalama 2 saniyede okunur'),
     tr('Emin olunamayan işaretler size sorulur, sessizce karar verilmez'),
   ]),
-  _Step(IllustrationKind.school, tr('1. Okul bilgileri'),
-      tr('Okul adı, il/ilçe, müdür ve öğretmen adını bir kez girin. Tüm raporlar resmi yazı başlığıyla çıkar.'), [
-    tr('T.C. / Kaymakamlık / Okul Müdürlüğü başlığı'),
-    tr('Öğretmen ve müdür imza alanı'),
+  _Step(IllustrationKind.school, tr('1. Kurum bilgileri'),
+      tr('Okul, üniversite, polis ya da askerî eğitim kurumu: kurum türünü seçin, adını ve imza sahiplerini bir kez girin. Tüm raporlar resmi yazı başlığıyla çıkar.'), [
+    tr('Kurumunuza uygun resmi başlık, her ülke için'),
+    tr('Öğretmen ve kurum amiri imza alanı'),
     tr('İstediğiniz zaman Ayarlar\'dan değiştirebilirsiniz'),
   ]),
   _Step(IllustrationKind.students, tr('2. Sınıflarınızı aktarın'),
@@ -118,7 +118,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           onPressed: () =>
                               Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SchoolScreen())),
                           icon: const Icon(Icons.edit_outlined),
-                          label: Text(tr('Okul bilgilerini şimdi gir')),
+                          label: Text(tr('Kurum bilgilerini şimdi gir')),
                         ),
                       ),
                     ),
