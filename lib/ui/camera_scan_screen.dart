@@ -6,12 +6,12 @@ import 'package:material_ui/material_ui.dart';
 
 import '../core/models.dart';
 import '../core/scoring.dart';
-import '../core/store.dart' show ScanStatus;
+import '../core/store.dart' show ScanStatus, specFor;
 import '../main.dart';
 import '../omr/form_layout.dart';
 import '../omr/frame_quality.dart';
 import '../omr/omr_reader.dart';
-import '../omr/rectify.dart';
+import '../omr/sheet_reader.dart';
 import '../omr/serial_scanner.dart';
 import 'exam_screen.dart';
 import 'review_screen.dart' show unmatchedLabel;
@@ -119,9 +119,7 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
       bytesPerRow: p.bytesPerRow,
       bgra: frame.format.group == ImageFormatGroup.bgra8888,
       quarterTurns: (_controller?.description.sensorOrientation ?? 90) ~/ 90,
-      questions: exam.questionCount,
-      choices: exam.choiceCount,
-      booklets: exam.hasBooklets,
+      spec: specFor(StoreScope.of(context), exam),
     );
     compute(_readFrame, job).then((out) {
       if (!mounted) return;
@@ -450,8 +448,9 @@ class _GuidePainter extends CustomPainter {
 
 class _FrameJob {
   final Uint8List bytes;
-  final int width, height, bytesPerRow, quarterTurns, questions, choices;
+  final int width, height, bytesPerRow, quarterTurns;
   final bool bgra;
+  final ReadSpec spec;
   _FrameJob({
     required this.bytes,
     required this.width,
@@ -459,11 +458,8 @@ class _FrameJob {
     required this.bytesPerRow,
     required this.bgra,
     required this.quarterTurns,
-    required this.questions,
-    required this.choices,
-    this.booklets = false,
+    required this.spec,
   });
-  final bool booklets;
 }
 
 /// Karedeki formu yeniden bulup düzleştirilmiş JPEG üretir.
@@ -473,8 +469,7 @@ Uint8List? _rectifyFrame(_FrameJob j) {
             ? GrayImage.fromBgra(j.bytes, j.width, j.height, j.bytesPerRow)
             : GrayImage.fromLumaPlane(j.bytes, j.width, j.height, j.bytesPerRow))
         .rotate(j.quarterTurns);
-    final r = OmrReader(FormLayout(questionCount: j.questions, choiceCount: j.choices, booklets: j.booklets)).read(g);
-    return rectifiedJpeg(g, r.markers);
+    return sheetJpeg(g, readSheet(g, j.spec), j.spec);
   } catch (_) {
     return null;
   }
@@ -489,7 +484,7 @@ Uint8List? _rectifyFrame(_FrameJob j) {
         .rotate(j.quarterTurns);
     OmrResult? r;
     try {
-      r = OmrReader(FormLayout(questionCount: j.questions, choiceCount: j.choices, booklets: j.booklets)).read(g);
+      r = readSheet(g, j.spec);
     } catch (_) {}
     final advice = FrameQuality.assess(g, markers: r?.markers);
     // Hiçbir şey okunmadıysa (yanlış eşleşme) kabul etme.

@@ -155,6 +155,9 @@ class Exam {
   /// (tam puan − klasik toplamı) üzerinden ölçeklenir.
   final List<OpenQuestion> openQuestions;
 
+  /// Başka firma formu kullanılıyorsa şablonun kimliği; null = Netice formu.
+  final String? templateId;
+
   const Exam({
     required this.id,
     required this.name,
@@ -165,6 +168,7 @@ class Exam {
     this.rule = const ScoringRule(),
     this.bookletOrder,
     this.openQuestions = const [],
+    this.templateId,
   });
 
   int get questionCount => questions.length;
@@ -248,6 +252,8 @@ class Exam {
     List<int>? bookletOrder,
     bool clearBooklet = false,
     List<OpenQuestion>? openQuestions,
+    String? templateId,
+    bool clearTemplate = false,
   }) =>
       Exam(
         id: id,
@@ -259,6 +265,7 @@ class Exam {
         rule: rule ?? this.rule,
         bookletOrder: clearBooklet ? null : (bookletOrder ?? this.bookletOrder),
         openQuestions: openQuestions ?? this.openQuestions,
+        templateId: clearTemplate ? null : (templateId ?? this.templateId),
       );
 
   Map<String, dynamic> toJson() => {
@@ -270,6 +277,7 @@ class Exam {
         'questions': questions.map((q) => q.toJson()).toList(),
         'rule': rule.toJson(),
         if (bookletOrder != null) 'bookletOrder': bookletOrder,
+        if (templateId != null) 'templateId': templateId,
         if (openQuestions.isNotEmpty) 'openQuestions': openQuestions.map((q) => q.toJson()).toList(),
       };
 
@@ -284,6 +292,7 @@ class Exam {
             .toList(),
         rule: ScoringRule.fromJson(j['rule'] as Map<String, dynamic>),
         bookletOrder: (j['bookletOrder'] as List?)?.map((e) => e as int).toList(),
+        templateId: j['templateId'] as String?,
         openQuestions: [
           for (final e in (j['openQuestions'] as List?) ?? const []) OpenQuestion.fromJson(e as Map<String, dynamic>)
         ],

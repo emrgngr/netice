@@ -17,6 +17,7 @@ import 'school_screen.dart';
 import 'pro_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
+import 'template_screen.dart';
 
 /// Ayarlar: okul bilgileri, yedekleme, gizlilik metinleri, rehber, geri bildirim.
 class SettingsScreen extends StatefulWidget {
@@ -251,6 +252,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
               store.school.isEmpty ? 'Raporlarda resmi başlık için girin' : store.school.name,
               () async {
                 await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SchoolScreen()));
+                if (mounted) setState(() {});
+              },
+            ),
+          ),
+          const SectionTitle('Formlar'),
+          Card(
+            clipBehavior: Clip.antiAlias,
+            child: tile(
+              Icons.grid_on_rounded,
+              NColors.emerald,
+              'Başka firma formları',
+              store.templates.isEmpty ? 'Yayınevi formları için şablon oluşturun' : '${store.templates.length} şablon',
+              () async {
+                await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TemplatesScreen()));
                 if (mounted) setState(() {});
               },
             ),

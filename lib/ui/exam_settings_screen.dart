@@ -5,6 +5,7 @@ import '../main.dart';
 import 'key_from_photo.dart';
 import 'theme.dart';
 import 'widgets.dart';
+import 'template_screen.dart';
 
 /// Sınav ayarları: ad, tarih, puanlama, geçme puanı ve soru bazında
 /// cevap anahtarı / puan / kazanım / iptal. Kaydedince tüm kâğıtlar
@@ -28,6 +29,7 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
   late List<TextEditingController> _codes;
   late int _wpc;
   late bool _booklet;
+  String? _template;
   late List<(TextEditingController, TextEditingController)> _open;
   late final TextEditingController _order;
   late DateTime _date;
@@ -47,6 +49,7 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
     _codes = [for (final q in _qs) TextEditingController(text: q.outcomeCode ?? '')];
     _wpc = _exam.rule.wrongsPerCorrect;
     _booklet = _exam.hasBooklets;
+    _template = _exam.templateId;
     _open = [
       for (final q in _exam.openQuestions)
         (TextEditingController(text: q.label), TextEditingController(text: _num(q.maxPoints)))
@@ -117,6 +120,13 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
     if (openSum >= max) {
       return toast(context, 'Klasik soruların toplamı (${_num(openSum)}) tam puandan küçük olmalı; kalanı test kısmıdır.');
     }
+    final tpl = StoreScope.of(context).templateById(_template);
+    if (tpl != null && _booklet) {
+      return toast(context, 'Başka firma formlarında A/B kitapçık okunamaz; kitapçık seçeneğini kapatın.');
+    }
+    if (tpl != null && tpl.questionCount < _qs.length) {
+      return toast(context, '"${tpl.name}" şablonunda ${tpl.questionCount} soru var; sınavda ${_qs.length} soru var. Şablona blok ekleyin.');
+    }
     List<int>? order;
     if (_booklet) {
       order = Exam.parseBookletOrder(_order.text, _qs.length);
@@ -128,6 +138,8 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
       bookletOrder: order,
       clearBooklet: !_booklet,
       openQuestions: open,
+      templateId: tpl?.id,
+      clearTemplate: tpl == null,
       name: _name.text.trim(),
       className: _class.text.trim(),
       date: _date,
@@ -220,6 +232,40 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
                   DropdownMenuItem(value: 4, child: Text('4 yanlış 1 doğru')),
                 ],
                 onChanged: (v) => setState(() => _wpc = v ?? 0),
+              ),
+              const SectionTitle('Form türü'),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                    DropdownButtonFormField<String?>(
+                      initialValue: StoreScope.of(context).templateById(_template)?.id,
+                      decoration: const InputDecoration(labelText: 'Öğrencilerin dolduracağı form'),
+                      items: [
+                        const DropdownMenuItem(value: null, child: Text('Netice formu (önerilen)')),
+                        for (final tp in StoreScope.of(context).templates)
+                          DropdownMenuItem(value: tp.id, child: Text(tp.name, overflow: TextOverflow.ellipsis)),
+                      ],
+                      onChanged: (v) => setState(() => _template = v),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Yayınevi ya da başka firmanın formunu kullanıyorsanız önce o form için şablon oluşturun.',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton.icon(
+                        onPressed: () async {
+                          await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TemplatesScreen()));
+                          if (mounted) setState(() {});
+                        },
+                        icon: const Icon(Icons.grid_on_rounded),
+                        label: const Text('Başka firma formları'),
+                      ),
+                    ),
+                  ]),
+                ),
               ),
               const SectionTitle('Kitapçık türü'),
               Card(

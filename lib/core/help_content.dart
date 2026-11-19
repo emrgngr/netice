@@ -61,6 +61,13 @@ const guideSections = <GuideSection>[
     ]),
   ]),
   GuideSection('Form yazdırma', 'print', [
+    GuideTopic('Başka firma formu (yayınevi formu) kullanma', [
+      'Ayarlar > "Başka firma formları" > "Yeni şablon"a dokunun ve formun fotoğrafını seçin. Kâğıdı koyu bir zemine koyun; dört kenarı görünsün.',
+      '"Cevap bloğu ekle" ile her soru sütununu tanımlayın: ilk sorunun A şıkkına, sonra son sorunun son şıkkına dokunun. Aradaki daireler kendiliğinden çizilir.',
+      'Öğrenci numarası bölümü varsa "Numara bloğu ekle" ile ilk basamağın 0\'ına ve son basamağın 9\'una dokunun.',
+      'Dolu bir formun fotoğrafıyla "Bu fotoğrafla dene"ye basın; yeşil daireler doğru yerlerdeyse kaydedin.',
+      'Sınav ayarları > "Form türü"nden şablonu seçin. Okutma, Netice formundaki gibi çalışır.',
+    ], tip: 'Netice formu köşe kareleri sayesinde daha hızlı ve güvenilir okunur; mümkünse Netice formunu basın.'),
     GuideTopic('Optik formu yazdırın', [
       'Sınav ekranında "Form yazdır"a dokunun.',
       '"İsimli öğrenci formları" her öğrenci için adı ve numarası basılı bir sayfa üretir; "Boş öğrenci formu" ile istediğiniz kadar boş kâğıt alırsınız.',

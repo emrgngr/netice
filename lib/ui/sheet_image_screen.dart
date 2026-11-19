@@ -101,6 +101,7 @@ class _SheetImageScreenState extends State<SheetImageScreen> {
                           exam: widget.exam,
                           result: widget.result,
                           booklet: widget.result.sheet.booklet,
+                          template: store.templateById(widget.exam.templateId),
                         ),
                       ),
                     ),

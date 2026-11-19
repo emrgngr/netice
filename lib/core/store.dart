@@ -9,6 +9,8 @@ import 'package:path_provider/path_provider.dart';
 import '../omr/form_code.dart';
 import '../omr/form_layout.dart';
 import '../omr/omr_reader.dart';
+import '../omr/sheet_reader.dart';
+import '../omr/template.dart';
 import 'models.dart';
 import 'scoring.dart';
 
@@ -24,6 +26,9 @@ class AppStore extends ChangeNotifier {
   final List<Student> students = [];
   final List<Exam> exams = [];
   final List<Sheet> sheets = [];
+
+  /// Başka firma formları için şablonlar.
+  final List<FormTemplate> templates = [];
 
   /// Okul ve öğretmen bilgileri (rapor başlıkları için).
   SchoolInfo school = const SchoolInfo();
@@ -164,6 +169,7 @@ class AppStore extends ChangeNotifier {
         'students': students.map((s) => s.toJson()).toList(),
         'exams': exams.map((e) => e.toJson()).toList(),
         'sheets': sheets.map((s) => s.toJson()).toList(),
+        'templates': templates.map((t) => t.toJson()).toList(),
         'school': school.toJson(),
         'onboardingDone': onboardingDone,
         'rating': rating,
@@ -191,6 +197,9 @@ class AppStore extends ChangeNotifier {
     sheets
       ..clear()
       ..addAll(sh);
+    templates
+      ..clear()
+      ..addAll([for (final t in (j['templates'] as List?) ?? const []) FormTemplate.fromJson((t as Map).cast<String, dynamic>())]);
     school = j['school'] is Map ? SchoolInfo.fromJson((j['school'] as Map).cast<String, dynamic>()) : const SchoolInfo();
     onboardingDone = j['onboardingDone'] as bool? ?? onboardingDone;
     rating = (j['rating'] as num?)?.toInt() ?? rating;
@@ -530,6 +539,28 @@ class AppStore extends ChangeNotifier {
     }
   }
 
+  FormTemplate? templateById(String? id) => id == null ? null : templates.where((t) => t.id == id).firstOrNull;
+
+  /// Şablonu ekler ya da günceller.
+  void saveTemplate(FormTemplate t) {
+    final i = templates.indexWhere((x) => x.id == t.id);
+    if (i >= 0) {
+      templates[i] = t;
+    } else {
+      templates.add(t);
+    }
+    _changed();
+  }
+
+  /// Şablonu siler; onu kullanan sınavlar Netice formuna döner.
+  void deleteTemplate(String id) {
+    templates.removeWhere((t) => t.id == id);
+    for (var i = 0; i < exams.length; i++) {
+      if (exams[i].templateId == id) exams[i] = exams[i].copyWith(clearTemplate: true);
+    }
+    _changed();
+  }
+
   /// Son [addScan] çağrısının sonucu (arayüz uyarıları için).
   ScanStatus lastScanStatus = ScanStatus.added;
 
@@ -725,6 +756,14 @@ class AppStore extends ChangeNotifier {
     }
   }
 }
+
+/// Sınavın kâğıtlarını okuma bilgisi (Netice formu ya da şablon).
+ReadSpec specFor(AppStore store, Exam exam) => ReadSpec(
+      questions: exam.questionCount,
+      choices: exam.choiceCount,
+      booklets: exam.hasBooklets,
+      template: store.templateById(exam.templateId),
+    );
 
 /// Seçili sınav için okuma motoru oluşturur.
 OmrReader readerFor(Exam exam) => OmrReader(

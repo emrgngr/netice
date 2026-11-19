@@ -163,7 +163,7 @@ class OmrReader {
     final markerRadius = FormLayout.markerSize * 0.3 * hom.scaleAt(markers.first);
     var black = 0.0;
     for (final m in markers) {
-      black += _meanInDisk(image, m, markerRadius);
+      black += meanInDisk(image, m, markerRadius);
     }
     black /= 4;
 
@@ -171,8 +171,8 @@ class OmrReader {
       final c = hom.map(formPt);
       final scale = hom.scaleAt(formPt);
       final r = FormLayout.bubbleRadius * scale;
-      final white = _localWhite(image, c, r * 1.8);
-      final mean = _meanInDisk(image, c, r * 0.62);
+      final white = localWhite(image, c, r * 1.8);
+      final mean = meanInDisk(image, c, r * 0.62);
       final range = white - black;
       if (range < 20) return 0;
       return ((white - mean) / range).clamp(0.0, 1.0);
@@ -221,8 +221,8 @@ class OmrReader {
       final p = FormCode.cell(i);
       final c = hom.map(p);
       final scale = hom.scaleAt(p);
-      final white = _localWhite(image, c, 2.6 * scale);
-      final mean = _meanInDisk(image, c, 0.9 * scale);
+      final white = localWhite(image, c, 2.6 * scale);
+      final mean = meanInDisk(image, c, 0.9 * scale);
       final range = white - black;
       bits.add(range >= 20 && (white - mean) / range > 0.5);
     }
@@ -477,7 +477,7 @@ class OmrReader {
   // ---------------------------------------------------------------------
   // Örnekleme
 
-  static double _meanInDisk(GrayImage im, Pt c, double r) {
+  static double meanInDisk(GrayImage im, Pt c, double r) {
     final r2 = r * r;
     var s = 0, n = 0;
     final x0 = math.max(0, (c.x - r).floor()), x1 = math.min(im.width - 1, (c.x + r).ceil());
@@ -496,7 +496,7 @@ class OmrReader {
 
   /// Dairenin çevresindeki kâğıt beyazı (yerel %90'lık değer); düzensiz
   /// ışığa karşı her daire kendi çevresine göre değerlendirilir.
-  static double _localWhite(GrayImage im, Pt c, double half) {
+  static double localWhite(GrayImage im, Pt c, double half) {
     final hist = List<int>.filled(256, 0);
     var n = 0;
     final x0 = math.max(0, (c.x - half).floor()), x1 = math.min(im.width - 1, (c.x + half).ceil());

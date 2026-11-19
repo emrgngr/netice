@@ -9,12 +9,12 @@ import 'package:printing/printing.dart';
 
 import '../core/models.dart';
 import '../core/scoring.dart';
-import '../core/store.dart' show ScanStatus;
+import '../core/store.dart' show ScanStatus, specFor;
 import '../main.dart';
 import '../omr/form_layout.dart';
 import '../omr/form_raster.dart';
 import '../omr/omr_reader.dart';
-import '../omr/rectify.dart';
+import '../omr/sheet_reader.dart';
 import 'review_screen.dart' show unmatchedLabel;
 import 'theme.dart';
 import 'widgets.dart';
@@ -61,7 +61,7 @@ class _ScanScreenState extends State<ScanScreen> {
   Future<void> _readGray(String source, GrayImage gray) async {
     final exam = _exam;
     try {
-      final (r, jpeg) = await compute(_readJob, _Job(gray, exam.questionCount, exam.choiceCount, exam.hasBooklets));
+      final (r, jpeg) = await compute(_readJob, _Job(gray, specFor(StoreScope.of(context), exam)));
       if (!mounted) return;
       final store = StoreScope.of(context);
       final sheet = store.addScan(exam, r);
@@ -393,17 +393,15 @@ GrayImage _rgbaToGray(Uint8List rgba, int w, int h) {
 
 class _Job {
   final GrayImage image;
-  final int questions;
-  final int choices;
-  final bool booklets;
-  _Job(this.image, this.questions, this.choices, this.booklets);
+  final ReadSpec spec;
+  _Job(this.image, this.spec);
 }
 
 (OmrResult, Uint8List?) _readJob(_Job j) {
-  final r = OmrReader(FormLayout(questionCount: j.questions, choiceCount: j.choices, booklets: j.booklets)).read(j.image);
+  final r = readSheet(j.image, j.spec);
   Uint8List? jpeg;
   try {
-    jpeg = rectifiedJpeg(j.image, r.markers);
+    jpeg = sheetJpeg(j.image, r, j.spec);
   } catch (_) {}
   return (r, jpeg);
 }

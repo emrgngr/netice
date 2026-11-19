@@ -41,6 +41,22 @@ class ExamScreen extends StatelessWidget {
     final wide = MediaQuery.sizeOf(context).width >= 900;
 
     Future<void> printForms() async {
+      final tpl = store.templateById(exam.templateId);
+      if (tpl != null) {
+        final go = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Bu sınav başka firma formuyla okunuyor'),
+            content: Text('Sınav ayarlarında "${tpl.name}" şablonu seçili; öğrenciler o formu dolduracak. '
+                'Yine de Netice formu basarsanız, okutmadan önce Form türünü "Netice formu" yapın.'),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Vazgeç')),
+              FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Yine de bas')),
+            ],
+          ),
+        );
+        if (go != true || !context.mounted) return;
+      }
       final cls = store.studentsOf(exam.className);
       var copies = 10;
       var alternate = true;
