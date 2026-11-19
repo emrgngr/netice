@@ -722,7 +722,7 @@ class AppStore extends ChangeNotifier {
     if (pool == null) return null;
     final (first, last) = pool;
     // Rusçada kadın adlarıyla soyadı da dişil olur (Иванов → Иванова).
-    String fit(String f, String l) => L10n.code == 'ru' && RegExp(r'[ая]$').hasMatch(f) && RegExp(r'(ов|ев|ин)$').hasMatch(l) ? '${l}а' : l;
+    String fit(String f, String l) => L10n.code == 'ru' && RegExp(r'[ая]$').hasMatch(f) && RegExp(r'(ов|ев|ин)$').hasMatch(l) ? '$lа' : l;
     return [
       for (var i = 0; i < count; i++)
         // Çince ve Japoncada soyadı önce yazılır.
