@@ -12,6 +12,8 @@ import '../main.dart';
 import '../reports/pdf_documents.dart';
 import 'report_preview_screen.dart';
 import 'illustrations.dart';
+import 'pro_screen.dart';
+import '../core/pro.dart';
 import 'theme.dart';
 import 'widgets.dart';
 
@@ -77,12 +79,13 @@ class _TermScreenState extends State<TermScreen> {
         context,
         title: 'Dönem not çizelgesi',
         fileName: '${base}_not_cizelgesi.pdf',
-        build: () => buildTermGradesPdf(report, school: store.school),
+        build: () => buildTermGradesPdf(report, school: store.reportSchool),
       );
     }
 
     Future<void> cardsPdf([String? studentId]) async {
       if (report == null) return toast(context, 'Önce en az bir sınav seçin.');
+      if (!await requirePro(context, ProFeature.studentCards) || !context.mounted) return;
       final students = [
         for (final r in report.rows)
           if (r.average != null) (r.student.id, r.student.fullName),
@@ -94,7 +97,7 @@ class _TermScreenState extends State<TermScreen> {
             baseFileName: '${base}_kazanim_karnesi',
             students: students,
             initialStudentId: studentId,
-            build: (id) => buildTermCardsPdf(report, school: store.school, onlyStudentId: id),
+            build: (id) => buildTermCardsPdf(report, school: store.reportSchool, onlyStudentId: id),
           ),
         ),
       );
@@ -110,8 +113,9 @@ class _TermScreenState extends State<TermScreen> {
     }
 
     Future<void> share(TermRow r) async {
+      if (!await requirePro(context, ProFeature.parentShare) || !context.mounted) return;
       try {
-        final bytes = await buildTermCardsPdf(report!, school: store.school, onlyStudentId: r.student.id);
+        final bytes = await buildTermCardsPdf(report!, school: store.reportSchool, onlyStudentId: r.student.id);
         await Printing.sharePdf(
           bytes: bytes,
           filename: '${_safe(r.student.fullName)}_donem_karnesi.pdf',

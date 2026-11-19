@@ -20,6 +20,8 @@ import 'camera_scan_screen.dart';
 import 'student_detail_screen.dart';
 import 'students_screen.dart';
 import 'promo_card.dart';
+import 'pro_screen.dart';
+import '../core/pro.dart';
 import 'theme.dart';
 import 'widgets.dart';
 
@@ -428,7 +430,11 @@ class _Insights extends StatelessWidget {
           title: const Text('Dönem raporu', style: TextStyle(fontWeight: FontWeight.w700)),
           subtitle: const Text('Dönem sonu notu ve öğrenci kazanım karneleri'),
           trailing: const Icon(Icons.chevron_right),
-          onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TermScreen())),
+          onTap: () async {
+            if (await requirePro(context, ProFeature.termReport) && context.mounted) {
+              Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TermScreen()));
+            }
+          },
         ),
       ),
       if (warnings.isNotEmpty) ...[

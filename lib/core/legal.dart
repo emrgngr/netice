@@ -40,6 +40,9 @@ Ayarlar > Hesap bölümünden dilerseniz Google hesabınızla giriş yapıp yede
 Ürün önerileri
 Ana sayfanın altında, geliştiricinin kendi mağazasından (SepetMix) kapatılabilir bir ürün öneri kartı yer alır. Reklam ağı kullanılmaz, reklam kimliği okunmaz, kullanıcı izlenmez. İnternet varsa günde en çok bir kez yalnızca herkese açık ürün listesi indirilir; bu istekte size ya da öğrencilerinize ait hiçbir bilgi bulunmaz. Bir ürüne dokunduğunuzda mağaza sayfası tarayıcınızda açılır ve o sitenin kendi kuralları geçerli olur.
 
+Netice Pro aboneliği
+Okuma ve temel sonuçlar ücretsizdir. Dönem raporu, karneler, veliye gönderme, Google Drive yedeği, gelişmiş grafikler ve resmi yazı başlığı Netice Pro aboneliğiyle açılır; ilk kurulumda 14 gün ücretsiz denenebilir, kart bilgisi istenmez. Ödeme Google Play tarafından alınır; kart ve ödeme bilgileriniz geliştiriciye ulaşmaz. Abonelik dönem sonunda kendiliğinden yenilenir ve Google Play > Abonelikler bölümünden istediğiniz zaman iptal edilebilir.
+
 Tutulan bilgiler
 Öğrenci adı, soyadı, okul numarası ve sınıfı; sınav adı, tarihi, cevap anahtarı ve kazanımları; okutulan kâğıtlardaki işaretler, puanlar ve istatistikler; okul ve öğretmen bilgileri. Bu bilgiler yalnızca bu cihazda, uygulamaya ait klasörde saklanır; hiçbir sunucuya yüklenmez.
 

@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../core/store.dart';
 import '../core/legal.dart';
 import '../main.dart';
 import 'logo.dart';
@@ -13,6 +14,7 @@ import 'rate_share.dart';
 import 'account_card.dart';
 import 'help_screen.dart';
 import 'school_screen.dart';
+import 'pro_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
 
@@ -215,6 +217,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
       appBar: AppBar(title: const Text('Ayarlar')),
       body: Watermark(
         child: ListView(padding: const EdgeInsets.fromLTRB(16, 8, 16, 40), children: [
+          const SectionTitle('Netice Pro'),
+          Card(
+            clipBehavior: Clip.antiAlias,
+            child: ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              leading: const IconBadge(Icons.workspace_premium_rounded, color: Color(0xFFD4A24C)),
+              title: Row(children: [
+                const Text('Netice Pro', style: TextStyle(fontWeight: FontWeight.w800)),
+                const SizedBox(width: 8),
+                if (store.isPro) const ProBadge(),
+              ]),
+              subtitle: Text(store.hasSubscription
+                  ? 'Aboneliğiniz etkin. Teşekkürler!'
+                  : store.inTrial
+                      ? 'Ücretsiz deneme: ${store.trialDaysLeft} gün kaldı'
+                      : AppStore.proFreeOnThisPlatform
+                          ? 'Bilgisayar sürümünde Pro özellikleri şimdilik açık'
+                          : 'Dönem raporu, karne, veliye gönderme ve daha fazlası'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProScreen(), fullscreenDialog: true)),
+            ),
+          ),
           const SectionTitle('Hesap'),
           const AccountCard(),
           const SectionTitle('Okul'),

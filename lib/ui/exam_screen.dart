@@ -19,6 +19,8 @@ import 'exam_settings_screen.dart';
 import 'open_scores_screen.dart';
 import 'report_preview_screen.dart';
 import 'student_detail_screen.dart';
+import 'pro_screen.dart';
+import '../core/pro.dart';
 import 'theme.dart';
 import 'widgets.dart';
 import 'illustrations.dart';
@@ -122,28 +124,28 @@ class ExamScreen extends StatelessWidget {
             context,
             title: 'Öğrenci formları',
             fileName: '${name}_optik_form.pdf',
-            build: () => buildFormsPdf(exam, cls, school: store.school, alternateBooklets: alternate),
+            build: () => buildFormsPdf(exam, cls, school: store.reportSchool, alternateBooklets: alternate),
           );
         case 'blank':
           await ReportPreviewScreen.open(
             context,
             title: 'Boş optik form ($copies adet)',
             fileName: '${name}_bos_form_$copies.pdf',
-            build: () => buildFormsPdf(exam, const [], blankCopies: copies, school: store.school),
+            build: () => buildFormsPdf(exam, const [], blankCopies: copies, school: store.reportSchool),
           );
         case 'key':
           await ReportPreviewScreen.open(
             context,
             title: 'Cevap anahtarı',
             fileName: '${name}_cevap_anahtari.pdf',
-            build: () => buildAnswerKeyPdf(exam, school: store.school),
+            build: () => buildAnswerKeyPdf(exam, school: store.reportSchool),
           );
         case 'keyBlank':
           await ReportPreviewScreen.open(
             context,
             title: 'Boş cevap anahtarı formu',
             fileName: '${name}_bos_anahtar.pdf',
-            build: () => buildAnswerKeyPdf(exam, filled: false, school: store.school),
+            build: () => buildAnswerKeyPdf(exam, filled: false, school: store.reportSchool),
           );
       }
     }
@@ -153,7 +155,7 @@ class ExamScreen extends StatelessWidget {
       await ReportPreviewScreen.open(context,
           title: 'Sınav raporu',
           fileName: '${_safe(exam.name)}_sinav_raporu.pdf',
-          build: () => buildResultsPdf(exam: exam, results: results, students: store.studentById, school: store.school));
+          build: () => buildResultsPdf(exam: exam, results: results, students: store.studentById, school: store.reportSchool));
     }
 
     Future<void> studentCards() async {
@@ -195,7 +197,7 @@ class ExamScreen extends StatelessWidget {
         await ReportPreviewScreen.open(context,
             title: 'e-Okul listesi',
             fileName: '${_safe(exam.name)}_eokul.pdf',
-            build: () => buildEokulPdf(exam: exam, results: results, classStudents: cls, school: store.school));
+            build: () => buildEokulPdf(exam: exam, results: results, classStudents: cls, school: store.reportSchool));
       } else if (choice == 'xls') {
         await FilePicker.saveFile(
           fileName: '${_safe(exam.name)}_eokul.csv',
@@ -703,6 +705,10 @@ class _AnalysisTab extends StatelessWidget {
           ]),
         ),
       ),
+      if (!StoreScope.of(context).isPro) ...[
+        const SectionTitle('Grafikler'),
+        const ProLocked(ProFeature.advancedCharts),
+      ] else ...[
       const SectionTitle('Grafikler'),
       _ChartsPanel(rep: rep),
       const SectionTitle('Puanların yayılımı'),
@@ -735,6 +741,7 @@ class _AnalysisTab extends StatelessWidget {
             ]),
           ),
         ),
+      ],
       ],
       const SectionTitle('Başarı düzeyleri'),
       Card(
@@ -1110,7 +1117,8 @@ class _Heatmap extends StatelessWidget {
 }
 
 /// Öğrenci karnesi önizlemesini açar; [studentId] verilirse o öğrenciyle başlar.
-Future<void> openCardsPreview(BuildContext context, Exam exam, {String? studentId}) {
+Future<void> openCardsPreview(BuildContext context, Exam exam, {String? studentId}) async {
+  if (!await requirePro(context, ProFeature.studentCards) || !context.mounted) return;
   final store = StoreScope.of(context);
   final results = store.resultsOf(exam);
   final byId = store.studentById;
@@ -1118,13 +1126,13 @@ Future<void> openCardsPreview(BuildContext context, Exam exam, {String? studentI
     for (final r in results)
       if (byId[r.sheet.studentId] != null) (byId[r.sheet.studentId]!.id, byId[r.sheet.studentId]!.fullName),
   ]..sort((a, b) => a.$2.compareTo(b.$2));
-  return Navigator.of(context).push(MaterialPageRoute(
+  await Navigator.of(context).push(MaterialPageRoute(
     builder: (_) => StudentCardsPreview(
       title: 'Öğrenci karnesi',
       baseFileName: '${_safe(exam.name)}_karne',
       students: students,
       initialStudentId: studentId,
-      build: (id) => buildStudentCardsPdf(exam: exam, results: results, students: byId, onlyStudentId: id, school: store.school),
+      build: (id) => buildStudentCardsPdf(exam: exam, results: results, students: byId, onlyStudentId: id, school: store.reportSchool),
     ),
   ));
 }
@@ -1132,6 +1140,7 @@ Future<void> openCardsPreview(BuildContext context, Exam exam, {String? studentI
 /// Tek öğrencinin karnesini PDF olarak oluşturup telefonun paylaşım
 /// menüsünü açar (WhatsApp, e-posta, Drive…). Hazır bir veli mesajı eklenir.
 Future<void> shareStudentCard(BuildContext context, Exam exam, String studentId) async {
+  if (!await requirePro(context, ProFeature.parentShare) || !context.mounted) return;
   final store = StoreScope.of(context);
   final messenger = ScaffoldMessenger.maybeOf(context);
   final st = store.studentById[studentId];
@@ -1140,7 +1149,7 @@ Future<void> shareStudentCard(BuildContext context, Exam exam, String studentId)
   if (st == null || r == null) return;
   try {
     final bytes = await buildStudentCardsPdf(
-        exam: exam, results: results, students: store.studentById, onlyStudentId: studentId, school: store.school);
+        exam: exam, results: results, students: store.studentById, onlyStudentId: studentId, school: store.reportSchool);
     final rep = ExamReport.build(exam, results);
     final school = store.school.name.trim();
     final body = 'Sayın Velimiz,\n\n'

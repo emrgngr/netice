@@ -46,6 +46,48 @@ class AppStore extends ChangeNotifier {
   Future<void> Function()? onDailyBackup;
   bool ratePrompted = false;
 
+  /// Netice Pro: son doğrulanan abonelik ve zamanı. Doğrulama 40 gün
+  /// geçerlidir (çevrimdışı kullanım kesilmesin).
+  String? proProduct;
+  DateTime? proConfirmedAt;
+  static const proGrace = Duration(days: 40);
+
+  /// Bilgisayar sürümünde Pro özellikleri şimdilik açık.
+  static bool proFreeOnThisPlatform = !(Platform.isAndroid || Platform.isIOS);
+
+  /// İlk kurulumdan itibaren 14 gün tüm Pro özellikleri ücretsiz (kart gerekmez).
+  DateTime? trialStart;
+  static const trialLength = Duration(days: 14);
+  bool get inTrial => trialStart != null && DateTime.now().difference(trialStart!) < trialLength;
+  int get trialDaysLeft => !inTrial ? 0 : ((trialLength - DateTime.now().difference(trialStart!)).inHours / 24).ceil();
+
+  bool get isPro =>
+      proFreeOnThisPlatform ||
+      inTrial ||
+      (proConfirmedAt != null && DateTime.now().difference(proConfirmedAt!) < proGrace);
+
+  /// Abonelik var mı (bilgisayar istisnası hariç)?
+  bool get hasSubscription => proConfirmedAt != null && DateTime.now().difference(proConfirmedAt!) < proGrace;
+
+  void confirmPro(String product) {
+    proProduct = product;
+    proConfirmedAt = DateTime.now();
+    _changed();
+  }
+
+  /// Raporlarda kullanılacak okul bilgisi: resmi başlık Pro özelliğidir.
+  SchoolInfo get reportSchool => isPro
+      ? school
+      : SchoolInfo(
+          province: school.province,
+          district: school.district,
+          name: school.name,
+          principal: school.principal,
+          teacher: school.teacher,
+          subject: school.subject,
+          officialHeader: false,
+        );
+
   /// Ana sayfadaki öneri kartı bu tarihe kadar gizli.
   DateTime? promoHiddenUntil;
   bool get showPromo => promoHiddenUntil == null || DateTime.now().isAfter(promoHiddenUntil!);
@@ -94,6 +136,10 @@ class AppStore extends ChangeNotifier {
       seedDemo();
       await save();
     }
+    if (trialStart == null) {
+      trialStart = DateTime.now();
+      await save();
+    }
     loaded = true;
     notifyListeners();
   }
@@ -125,6 +171,9 @@ class AppStore extends ChangeNotifier {
         'lastCloudBackup': lastCloudBackup?.toIso8601String(),
         'cloudAuto': cloudAuto,
         'promoHiddenUntil': promoHiddenUntil?.toIso8601String(),
+        'proProduct': proProduct,
+        'trialStart': trialStart?.toIso8601String(),
+        'proConfirmedAt': proConfirmedAt?.toIso8601String(),
       };
 
   void _apply(Map<String, dynamic> j) {
@@ -143,6 +192,9 @@ class AppStore extends ChangeNotifier {
     school = j['school'] is Map ? SchoolInfo.fromJson((j['school'] as Map).cast<String, dynamic>()) : const SchoolInfo();
     onboardingDone = j['onboardingDone'] as bool? ?? onboardingDone;
     rating = (j['rating'] as num?)?.toInt() ?? rating;
+    proProduct = j['proProduct'] as String? ?? proProduct;
+    trialStart = DateTime.tryParse('${j['trialStart'] ?? ''}') ?? trialStart;
+    proConfirmedAt = DateTime.tryParse('${j['proConfirmedAt'] ?? ''}') ?? proConfirmedAt;
     promoHiddenUntil = DateTime.tryParse('${j['promoHiddenUntil'] ?? ''}') ?? promoHiddenUntil;
     ratePrompted = j['ratePrompted'] as bool? ?? ratePrompted;
     if (j.containsKey('googleEmail')) {
@@ -202,7 +254,12 @@ class AppStore extends ChangeNotifier {
     await _autoBackup(force: true);
     final probe = AppStore().._apply(j); // ayrıştırma hatası mevcut veriyi bozmasın
     final (email, name, last, auto) = (googleEmail, googleName, lastCloudBackup, cloudAuto);
+    final (pp, pc, ts) = (proProduct, proConfirmedAt, trialStart);
     _apply(probe.toJsonMap());
+    // Abonelik mağazadan doğrulanır; yedek dosyasından gelmez.
+    proProduct = pp;
+    proConfirmedAt = pc;
+    trialStart = ts;
     // Hesap bu cihaza aittir; yedekten gelmez.
     googleEmail = email;
     googleName = name;

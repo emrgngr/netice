@@ -2,6 +2,8 @@ import 'package:material_ui/material_ui.dart';
 
 import '../core/models.dart';
 import '../main.dart';
+import '../core/pro.dart';
+import 'pro_screen.dart';
 import 'widgets.dart';
 
 /// Okul ve öğretmen bilgileri. Tüm PDF rapor ve listelerde resmi yazı
@@ -107,8 +109,14 @@ class _SchoolScreenState extends State<SchoolScreen> {
           Card(
             child: SwitchListTile(
               value: _official,
-              onChanged: (v) => setState(() => _official = v),
-              title: const Text('Resmi yazı başlığı ve imza alanı', style: TextStyle(fontWeight: FontWeight.w700)),
+              onChanged: (v) async {
+                if (v && !await requirePro(context, ProFeature.officialHeader)) return;
+                if (mounted) setState(() => _official = v);
+              },
+              title: Row(children: [
+                const Flexible(child: Text('Resmi yazı başlığı ve imza alanı', style: TextStyle(fontWeight: FontWeight.w700))),
+                if (!StoreScope.of(context).isPro) ...[const SizedBox(width: 8), const ProBadge()],
+              ]),
               subtitle: const Text('Kapalıysa raporlarda yalnızca okul adı küçük başlık olarak görünür.'),
             ),
           ),

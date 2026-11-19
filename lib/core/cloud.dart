@@ -55,7 +55,7 @@ class CloudService {
   Future<void> attach(AppStore store) async {
     if (!CloudConfig.configured) return;
     store.onDailyBackup = () async {
-      if (store.googleEmail != null && store.cloudAuto) await backup(store, interactive: false);
+      if (store.googleEmail != null && store.cloudAuto && store.isPro) await backup(store, interactive: false);
     };
     if (store.googleEmail == null) return;
     try {

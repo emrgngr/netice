@@ -2,6 +2,8 @@ import 'package:material_ui/material_ui.dart';
 
 import '../core/cloud.dart';
 import '../main.dart';
+import 'pro_screen.dart';
+import '../core/pro.dart';
 import 'theme.dart';
 import 'widgets.dart';
 
@@ -101,6 +103,7 @@ class _AccountCardState extends State<AccountCard> {
                 onPressed: _busy
                     ? null
                     : () => _run(() async {
+                          if (!await requirePro(context, ProFeature.cloudBackup)) throw _Cancelled();
                           await cloud.signIn(store);
                           // İlk girişte Drive'da yedek varsa sor, yoksa hemen yedekle.
                           final info = await cloud.latest();

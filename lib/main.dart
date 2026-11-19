@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import 'core/cloud.dart';
+import 'core/pro.dart';
 import 'core/store.dart';
 import 'ui/home_screen.dart';
 import 'ui/splash_screen.dart';
@@ -10,7 +11,10 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   final store = AppStore();
   runApp(NeticeApp(store: store));
-  store.load().then((_) => CloudService.instance.attach(store));
+  store.load().then((_) {
+    CloudService.instance.attach(store);
+    ProService.instance.attach(store);
+  });
 }
 
 class NeticeApp extends StatelessWidget {
