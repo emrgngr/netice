@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:material_ui/material_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -199,12 +200,28 @@ class _ProScreenState extends State<ProScreen> {
             ],
             const SizedBox(height: 6),
             Text(
-              'Abonelik Google Play hesabınızdan ödenir ve dönem sonunda kendiliğinden yenilenir. '
-              'İstediğiniz zaman Google Play > Abonelikler bölümünden iptal edebilirsiniz; iptal edilen abonelik dönem sonuna kadar geçerlidir. '
+              '${Platform.isIOS ? 'Ödeme Apple Kimliğinizden' : 'Ödeme Google Play hesabınızdan'} alınır. Abonelik, dönem bitmeden en az 24 saat önce iptal edilmezse '
+              'aynı süre ve fiyatla kendiliğinden yenilenir. ${Platform.isIOS ? 'Ayarlar > Apple Kimliği > Abonelikler' : 'Google Play > Abonelikler'} bölümünden '
+              'istediğiniz zaman iptal edebilirsiniz; iptal edilen abonelik dönem sonuna kadar geçerlidir. '
               'Pro\'ya geçmek verilerinizin yerini değiştirmez: her şey yine bu cihazda kalır.',
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.white.withValues(alpha: 0.45), fontSize: 11.5, height: 1.45),
             ),
+            const SizedBox(height: 6),
+            Wrap(alignment: WrapAlignment.center, children: [
+              TextButton(
+                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => Scaffold(
+                          appBar: AppBar(title: const Text('Gizlilik politikası')),
+                          body: SingleChildScrollView(padding: const EdgeInsets.all(20), child: SelectableText(privacyPolicy)),
+                        ))),
+                child: const Text('Gizlilik politikası', style: TextStyle(color: Colors.white60, fontSize: 12)),
+              ),
+              TextButton(
+                onPressed: () => launchUrl(Uri.parse(termsUrl), mode: LaunchMode.externalApplication),
+                child: const Text('Kullanım koşulları', style: TextStyle(color: Colors.white60, fontSize: 12)),
+              ),
+            ]),
           ]),
         ),
       ]),
@@ -297,7 +314,7 @@ class _PlanTile extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                         decoration: BoxDecoration(color: const Color(0xFFE9C46A), borderRadius: BorderRadius.circular(6)),
-                        child: const Text('%47 tasarruf',
+                        child: const Text('%33 tasarruf',
                             style: TextStyle(color: NColors.ink, fontSize: 10.5, fontWeight: FontWeight.w900)),
                       ),
                     ],
@@ -333,7 +350,9 @@ class _ActiveCard extends StatelessWidget {
           OutlinedButton(
             style: OutlinedButton.styleFrom(foregroundColor: Colors.white, side: const BorderSide(color: Colors.white38)),
             onPressed: () => launchUrl(
-                Uri.parse('https://play.google.com/store/account/subscriptions?package=$androidPackage'),
+                Uri.parse(Platform.isIOS
+                    ? 'https://apps.apple.com/account/subscriptions'
+                    : 'https://play.google.com/store/account/subscriptions?package=$androidPackage'),
                 mode: LaunchMode.externalApplication),
             child: const Text('Aboneliği yönet'),
           ),

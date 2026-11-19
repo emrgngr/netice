@@ -44,8 +44,8 @@ class ProService {
 
   /// Mağaza fiyatı okunamazsa gösterilecek önerilen fiyatlar.
   static const fallbackPlans = [
-    ProPlan(proYearlyId, 'Yıllık', '499 TL / yıl', 'Ayda yaklaşık 42 TL · en avantajlı'),
-    ProPlan(proMonthlyId, 'Aylık', '79 TL / ay', 'İstediğiniz zaman iptal'),
+    ProPlan(proYearlyId, 'Yıllık', '799 TL / yıl', 'Ayda yaklaşık 67 TL · en avantajlı'),
+    ProPlan(proMonthlyId, 'Aylık', '99 TL / ay', 'İstediğiniz zaman iptal'),
   ];
 
   /// Abonelik yalnızca mağaza olan platformlarda satılır. Bilgisayar

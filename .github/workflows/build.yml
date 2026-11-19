@@ -55,8 +55,56 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
-      - run: flutter build apk --release --dart-define=GOOGLE_SERVER_CLIENT_ID=${{ secrets.GOOGLE_SERVER_CLIENT_ID }}
+      # Mağaza imza anahtarı GitHub gizli değişkenlerinden gelir; yoksa deneme
+      # anahtarıyla imzalanır (telefona kurulur ama Play'e yüklenemez).
+      - name: Yükleme anahtarını hazırla
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > android/app/upload-keystore.jks
+            printf 'storeFile=upload-keystore.jks\nstorePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n' \
+              "$KEYSTORE_PASSWORD" "${KEY_ALIAS:-netice}" "$KEYSTORE_PASSWORD" > android/key.properties
+            echo "Mağaza anahtarıyla imzalanacak."
+          else
+            echo "::warning::ANDROID_KEYSTORE_BASE64 yok; deneme anahtarıyla imzalanıyor."
+          fi
+      - run: flutter build apk --release --build-number=${{ github.run_number }} --dart-define=GOOGLE_SERVER_CLIENT_ID=${{ secrets.GOOGLE_SERVER_CLIENT_ID }}
+      - run: flutter build appbundle --release --build-number=${{ github.run_number }} --dart-define=GOOGLE_SERVER_CLIENT_ID=${{ secrets.GOOGLE_SERVER_CLIENT_ID }}
       - uses: actions/upload-artifact@v5
         with:
           name: Netice-Android
           path: build/app/outputs/flutter-apk/app-release.apk
+      - uses: actions/upload-artifact@v5
+        with:
+          name: Netice-GooglePlay-AAB
+          path: build/app/outputs/bundle/release/app-release.aab
+
+  ios:
+    name: iPhone derlemesi (imzasız)
+    needs: test
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.50.0
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      # Google girişi için iOS istemci kimliğinin ters hâli URL şeması olarak eklenir.
+      - name: Google giriş URL şeması
+        env:
+          IOS_CLIENT_ID: ${{ secrets.GOOGLE_IOS_CLIENT_ID }}
+        run: |
+          if [ -n "$IOS_CLIENT_ID" ]; then
+            REV=$(echo "$IOS_CLIENT_ID" | awk -F. '{for(i=NF;i>0;i--) printf "%s%s", $i, (i>1?".":"")}')
+            /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes array" ios/Runner/Info.plist
+            /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0 dict" ios/Runner/Info.plist
+            /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0:CFBundleURLSchemes array" ios/Runner/Info.plist
+            /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0:CFBundleURLSchemes:0 string $REV" ios/Runner/Info.plist
+            /usr/libexec/PlistBuddy -c "Add :GIDClientID string $IOS_CLIENT_ID" ios/Runner/Info.plist
+          fi
+      - run: flutter build ios --release --no-codesign --build-number=${{ github.run_number }} --dart-define=GOOGLE_IOS_CLIENT_ID=${{ secrets.GOOGLE_IOS_CLIENT_ID }}

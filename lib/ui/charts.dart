@@ -207,7 +207,7 @@ class _ItemMapState extends State<ItemMap> {
               (int, double, double)? best;
               var bd = 24.0;
               for (final it in widget.items) {
-                final dd = (pos(it.$2, it.$3) - e.localPosition).distance;
+                final dd = (pos(it.$2, it.$3.clamp(-0.15, 1.0)) - e.localPosition).distance;
                 if (dd < bd) {
                   bd = dd;
                   best = it;
@@ -260,7 +260,7 @@ class _ItemMapPainter extends CustomPainter {
       _text(canvas, '%${(p * 100).round()}', pos(p, -0.2) + const Offset(-8, 4), 9);
     }
     for (final it in items) {
-      final c = pos(it.$2, it.$3);
+      final c = pos(it.$2, it.$3.clamp(-0.15, 1.0));
       final color = it.$3 < 0.2 ? NColors.coral : (it.$3 >= 0.4 ? NColors.emerald : NColors.ink.withValues(alpha: 0.85));
       final isSel = it.$1 == sel;
       canvas.drawCircle(c, isSel ? 11 : 8, Paint()..color = color.withValues(alpha: isSel ? 1 : 0.85));

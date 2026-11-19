@@ -19,6 +19,10 @@ String get downloadLabel => downloadUrl.replaceFirst(RegExp(r'^https?://'), '');
 /// Mesajların sonuna eklenen kısa imza.
 String get downloadSignature => '\n\n— Netice ile hazırlandı. Siz de deneyin: $downloadUrl';
 
+/// Kullanım koşulları: kendi sayfamız yayımlanana kadar Apple'ın standart
+/// son kullanıcı lisans sözleşmesi (App Store'un da kabul ettiği metin).
+const termsUrl = 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
+
 /// Tanıtım sayfasının adresi (yayımlanınca doldurulur).
 const websiteUrl = '';
 
