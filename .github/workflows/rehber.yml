@@ -1,0 +1,57 @@
+name: Rehber videoları
+
+# Seslendirmesi hazır olan her dil için (tool/video/ses_<dil>.json) kullanım
+# rehberi videosunu üretir; "rehber-videolari" sürümüne yükler. Uygulama
+# videoları oradan oynatır.
+on:
+  workflow_dispatch:
+  push:
+    branches: [ilk-surum, main]
+    paths: ['tool/video/**', 'tool/video_test.dart', '.github/workflows/rehber.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  videos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.50.0
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg libraqm0 >/dev/null
+      - run: pip install --quiet pillow
+      - name: Videoları üret
+        run: |
+          B=https://d8j0ntlcm91z4.cloudfront.net/user_3HBbhHFwxHnCS5yFDPNhwCMiEXw
+          for f in tool/video/ses_*.json; do
+            lang=$(basename "$f" .json); lang=${lang#ses_}
+            echo "::group::$lang"
+            flutter test tool/video_test.dart --dart-define=LANG_SHOT=$lang || true
+            test -f build/video/frames/$lang/hedefler.json
+            mkdir -p build/video/audio/$lang
+            i=0
+            for name in $(python3 -c "import json,sys;print(' '.join(json.load(open('$f'))))"); do
+              curl -sSf --retry 3 -o build/video/audio/$lang/$(printf %02d $i).mp3 "$B/$name"
+              i=$((i+1))
+            done
+            python3 tool/video/compose.py $lang
+            echo "::endgroup::"
+          done
+      - uses: actions/upload-artifact@v5
+        with:
+          name: Netice-Rehber-Videolari
+          path: build/video/rehber_*.mp4
+          compression-level: 0
+      - name: Sürüme yükle
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view rehber-videolari >/dev/null 2>&1 || \
+            gh release create rehber-videolari --title "Netice rehber videoları" \
+              --notes "Uygulama içindeki kullanım rehberi videoları." --prerelease --target "${{ github.sha }}"
+          gh release upload rehber-videolari build/video/rehber_*.mp4 --clobber
