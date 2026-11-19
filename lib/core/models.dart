@@ -421,7 +421,7 @@ enum InstitutionType {
         school => tr('Okul (ilkokul, ortaokul, lise)'),
         university => tr('Üniversite, fakülte, meslek yüksekokulu'),
         police => tr('Polis Akademisi, PMYO, POMEM'),
-        military => tr('Askerî okul, harp okulu, askerî üniversite'),
+        military => tr('Askerî okul, askerî lise, harp okulu, askerî üniversite'),
         course => tr('Kurs, dershane, eğitim merkezi'),
         other => tr('Diğer kurum (şirket, kamu eğitimi)'),
       };
@@ -495,6 +495,9 @@ class SchoolInfo {
   /// Türkiye resmi yazı biçimi (T.C. ile başlar). null: uygulama diline göre.
   final bool? turkishFormat;
 
+  /// Unvan listelerinin ülkesi (tr, en, de…). null: uygulama diline göre.
+  final String? titleSystem;
+
   /// Raporlarda resmi yazı başlığı ve imza alanı.
   final bool officialHeader;
 
@@ -512,6 +515,7 @@ class SchoolInfo {
     this.instructorTitle = '',
     this.groupLabel = '',
     this.turkishFormat,
+    this.titleSystem,
     this.officialHeader = true,
   });
 
@@ -610,6 +614,7 @@ class SchoolInfo {
         instructorTitle: instructorTitle ?? this.instructorTitle,
         groupLabel: groupLabel ?? this.groupLabel,
         turkishFormat: turkishFormat,
+        titleSystem: titleSystem,
         officialHeader: officialHeader ?? this.officialHeader,
       );
 
@@ -627,6 +632,7 @@ class SchoolInfo {
         'instructorTitle': instructorTitle,
         'groupLabel': groupLabel,
         if (turkishFormat != null) 'turkishFormat': turkishFormat,
+        if (titleSystem != null) 'titleSystem': titleSystem,
         'officialHeader': officialHeader,
       };
 
@@ -644,6 +650,7 @@ class SchoolInfo {
         instructorTitle: j['instructorTitle'] as String? ?? '',
         groupLabel: j['groupLabel'] as String? ?? '',
         turkishFormat: j['turkishFormat'] as bool?,
+        titleSystem: j['titleSystem'] as String?,
         officialHeader: j['officialHeader'] as bool? ?? true,
       );
 }

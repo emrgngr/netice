@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 import '../core/models.dart';
 import '../main.dart';
 import '../core/pro.dart';
+import '../core/titles.dart';
 import 'pro_screen.dart';
 import 'widgets.dart';
 import '../l10n/l10n.dart';
@@ -26,6 +27,7 @@ class _SchoolScreenState extends State<SchoolScreen> {
   InstitutionType _type = InstitutionType.school;
   bool _turkish = true;
   bool _official = true;
+  String _system = 'tr';
   bool _loaded = false;
 
   @override
@@ -53,6 +55,7 @@ class _SchoolScreenState extends State<SchoolScreen> {
     _type = s.type;
     _turkish = s.turkishStyle;
     _official = s.officialHeader;
+    _system = s.titleSystem ?? (_turkish ? 'tr' : TitleSystem.defaultCode());
   }
 
   @override
@@ -79,6 +82,7 @@ class _SchoolScreenState extends State<SchoolScreen> {
         subject: _v('subject'),
         groupLabel: _v('groupLabel'),
         turkishFormat: _turkish,
+        titleSystem: _system,
         officialHeader: _official,
       );
 
@@ -88,15 +92,87 @@ class _SchoolScreenState extends State<SchoolScreen> {
     Navigator.of(context).pop();
   }
 
-  Widget _field(String key, String label, String hint, IconData icon, {String? helper}) => Padding(
+  Widget _field(String key, String label, String hint, IconData icon, {String? helper, VoidCallback? pick, String? pickTip}) =>
+      Padding(
         padding: const EdgeInsets.only(bottom: 12),
         child: TextField(
           controller: _c[key],
           textCapitalization: TextCapitalization.words,
           decoration: InputDecoration(
-              labelText: label, hintText: hint, helperText: helper, helperMaxLines: 3, prefixIcon: Icon(icon)),
+            labelText: label,
+            hintText: hint,
+            helperText: helper,
+            helperMaxLines: 3,
+            prefixIcon: Icon(icon),
+            suffixIcon: pick == null
+                ? null
+                : IconButton(tooltip: pickTip ?? tr('Listeden seç'), icon: const Icon(Icons.format_list_bulleted_rounded), onPressed: pick),
+          ),
         ),
       );
+
+  TitleSystem get _titles => TitleSystem.byCode(_system);
+
+  /// Gruplu seçenek listesi; seçileni döndürür. Listede olmayan unvan elle yazılabilir.
+  Future<String?> _choose(String title, List<(String, List<String>)> groups) => showModalBottomSheet<String>(
+        context: context,
+        isScrollControlled: true,
+        showDragHandle: true,
+        builder: (ctx) => DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.7,
+          maxChildSize: 0.95,
+          builder: (ctx, scroll) => ListView(controller: scroll, padding: const EdgeInsets.fromLTRB(20, 0, 20, 32), children: [
+            Text(title, style: Theme.of(ctx).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+            const SizedBox(height: 4),
+            Text(tr('{0} · Listede yoksa alana kendiniz yazabilirsiniz.', [_titles.countryName]),
+                style: TextStyle(color: Theme.of(ctx).colorScheme.onSurface.withValues(alpha: 0.6))),
+            for (final g in groups)
+              if (g.$2.isNotEmpty) ...[
+                Padding(
+                  padding: const EdgeInsets.only(top: 18, bottom: 8),
+                  child: Text(g.$1.toUpperCase(),
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, letterSpacing: 1.1)),
+                ),
+                Wrap(spacing: 8, runSpacing: 8, children: [
+                  for (final v in g.$2)
+                    ActionChip(
+                      label: Text(v),
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      visualDensity: VisualDensity.compact,
+                      onPressed: () => Navigator.of(ctx).pop(v),
+                    ),
+                ]),
+              ],
+          ]),
+        ),
+      );
+
+  /// Ad alanına unvan/rütbe ekler; varsa eski unvanı değiştirir.
+  Future<void> _pickPrefix(String key) async {
+    final groups = _titles.prefixes(_type);
+    final v = await _choose(tr('Unvan veya rütbe'), groups);
+    if (v == null) return;
+    final known = [for (final g in groups) ...g.$2]..sort((a, b) => b.length.compareTo(a.length));
+    var name = _c[key]!.text.trim();
+    for (final k in known) {
+      if (name.startsWith('$k ')) {
+        name = name.substring(k.length).trim();
+        break;
+      }
+    }
+    _c[key]!.text = name.isEmpty ? '$v ' : '$v $name';
+  }
+
+  Future<void> _pickRole(String key, {required bool head}) async {
+    final v = await _choose(head ? tr('Amirin görevi') : tr('Öğretmenin görevi'), _titles.roles(_type, head: head));
+    if (v != null) _c[key]!.text = v;
+  }
+
+  Future<void> _pickGroup() async {
+    final v = await _choose(tr('Grupların adı'), [(tr('Seçenekler'), groupLabelOptions(_type))]);
+    if (v != null) _c['groupLabel']!.text = v;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -141,20 +217,46 @@ class _SchoolScreenState extends State<SchoolScreen> {
           ],
           if (!_turkish) _field('country', tr('Ülke'), tr('Örn. Almanya'), Icons.public_rounded),
           SectionTitle(tr('İmza ve unvanlar')),
-          _field('principal', tr('Kurum amiri'), tr('Ad Soyad (rütbe/unvan yazabilirsiniz)'), Icons.person_outline),
-          _field('headTitle', tr('Amirin unvanı'), _type.defaultHeadTitle, Icons.workspace_premium_outlined,
-              helper: tr('Boş bırakılırsa: {0}', [_type.defaultHeadTitle])),
-          _field('teacher', tr('Öğretmen / eğitici'), tr('Ad Soyad'), Icons.badge_outlined),
-          _field('instructorTitle', tr('Öğretmenin unvanı'), _type.defaultInstructorTitle, Icons.school_outlined,
-              helper: tr('Boş bırakılırsa: {0}', [_type.defaultInstructorTitle])),
+          DropdownButtonFormField<String>(
+            initialValue: _system,
+            isExpanded: true,
+            decoration: InputDecoration(
+              labelText: tr('Unvan listeleri'),
+              helperText: tr('Hangi ülkenin akademik unvan, rütbe ve görev adları listelensin'),
+              helperMaxLines: 2,
+              prefixIcon: const Icon(Icons.public_rounded),
+            ),
+            items: [
+              for (final ts in TitleSystem.all)
+                DropdownMenuItem(value: ts.code, child: Text(ts.countryName, overflow: TextOverflow.ellipsis)),
+            ],
+            onChanged: (v) => setState(() => _system = v ?? _system),
+          ),
+          const SizedBox(height: 12),
+          _field('principal', tr('Kurum amiri'), tr('Ad Soyad (rütbe/unvan yazabilirsiniz)'), Icons.person_outline,
+              pick: () => _pickPrefix('principal'), pickTip: tr('Unvan veya rütbe ekle')),
+          _field('headTitle', tr('Amirin görevi'), _type.defaultHeadTitle, Icons.workspace_premium_outlined,
+              helper: tr('Boş bırakılırsa: {0}', [_type.defaultHeadTitle]), pick: () => _pickRole('headTitle', head: true)),
+          _field('teacher', tr('Öğretmen / eğitici'), tr('Ad Soyad'), Icons.badge_outlined,
+              pick: () => _pickPrefix('teacher'), pickTip: tr('Unvan veya rütbe ekle')),
+          _field('instructorTitle', tr('Öğretmenin görevi'), _type.defaultInstructorTitle, Icons.school_outlined,
+              helper: tr('Boş bırakılırsa: {0}', [_type.defaultInstructorTitle]),
+              pick: () => _pickRole('instructorTitle', head: false)),
           _field('subject', tr('Ders / branş'), tr('Örn. Fizik'), Icons.menu_book_outlined),
           _field('groupLabel', tr('Grupların adı'), _type.defaultGroupLabel, Icons.groups_outlined,
-              helper: tr('Sınıf, şube, bölük, takım, grup… Boş bırakılırsa: {0}', [_type.defaultGroupLabel])),
+              helper: tr('Sınıf, şube, bölük, takım, grup… Boş bırakılırsa: {0}', [_type.defaultGroupLabel]), pick: _pickGroup),
           Card(
             child: Column(children: [
               SwitchListTile(
                 value: _turkish,
-                onChanged: (v) => setState(() => _turkish = v),
+                onChanged: (v) => setState(() {
+                  _turkish = v;
+                  if (v) {
+                    _system = 'tr';
+                  } else if (_system == 'tr') {
+                    _system = TitleSystem.defaultCode() == 'tr' ? 'en' : TitleSystem.defaultCode();
+                  }
+                }),
                 title: Text(tr('Türkiye resmi yazı biçimi'), style: const TextStyle(fontWeight: FontWeight.w700)),
                 subtitle: Text(tr('Başlık "T.C." ile başlar. Başka ülkelerde kapatın.')),
               ),
