@@ -320,7 +320,29 @@ class _ResultsTab extends StatelessWidget {
     }
     final wide = MediaQuery.sizeOf(context).width >= 900;
     final openMissing = exam.hasOpen ? results.where((r) => r.openMissing).length : 0;
+    final absent = store.missingStudents(exam);
     return ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 100), children: [
+      if (absent.isNotEmpty)
+        Padding(
+          padding: const EdgeInsets.only(bottom: 14),
+          child: Card(
+            color: NColors.amber.withValues(alpha: 0.10),
+            clipBehavior: Clip.antiAlias,
+            child: ExpansionTile(
+              leading: const Icon(Icons.person_search_rounded, color: NColors.amber),
+              title: Text('${absent.length} öğrencinin kâğıdı okutulmadı',
+                  style: const TextStyle(fontWeight: FontWeight.w700)),
+              subtitle: const Text('Sınava girmediyse sorun yok; kâğıt atlandıysa okutun.'),
+              childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+              expandedAlignment: Alignment.centerLeft,
+              children: [
+                Wrap(spacing: 8, runSpacing: 8, children: [
+                  for (final s in absent) Chip(label: Text('${s.number} · ${s.fullName}')),
+                ]),
+              ],
+            ),
+          ),
+        ),
       if (openMissing > 0)
         Padding(
           padding: const EdgeInsets.only(bottom: 14),

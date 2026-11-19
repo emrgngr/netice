@@ -6,6 +6,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../core/models.dart';
 import '../core/scoring.dart';
+import '../core/store.dart' show ScanStatus;
 import '../main.dart';
 import '../omr/form_layout.dart';
 import '../omr/frame_quality.dart';
@@ -159,6 +160,15 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
   void _accept(Exam exam, OmrResult r) {
     final store = StoreScope.of(context);
     final sheet = store.addScan(exam, r);
+    final status = store.lastScanStatus;
+    if (status == ScanStatus.duplicate) {
+      HapticFeedback.lightImpact();
+      setState(() {
+        _hint = 'Bu kâğıt zaten okunmuştu · sıradakini koyun';
+        _warn = true;
+      });
+      return;
+    }
     // İşaretli kâğıt görüntüsü arka planda hazırlanıp kâğıda bağlanır.
     final job = _lastJob;
     if (job != null) {
@@ -169,12 +179,15 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
     if (sheet.examId != exam.id) {
       toast(context, 'Bu kâğıt "${store.examById(sheet.examId)?.name}" sınavına ait; oraya kaydedildi.');
     }
+    if (status == ScanStatus.conflict) {
+      toast(context, 'Bu numarayla farklı cevaplı bir kâğıt zaten okunmuştu. Yeni kâğıt "Kontrol" listesine alındı; kimin olduğunu oradan seçin.');
+    }
     HapticFeedback.mediumImpact();
     SystemSound.play(SystemSoundType.click);
     setState(() {
       _lastSheet = sheet;
       _sessionCount++;
-      _hint = 'Okundu · sıradaki kâğıdı koyun';
+      _hint = status == ScanStatus.replaced ? 'Yeniden okundu · önceki okumanın yerine geçti' : 'Okundu · sıradaki kâğıdı koyun';
       _warn = false;
     });
   }

@@ -8,6 +8,7 @@ import 'package:printing/printing.dart';
 
 import '../core/models.dart';
 import '../core/scoring.dart';
+import '../core/store.dart' show ScanStatus;
 import '../main.dart';
 import '../omr/form_layout.dart';
 import '../omr/form_raster.dart';
@@ -48,7 +49,15 @@ class _ScanScreenState extends State<ScanScreen> {
       if (!mounted) return;
       final store = StoreScope.of(context);
       final sheet = store.addScan(exam, r);
-      if (jpeg != null) store.attachSheetImage(sheet, jpeg);
+      final status = store.lastScanStatus;
+      if (jpeg != null && status != ScanStatus.duplicate) store.attachSheetImage(sheet, jpeg);
+      if (status == ScanStatus.duplicate) {
+        setState(() => _entries.insert(0, _ScanEntry(source, error: 'Bu kâğıt zaten okunmuştu; tekrar eklenmedi.')));
+        return;
+      }
+      if (status == ScanStatus.conflict) {
+        toast(context, 'Bu numarayla farklı cevaplı bir kâğıt zaten var. Kâğıt "Kontrol" listesine alındı.');
+      }
       if (sheet.examId != exam.id) {
         toast(context, 'Bu kâğıt "${store.examById(sheet.examId)?.name}" sınavına ait; oraya kaydedildi.');
       }

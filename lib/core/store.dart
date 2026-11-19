@@ -440,19 +440,40 @@ class AppStore extends ChangeNotifier {
     }
     final booklet = target.hasBooklets ? (r.booklet ?? code?.booklet ?? 0) : 0;
     final answers = booklet == 1 ? target.toBookletA(r.answers) : r.answers;
+    lastScanStatus = ScanStatus.added;
+    var studentId = st?.id;
+    var openScores = const <double?>[];
+    if (st != null) {
+      final old = sheets.where((s) => s.examId == target.id && s.studentId == st!.id).firstOrNull;
+      if (old != null) {
+        final diff = differingAnswers(old.answers, answers);
+        if (diff == 0) {
+          // Aynı kâğıt yeniden okutuldu: öncekini (ve verilen kararları) koru.
+          lastScanStatus = ScanStatus.duplicate;
+          return old;
+        }
+        if (diff <= math.max(2, answers.length ~/ 10)) {
+          // Aynı kâğıdın yeniden okunuşu (birkaç işaret düzeltilmiş): yerine geçer.
+          lastScanStatus = ScanStatus.replaced;
+          openScores = old.openScores;
+          _deleteImage(old);
+          sheets.remove(old);
+        } else {
+          // Aynı numarayla bambaşka cevaplar: büyük olasılıkla numarası yanlış
+          // işaretlenmiş başka bir öğrenci. Eskiye dokunma, yeniyi kontrole al.
+          lastScanStatus = ScanStatus.conflict;
+          studentId = null;
+        }
+      }
+    }
     final sheet = Sheet(
       examId: target.id,
-      studentId: st?.id,
+      studentId: studentId,
       answers: answers,
       booklet: booklet,
-      readNumber: st == null ? (r.numberPattern ?? r.studentNumber) : null,
+      openScores: openScores,
+      readNumber: studentId == null ? (r.numberPattern ?? r.studentNumber) : null,
     );
-    if (st != null) {
-      for (final old in sheets.where((s) => s.examId == target.id && s.studentId == st!.id)) {
-        _deleteImage(old);
-      }
-      sheets.removeWhere((s) => s.examId == target.id && s.studentId == st!.id);
-    }
     sheets.add(sheet);
     _changed();
     return sheet;
@@ -507,6 +528,25 @@ class AppStore extends ChangeNotifier {
         } catch (_) {}
       }
     }
+  }
+
+  /// Son [addScan] çağrısının sonucu (arayüz uyarıları için).
+  ScanStatus lastScanStatus = ScanStatus.added;
+
+  /// İki cevap listesinde işaretleri farklı olan soru sayısı.
+  static int differingAnswers(List<Answer> a, List<Answer> b) {
+    var d = (a.length - b.length).abs();
+    for (var i = 0; i < math.min(a.length, b.length); i++) {
+      final x = a[i].marked, y = b[i].marked;
+      if (x.length != y.length || !x.containsAll(y)) d++;
+    }
+    return d;
+  }
+
+  /// Bu sınavda kâğıdı okutulmamış öğrenciler.
+  List<Student> missingStudents(Exam exam) {
+    final have = sheetsOf(exam.id).map((s) => s.studentId).toSet();
+    return studentsOf(exam.className).where((s) => !have.contains(s.id)).toList();
   }
 
   /// Eşleşmeyen kâğıt için olası öğrenciler: okunan numaraya en yakın olanlar
@@ -664,3 +704,18 @@ class AppStore extends ChangeNotifier {
 /// Seçili sınav için okuma motoru oluşturur.
 OmrReader readerFor(Exam exam) => OmrReader(
     FormLayout(questionCount: exam.questionCount, choiceCount: exam.choiceCount, booklets: exam.hasBooklets));
+
+/// Okutulan kâğıdın kaydedilme biçimi.
+enum ScanStatus {
+  /// Yeni kâğıt.
+  added,
+
+  /// Aynı öğrencinin önceki kâğıdının yerine geçti (yeniden okuma).
+  replaced,
+
+  /// Aynı kâğıt zaten okunmuştu; değişiklik yapılmadı.
+  duplicate,
+
+  /// Bu numarayla farklı cevaplı bir kâğıt zaten var; yenisi kontrole alındı.
+  conflict,
+}

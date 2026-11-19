@@ -76,6 +76,8 @@ const guideSections = <GuideSection>[
       'Sınav ekranında "Okut"a dokunun.',
       'Kâğıdı düz bir zemine koyun; dört köşedeki siyah kareler ekranda görünsün.',
       'Kâğıt tanınınca uygulama kendiliğinden çeker, sesli/titreşimli onay verir ve bir sonraki kâğıdı bekler. Kâğıtları sırayla değiştirmeniz yeterli.',
+      'Aynı kâğıdı yanlışlıkla iki kez okutursanız ikinci okuma eklenmez. Aynı numarayla farklı cevaplı bir kâğıt gelirse "Kontrol" listesine alınır ve numarası en yakın öğrenciler önerilir.',
+      'Sonuç ekranında kâğıdı okutulmamış öğrenciler ayrıca listelenir.',
       'Okuma gecikirse ekranın üstündeki sarı ampullü ipucuna bakın: "Biraz yaklaşın", "Telefonu kâğıda paralel tutun", "Işık yansıyor", "Ortam karanlık · feneri açın" gibi.',
     ], tip: 'Gölge düşürmemeye çalışın; gün ışığı veya tavan ışığı en iyisidir.'),
     GuideTopic('Fotoğraf veya PDF\'ten okuma', [
