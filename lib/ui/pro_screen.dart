@@ -305,15 +305,14 @@ class _PlanTile extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Row(children: [
+                  Wrap(spacing: 8, runSpacing: 4, crossAxisAlignment: WrapCrossAlignment.center, children: [
                     Text(plan.title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 16)),
                     if (best) ...[
-                      const SizedBox(width: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                         decoration: BoxDecoration(color: const Color(0xFFE9C46A), borderRadius: BorderRadius.circular(6)),
-                        child: const Text('%33 tasarruf',
-                            style: TextStyle(color: NColors.ink, fontSize: 10.5, fontWeight: FontWeight.w900)),
+                        child: Text(tr('{0} tasarruf', [L10n.percent(33)]),
+                            style: const TextStyle(color: NColors.ink, fontSize: 10.5, fontWeight: FontWeight.w900)),
                       ),
                     ],
                   ]),

@@ -225,6 +225,7 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
               ]),
               const SizedBox(height: 12),
               DropdownButtonFormField<int>(
+                isExpanded: true,
                 initialValue: _wpc,
                 decoration: InputDecoration(labelText: tr('Yanlış götürme')),
                 items: [
@@ -240,10 +241,11 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
                   padding: const EdgeInsets.all(16),
                   child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                     DropdownButtonFormField<String?>(
+                      isExpanded: true,
                       initialValue: StoreScope.of(context).templateById(_template)?.id,
                       decoration: InputDecoration(labelText: tr('Öğrencilerin dolduracağı form')),
                       items: [
-                        DropdownMenuItem(value: null, child: Text(tr('Netice formu (önerilen)'))),
+                        DropdownMenuItem(value: null, child: Text(tr('Netice formu (önerilen)'), overflow: TextOverflow.ellipsis)),
                         for (final tp in StoreScope.of(context).templates)
                           DropdownMenuItem(value: tp.id, child: Text(tp.name, overflow: TextOverflow.ellipsis)),
                       ],

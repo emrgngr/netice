@@ -184,8 +184,9 @@ class _NewExamScreenState extends State<NewExamScreen> {
                 if (_cursor >= _count) _cursor = _count - 1;
               }),
             ),
-            Row(children: [
-              Expanded(
+            // Dar ekranlarda ve uzun çevirilerde taşmasın diye alt alta.
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              SizedBox(
                 child: SegmentedButton<int>(
                   showSelectedIcon: false,
                   segments: [ButtonSegment(value: 4, label: Text(tr('4 şık'))), ButtonSegment(value: 5, label: Text(tr('5 şık')))],
@@ -198,9 +199,10 @@ class _NewExamScreenState extends State<NewExamScreen> {
                   }),
                 ),
               ),
-              const SizedBox(width: 12),
-              Expanded(
+              const SizedBox(height: 12),
+              SizedBox(
                 child: DropdownButtonFormField<int>(
+                  isExpanded: true,
                   initialValue: _wrongsPerCorrect,
                   decoration: InputDecoration(labelText: tr('Yanlış götürme')),
                   items: [
@@ -277,7 +279,7 @@ class _NewExamScreenState extends State<NewExamScreen> {
               minLines: 2,
               maxLines: 6,
               decoration: InputDecoration(
-                hintText: '1-5 Hareket\n6-10 Kuvvet',
+                hintText: tr('1-5 Hareket\n6-10 Kuvvet'),
                 helperText: tr('Her satıra soru aralığı ve konu adı yazın. Raporda konu bazlı başarı gösterilir.'),
                 helperMaxLines: 2,
               ),

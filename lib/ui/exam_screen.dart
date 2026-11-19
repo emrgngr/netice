@@ -281,7 +281,7 @@ class ExamScreen extends StatelessWidget {
           bottom: TabBar(tabs: [
             Tab(text: tr('Sonuçlar')),
             Tab(text: tr('Analiz')),
-            Tab(text: review > 0 ? 'Kontrol ($review)' : tr('Kontrol')),
+            Tab(text: review > 0 ? '${tr('Kontrol')} ($review)' : tr('Kontrol')),
           ]),
         ),
         floatingActionButton: FloatingActionButton.extended(
@@ -387,8 +387,13 @@ class _ResultsTab extends StatelessWidget {
           const SizedBox(width: 22),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(tr('SINIF ORTALAMASI'),
-                  style: TextStyle(color: Colors.white60, fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 1)),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: AlignmentDirectional.centerStart,
+                child: Text(tr('SINIF ORTALAMASI'),
+                    maxLines: 1,
+                    style: TextStyle(color: Colors.white60, fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 1)),
+              ),
               const SizedBox(height: 10),
               Wrap(spacing: 22, runSpacing: 12, children: [
                 _HeroStat(tr('Medyan'), fmt1(st.median)),
@@ -942,7 +947,7 @@ class _AnalysisTab extends StatelessWidget {
             minLines: 4,
             maxLines: 10,
             decoration: InputDecoration(
-              hintText: '1-5 Hareket\n6-10 Kuvvet',
+              hintText: tr('1-5 Hareket\n6-10 Kuvvet'),
               helperText: tr('Her satıra soru aralığı ve konu adı yazın.'),
             ),
           ),

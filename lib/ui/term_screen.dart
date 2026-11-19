@@ -265,7 +265,7 @@ class _TermScreenState extends State<TermScreen> {
                     OutlinedButton.icon(
                       onPressed: excel,
                       icon: const Icon(Icons.table_view_outlined),
-                      label: const Text('Excel\'e aktar'),
+                      label: Text(tr('Excel\'e aktar')),
                     ),
                   ],
                 ),

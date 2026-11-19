@@ -331,41 +331,40 @@ class _ScanScreenState extends State<ScanScreen> {
               ),
               Padding(
                 padding: const EdgeInsets.all(16),
-                child: Row(children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      style: OutlinedButton.styleFrom(foregroundColor: Colors.white, side: const BorderSide(color: Colors.white24)),
-                      onPressed: _busy ? null : _trySample,
-                      icon: const Icon(Icons.auto_awesome),
-                      label: Text(tr('Örnek form')),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  if (_mobile) ...[
-                    Expanded(
-                      flex: 2,
-                      child: FilledButton.icon(
-                        onPressed: _busy ? null : _pickGallery,
-                        icon: const Icon(Icons.photo_library_outlined),
-                        label: Text(tr('Galeriden seç')),
+                // Ana iş (galeri / dosya) tam genişlikte; örnek form altta ikincil düğme.
+                child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                  Row(children: [
+                    if (_mobile) ...[
+                      Expanded(
+                        child: FilledButton.icon(
+                          onPressed: _busy ? null : _pickGallery,
+                          icon: const Icon(Icons.photo_library_outlined),
+                          label: Text(tr('Galeriden seç')),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    IconButton.outlined(
-                      tooltip: tr('Dosya veya PDF seç'),
-                      style: IconButton.styleFrom(foregroundColor: Colors.white, side: const BorderSide(color: Colors.white24)),
-                      onPressed: _busy ? null : _pickFiles,
-                      icon: const Icon(Icons.picture_as_pdf_outlined),
-                    ),
-                  ] else
-                    Expanded(
-                      flex: 2,
-                      child: FilledButton.icon(
+                      const SizedBox(width: 8),
+                      IconButton.outlined(
+                        tooltip: tr('Dosya veya PDF seç'),
+                        style: IconButton.styleFrom(foregroundColor: Colors.white, side: const BorderSide(color: Colors.white24)),
                         onPressed: _busy ? null : _pickFiles,
-                        icon: const Icon(Icons.add_photo_alternate_outlined),
-                        label: Text(tr('Fotoğraf / PDF seç')),
+                        icon: const Icon(Icons.picture_as_pdf_outlined),
                       ),
-                    ),
+                    ] else
+                      Expanded(
+                        child: FilledButton.icon(
+                          onPressed: _busy ? null : _pickFiles,
+                          icon: const Icon(Icons.add_photo_alternate_outlined),
+                          label: Text(tr('Fotoğraf / PDF seç')),
+                        ),
+                      ),
+                  ]),
+                  const SizedBox(height: 6),
+                  TextButton.icon(
+                    style: TextButton.styleFrom(foregroundColor: Colors.white70),
+                    onPressed: _busy ? null : _trySample,
+                    icon: const Icon(Icons.auto_awesome, size: 18),
+                    label: Text(tr('Örnek form')),
+                  ),
                 ]),
               ),
               Padding(

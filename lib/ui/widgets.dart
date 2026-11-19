@@ -30,11 +30,15 @@ class StatCard extends StatelessWidget {
             Row(children: [
               if (icon != null) ...[IconBadge(icon!, color: c, size: 30), const SizedBox(width: 10)],
               Expanded(
-                child: Text(label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: t.textTheme.labelLarge?.copyWith(
-                        fontWeight: FontWeight.w600, color: t.colorScheme.onSurface.withValues(alpha: 0.6))),
+                // Uzun etiketler kesilmek yerine biraz küçülür.
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(label,
+                      maxLines: 1,
+                      style: t.textTheme.labelLarge?.copyWith(
+                          fontWeight: FontWeight.w600, color: t.colorScheme.onSurface.withValues(alpha: 0.6))),
+                ),
               ),
             ]),
             const Spacer(),
@@ -400,10 +404,16 @@ class _LiveClockState extends State<LiveClock> {
         Icon(Icons.calendar_today_rounded, size: 16, color: NColors.emerald),
         const SizedBox(width: 8),
         Flexible(
-          child: Text(longDate(_now),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: sub, fontSize: 13, fontWeight: FontWeight.w600)),
+          // Uzun tarih sığmazsa kısa biçime geçilir (küçük telefonlar, uzun gün adları).
+          child: LayoutBuilder(builder: (context, c) {
+            final style = TextStyle(color: sub, fontSize: 13, fontWeight: FontWeight.w600);
+            final long = longDate(_now);
+            final tp = TextPainter(text: TextSpan(text: long, style: style), textDirection: Directionality.of(context), maxLines: 1)
+              ..layout();
+            final text = tp.width <= c.maxWidth ? long : dmy(_now);
+            tp.dispose();
+            return Text(text, maxLines: 1, overflow: TextOverflow.ellipsis, style: style);
+          }),
         ),
         const SizedBox(width: 12),
         Icon(Icons.schedule_rounded, size: 16, color: NColors.emerald),
