@@ -103,8 +103,6 @@ jobs:
           fi
       - run: flutter build apk --release --build-number=${{ github.run_number }}
       - run: flutter build appbundle --release --build-number=${{ github.run_number }}
-      - name: İmza parmak izi (Google girişi için SHA-1)
-        run: keytool -printcert -jarfile build/app/outputs/flutter-apk/app-release.apk | grep -E 'Owner|SHA1|SHA256'
       - uses: actions/upload-artifact@v5
         with:
           name: Netice-Android
@@ -113,6 +111,11 @@ jobs:
         with:
           name: Netice-GooglePlay-AAB
           path: build/app/outputs/bundle/release/app-release.aab
+      - name: İmza parmak izi (Google girişi için SHA-1)
+        continue-on-error: true
+        run: |
+          A=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)/apksigner
+          "$A" verify --print-certs build/app/outputs/flutter-apk/app-release.apk | grep -E 'DN|SHA-1|SHA-256'
 
   ios:
     name: iPhone derlemesi (imzasız)
