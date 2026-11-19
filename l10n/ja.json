@@ -283,7 +283,7 @@
 "Evet. Kâğıt okutma, sonuçlar, temel istatistikler, sonuç listesi ve Excel her zaman ücretsizdir. Dönem raporu, öğrenci ve kazanım karneleri, karneyi veliye gönderme, Google Drive yedeği, gelişmiş grafikler ve resmi yazı başlığı Netice Pro ile açılır.": "はい。シートの読み取り、結果、基本統計、結果一覧、Excel はずっと無料です。学期レポート、生徒別・目標別成績表、保護者への送付、Google ドライブのバックアップ、詳細グラフ、公式ヘッダーは Netice Pro に含まれます。",
 "Evet. Uygulamayı kurduğunuz andan itibaren 14 gün boyunca tüm Pro özellikleri ücretsizdir; kart bilgisi istenmez ve süre bitince ücret çekilmez. Kalan gün sayısını Ayarlar > Netice Pro bölümünde görebilirsiniz.": "はい。インストールから 14 日間はすべての Pro 機能が無料です。カード登録は不要で、試用期間終了時に課金されることもありません。残り日数は 設定 > Netice Pro で確認できます。",
 "Excel": "Excel",
-"Excel aktar": "Excel に書き出す",
+"Excel aktar": "Excel から取り込む",
 "Excel dosyası okunamadı. Dosyayı .xlsx veya CSV olarak yeniden kaydedin.": "Excel ファイルを読み取れませんでした。.xlsx または CSV で保存し直してください。",
 "Excel dosyasında \"Okul No, Adı, Soyadı, Sınıf\" sütunları olması yeterlidir. e-Okul'dan aldığınız liste de doğrudan okunur.": "Excel ファイルには「出席番号、名、姓、クラス」の列があれば十分です。校務システムから書き出した名簿もそのまま読み取れます。",
 "Excel ve e-Okul": "Excel と成績入力リスト",

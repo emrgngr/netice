@@ -1,0 +1,15 @@
+{
+ "00_acilis": "When you open Netice, a short opening animation welcomes you.",
+ "01_tanitim": "On first launch you see a few pages introducing the app. Tap Continue to move on.",
+ "02_ana": "The home screen shows a summary of your exams. Tap the plus button at the top right for a new exam, or Scan to read answer sheets.",
+ "03_siniflar": "Switch to Classes in the bottom menu. Import your students from an Excel list, or add them one by one with Add student.",
+ "04_yeni_sinav": "On the new exam screen, choose the number of questions and choices, enter the answer key with the buttons, and tap Save exam.",
+ "05_form_yazdir": "On the exam screen, choose Print forms from the menu at the top right and hand out the answer sheets.",
+ "06_okut": "When the exam is over, tap the Scan button.",
+ "07_okut_ekrani": "Scan the sheets with the camera or pick their photos from the gallery. Netice reads each sheet in seconds.",
+ "08_sonuclar": "The Results tab shows each student's correct, wrong and blank answers and their score.",
+ "09_analiz": "From the Analysis tab you can get the exam report and student report cards as PDF.",
+ "10_ogrenci": "The student page shows progress and warns you about students whose results are dropping.",
+ "11_ayarlar": "In Settings you can change the app language and back up your data.",
+ "12_yardim": "If you get stuck, check the guide and the frequently asked questions in the Help tab. Enjoy!"
+}
