@@ -13,8 +13,30 @@ permissions:
   contents: write
 
 jobs:
-  videos:
+  hazirlik:
     runs-on: ubuntu-latest
+    outputs:
+      diller: ${{ steps.d.outputs.diller }}
+    steps:
+      - uses: actions/checkout@v5
+      - id: d
+        run: |
+          echo "diller=$(ls tool/video/ses_*.json | sed 's#.*/ses_##; s#\.json##' | python3 -c 'import sys,json;print(json.dumps(sys.stdin.read().split()))')" >> "$GITHUB_OUTPUT"
+      - name: Sürümü hazırla
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view rehber-videolari >/dev/null 2>&1 || \
+            gh release create rehber-videolari --title "Netice rehber videoları" \
+              --notes "Uygulama içindeki kullanım rehberi videoları." --prerelease --target "${{ github.sha }}"
+
+  video:
+    needs: hazirlik
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        dil: ${{ fromJson(needs.hazirlik.outputs.diller) }}
     steps:
       - uses: actions/checkout@v5
       - uses: subosito/flutter-action@v2
@@ -25,35 +47,30 @@ jobs:
       - run: flutter pub get
       - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg libraqm0 >/dev/null
       - run: pip install --quiet pillow
-      - name: Videoları üret
+      - name: Video
+        env:
+          lang: ${{ matrix.dil }}
         run: |
           B=https://d8j0ntlcm91z4.cloudfront.net/user_3HBbhHFwxHnCS5yFDPNhwCMiEXw
-          for f in tool/video/ses_*.json; do
-            lang=$(basename "$f" .json); lang=${lang#ses_}
-            echo "::group::$lang"
-            ICON=$(dirname "$(which flutter)")/cache/artifacts/material_fonts/MaterialIcons-Regular.otf
-            test -f "$ICON"
-            flutter test tool/video_test.dart --dart-define=LANG_SHOT=$lang --dart-define=ICON_FONT="$ICON" || true
-            test -f build/video/frames/$lang/hedefler.json
-            mkdir -p build/video/audio/$lang
-            i=0
-            for name in $(python3 -c "import json,sys;print(' '.join(json.load(open('$f'))))"); do
-              curl -sSf --retry 3 -o build/video/audio/$lang/$(printf %02d $i).mp3 "$B/$name"
-              i=$((i+1))
-            done
-            python3 tool/video/compose.py $lang
-            echo "::endgroup::"
+          mkdir -p build/video/audio/$lang
+          curl -sSf --retry 3 -o build/video/muzik.mp3 "$B/$(python3 -c "import json;print(json.load(open('tool/video/muzik.json'))['muzik'])")"
+          curl -sSf --retry 3 -o build/video/acilis.mp3 "$B/$(python3 -c "import json;print(json.load(open('tool/video/muzik.json'))['acilis'])")"
+          ICON=$(dirname "$(which flutter)")/cache/artifacts/material_fonts/MaterialIcons-Regular.otf
+          test -f "$ICON"
+          flutter test tool/video_test.dart --dart-define=LANG_SHOT=$lang --dart-define=ICON_FONT="$ICON" || true
+          test -f build/video/frames/$lang/hedefler.json
+          i=0
+          for name in $(python3 -c "import json;print(' '.join(json.load(open('tool/video/ses_$lang.json'))))"); do
+            curl -sSf --retry 3 -o build/video/audio/$lang/$(printf %02d $i).mp3 "$B/$name"
+            i=$((i+1))
           done
+          python3 tool/video/compose.py $lang
       - uses: actions/upload-artifact@v5
         with:
-          name: Netice-Rehber-Videolari
-          path: build/video/rehber_*.mp4
+          name: rehber_${{ matrix.dil }}
+          path: build/video/rehber_${{ matrix.dil }}.mp4
           compression-level: 0
       - name: Sürüme yükle
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release view rehber-videolari >/dev/null 2>&1 || \
-            gh release create rehber-videolari --title "Netice rehber videoları" \
-              --notes "Uygulama içindeki kullanım rehberi videoları." --prerelease --target "${{ github.sha }}"
-          gh release upload rehber-videolari build/video/rehber_*.mp4 --clobber
+        run: gh release upload rehber-videolari build/video/rehber_${{ matrix.dil }}.mp4 --clobber

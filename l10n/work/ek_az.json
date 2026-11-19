@@ -42,5 +42,8 @@
  "Video açılamadı. Videoyu izlemek için internet bağlantısı gerekir.": "Video açılmadı. Videonu izləmək üçün internet bağlantısı lazımdır.",
  "Video dili": "Video dili",
  "Video rehber": "Video bələdçi",
- "Excel aktar": "Excel-dən köçür"
+ "Excel aktar": "Excel-dən köçür",
+ "Ses": "Səs",
+ "Açılış melodisi": "Açılış melodiyası",
+ "Uygulama açılırken kısa bir melodi çalar": "Tətbiq açılanda qısa melodiya səslənir"
 }

@@ -51,6 +51,7 @@ dependencies:
   in_app_purchase: ^3.3.1
   image_picker: ^1.2.4
   video_player: ^2.14.1
+  audioplayers: ^6.8.1
 
 dev_dependencies:
   flutter_test:
@@ -78,6 +79,7 @@ flutter:
     - assets/fonts/
     - assets/icon/
     - assets/pdf_fonts/
+    - assets/sounds/
     - promo/oneriler.json
     - promo/img/
 

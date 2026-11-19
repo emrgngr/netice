@@ -42,5 +42,8 @@
  "Video açılamadı. Videoyu izlemek için internet bağlantısı gerekir.": "動画を開けませんでした。視聴にはインターネット接続が必要です。",
  "Video dili": "動画の言語",
  "Video rehber": "動画ガイド",
- "Excel aktar": "Excel から取り込む"
+ "Excel aktar": "Excel から取り込む",
+ "Ses": "サウンド",
+ "Açılış melodisi": "起動メロディー",
+ "Uygulama açılırken kısa bir melodi çalar": "アプリ起動時に短いメロディーを再生します"
 }

@@ -51,6 +51,9 @@ class AppStore extends ChangeNotifier {
   DateTime? lastCloudBackup;
   bool cloudAuto = true;
 
+  /// Açılış animasyonunda melodi çalsın mı.
+  bool splashSound = true;
+
   /// Günlük otomatik yedek alındığında çağrılır (bulut yedeği için).
   Future<void> Function()? onDailyBackup;
   bool ratePrompted = false;
@@ -183,6 +186,7 @@ class AppStore extends ChangeNotifier {
         'googleName': googleName,
         'lastCloudBackup': lastCloudBackup?.toIso8601String(),
         'cloudAuto': cloudAuto,
+        'splashSound': splashSound,
         'promoHiddenUntil': promoHiddenUntil?.toIso8601String(),
         'proProduct': proProduct,
         'trialStart': trialStart?.toIso8601String(),
@@ -213,6 +217,7 @@ class AppStore extends ChangeNotifier {
     proConfirmedAt = DateTime.tryParse('${j['proConfirmedAt'] ?? ''}') ?? proConfirmedAt;
     promoHiddenUntil = DateTime.tryParse('${j['promoHiddenUntil'] ?? ''}') ?? promoHiddenUntil;
     ratePrompted = j['ratePrompted'] as bool? ?? ratePrompted;
+    splashSound = j['splashSound'] as bool? ?? splashSound;
     language = j['language'] as String? ?? language;
     if (j.containsKey('googleEmail')) {
       googleEmail = j['googleEmail'] as String?;
@@ -232,6 +237,11 @@ class AppStore extends ChangeNotifier {
   void setGoogleAccount(String? email, String? name) {
     googleEmail = email;
     googleName = name;
+    _changed();
+  }
+
+  void setSplashSound(bool v) {
+    splashSound = v;
     _changed();
   }
 

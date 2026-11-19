@@ -42,5 +42,8 @@
  "Video açılamadı. Videoyu izlemek için internet bağlantısı gerekir.": "Impossibile aprire il video. Per guardarlo serve una connessione a Internet.",
  "Video dili": "Lingua del video",
  "Video rehber": "Guida video",
- "Excel aktar": "Importa da Excel"
+ "Excel aktar": "Importa da Excel",
+ "Ses": "Suono",
+ "Açılış melodisi": "Melodia di apertura",
+ "Uygulama açılırken kısa bir melodi çalar": "Riproduce una breve melodia all’apertura dell’app"
 }

@@ -135,6 +135,27 @@ def main(lang):
     audio = f'{tmp}/audio.wav'
     subprocess.run(['ffmpeg', '-v', 'error', '-y', '-f', 'concat', '-safe', '0', '-i', f'{tmp}/list.txt', '-c', 'copy', audio], check=True)
 
+    # Arka plan melodisi (konuşma sırasında kısılır) ve açılış müziği.
+    total = sum(durs)
+    music, sting = 'build/video/muzik.mp3', 'build/video/acilis.mp3'
+    if os.path.exists(music):
+        inputs = ['-i', audio, '-stream_loop', '-1', '-i', music]
+        fc = (f'[1:a]volume=0.22,afade=t=in:d=2,afade=t=out:st={max(0, total - 3):.2f}:d=3[m];'
+              '[0:a]asplit=2[v][sc];'
+              '[m][sc]sidechaincompress=threshold=0.02:ratio=8:attack=30:release=500[md];')
+        mix_in = '[v][md]'
+        n = 2
+        if os.path.exists(sting):
+            inputs += ['-i', sting]
+            fc += '[2:a]volume=0.8[st];'
+            mix_in += '[st]'
+            n = 3
+        fc += f'{mix_in}amix=inputs={n}:duration=first:normalize=0,alimiter=limit=0.95[out]'
+        mixed = f'{tmp}/mixed.wav'
+        subprocess.run(['ffmpeg', '-v', 'error', '-y', *inputs, '-filter_complex', fc, '-map', '[out]',
+                        '-t', f'{total:.3f}', '-ar', '44100', '-ac', '2', mixed], check=True)
+        audio = mixed
+
     out = f'build/video/rehber_{lang}.mp4'
     ff = subprocess.Popen(['ffmpeg', '-v', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-s', f'{W}x{H}', '-r', str(FPS),
                            '-i', '-', '-i', audio, '-c:v', 'libx264', '-preset', 'medium', '-crf', '26', '-pix_fmt', 'yuv420p',
@@ -169,7 +190,6 @@ def main(lang):
         dr.rounded_rectangle([sx, 48, sx + sw, 86], 19, fill=EMERALD)
         dr.text((sx + sw / 2, 67), step, font=step_f, fill=NAVY, anchor='mm')
         # İlerleme çubuğu.
-        total = sum(durs)
         done = sum(durs[:i]) + t
         dr.rounded_rectangle([40, 100, W - 40, 104], 2, fill=(255, 255, 255, 40))
         px = 40 + (W - 80) * done / total

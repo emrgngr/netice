@@ -1120,5 +1120,8 @@
 "Tekrar dene": "Reintentar",
 "Video açılamadı. Videoyu izlemek için internet bağlantısı gerekir.": "No se pudo abrir el vídeo. Para verlo se necesita conexión a Internet.",
 "Video dili": "Idioma del vídeo",
-"Video rehber": "Guía en vídeo"
+"Video rehber": "Guía en vídeo",
+"Ses": "Sonido",
+"Açılış melodisi": "Melodía de inicio",
+"Uygulama açılırken kısa bir melodi çalar": "Reproduce una melodía corta al abrir la aplicación"
 }

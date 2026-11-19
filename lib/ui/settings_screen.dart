@@ -222,6 +222,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onTap: () => pickLanguage(context),
             ),
           ),
+          SectionTitle(tr('Ses')),
+          Card(
+            clipBehavior: Clip.antiAlias,
+            child: SwitchListTile(
+              secondary: const IconBadge(Icons.music_note_rounded, color: NColors.emerald),
+              value: store.splashSound,
+              onChanged: store.setSplashSound,
+              title: Text(tr('Açılış melodisi'), style: const TextStyle(fontWeight: FontWeight.w700)),
+              subtitle: Text(tr('Uygulama açılırken kısa bir melodi çalar')),
+            ),
+          ),
           // Netice Pro, hesap ve okul bilgileri Profil sekmesinde.
           SectionTitle(tr('Formlar')),
           Card(

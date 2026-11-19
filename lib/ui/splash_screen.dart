@@ -1,6 +1,9 @@
 import 'dart:math' as math;
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:material_ui/material_ui.dart';
+
+import '../main.dart';
 
 import 'theme.dart';
 import '../l10n/l10n.dart';
@@ -70,6 +73,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       _c.value = widget.freezeAt!;
       return;
     }
+    WidgetsBinding.instance.addPostFrameCallback((_) => _playSound());
     _c.forward().whenComplete(() {
       if (!mounted) return;
       SplashScreen.played = true;
@@ -84,6 +88,25 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
         ),
       ));
     });
+  }
+
+  /// Açılış melodisi (Ayarlar'dan kapatılabilir). Ses dosyası yoksa ya da
+  /// çalınamazsa sessizce geçer.
+  Future<void> _playSound() async {
+    if (!mounted) return;
+    final store = StoreScope.of(context);
+    for (var i = 0; i < 10 && !store.loaded; i++) {
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+    }
+    if (!mounted || !store.splashSound) return;
+    try {
+      // Melodi ana sayfaya geçince de bitene kadar çalar, sonra oynatıcı bırakılır.
+      final p = AudioPlayer();
+      p.onPlayerComplete.first.then((_) => p.dispose()).catchError((_) {});
+      await p.setReleaseMode(ReleaseMode.release);
+      await p.setVolume(0.8);
+      await p.play(AssetSource('sounds/acilis.mp3'), mode: PlayerMode.lowLatency);
+    } catch (_) {}
   }
 
   @override

@@ -13,7 +13,7 @@ class VideoGuide {
   static const baseUrl = 'https://github.com/emrgngr/netice/releases/download/rehber-videolari';
 
   /// Videosu hazır olan diller.
-  static const languages = ['tr'];
+  static const languages = ['tr', 'en', 'de', 'fr', 'ru', 'az', 'es', 'it', 'ar', 'zh', 'ja'];
 
   static String urlFor(String lang) => '$baseUrl/rehber_$lang.mp4';
 
