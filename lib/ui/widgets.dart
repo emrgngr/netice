@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:material_ui/material_ui.dart';
 
 import '../core/models.dart';
-import 'logo.dart';
 import 'theme.dart';
 import '../l10n/l10n.dart';
 
@@ -293,8 +292,8 @@ class IconBadge extends StatelessWidget {
       );
 }
 
-/// Ekranların arka planındaki saydam logo filigranı. Kartların ve
-/// panellerin üzerinden çok hafifçe görünür; dokunmaları engellemez.
+/// Ekranların arka planı: içeriğin arkasında, iki köşede çok yumuşak renk
+/// ışıması. Desen ya da logo yok; kartların üzerine hiçbir şey binmez.
 class Watermark extends StatelessWidget {
   final Widget child;
   const Watermark({super.key, required this.child});
@@ -303,24 +302,34 @@ class Watermark extends StatelessWidget {
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
     return Stack(children: [
-      child,
       Positioned.fill(
         child: IgnorePointer(
-          child: LayoutBuilder(builder: (context, c) {
-            final side = (c.biggest.shortestSide * 0.8).clamp(160.0, 560.0);
-            return Align(
-              alignment: const Alignment(0, 0.35),
-              child: RepaintBoundary(
-                child: NeticeMark(
-                  size: side,
-                  outline: true,
-                  ink: (dark ? Colors.white : NColors.ink).withValues(alpha: dark ? 0.06 : 0.05),
+          child: RepaintBoundary(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  center: const Alignment(1.1, -1.05),
+                  radius: 1.25,
+                  colors: [NColors.emerald.withValues(alpha: dark ? 0.10 : 0.07), NColors.emerald.withValues(alpha: 0)],
                 ),
               ),
-            );
-          }),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
+                    center: const Alignment(-1.2, 1.1),
+                    radius: 1.1,
+                    colors: [
+                      (dark ? const Color(0xFF6D7FD8) : NColors.ink).withValues(alpha: dark ? 0.08 : 0.04),
+                      (dark ? const Color(0xFF6D7FD8) : NColors.ink).withValues(alpha: 0),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
         ),
       ),
+      child,
     ]);
   }
 }
