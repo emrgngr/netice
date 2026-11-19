@@ -4,6 +4,7 @@ import '../core/help_content.dart';
 import 'illustrations.dart';
 import 'onboarding_screen.dart';
 import 'theme.dart';
+import 'video_guide_screen.dart';
 import 'widgets.dart';
 import '../l10n/l10n.dart';
 
@@ -82,6 +83,7 @@ class _HelpScreenState extends State<HelpScreen> {
           ]),
         ),
       ),
+      const Padding(padding: EdgeInsets.fromLTRB(16, 12, 16, 0), child: VideoGuideCard()),
       search(tr('Kılavuzda ara (ör. yedek, kitapçık)')),
       for (final s in guideSections)
         if (s.topics.any((tp) => _match('${s.title} ${tp.title} ${tp.steps.join(' ')} ${tp.tip ?? ''}'))) ...[
