@@ -1,5 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
+import 'core/ad_admin.dart';
+import 'core/ads.dart';
 import 'core/cloud.dart';
 import 'core/pro.dart';
 import 'core/store.dart';
@@ -17,6 +19,8 @@ void main() {
     if (store.language != null) store.setLanguage(store.language);
     CloudService.instance.attach(store);
     ProService.instance.attach(store);
+    AdAdmin.instance.load();
+    AdService.instance.refresh();
   });
 }
 

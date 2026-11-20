@@ -15,6 +15,10 @@ import 'theme.dart';
 import 'widgets.dart';
 import 'template_screen.dart';
 import '../l10n/l10n.dart';
+import '../core/ads.dart';
+import 'ad_slot.dart';
+import 'ad_admin_screen.dart';
+import '../core/ad_admin.dart';
 
 /// Ayarlar: okul bilgileri, yedekleme, gizlilik metinleri, rehber, geri bildirim.
 class SettingsScreen extends StatefulWidget {
@@ -25,6 +29,37 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  /// Sürüm yazısına arka arkaya 7 dokunuş yönetici menüsünü açar.
+  int _taps = 0;
+  DateTime _lastTap = DateTime(2000);
+
+  @override
+  void initState() {
+    super.initState();
+    AdAdmin.instance.addListener(_adminChanged);
+    AdAdmin.instance.load();
+  }
+
+  @override
+  void dispose() {
+    AdAdmin.instance.removeListener(_adminChanged);
+    super.dispose();
+  }
+
+  void _adminChanged() {
+    if (mounted) setState(() {});
+  }
+
+  void _versionTap() {
+    final now = DateTime.now();
+    _taps = now.difference(_lastTap) < const Duration(seconds: 2) ? _taps + 1 : 1;
+    _lastTap = now;
+    if (_taps >= 7 && !AdAdmin.instance.unlocked) {
+      _taps = 0;
+      AdAdmin.instance.unlock();
+      toast(context, 'Yönetici menüsü açıldı: Reklam yönetimi');
+    }
+  }
   String _stamp(DateTime d) =>
       '${d.year}${d.month.toString().padLeft(2, '0')}${d.day.toString().padLeft(2, '0')}';
 
@@ -325,6 +360,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   () => showRateDialog(context, onFeedback: _feedback)),
             ]),
           ),
+          if (AdAdmin.instance.unlocked) ...[
+            SectionTitle('Yönetici'),
+            Card(
+              clipBehavior: Clip.antiAlias,
+              child: tile(Icons.campaign_rounded, NColors.coral, 'Reklam yönetimi',
+                  'Görsel ve video reklam ekle, sayfaları seç, yayınla',
+                  () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdAdminScreen()))),
+            ),
+          ],
+          const AdSlot.card(AdPage.settings, padding: EdgeInsets.only(top: 12)),
           SectionTitle(tr('Yardım ve gizlilik')),
           Card(
             clipBehavior: Clip.antiAlias,
@@ -349,14 +394,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ]),
           ),
           const SizedBox(height: 20),
-          Center(
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: _versionTap,
+            child: Center(
             child: Column(children: [
               const NeticeMark(size: 36),
               const SizedBox(height: 6),
               Text(tr('Netice {0}', [appVersion]), style: const TextStyle(fontWeight: FontWeight.w700)),
               Text(tr('Kâğıttan sonuca, saniyeler içinde.'), style: TextStyle(color: muted, fontSize: 12)),
             ]),
-          ),
+          )),
         ]),
       ),
     );

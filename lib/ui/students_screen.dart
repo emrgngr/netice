@@ -11,6 +11,8 @@ import 'theme.dart';
 import 'illustrations.dart';
 import 'widgets.dart';
 import '../l10n/l10n.dart';
+import '../core/ads.dart';
+import 'ad_slot.dart';
 
 /// Sınıflar ve öğrenciler; Excel/CSV'den aktarma.
 class StudentsScreen extends StatefulWidget {
@@ -203,6 +205,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
         const SizedBox(height: 6),
         Text(tr('Tüm sınıfları tek Excel dosyasında (.xlsx veya CSV) aktarabilirsiniz: okul no, ad, soyad ve sınıf sütunları otomatik tanınır, öğrenciler sınıflarına kendiliğinden ayrılır. Öğrencinin geçmişini görmek için üstüne, düzenlemek için kalem simgesine dokunun.'),
             style: Theme.of(context).textTheme.bodySmall),
+        const AdSlot.card(AdPage.classes, padding: EdgeInsets.only(top: 14)),
         const SizedBox(height: 16),
         if (classes.isNotEmpty)
           Wrap(spacing: 8, runSpacing: 8, children: [

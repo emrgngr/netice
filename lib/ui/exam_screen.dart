@@ -27,6 +27,8 @@ import 'widgets.dart';
 import 'illustrations.dart';
 import 'charts.dart';
 import '../l10n/l10n.dart';
+import '../core/ads.dart';
+import 'ad_slot.dart';
 
 class ExamScreen extends StatelessWidget {
   final String examId;
@@ -291,6 +293,7 @@ class ExamScreen extends StatelessWidget {
           icon: const Icon(Icons.document_scanner_outlined),
           label: Text(tr('Okut'), style: TextStyle(fontWeight: FontWeight.w700)),
         ),
+        bottomNavigationBar: const AdBannerBar(AdPage.exam),
         body: Watermark(child: TabBarView(children: [
           _ResultsTab(exam: exam, results: results),
           _AnalysisTab(exam: exam, results: results, reports: actions.where((a) => a.label != tr('Form yazdır') && a.label != tr('Klasik puan gir')).toList()),
@@ -442,6 +445,7 @@ class _ResultsTab extends StatelessWidget {
             ),
         ]),
       ),
+      const AdSlot.card(AdPage.exam, padding: EdgeInsets.only(top: 16)),
     ]);
   }
 }

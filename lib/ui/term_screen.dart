@@ -17,6 +17,8 @@ import '../core/pro.dart';
 import 'theme.dart';
 import 'widgets.dart';
 import '../l10n/l10n.dart';
+import '../core/ads.dart';
+import 'ad_slot.dart';
 
 /// Dönem raporu: bir sınıfın dönemdeki sınavlarından dönem sonu notu
 /// (ağırlıklı ortalama) ve öğrenci başına dönem kazanım karnesi.
@@ -134,6 +136,7 @@ class _TermScreenState extends State<TermScreen> {
         title: Text(tr('Dönem raporu')),
         actions: [IconButton(tooltip: tr('Excel'), onPressed: excel, icon: const Icon(Icons.table_view_outlined))],
       ),
+      bottomNavigationBar: const AdBannerBar(AdPage.term),
       body: Watermark(
         child: ListView(
           padding: EdgeInsets.fromLTRB(20, 8, 20, 40 + MediaQuery.paddingOf(context).bottom),
@@ -142,6 +145,7 @@ class _TermScreenState extends State<TermScreen> {
               tr('Sınıfı ve dönemi seçin; o dönemdeki sınavlardan dönem sonu notu ve her öğrenci için kazanım karnesi hazırlanır.'),
               style: TextStyle(color: muted),
             ),
+            const AdSlot.card(AdPage.term, padding: EdgeInsets.only(top: 12)),
             const SizedBox(height: 14),
             if (classes.isEmpty)
               Card(

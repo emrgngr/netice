@@ -8,6 +8,8 @@ import 'school_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
 import '../l10n/l10n.dart';
+import '../core/ads.dart';
+import 'ad_slot.dart';
 
 /// Profil sekmesi: öğretmen kimliği, Netice Pro durumu, Google hesabı ve
 /// yedek, okul bilgileri tek yerde.
@@ -66,6 +68,7 @@ class ProfileScreen extends StatelessWidget {
             ),
           ]),
         ),
+        const AdSlot.card(AdPage.profile, padding: EdgeInsets.only(top: 14)),
         SectionTitle(tr('Netice Pro')),
         Card(
           clipBehavior: Clip.antiAlias,

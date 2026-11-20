@@ -7,6 +7,8 @@ import 'report_preview_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
 import '../l10n/l10n.dart';
+import '../core/ads.dart';
+import 'ad_slot.dart';
 
 /// Şube karşılaştırması: aynı sınavın farklı şubelerdeki sonuçları
 /// (veya öğretmenin seçtiği herhangi sınavlar).
@@ -52,10 +54,12 @@ class _CompareScreenState extends State<CompareScreen> {
       appBar: AppBar(title: Text(tr('Şube karşılaştırması')), actions: [
         IconButton(tooltip: tr('PDF rapor'), onPressed: pdf, icon: const Icon(Icons.picture_as_pdf_outlined)),
       ]),
+      bottomNavigationBar: const AdBannerBar(AdPage.compare),
       body: Watermark(
         child: ListView(padding: EdgeInsets.fromLTRB(20, 8, 20, 40 + MediaQuery.paddingOf(context).bottom), children: [
           Text(tr('Karşılaştırmak istediğiniz sınavları seçin. Aynı adlı sınavlar (farklı şubeler) hızlı seçim olarak üstte.'),
               style: TextStyle(color: muted)),
+          const AdSlot.card(AdPage.compare, padding: EdgeInsets.only(top: 12)),
           if (groups.isNotEmpty) ...[
             const SizedBox(height: 10),
             Wrap(spacing: 8, runSpacing: 8, children: [

@@ -14,7 +14,8 @@ enum ProFeature {
   parentShare('Karneyi veliye gönder', 'WhatsApp veya e-postayla tek dokunuşla'),
   cloudBackup('Google Drive yedeği', 'Kendi hesabınıza her gün otomatik yedek'),
   advancedCharts('Gelişmiş grafikler', 'Pasta, madde haritası, puan yayılımı, kazanım radarı'),
-  officialHeader('Resmi yazı başlığı', 'Kurumunuzun resmi başlığı ve imza alanı');
+  officialHeader('Resmi yazı başlığı', 'Kurumunuzun resmi başlığı ve imza alanı'),
+  noAds('Reklamsız kullanım', 'Hiçbir sayfada reklam gösterilmez');
 
   final String _title;
   final String _detail;
