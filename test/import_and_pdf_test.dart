@@ -110,7 +110,9 @@ void main() {
     File('${out.path}/resmi_anahtar.pdf').writeAsBytesSync(key);
     File('${out.path}/resmi_karsilastirma.pdf').writeAsBytesSync(compare);
     expect(school.authority, 'ÇANKAYA KAYMAKAMLIĞI');
-    expect(school.directorate, 'ATATÜRK ANADOLU LİSESİ MÜDÜRLÜĞÜ');
+    expect(school.directorate, 'Atatürk Anadolu Lisesi Müdürlüğü');
+    expect(school.letterhead,
+        ['T.C.', 'ÇANKAYA KAYMAKAMLIĞI', 'İlçe Millî Eğitim Müdürlüğü', 'Atatürk Anadolu Lisesi Müdürlüğü']);
   });
 
   test('Excel (.xlsx) listesi, başlıktan önceki satırlar atlanarak aktarılır', () {
