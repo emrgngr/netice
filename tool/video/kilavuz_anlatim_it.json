@@ -1,0 +1,15 @@
+{
+ "_baslik": {
+  "start": "Per iniziare",
+  "exam": "Preparare la verifica",
+  "print": "Stampare i fogli",
+  "scan": "Correggere i fogli",
+  "report": "Risultati e report",
+  "data": "I tuoi dati"
+ },
+ "k_sinav_ayar": "Nelle impostazioni della verifica scegli il punteggio massimo, la soglia di sufficienza e se le risposte errate tolgono punti. Qui aggiungi anche i tipi di fascicolo e le domande scritte.",
+ "k_sablon": "Se usi il foglio di un editore o di un'altra azienda, crea una volta un modello in Impostazioni, alla voce Altri fogli.",
+ "k_kontrol": "Tocca un foglio corretto. I segni incerti sono evidenziati in giallo e puoi correggerli con un tocco.",
+ "k_donem": "Il report del periodo unisce le verifiche scelte in voti del periodo e pagelle per obiettivi.",
+ "k_yedek": "Netice funziona offline e conserva i dati solo sul tuo dispositivo. Quando cambi dispositivo, usa Salva backup su file."
+}
