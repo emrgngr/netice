@@ -12,7 +12,6 @@ import 'package:netice/main.dart';
 import 'package:netice/ui/ad_admin_screen.dart';
 import 'package:netice/ui/ad_slot.dart';
 import 'package:netice/ui/exam_screen.dart';
-import 'package:netice/ui/settings_screen.dart';
 import 'package:netice/ui/theme.dart';
 
 import 'screenshots_test.dart' show loadFonts, shot;
@@ -62,7 +61,6 @@ void main() {
 
     await tester.runAsync(AdAdmin.instance.load);
     AdAdmin.instance
-      ..unlocked = true
       ..dirty = true
       ..drafts = [
         ...ads,
@@ -78,9 +76,10 @@ void main() {
       ];
     await shot(tester, _themed(store, const AdAdminScreen()), const Size(390, 900), 'reklam_5_yonetim');
     await shot(tester, _themed(store, AdEditScreen(ad: ads.first)), const Size(390, 1500), 'reklam_6_reklam_ekle');
-    await shot(tester, _themed(store, const SettingsScreen()), const Size(390, 900), 'reklam_7_ayarlar_yonetici',
-        then: () async {
-      await tester.scrollUntilVisible(find.text('Reklam yönetimi'), 300, scrollable: find.byType(Scrollable).first);
+    await shot(tester, _themed(store, Builder(builder: (c) => Scaffold(
+          body: Center(child: FilledButton(onPressed: () => openAdminGate(c), child: const Text('aç'))),
+        ))), const Size(390, 700), 'reklam_7_yonetici_kodu', then: () async {
+      await tester.tap(find.text('aç'));
     });
 
     store.proConfirmedAt = DateTime.now();

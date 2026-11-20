@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'dart:math';
+
+import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -17,8 +20,13 @@ class AdAdmin extends ChangeNotifier {
   AdAdmin._();
   static final instance = AdAdmin._();
 
-  /// Ayarlar'daki sürüm yazısına 7 kez dokunulunca açılır.
-  bool unlocked = false;
+  /// Yönetici PIN'i: yalnızca tuzlanmış özeti bu cihazda saklanır, kodda yoktur.
+  String _pinHash = '';
+  String _pinSalt = '';
+  int _failed = 0;
+  DateTime? _lockedUntil;
+
+  bool get hasPin => _pinHash.isNotEmpty;
   String token = '';
   List<Ad> drafts = [];
   bool dirty = false;
@@ -46,7 +54,10 @@ class AdAdmin extends ChangeNotifier {
       final f = await _file();
       if (await f.exists()) {
         final j = jsonDecode(await f.readAsString()) as Map<String, dynamic>;
-        unlocked = j['acik'] == true;
+        _pinHash = '${j['pin'] ?? ''}';
+        _pinSalt = '${j['tuz'] ?? ''}';
+        _failed = (j['hata'] as num? ?? 0).toInt();
+        _lockedUntil = DateTime.tryParse('${j['kilit'] ?? ''}');
         token = '${j['anahtar'] ?? ''}';
         drafts = Ad.listFromJson(j['taslak']);
         dirty = j['degisti'] == true;
@@ -59,7 +70,10 @@ class AdAdmin extends ChangeNotifier {
   Future<void> save() async {
     try {
       await (await _file()).writeAsString(jsonEncode({
-        'acik': unlocked,
+        'pin': _pinHash,
+        'tuz': _pinSalt,
+        'hata': _failed,
+        if (_lockedUntil != null) 'kilit': _lockedUntil!.toIso8601String(),
         'anahtar': token,
         'taslak': [for (final a in drafts) a.toJson()],
         'degisti': dirty,
@@ -69,10 +83,63 @@ class AdAdmin extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> unlock() async {
+  static String _hash(String pin, String salt) {
+    List<int> h = utf8.encode('$salt:$pin');
+    for (var i = 0; i < 20000; i++) {
+      h = sha256.convert([...h, ...utf8.encode(salt)]).bytes;
+    }
+    return base64Encode(h);
+  }
+
+  static bool validPin(String pin) => RegExp(r'^\d{6,12}$').hasMatch(pin);
+
+  Future<void> setPin(String pin) async {
     await load();
-    unlocked = true;
+    final r = Random.secure();
+    _pinSalt = base64Encode(List.generate(16, (_) => r.nextInt(256)));
+    _pinHash = await compute((List<String> a) => _hash(a[0], a[1]), [pin, _pinSalt]);
+    _failed = 0;
+    _lockedUntil = null;
     await save();
+  }
+
+  /// Kaç saniye kilitli (yanlış denemelerden sonra)?
+  int get lockSeconds {
+    final l = _lockedUntil;
+    if (l == null) return 0;
+    final s = l.difference(DateTime.now()).inSeconds;
+    return s > 0 ? s + 1 : 0;
+  }
+
+  /// PIN doğru mu? 5 yanlıştan sonra giderek uzayan bekleme süresi.
+  Future<bool> checkPin(String pin) async {
+    await load();
+    if (!hasPin || lockSeconds > 0) return false;
+    final h = await compute((List<String> a) => _hash(a[0], a[1]), [pin, _pinSalt]);
+    if (h == _pinHash) {
+      _failed = 0;
+      _lockedUntil = null;
+      await save();
+      return true;
+    }
+    _failed++;
+    if (_failed >= 5) {
+      _lockedUntil = DateTime.now().add(Duration(minutes: 1 << (_failed - 5).clamp(0, 6)));
+    }
+    await save();
+    return false;
+  }
+
+  /// PIN unutulursa: kayıtlı GitHub yayın anahtarının aynısı girilirse sıfırlanır.
+  Future<bool> resetPinWithToken(String t) async {
+    await load();
+    if (token.isEmpty || t.trim() != token) return false;
+    _pinHash = '';
+    _pinSalt = '';
+    _failed = 0;
+    _lockedUntil = null;
+    await save();
+    return true;
   }
 
   Future<void> setToken(String t) async {

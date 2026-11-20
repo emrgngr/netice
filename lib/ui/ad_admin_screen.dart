@@ -656,3 +656,157 @@ class _AdEditScreenState extends State<AdEditScreen> {
     );
   }
 }
+
+/// Gizli hareketten (Ayarlar'da logoya 3 sn basılı tutma) sonra açılır:
+/// PIN yoksa oluşturulur, varsa sorulur; doğruysa Reklam yönetimi açılır.
+Future<void> openAdminGate(BuildContext context) async {
+  final admin = AdAdmin.instance;
+  await admin.load();
+  if (!context.mounted) return;
+  final ok = await showDialog<bool>(
+    context: context,
+    builder: (_) => const _PinDialog(),
+  );
+  if (ok == true && context.mounted) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdAdminScreen()));
+  }
+}
+
+class _PinDialog extends StatefulWidget {
+  const _PinDialog();
+
+  @override
+  State<_PinDialog> createState() => _PinDialogState();
+}
+
+class _PinDialogState extends State<_PinDialog> {
+  final _admin = AdAdmin.instance;
+  final _a = TextEditingController();
+  final _b = TextEditingController();
+  late bool _create = !_admin.hasPin;
+  bool _forgot = false;
+  bool _busy = false;
+  String? _error;
+
+  InputDecoration _dec(String label) => InputDecoration(labelText: label, border: const OutlineInputBorder(), counterText: '');
+
+  Future<void> _submit() async {
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      if (_forgot) {
+        if (await _admin.resetPinWithToken(_a.text)) {
+          _a.clear();
+          setState(() {
+            _forgot = false;
+            _create = true;
+          });
+        } else {
+          setState(() => _error = 'Anahtar kayıtlı yayın anahtarıyla eşleşmedi.');
+        }
+        return;
+      }
+      if (_create) {
+        if (!AdAdmin.validPin(_a.text)) {
+          setState(() => _error = 'Kod 6 ile 12 rakam arasında olmalı.');
+          return;
+        }
+        if (_a.text != _b.text) {
+          setState(() => _error = 'İki kod aynı değil.');
+          return;
+        }
+        await _admin.setPin(_a.text);
+        if (mounted) Navigator.pop(context, true);
+        return;
+      }
+      final wait = _admin.lockSeconds;
+      if (wait > 0) {
+        setState(() => _error = 'Çok fazla yanlış deneme. $wait saniye sonra tekrar deneyin.');
+        return;
+      }
+      if (await _admin.checkPin(_a.text)) {
+        if (mounted) Navigator.pop(context, true);
+      } else {
+        _a.clear();
+        final w = _admin.lockSeconds;
+        setState(() => _error = w > 0 ? 'Çok fazla yanlış deneme. $w saniye bekleyin.' : 'Kod yanlış.');
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final title = _forgot ? 'Kodu sıfırla' : _create ? 'Yönetici kodu oluştur' : 'Yönetici girişi';
+    return AlertDialog(
+      icon: const Icon(Icons.lock_outline_rounded),
+      title: Text(title),
+      content: SingleChildScrollView(
+        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          if (_forgot) ...[
+            const Text('Reklam yönetiminde kayıtlı GitHub yayın anahtarınızı yapıştırın. Eşleşirse yeni kod oluşturabilirsiniz.',
+                style: TextStyle(fontSize: 13.5)),
+            const SizedBox(height: 12),
+            TextField(controller: _a, obscureText: true, decoration: _dec('Yayın anahtarı (github_pat_…)')),
+          ] else ...[
+            if (_create)
+              const Padding(
+                padding: EdgeInsets.only(bottom: 12),
+                child: Text('Yalnızca sizin bileceğiniz 6–12 rakamlı bir kod belirleyin. Kod bu cihazda şifrelenmiş olarak saklanır.',
+                    style: TextStyle(fontSize: 13.5)),
+              ),
+            TextField(
+              controller: _a,
+              autofocus: true,
+              obscureText: true,
+              keyboardType: TextInputType.number,
+              maxLength: 12,
+              decoration: _dec('Kod'),
+              onSubmitted: _create ? null : (_) => _submit(),
+            ),
+            if (_create) ...[
+              const SizedBox(height: 10),
+              TextField(
+                controller: _b,
+                obscureText: true,
+                keyboardType: TextInputType.number,
+                maxLength: 12,
+                decoration: _dec('Kodu tekrar girin'),
+                onSubmitted: (_) => _submit(),
+              ),
+            ],
+          ],
+          if (_error != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Text(_error!, style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w600)),
+            ),
+          if (!_create && !_forgot && _admin.token.isNotEmpty)
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TextButton(
+                onPressed: () => setState(() {
+                  _forgot = true;
+                  _error = null;
+                  _a.clear();
+                }),
+                child: const Text('Kodu unuttum'),
+              ),
+            ),
+        ]),
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Vazgeç')),
+        FilledButton(
+          onPressed: _busy ? null : _submit,
+          child: _busy
+              ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2))
+              : Text(_forgot ? 'Sıfırla' : _create ? 'Oluştur ve gir' : 'Gir'),
+        ),
+      ],
+    );
+  }
+}

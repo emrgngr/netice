@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:netice/core/ad_admin.dart';
 import 'package:netice/core/ads.dart';
 import 'package:netice/core/store.dart';
 import 'package:netice/main.dart';
@@ -84,5 +85,25 @@ void main() {
     await tester.pumpWidget(app());
     expect(find.text('Reklam'), findsNothing);
     AdService.instance.debugSet(const [], const {});
+  });
+
+  test('yönetici kodu: kod düz metin saklanmaz, yanlışlar kilitler', () async {
+    final a = AdAdmin.instance;
+    expect(AdAdmin.validPin('12345'), isFalse);
+    expect(AdAdmin.validPin('123456'), isTrue);
+    expect(AdAdmin.validPin('12a456'), isFalse);
+    await a.setPin('482913');
+    expect(a.hasPin, isTrue);
+    expect(await a.checkPin('482913'), isTrue);
+    for (var i = 0; i < 5; i++) {
+      expect(await a.checkPin('000000'), isFalse);
+    }
+    expect(a.lockSeconds, greaterThan(0));
+    // Kilitliyken doğru kod da kabul edilmez.
+    expect(await a.checkPin('482913'), isFalse);
+    a.token = 'github_pat_ornek';
+    expect(await a.resetPinWithToken('yanlis'), isFalse);
+    expect(await a.resetPinWithToken('github_pat_ornek'), isTrue);
+    expect(a.hasPin, isFalse);
   });
 }
