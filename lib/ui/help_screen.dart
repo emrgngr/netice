@@ -95,7 +95,30 @@ class _HelpScreenState extends State<HelpScreen> {
             child: Row(children: [
               IconBadge(_icon(s.icon), size: 30),
               const SizedBox(width: 10),
-              Text(s.title, style: t.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+              Expanded(
+                child: Text(s.title, style: t.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+              ),
+              if (VideoGuide.sections.contains(s.icon)) ...[
+                TextButton.icon(
+                  style: TextButton.styleFrom(
+                    foregroundColor: NColors.emerald,
+                    visualDensity: VisualDensity.compact,
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                  ),
+                  onPressed: () => VideoGuideScreen.open(context, section: s.icon, title: s.title),
+                  icon: const Icon(Icons.play_circle_fill_rounded, size: 20),
+                  label: Text(tr('Videoyu izle')),
+                ),
+                Builder(
+                  builder: (ctx) => IconButton(
+                    tooltip: tr('Videoyu paylaş'),
+                    visualDensity: VisualDensity.compact,
+                    icon: const Icon(Icons.share_rounded, size: 20),
+                    onPressed: () =>
+                        VideoGuide.share(ctx, lang: VideoGuide.defaultLang(), section: s.icon, title: s.title),
+                  ),
+                ),
+              ],
             ]),
           ),
           Padding(

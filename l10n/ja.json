@@ -1282,5 +1282,9 @@
 "Üst kurum ile kurumunuz arasındaki birimler: fakülte, daire başkanlığı, komutanlık…": "上位機関と自機関の間の部署：学部、局、司令部など",
 "İl / İlçe {0}": "県 / 郡 {0}",
 "İl Emniyet Müdürlüğü (Valilik altında)": "県警察本部（県庁の下）",
-"İlçe yazılırsa \"... KAYMAKAMLIĞI\" ve \"İlçe ...\", boşsa \"... VALİLİĞİ\" ve \"İl ...\" yazılır.": "郡を入力すると「... KAYMAKAMLIĞI」と「İlçe ...」、空欄なら「... VALİLİĞİ」と「İl ...」になります。"
+"İlçe yazılırsa \"... KAYMAKAMLIĞI\" ve \"İlçe ...\", boşsa \"... VALİLİĞİ\" ve \"İl ...\" yazılır.": "郡を入力すると「... KAYMAKAMLIĞI」と「İlçe ...」、空欄なら「... VALİLİĞİ」と「İl ...」になります。",
+"Videoyu izle": "動画を見る",
+"Videoyu paylaş": "動画を共有",
+"Video paylaşıma hazırlanıyor…": "共有する動画を準備しています…",
+"{0} · Netice ile optik kâğıtları telefonla saniyeler içinde okuyun.\n\nİndir: {1}": "{0} · Netice ならスマホでマークシートを数秒で採点できます。\n\nダウンロード：{1}"
 }
