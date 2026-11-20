@@ -1,15 +1,16 @@
 {
  "00_acilis": "Al abrir Netice, te recibe una breve animación de inicio.",
  "01_tanitim": "La primera vez verás unas páginas que presentan la aplicación. Pulsa Continuar para avanzar.",
- "02_ana": "La pantalla de inicio resume tus exámenes. Pulsa el botón más arriba a la derecha para crear un examen, o Corregir para leer las hojas.",
+ "02_ana": "El inicio resume sus exámenes. Toque el botón más arriba a la derecha para un examen nuevo, o Corregir para leer hojas. Puede quitar los datos de ejemplo con Borrar ejemplos.",
  "03_siniflar": "Ve a Clases en el menú inferior. Importa a tus alumnos desde una lista de Excel o añádelos uno a uno.",
- "04_yeni_sinav": "En el nuevo examen, elige el número de preguntas y opciones, introduce la clave de respuestas y pulsa Guardar examen.",
+ "04_yeni_sinav": "En la pantalla de examen nuevo, fije el número de preguntas con los botones más y menos o escribiéndolo, elija el número de opciones, introduzca la clave y toque Guardar examen.",
  "05_form_yazdir": "En la pantalla del examen, elige Imprimir hojas en el menú de arriba a la derecha y reparte las hojas de respuestas.",
  "06_okut": "Cuando termine el examen, pulsa Corregir.",
  "07_okut_ekrani": "Escanea las hojas con la cámara o elige sus fotos de la galería. Netice lee cada hoja en segundos.",
  "08_sonuclar": "La pestaña Resultados muestra las respuestas correctas, incorrectas y en blanco de cada alumno y su nota.",
  "09_analiz": "Desde la pestaña Análisis puedes obtener el informe del examen y los boletines en PDF.",
  "10_ogrenci": "La página del alumno muestra su evolución y te avisa cuando sus resultados bajan.",
- "11_ayarlar": "En Ajustes puedes cambiar el idioma y hacer una copia de seguridad de tus datos.",
- "12_yardim": "Si te atascas, consulta la guía y las preguntas frecuentes en la pestaña Ayuda. ¡Buen trabajo!"
+ "11_kurum": "En Perfil, abra Datos de la institución y elija el tipo de institución. Escriba el organismo superior, las unidades y el nombre, y elija cargos y rangos de las listas. Sus informes llevarán un encabezado oficial y un espacio para firmas.",
+ "12_ayarlar": "En Ajustes puede cambiar el idioma, desactivar la melodía de inicio y hacer copia de seguridad de sus datos.",
+ "13_yardim": "Si te atascas, consulta la guía y las preguntas frecuentes en la pestaña Ayuda. ¡Buen trabajo!"
 }

@@ -254,6 +254,7 @@ class _FeatureRow extends StatelessWidget {
     ProFeature.cloudBackup: Icons.cloud_done_outlined,
     ProFeature.advancedCharts: Icons.donut_large_rounded,
     ProFeature.officialHeader: Icons.account_balance_outlined,
+    ProFeature.noAds: Icons.block_rounded,
   };
 
   @override

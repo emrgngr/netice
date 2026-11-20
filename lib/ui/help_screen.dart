@@ -7,6 +7,8 @@ import 'theme.dart';
 import 'video_guide_screen.dart';
 import 'widgets.dart';
 import '../l10n/l10n.dart';
+import '../core/ads.dart';
+import 'ad_slot.dart';
 
 /// Kullanma kılavuzu ve sık sorulan sorular (aramalı).
 class HelpScreen extends StatefulWidget {
@@ -84,6 +86,7 @@ class _HelpScreenState extends State<HelpScreen> {
         ),
       ),
       const Padding(padding: EdgeInsets.fromLTRB(16, 12, 16, 0), child: VideoGuideCard()),
+      const AdSlot.card(AdPage.help, padding: EdgeInsets.fromLTRB(16, 12, 16, 0)),
       search(tr('Kılavuzda ara (ör. yedek, kitapçık)')),
       for (final s in guideSections)
         if (s.topics.any((tp) => _match('${s.title} ${tp.title} ${tp.steps.join(' ')} ${tp.tip ?? ''}'))) ...[

@@ -8,6 +8,8 @@ import 'sheet_image_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
 import '../l10n/l10n.dart';
+import '../core/ads.dart';
+import 'ad_slot.dart';
 
 /// Öğrencinin sınav geçmişi, gelişim grafiği ve güçlü/zayıf kazanımları.
 class StudentDetailScreen extends StatelessWidget {
@@ -39,6 +41,7 @@ class StudentDetailScreen extends StatelessWidget {
         if (onEdit != null)
           IconButton(tooltip: tr('Düzenle'), icon: const Icon(Icons.edit_outlined), onPressed: () => onEdit!(s)),
       ]),
+      bottomNavigationBar: const AdBannerBar(AdPage.student),
       body: Watermark(
         child: ListView(padding: EdgeInsets.fromLTRB(20, 8, 20, 32 + MediaQuery.paddingOf(context).bottom), children: [
           HeroPanel(

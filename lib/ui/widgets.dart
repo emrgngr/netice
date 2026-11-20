@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/services.dart';
 
 import '../core/models.dart';
 import 'theme.dart';
@@ -422,5 +423,165 @@ class _LiveClockState extends State<LiveClock> {
             style: TextStyle(color: fg, fontSize: 15, fontWeight: FontWeight.w800, fontFeatures: tabular)),
       ]),
     );
+  }
+}
+
+/// Sayı seçici: kaydırma çubuğu + "−" / "+" düğmeleri + elle yazılabilen kutu.
+/// Üçü birbirine bağlıdır; değer her zaman [min]–[max] aralığında tutulur.
+/// Düğmeye basılı tutunca değer hızlanarak artar/azalır.
+class NumberStepper extends StatefulWidget {
+  const NumberStepper({
+    super.key,
+    required this.value,
+    required this.min,
+    required this.max,
+    required this.onChanged,
+    this.semanticLabel,
+  });
+
+  final int value;
+  final int min;
+  final int max;
+  final ValueChanged<int> onChanged;
+  final String? semanticLabel;
+
+  @override
+  State<NumberStepper> createState() => _NumberStepperState();
+}
+
+class _NumberStepperState extends State<NumberStepper> {
+  late final TextEditingController _text = TextEditingController(text: '${widget.value}');
+  final _focus = FocusNode();
+  Timer? _repeat;
+  // Son bildirilen değer: aynı karede art arda basışlar eski değeri kullanmasın.
+  late int _current = widget.value;
+
+  @override
+  void initState() {
+    super.initState();
+    _focus.addListener(() {
+      if (!_focus.hasFocus) _commit();
+    });
+  }
+
+  @override
+  void didUpdateWidget(NumberStepper old) {
+    super.didUpdateWidget(old);
+    _current = widget.value;
+    // Dışarıdan (çubuk ya da düğme) gelen değişikliği kutuya yansıt;
+    // kullanıcı yazarken yarım kalan sayıyı ezme.
+    if (!_focus.hasFocus && _text.text != '${widget.value}') _text.text = '${widget.value}';
+  }
+
+  @override
+  void dispose() {
+    _repeat?.cancel();
+    _text.dispose();
+    _focus.dispose();
+    super.dispose();
+  }
+
+  int _clamp(int v) => v.clamp(widget.min, widget.max);
+
+  void _emit(int v) {
+    v = _clamp(v);
+    if (v != _current) {
+      _current = v;
+      widget.onChanged(v);
+    }
+    if (_text.text != '$v') {
+      _text.value = TextEditingValue(text: '$v', selection: TextSelection.collapsed(offset: '$v'.length));
+    }
+  }
+
+  void _commit() {
+    final v = int.tryParse(_text.text.trim());
+    _emit(v ?? _current);
+  }
+
+  void _typing(String s) {
+    final v = int.tryParse(s.trim());
+    // Aralıktaysa hemen uygula; değilse (ör. "1" yazıp "10"a gidiyor) bitince düzelt.
+    if (v != null && v >= widget.min && v <= widget.max && v != _current) {
+      _current = v;
+      widget.onChanged(v);
+    }
+  }
+
+  void _step(int d) {
+    if (_focus.hasFocus) _focus.unfocus();
+    _emit(_current + d);
+  }
+
+  void _startRepeat(int d) {
+    var ticks = 0;
+    _repeat?.cancel();
+    _repeat = Timer.periodic(const Duration(milliseconds: 90), (_) {
+      ticks++;
+      _step(ticks > 15 ? d * 5 : d);
+    });
+  }
+
+  void _stopRepeat() {
+    _repeat?.cancel();
+    _repeat = null;
+  }
+
+  Widget _button(IconData icon, int d, String tooltip) {
+    final enabled = d < 0 ? widget.value > widget.min : widget.value < widget.max;
+    // İpucu (tooltip) uzun basmayı yakaladığı için kullanılmıyor; ekran okuyucu
+    // için etiket Semantics ile veriliyor.
+    return Semantics(
+      label: tooltip,
+      button: true,
+      child: GestureDetector(
+        onLongPressStart: enabled ? (_) => _startRepeat(d) : null,
+        onLongPressEnd: (_) => _stopRepeat(),
+        onLongPressCancel: _stopRepeat,
+        child: IconButton.filledTonal(
+          onPressed: enabled ? () => _step(d) : null,
+          icon: Icon(icon),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      Slider(
+        value: widget.value.clamp(widget.min, widget.max).toDouble(),
+        min: widget.min.toDouble(),
+        max: widget.max.toDouble(),
+        divisions: widget.max - widget.min,
+        label: '${widget.value}',
+        semanticFormatterCallback: (v) => '${widget.semanticLabel ?? ''} ${v.round()}'.trim(),
+        onChanged: (v) {
+          if (_focus.hasFocus) _focus.unfocus();
+          _emit(v.round());
+        },
+      ),
+      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+        _button(Icons.remove_rounded, -1, tr('Azalt')),
+        const SizedBox(width: 12),
+        SizedBox(
+          width: 88,
+          child: TextField(
+            controller: _text,
+            focusNode: _focus,
+            textAlign: TextAlign.center,
+            keyboardType: TextInputType.number,
+            textInputAction: TextInputAction.done,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter('${widget.max}'.length)],
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontFeatures: tabular),
+            decoration: InputDecoration(isDense: true, semanticCounterText: '${widget.min}–${widget.max}'),
+            onChanged: _typing,
+            onSubmitted: (_) => _commit(),
+          ),
+        ),
+        const SizedBox(width: 12),
+        _button(Icons.add_rounded, 1, tr('Artır')),
+      ]),
+    ]);
   }
 }

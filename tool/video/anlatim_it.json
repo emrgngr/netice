@@ -1,15 +1,16 @@
 {
  "00_acilis": "Quando apri Netice, una breve animazione iniziale ti dà il benvenuto.",
  "01_tanitim": "Al primo avvio vedi alcune pagine che presentano l'app. Tocca Continua per andare avanti.",
- "02_ana": "La schermata principale riassume le tue verifiche. Tocca il pulsante più in alto a destra per una nuova verifica, o Correggi per leggere i fogli.",
+ "02_ana": "La home riassume le tue verifiche. Tocca il più in alto a destra per una nuova verifica, oppure Correggi per leggere i fogli. Puoi togliere i dati di esempio con Elimina esempi.",
  "03_siniflar": "Passa a Classi nel menu in basso. Importa gli studenti da un elenco Excel o aggiungili uno alla volta.",
- "04_yeni_sinav": "Nella nuova verifica scegli il numero di domande e opzioni, inserisci la chiave delle risposte e tocca Salva verifica.",
+ "04_yeni_sinav": "Nella nuova verifica imposta il numero di domande con i pulsanti più e meno o digitandolo, scegli il numero di opzioni, inserisci la chiave e tocca Salva verifica.",
  "05_form_yazdir": "Nella schermata della verifica scegli Stampa fogli dal menu in alto a destra e distribuisci i fogli risposte.",
  "06_okut": "Quando la verifica è finita, tocca Correggi.",
  "07_okut_ekrani": "Scansiona i fogli con la fotocamera o scegli le foto dalla galleria. Netice legge ogni foglio in pochi secondi.",
  "08_sonuclar": "La scheda Risultati mostra risposte giuste, sbagliate e vuote di ogni studente e il punteggio.",
  "09_analiz": "Dalla scheda Analisi puoi ottenere il report della verifica e le pagelle in PDF.",
  "10_ogrenci": "La pagina dello studente mostra i progressi e ti avvisa se i suoi risultati calano.",
- "11_ayarlar": "Nelle Impostazioni puoi cambiare la lingua e fare il backup dei dati.",
- "12_yardim": "Se hai dubbi, consulta la guida e le domande frequenti nella scheda Aiuto. Buon lavoro!"
+ "11_kurum": "Nel Profilo apri Dati dell’istituto e scegli il tipo di istituto. Inserisci l’ente superiore, le unità e il nome, e scegli titoli e gradi dagli elenchi. I tuoi report avranno un’intestazione ufficiale e uno spazio per le firme.",
+ "12_ayarlar": "Nelle Impostazioni puoi cambiare lingua, disattivare la melodia di apertura e fare il backup dei dati.",
+ "13_yardim": "Se hai dubbi, consulta la guida e le domande frequenti nella scheda Aiuto. Buon lavoro!"
 }

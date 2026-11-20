@@ -26,6 +26,8 @@ import '../core/pro.dart';
 import 'theme.dart';
 import 'widgets.dart';
 import '../l10n/l10n.dart';
+import '../core/ads.dart';
+import 'ad_slot.dart';
 
 /// Ana sayfa / pano. Geniş ekranda (masaüstü) yan menülü pano,
 /// dar ekranda (telefon) büyük "Okut" düğmeli mobil düzen.
@@ -69,6 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
       3 => const ProfileScreen(),
       _ => const SettingsScreen(),
     };
+    final page = const [AdPage.home, AdPage.classes, AdPage.help, AdPage.profile, AdPage.settings][_tab.clamp(0, 4)];
     final tabs = [
       (Icons.home_outlined, Icons.home_rounded, tr('Ana sayfa')),
       (Icons.groups_outlined, Icons.groups_rounded, tr('Sınıflar')),
@@ -105,13 +108,21 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           VerticalDivider(width: 1, color: Theme.of(context).colorScheme.outlineVariant),
-          Expanded(child: Watermark(child: body)),
+          Expanded(
+            child: Column(children: [
+              Expanded(child: Watermark(child: body)),
+              AdSlot.banner(page, padding: const EdgeInsets.fromLTRB(16, 6, 16, 10)),
+            ]),
+          ),
         ]),
       )));
     }
     return Scaffold(
       body: Watermark(child: body),
-      bottomNavigationBar: _Dock(tabs: tabs, index: _tab, onSelect: (i) => setState(() => _tab = i)),
+      bottomNavigationBar: Column(mainAxisSize: MainAxisSize.min, children: [
+        AdSlot.banner(page, padding: const EdgeInsets.fromLTRB(14, 6, 14, 6)),
+        _Dock(tabs: tabs, index: _tab, onSelect: (i) => setState(() => _tab = i)),
+      ]),
     );
   }
 }
@@ -294,6 +305,10 @@ class _Dashboard extends StatelessWidget {
             padding: EdgeInsets.fromLTRB(wide ? 28 : 16, 4, wide ? 28 : 16, 4),
             sliver: const SliverToBoxAdapter(child: PromoCard()),
           ),
+        SliverPadding(
+          padding: EdgeInsets.symmetric(horizontal: wide ? 28 : 16),
+          sliver: const SliverToBoxAdapter(child: AdSlot.card(AdPage.home)),
+        ),
         SliverPadding(
           padding: EdgeInsets.fromLTRB(wide ? 28 : 16, 12, wide ? 28 : 16, 0),
           sliver: SliverToBoxAdapter(child: _Insights(warnings: earlyWarnings(store))),

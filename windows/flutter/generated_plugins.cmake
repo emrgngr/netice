@@ -8,6 +8,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   printing
   url_launcher_windows
   share_plus
+  video_player_win
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

@@ -1,15 +1,16 @@
 {
  "00_acilis": "Netice-ni açdığınız zaman qısa bir açılış animasiyası sizi qarşılayır.",
  "01_tanitim": "İlk açılışda tətbiqi tanıdan bir neçə səhifə görürsünüz. Davam et düyməsi ilə irəliləyin.",
- "02_ana": "Ana səhifədə imtahanlarınızın xülasəsini görürsünüz. Yeni imtahan üçün sağ yuxarıdakı üstəgəl düyməsinə, vərəq oxutmaq üçün Oxut düyməsinə toxunun.",
+ "02_ana": "Ana səhifədə imtahanlarınızın xülasəsini görürsünüz. Yeni imtahan üçün sağ yuxarıdakı artı düyməsinə, vərəqləri oxutmaq üçün Oxut düyməsinə toxunun. Nümunə məlumatları Nümunələri sil düyməsi ilə silə bilərsiniz.",
  "03_siniflar": "Aşağıdakı menyudan Siniflərə keçin. Şagirdlərinizi Excel siyahısından köçürün və ya bir-bir əlavə edin.",
- "04_yeni_sinav": "Yeni imtahan ekranında sual və variant sayını seçin, cavab açarını düymələrlə daxil edin və İmtahanı saxla düyməsinə toxunun.",
+ "04_yeni_sinav": "Yeni imtahan ekranında sual sayını artı və mənfi düymələri ilə və ya yazaraq təyin edin, variant sayını seçin, cavab açarını daxil edin və İmtahanı saxla düyməsinə toxunun.",
  "05_form_yazdir": "İmtahan ekranında sağ yuxarıdakı menyudan Vərəq çap et seçin və cavab vərəqlərini paylayın.",
  "06_okut": "İmtahan bitdikdə Oxut düyməsinə toxunun.",
  "07_okut_ekrani": "Vərəqləri kamera ilə oxudun və ya şəkillərini qalereyadan seçin. Netice hər vərəqi saniyələr içində oxuyur.",
  "08_sonuclar": "Nəticələr bölməsində hər şagirdin düz, səhv, boş cavab sayını və balını görürsünüz.",
  "09_analiz": "Təhlil bölməsindən imtahan hesabatını və şagird hesabatlarını PDF kimi ala bilərsiniz.",
  "10_ogrenci": "Şagird səhifəsi inkişafı göstərir və nəticəsi düşən şagirdlər barədə sizi xəbərdar edir.",
- "11_ayarlar": "Ayarlarda tətbiq dilini dəyişə və məlumatlarınızın ehtiyat nüsxəsini çıxara bilərsiniz.",
- "12_yardim": "Çətinlik çəksəniz, Kömək bölməsindəki bələdçiyə və tez-tez verilən suallara baxın. Uğurlar!"
+ "11_kurum": "Profil bölməsində Qurum məlumatlarını açın və qurumun növünü seçin. Yuxarı qurumu, bölmələri və qurumun adını yazın, vəzifə və rütbələri siyahıdan seçin. Hesabatlarınız rəsmi başlıq və imza sahəsi ilə çıxacaq.",
+ "12_ayarlar": "Ayarlarda tətbiqin dilini dəyişə, açılış melodiyasını söndürə və məlumatlarınızın ehtiyat nüsxəsini çıxara bilərsiniz.",
+ "13_yardim": "Çətinlik çəksəniz, Kömək bölməsindəki bələdçiyə və tez-tez verilən suallara baxın. Uğurlar!"
 }

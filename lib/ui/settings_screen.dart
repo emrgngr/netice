@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../core/legal.dart';
@@ -15,6 +16,9 @@ import 'theme.dart';
 import 'widgets.dart';
 import 'template_screen.dart';
 import '../l10n/l10n.dart';
+import '../core/ads.dart';
+import 'ad_slot.dart';
+import 'ad_admin_screen.dart';
 
 /// Ayarlar: okul bilgileri, yedekleme, gizlilik metinleri, rehber, geri bildirim.
 class SettingsScreen extends StatefulWidget {
@@ -325,6 +329,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   () => showRateDialog(context, onFeedback: _feedback)),
             ]),
           ),
+          const AdSlot.card(AdPage.settings, padding: EdgeInsets.only(top: 12)),
           SectionTitle(tr('Yardım ve gizlilik')),
           Card(
             clipBehavior: Clip.antiAlias,
@@ -349,14 +354,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ]),
           ),
           const SizedBox(height: 20),
-          Center(
+          // Yönetici girişi: logoya 3 saniye basılı tutmak (görünür bir iz bırakmaz), ardından PIN.
+          RawGestureDetector(
+            behavior: HitTestBehavior.opaque,
+            gestures: {
+              LongPressGestureRecognizer: GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(
+                () => LongPressGestureRecognizer(duration: const Duration(seconds: 3)),
+                (r) => r.onLongPress = () => openAdminGate(context),
+              ),
+            },
+            child: Center(
             child: Column(children: [
               const NeticeMark(size: 36),
               const SizedBox(height: 6),
               Text(tr('Netice {0}', [appVersion]), style: const TextStyle(fontWeight: FontWeight.w700)),
               Text(tr('Kâğıttan sonuca, saniyeler içinde.'), style: TextStyle(color: muted, fontSize: 12)),
             ]),
-          ),
+          )),
         ]),
       ),
     );
