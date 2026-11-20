@@ -204,5 +204,9 @@
  "Üst kurum ile kurumunuz arasındaki birimler: fakülte, daire başkanlığı, komutanlık…": "Einheiten zwischen übergeordneter Stelle und Ihrer Einrichtung: Fakultät, Abteilung, Kommando…",
  "İl / İlçe {0}": "Provinz / Bezirk {0}",
  "İl Emniyet Müdürlüğü (Valilik altında)": "Provinzpolizeidirektion (unter dem Gouverneur)",
- "İlçe yazılırsa \"... KAYMAKAMLIĞI\" ve \"İlçe ...\", boşsa \"... VALİLİĞİ\" ve \"İl ...\" yazılır.": "Mit Bezirk: „... KAYMAKAMLIĞI“ und „İlçe ...“; ohne: „... VALİLİĞİ“ und „İl ...“."
+ "İlçe yazılırsa \"... KAYMAKAMLIĞI\" ve \"İlçe ...\", boşsa \"... VALİLİĞİ\" ve \"İl ...\" yazılır.": "Mit Bezirk: „... KAYMAKAMLIĞI“ und „İlçe ...“; ohne: „... VALİLİĞİ“ und „İl ...“.",
+ "Videoyu izle": "Video ansehen",
+ "Videoyu paylaş": "Video teilen",
+ "Video paylaşıma hazırlanıyor…": "Video wird zum Teilen vorbereitet…",
+ "{0} · Netice ile optik kâğıtları telefonla saniyeler içinde okuyun.\n\nİndir: {1}": "{0} · Mit Netice werten Sie Antwortbögen per Handy in Sekunden aus.\n\nHerunterladen: {1}"
 }

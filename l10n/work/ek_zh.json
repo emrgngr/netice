@@ -204,5 +204,9 @@
  "Üst kurum ile kurumunuz arasındaki birimler: fakülte, daire başkanlığı, komutanlık…": "上级机构与您机构之间的单位：学院、司局、司令部……",
  "İl / İlçe {0}": "省 / 县 {0}",
  "İl Emniyet Müdürlüğü (Valilik altında)": "省警察局（隶属省政府）",
- "İlçe yazılırsa \"... KAYMAKAMLIĞI\" ve \"İlçe ...\", boşsa \"... VALİLİĞİ\" ve \"İl ...\" yazılır.": "填写县时为 \"... KAYMAKAMLIĞI\" 和 \"İlçe ...\"，留空时为 \"... VALİLİĞİ\" 和 \"İl ...\"。"
+ "İlçe yazılırsa \"... KAYMAKAMLIĞI\" ve \"İlçe ...\", boşsa \"... VALİLİĞİ\" ve \"İl ...\" yazılır.": "填写县时为 \"... KAYMAKAMLIĞI\" 和 \"İlçe ...\"，留空时为 \"... VALİLİĞİ\" 和 \"İl ...\"。",
+ "Videoyu izle": "观看视频",
+ "Videoyu paylaş": "分享视频",
+ "Video paylaşıma hazırlanıyor…": "正在准备分享视频…",
+ "{0} · Netice ile optik kâğıtları telefonla saniyeler içinde okuyun.\n\nİndir: {1}": "{0} · 用 Netice 和手机，几秒钟批改答题卡。\n\n下载：{1}"
 }

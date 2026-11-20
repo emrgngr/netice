@@ -14,6 +14,7 @@ import 'package:netice/core/store.dart';
 import 'package:netice/l10n/l10n.dart';
 import 'package:netice/main.dart';
 import 'package:netice/ui/exam_screen.dart';
+import 'package:netice/ui/exam_settings_screen.dart';
 import 'package:netice/ui/help_screen.dart';
 import 'package:netice/ui/home_screen.dart';
 import 'package:netice/ui/new_exam_screen.dart';
@@ -25,6 +26,7 @@ import 'package:netice/ui/settings_screen.dart';
 import 'package:netice/ui/widgets.dart';
 import 'package:netice/ui/splash_screen.dart';
 import 'package:netice/ui/student_detail_screen.dart';
+import 'package:netice/ui/term_screen.dart';
 import 'package:netice/ui/students_screen.dart';
 import 'package:netice/ui/theme.dart';
 
@@ -127,7 +129,7 @@ void main() {
               final r = tester.getRect(f.first);
               return [r.left, r.top, r.width, r.height];
             })(),
-      ];
+      ]..removeWhere((r) => r[1] < 40 || r[1] + r[3] > 740);
     }
 
     Future<void> scene(String name, Widget w, List<Finder> Function() finders, {Future<void> Function()? then}) async {
@@ -230,6 +232,37 @@ void main() {
       '12_ayarlar',
       const SettingsScreen(),
       () => [text(tr('Uygulama dili')), text(tr('Yedeği dosyaya kaydet'))],
+    );
+    // Kılavuz bölüm videoları için ek sahneler (tool/video/kilavuz.json).
+    Future<void> reveal(Finder f, {double dy = -160}) async {
+      if (f.evaluate().isEmpty) return;
+      try {
+        await tester.dragUntilVisible(f, find.byType(Scrollable).first, Offset(0, dy));
+        await settle();
+        // Hedefi ekranın ortasına doğru getir.
+        final y = tester.getRect(f.first).top;
+        if (y > 380) await tester.drag(find.byType(Scrollable).first, Offset(0, -(y - 300)));
+      } catch (_) {}
+    }
+
+    await scene(
+      'k_sinav_ayar',
+      const ExamSettingsScreen(examId: 'demo_exam'),
+      () => [text(tr('Tam puan')), text(tr('Kitapçık türü')), text(tr('Klasik (yazılı) sorular'))],
+      then: () async => tester.drag(find.byType(Scrollable).first, const Offset(0, -200)),
+    );
+    await scene(
+      'k_sablon',
+      const SettingsScreen(),
+      () => [text(tr('Başka firma formları'))],
+      then: () => reveal(text(tr('Başka firma formları'))),
+    );
+    await scene('k_donem', const TermScreen(), () => [find.byType(Checkbox), find.byType(FilledButton)]);
+    await scene(
+      'k_yedek',
+      const SettingsScreen(),
+      () => [text(tr('Yedeği dosyaya kaydet')), text(tr('Yedekten geri yükle'))],
+      then: () => reveal(text(tr('Yedeği dosyaya kaydet'))),
     );
     await scene('13_yardim', const HelpScreen(), () => [find.textContaining(tr('Sık sorulanlar'))]);
 

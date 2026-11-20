@@ -1,8 +1,9 @@
 name: Rehber videoları
 
 # Seslendirmesi hazır olan her dil için (tool/video/ses_<dil>.json) kullanım
-# rehberi videosunu üretir; "rehber-videolari" sürümüne yükler. Uygulama
-# videoları oradan oynatır.
+# rehberi videosunu ve kılavuzun her bölümü için ayrı videoyu
+# (kilavuz_<bölüm>_<dil>.mp4) üretir; "rehber-videolari" sürümüne yükler.
+# Uygulama videoları oradan oynatır ve paylaştırır.
 on:
   workflow_dispatch:
   push:
@@ -70,12 +71,22 @@ jobs:
             i=$((i+1))
           done
           python3 tool/video/compose.py $lang
+          # Kılavuzun her bölümü için ayrı video (tool/video/kilavuz.json).
+          if [ -f tool/video/kilavuz_ses_$lang.json ]; then
+            python3 -c "import json;[print(k, v) for k, v in json.load(open('tool/video/kilavuz_ses_$lang.json')).items()]" |
+              while read key name; do
+                curl -sSf --retry 3 -o build/video/audio/$lang/$key.mp3 "$B/$name"
+              done
+          fi
+          python3 tool/video/compose.py $lang --kilavuz
       - uses: actions/upload-artifact@v5
         with:
           name: rehber_${{ matrix.dil }}
-          path: build/video/rehber_${{ matrix.dil }}.mp4
+          path: |
+            build/video/rehber_${{ matrix.dil }}.mp4
+            build/video/kilavuz_*_${{ matrix.dil }}.mp4
           compression-level: 0
       - name: Sürüme yükle
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release upload rehber-videolari build/video/rehber_${{ matrix.dil }}.mp4 --clobber
+        run: gh release upload rehber-videolari build/video/rehber_${{ matrix.dil }}.mp4 build/video/kilavuz_*_${{ matrix.dil }}.mp4 --clobber
