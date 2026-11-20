@@ -206,7 +206,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   Icon(Icons.lock_outline_rounded, size: 13, color: ink.withValues(alpha: 0.5)),
                   const SizedBox(width: 6),
                   Flexible(
-                    child: Text('${tr('Çevrimdışı çalışır · Verileriniz bu cihazda kalır')}\n${tr('Üçüncü taraf reklam yok · Sizi izleyen reklam ağı yok')}',
+                    child: Text([tr('Çevrimdışı çalışır · Verileriniz bu cihazda kalır'), tr('Üçüncü taraf reklam yok · Sizi izleyen reklam ağı yok')].join('\n'),
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontFamily: 'PlusJakartaSans',
