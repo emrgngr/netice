@@ -151,9 +151,13 @@ class Exam {
   final List<Question> questions;
   final ScoringRule rule;
 
-  /// B kitapçığı: B'deki [i]. sorunun A kitapçığındaki karşılığı (0'dan).
-  /// Şıklar aynı, yalnızca soru sırası değişik. null = tek kitapçık.
-  final List<int>? bookletOrder;
+  /// Ek kitapçıklar (B, C, D…): [bookletOrders][k][i], (k+1). kitapçıktaki
+  /// [i]. sorunun A kitapçığındaki karşılığıdır (0'dan). Şıklar aynı, yalnızca
+  /// soru sırası değişik. Boş liste = tek kitapçık.
+  final List<List<int>> bookletOrders;
+
+  /// Bir sınavda en fazla kaç kitapçık türü olabilir (A–H).
+  static const maxBooklets = 8;
 
   /// Klasik sorular. Varsa tam puan = test kısmı + klasik kısım; test kısmı
   /// (tam puan − klasik toplamı) üzerinden ölçeklenir.
@@ -170,7 +174,7 @@ class Exam {
     required this.choiceCount,
     required this.questions,
     this.rule = const ScoringRule(),
-    this.bookletOrder,
+    this.bookletOrders = const [],
     this.openQuestions = const [],
     this.templateId,
   });
@@ -183,24 +187,48 @@ class Exam {
   /// Test (optik) kısmın tam puanı.
   double get testMax => (rule.maxScore - openMax).clamp(0, rule.maxScore).toDouble();
 
-  bool get hasBooklets => bookletOrder != null;
+  bool get hasBooklets => bookletOrders.isNotEmpty;
 
-  /// B kitapçığının cevap anahtarı (B sırasıyla).
-  List<Question> get bookletBQuestions => [
-        for (var i = 0; i < (bookletOrder?.length ?? 0); i++)
-          Question(
-            no: i + 1,
-            correct: questions[bookletOrder![i]].correct,
-            points: questions[bookletOrder![i]].points,
-            cancelled: questions[bookletOrder![i]].cancelled,
-            outcomeCode: questions[bookletOrder![i]].outcomeCode,
-          ),
-      ];
+  /// Kitapçık türü sayısı (tek kitapçıkta 1).
+  int get bookletCount => 1 + bookletOrders.length;
 
-  /// B kitapçığı cevaplarını A sırasına çevirir.
-  List<Answer> toBookletA(List<Answer> b) {
-    final order = bookletOrder;
-    if (order == null) return b;
+  /// Kitapçığın harfi (0 = A).
+  static String bookletLetter(int b) => String.fromCharCode(65 + b);
+
+  /// [booklet] kitapçığındaki [i]. sorunun A'daki karşılığı.
+  int masterIndex(int booklet, int i) {
+    if (booklet <= 0 || booklet > bookletOrders.length) return i;
+    final o = bookletOrders[booklet - 1];
+    return i < o.length ? o[i] : i;
+  }
+
+  /// A'daki [aIndex]. soru [booklet] kitapçığında kaçıncı sırada basılı?
+  int printedIndex(int booklet, int aIndex) {
+    if (booklet <= 0 || booklet > bookletOrders.length) return aIndex;
+    final b = bookletOrders[booklet - 1].indexOf(aIndex);
+    return b < 0 ? aIndex : b;
+  }
+
+  /// [booklet] kitapçığının cevap anahtarı (o kitapçığın sırasıyla).
+  List<Question> questionsOf(int booklet) {
+    if (booklet <= 0 || booklet > bookletOrders.length) return questions;
+    final order = bookletOrders[booklet - 1];
+    return [
+      for (var i = 0; i < order.length; i++)
+        Question(
+          no: i + 1,
+          correct: questions[order[i]].correct,
+          points: questions[order[i]].points,
+          cancelled: questions[order[i]].cancelled,
+          outcomeCode: questions[order[i]].outcomeCode,
+        ),
+    ];
+  }
+
+  /// [booklet] kitapçığının cevaplarını A sırasına çevirir.
+  List<Answer> toMasterOrder(int booklet, List<Answer> b) {
+    if (booklet <= 0 || booklet > bookletOrders.length) return b;
+    final order = bookletOrders[booklet - 1];
     final a = List<Answer>.filled(questions.length, const Answer.blank());
     for (var i = 0; i < order.length && i < b.length; i++) {
       a[order[i]] = b[i];
@@ -253,8 +281,7 @@ class Exam {
     String? name,
     String? className,
     DateTime? date,
-    List<int>? bookletOrder,
-    bool clearBooklet = false,
+    List<List<int>>? bookletOrders,
     List<OpenQuestion>? openQuestions,
     String? templateId,
     bool clearTemplate = false,
@@ -267,7 +294,7 @@ class Exam {
         choiceCount: choiceCount,
         questions: questions ?? this.questions,
         rule: rule ?? this.rule,
-        bookletOrder: clearBooklet ? null : (bookletOrder ?? this.bookletOrder),
+        bookletOrders: bookletOrders ?? this.bookletOrders,
         openQuestions: openQuestions ?? this.openQuestions,
         templateId: clearTemplate ? null : (templateId ?? this.templateId),
       );
@@ -280,7 +307,9 @@ class Exam {
         'choiceCount': choiceCount,
         'questions': questions.map((q) => q.toJson()).toList(),
         'rule': rule.toJson(),
-        if (bookletOrder != null) 'bookletOrder': bookletOrder,
+        if (bookletOrders.isNotEmpty) 'bookletOrders': bookletOrders,
+        // Eski sürümler yalnız B'yi tanır.
+        if (bookletOrders.isNotEmpty) 'bookletOrder': bookletOrders.first,
         if (templateId != null) 'templateId': templateId,
         if (openQuestions.isNotEmpty) 'openQuestions': openQuestions.map((q) => q.toJson()).toList(),
       };
@@ -295,7 +324,9 @@ class Exam {
             .map((e) => Question.fromJson(e as Map<String, dynamic>))
             .toList(),
         rule: ScoringRule.fromJson(j['rule'] as Map<String, dynamic>),
-        bookletOrder: (j['bookletOrder'] as List?)?.map((e) => e as int).toList(),
+        bookletOrders: j['bookletOrders'] is List
+            ? [for (final o in j['bookletOrders'] as List) (o as List).map((e) => e as int).toList()]
+            : [if (j['bookletOrder'] is List) (j['bookletOrder'] as List).map((e) => e as int).toList()],
         templateId: j['templateId'] as String?,
         openQuestions: [
           for (final e in (j['openQuestions'] as List?) ?? const []) OpenQuestion.fromJson(e as Map<String, dynamic>)
@@ -346,7 +377,7 @@ class Sheet {
   /// Cevaplar her zaman A kitapçığı sırasıyla saklanır.
   final List<Answer> answers;
 
-  /// Öğrencinin kitapçığı (0 = A, 1 = B).
+  /// Öğrencinin kitapçığı (0 = A, 1 = B, 2 = C…).
   final int booklet;
 
   /// Klasik soru puanları (öğretmen girer; girilmeyen null).

@@ -105,9 +105,20 @@ void main() {
         'mobil_ayarlar');
     await shot(tester, StoreScope(store: store, child: _themed(const ExamSettingsScreen(examId: 'demo_exam'))),
         const Size(390, 1100), 'mobil_kitapcik', then: () async {
-      await tester.tap(find.text('A ve B kitapçığı var'));
+      final sw = find.text('Birden çok kitapçık var (A, B, C…)');
+      await tester.scrollUntilVisible(sw, 300, scrollable: find.byType(Scrollable).first);
+      await tester.tap(sw);
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Karışık sıra öner'));
+      // Dört kitapçık (A–D): + düğmesine iki kez bas.
+      for (var i = 0; i < 2; i++) {
+        await tester.tap(find.byIcon(Icons.add_rounded).last);
+        await tester.pumpAndSettle();
+      }
+      for (var i = 0; i < 3; i++) {
+        await tester.tap(find.text('Karışık sıra öner').at(i));
+        await tester.pumpAndSettle();
+      }
+      await tester.scrollUntilVisible(find.text('Kitapçık sayısı').first, -200, scrollable: find.byType(Scrollable).first);
     });
     await shot(tester, StoreScope(store: store, child: _themed(const ExamScreen(examId: 'demo_exam'))), const Size(390, 844),
         'mobil_form_yazdir', then: () async {

@@ -93,7 +93,7 @@ class ExamScreen extends StatelessWidget {
                       contentPadding: const EdgeInsets.only(left: 72, right: 16),
                       value: alternate,
                       onChanged: (v) => setSheet(() => alternate = v),
-                      title: Text(tr('Kitapçıkları sırayla A, B dağıt')),
+                      title: Text(tr('Kitapçıkları sırayla {0} dağıt', [[for (var b = 0; b < exam.bookletCount; b++) Exam.bookletLetter(b)].join(', ')])),
                       subtitle: Text(tr('Kapalıysa öğrenci kitapçığını formda kendisi işaretler')),
                     ),
                   ListTile(

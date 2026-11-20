@@ -1,5 +1,6 @@
 import 'package:image/image.dart' as img;
 
+import 'form_code.dart';
 import 'form_layout.dart';
 
 /// Formu bir görüntüye çizer. Örnek (deneme) form, ekranda önizleme ve
@@ -22,6 +23,8 @@ class FormRaster {
     Map<int, List<int>> answers = const {},
     String? studentNumber,
     int fillShade = 45,
+    int? booklet,
+    FormCode? code,
   }) {
     final im = img.Image(width: width, height: height, numChannels: 3);
     img.fill(im, color: img.ColorRgb8(255, 255, 255));
@@ -52,6 +55,22 @@ class FormRaster {
       }
     }
 
+    if (layout.hasBooklets) {
+      for (var k = 0; k < layout.booklets; k++) {
+        final b = layout.bookletBubble(k);
+        img.drawCircle(im, x: _p(b.x), y: _p(b.y), radius: r, color: outline);
+      }
+    }
+    if (code != null) {
+      final bits = code.encode();
+      for (var i = 0; i < bits.length; i++) {
+        if (!bits[i]) continue;
+        final c = FormCode.cell(i);
+        const h = FormCode.cellSize / 2;
+        img.fillRect(im, x1: _p(c.x - h), y1: _p(c.y - h), x2: _p(c.x + h), y2: _p(c.y + h), color: img.ColorRgb8(0, 0, 0));
+      }
+    }
+
     final ink = img.ColorRgb8(fillShade, fillShade, fillShade);
     void fillBubble(Pt b) => img.fillCircle(im,
         x: _p(b.x), y: _p(b.y), radius: (r * 0.9).round(), color: ink);
@@ -61,6 +80,7 @@ class FormRaster {
         fillBubble(layout.answerBubble(q, c));
       }
     });
+    if (booklet != null && layout.hasBooklets) fillBubble(layout.bookletBubble(booklet));
     if (studentNumber != null) {
       for (var d = 0; d < studentNumber.length && d < FormLayout.studentDigits; d++) {
         fillBubble(layout.studentBubble(d, int.parse(studentNumber[d])));

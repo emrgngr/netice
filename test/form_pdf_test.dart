@@ -29,9 +29,31 @@ void main() {
     File('${out.path}/anahtar_100.pdf').writeAsBytesSync(bigKey);
   });
 
+  test('A–D ve A–H kitapçıklı sınav: formlar ve her kitapçığın anahtarı', () async {
+    for (final n in [4, 8]) {
+      final exam = Exam.fromKeyString(id: 'kitapcik$n', name: 'Tarih Yazılı', className: '10-B', key: 'ABCDEABCDEABCDEABCDE')
+          .copyWith(bookletOrders: [
+        for (var b = 1; b < n; b++) [for (var i = 0; i < 20; i++) (i * const [3, 7, 9, 11, 13, 17, 19][b - 1] + b) % 20]
+      ]);
+      final forms = await buildFormsPdf(exam, [
+        for (var i = 0; i < n; i++)
+          Student(id: '$i', firstName: 'Öğrenci', lastName: '${i + 1}', number: '${1201 + i}', className: '10-B'),
+      ], alternateBooklets: true);
+      final blank = await buildFormsPdf(exam, const []);
+      final key = await buildAnswerKeyPdf(exam);
+      final out = Directory('build/test_output')..createSync(recursive: true);
+      File('${out.path}/kitapcik${n}_formlar.pdf').writeAsBytesSync(forms);
+      File('${out.path}/kitapcik${n}_bos.pdf').writeAsBytesSync(blank);
+      File('${out.path}/kitapcik${n}_anahtar.pdf').writeAsBytesSync(key);
+      expect(String.fromCharCodes(key.take(5)), '%PDF-');
+    }
+  });
+
   test('A/B kitapçıklı sınav: sırayla A-B isimli formlar ve iki anahtar', () async {
     final exam = Exam.fromKeyString(id: 'kitapcik', name: 'Kimya Yazılı', className: '10-B', key: 'ABCDEABCDEABCDEABCDE')
-        .copyWith(bookletOrder: [for (var i = 0; i < 20; i++) (i * 7) % 20]);
+        .copyWith(bookletOrders: [
+          [for (var i = 0; i < 20; i++) (i * 7) % 20]
+        ]);
     final forms = await buildFormsPdf(exam, const [
       Student(id: '1', firstName: 'Ada', lastName: 'Er', number: '1201', className: '10-B'),
       Student(id: '2', firstName: 'Can', lastName: 'Su', number: '1202', className: '10-B'),
