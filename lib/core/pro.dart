@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:in_app_purchase/in_app_purchase.dart';
 
+import 'price_increase.dart';
 import 'store.dart';
 import '../l10n/l10n.dart';
 
@@ -46,11 +47,19 @@ class ProService {
   ProService._();
   static final instance = ProService._();
 
-  /// Mağaza fiyatı okunamazsa gösterilecek önerilen fiyatlar.
-  static List<ProPlan> get fallbackPlans => [
-    ProPlan(proYearlyId, tr('Yıllık'), tr('799 TL / yıl'), tr('Ayda yaklaşık 67 TL · en avantajlı')),
-    ProPlan(proMonthlyId, tr('Aylık'), tr('99 TL / ay'), tr('İstediğiniz zaman iptal')),
-  ];
+  /// Mağaza fiyatı okunamazsa gösterilecek önerilen fiyatlar. Başlangıç
+  /// fiyatları her yıl %30 artırılarak gösterilir (bkz. price_increase.dart).
+  static List<ProPlan> get fallbackPlans => plansFor(DateTime.now());
+
+  static List<ProPlan> plansFor(DateTime now) {
+    final years = priceIncreaseYears(now);
+    final yearly = tr('799 TL / yıl');
+    return [
+      ProPlan(proYearlyId, tr('Yıllık'), increasePriceText(yearly, years),
+          monthlyNoteText(tr('Ayda yaklaşık 67 TL · en avantajlı'), yearly, years)),
+      ProPlan(proMonthlyId, tr('Aylık'), increasePriceText(tr('99 TL / ay'), years), tr('İstediğiniz zaman iptal')),
+    ];
+  }
 
   /// Abonelik yalnızca mağaza olan platformlarda satılır. Bilgisayar
   /// sürümünde Pro özellikleri şimdilik açıktır.

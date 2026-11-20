@@ -1,0 +1,53 @@
+name: Pro fiyatı yıllık %30 artış
+
+# Her yıl 19 Kasım'da (Türkiye saatiyle 09:00) Netice Pro abonelik fiyatını
+# Google Play ve App Store'da %30 artırır. Mevcut aboneler eski fiyatla devam
+# eder. Ayrıntılar: tool/fiyat/fiyat_artisi.py
+on:
+  schedule:
+    - cron: '0 6 19 11 *'
+  workflow_dispatch:
+    inputs:
+      deneme:
+        description: 'Yalnızca dene (mağazada hiçbir şeyi değiştirme)'
+        type: boolean
+        default: true
+      zorla:
+        description: 'Bu yılın artışı yapılmış olsa da bir kez daha uygula'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fiyat-artisi
+  cancel-in-progress: false
+
+jobs:
+  artir:
+    name: Fiyatları artır
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r tool/fiyat/requirements.txt
+      - name: Mağaza fiyatlarını güncelle
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+          DRY_RUN: ${{ (github.event_name == 'workflow_dispatch' && inputs.deneme) && '1' || '0' }}
+          FORCE: ${{ (github.event_name == 'workflow_dispatch' && inputs.zorla) && '1' || '0' }}
+        run: python3 tool/fiyat/fiyat_artisi.py
+      - name: Yapılan artışı kaydet
+        if: always()
+        run: |
+          if git diff --quiet tool/fiyat/durum.json; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "Pro fiyatı: yıllık %30 artış uygulandı"
+          git push
