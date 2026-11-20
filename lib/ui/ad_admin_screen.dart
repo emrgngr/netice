@@ -360,6 +360,9 @@ class AdThumb extends StatelessWidget {
   }
 }
 
+/// Reklamı yapılan kendi siteleri (hazır bağlantı düğmeleri).
+const _ownSites = ['www.sepetmix.com', 'www.cooktatlihayat.com', 'www.amare.com'];
+
 /// Tek reklamı ekleme/düzenleme.
 class AdEditScreen extends StatefulWidget {
   final Ad? ad;
@@ -552,6 +555,20 @@ class _AdEditScreenState extends State<AdEditScreen> {
             border: OutlineInputBorder(),
           ),
         ),
+        const SizedBox(height: 8),
+        Wrap(spacing: 8, runSpacing: 4, children: [
+          for (final site in _ownSites)
+            ActionChip(
+              avatar: const Icon(Icons.storefront_outlined, size: 18),
+              label: Text(site),
+              onPressed: () => setState(() {
+                _link.text = 'https://$site/';
+                _link.selection = TextSelection.collapsed(offset: _link.text.length);
+              }),
+            ),
+        ]),
+        Text('Siteye dokunun, sonra ürün sayfasının adresini tamamlayın (ya da ürün sayfasının adresini kopyalayıp yapıştırın).',
+            style: TextStyle(color: muted, fontSize: 12)),
         SectionTitle('3. Biçim'),
         SegmentedButton<AdFormat>(
           segments: const [
