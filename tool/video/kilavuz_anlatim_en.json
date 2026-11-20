@@ -1,0 +1,15 @@
+{
+ "_baslik": {
+  "start": "Getting started",
+  "exam": "Preparing exams",
+  "print": "Printing forms",
+  "scan": "Scanning sheets",
+  "report": "Results and reports",
+  "data": "Your data"
+ },
+ "k_sinav_ayar": "In Exam settings, set the full score, the passing score and whether wrong answers deduct. You can also add booklet types and written questions here.",
+ "k_sablon": "If you use a publisher's or another company's form, create a template for it once under Other forms in Settings.",
+ "k_kontrol": "Tap a scanned sheet. Unclear marks are shown with a yellow warning, and you can fix them with a tap.",
+ "k_donem": "The term report combines the exams you choose into term grades and outcome report cards.",
+ "k_yedek": "Netice works offline and keeps your data only on your device. When you change devices, use Save backup to file."
+}
