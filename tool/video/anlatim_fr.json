@@ -10,6 +10,7 @@
  "08_sonuclar": "L'onglet Résultats indique les bonnes, mauvaises et non-réponses de chaque élève ainsi que sa note.",
  "09_analiz": "L'onglet Analyse vous donne le rapport d'examen et les bulletins des élèves en PDF.",
  "10_ogrenci": "La page élève montre la progression et vous alerte quand les résultats d'un élève baissent.",
- "11_ayarlar": "Dans les Réglages, changez la langue et sauvegardez vos données.",
- "12_yardim": "En cas de doute, consultez le guide et la foire aux questions dans l'onglet Aide. Bon travail !"
+ "11_kurum": "Dans Profil, ouvrez Informations sur l’établissement et choisissez le type d’établissement. Saisissez l’organisme de tutelle, les unités et le nom, puis choisissez titres et grades dans les listes. Vos rapports porteront un en-tête officiel et une zone de signature.",
+ "12_ayarlar": "Dans les Réglages, changez la langue et sauvegardez vos données.",
+ "13_yardim": "En cas de doute, consultez le guide et la foire aux questions dans l'onglet Aide. Bon travail !"
 }
