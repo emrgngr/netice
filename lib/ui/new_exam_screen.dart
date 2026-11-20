@@ -173,17 +173,17 @@ class _NewExamScreenState extends State<NewExamScreen> {
             ]),
             const SizedBox(height: 20),
             Text(tr('Soru sayısı: {0}', [_count]), style: t.textTheme.titleSmall),
-            Slider(
-              value: _count.toDouble(),
+            NumberStepper(
+              value: _count,
               min: 5,
               max: 100,
-              divisions: 95,
-              label: '$_count',
+              semanticLabel: tr('Soru sayısı'),
               onChanged: (v) => setState(() {
-                _count = v.round();
+                _count = v;
                 if (_cursor >= _count) _cursor = _count - 1;
               }),
             ),
+            const SizedBox(height: 12),
             // Dar ekranlarda ve uzun çevirilerde taşmasın diye alt alta.
             Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               SizedBox(
