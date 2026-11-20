@@ -10,6 +10,7 @@
  "08_sonuclar": "La pestaña Resultados muestra las respuestas correctas, incorrectas y en blanco de cada alumno y su nota.",
  "09_analiz": "Desde la pestaña Análisis puedes obtener el informe del examen y los boletines en PDF.",
  "10_ogrenci": "La página del alumno muestra su evolución y te avisa cuando sus resultados bajan.",
- "11_ayarlar": "En Ajustes puedes cambiar el idioma y hacer una copia de seguridad de tus datos.",
- "12_yardim": "Si te atascas, consulta la guía y las preguntas frecuentes en la pestaña Ayuda. ¡Buen trabajo!"
+ "11_kurum": "En Perfil, abra Datos de la institución y elija el tipo de institución. Escriba el organismo superior, las unidades y el nombre, y elija cargos y rangos de las listas. Sus informes llevarán un encabezado oficial y un espacio para firmas.",
+ "12_ayarlar": "En Ajustes puedes cambiar el idioma y hacer una copia de seguridad de tus datos.",
+ "13_yardim": "Si te atascas, consulta la guía y las preguntas frecuentes en la pestaña Ayuda. ¡Buen trabajo!"
 }

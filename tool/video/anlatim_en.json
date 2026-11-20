@@ -10,6 +10,7 @@
  "08_sonuclar": "The Results tab shows each student's correct, wrong and blank answers and their score.",
  "09_analiz": "From the Analysis tab you can get the exam report and student report cards as PDF.",
  "10_ogrenci": "The student page shows progress and warns you about students whose results are dropping.",
- "11_ayarlar": "In Settings you can change the app language and back up your data.",
- "12_yardim": "If you get stuck, check the guide and the frequently asked questions in the Help tab. Enjoy!"
+ "11_kurum": "On the Profile tab, open Institution details and choose your institution type. Enter the parent body, the units and your institution's name, and pick titles and ranks from the lists. Your reports then carry an official header and a signature area.",
+ "12_ayarlar": "In Settings you can change the app language and back up your data.",
+ "13_yardim": "If you get stuck, check the guide and the frequently asked questions in the Help tab. Enjoy!"
 }
