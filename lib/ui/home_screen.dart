@@ -272,6 +272,11 @@ class _Dashboard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
             sliver: SliverToBoxAdapter(child: hero),
           ),
+        if (store.hasDemo)
+          SliverPadding(
+            padding: EdgeInsets.fromLTRB(wide ? 28 : 16, 12, wide ? 28 : 16, 0),
+            sliver: const SliverToBoxAdapter(child: DemoDataCard()),
+          ),
         SliverPadding(
           padding: EdgeInsets.fromLTRB(wide ? 28 : 16, wide ? 20 : 16, wide ? 28 : 16, 0),
           sliver: SliverGrid(
@@ -615,6 +620,51 @@ class _Dock extends StatelessWidget {
               ),
           ]),
         ),
+      ),
+    );
+  }
+}
+
+
+/// Ana sayfada örnek veriler varken gösterilir; tek dokunuşla silinir.
+class DemoDataCard extends StatelessWidget {
+  const DemoDataCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final store = StoreScope.of(context);
+    return Card(
+      color: NColors.amber.withValues(alpha: 0.12),
+      clipBehavior: Clip.antiAlias,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
+        child: Row(children: [
+          const Icon(Icons.info_outline_rounded, color: NColors.amber),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(tr('Gördüğünüz sınıflar ve sınavlar uygulamayı tanımanız için eklenen örneklerdir.'),
+                style: const TextStyle(height: 1.35)),
+          ),
+          TextButton(
+            onPressed: () async {
+              final ok = await showDialog<bool>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: Text(tr('Örnek veriler silinsin mi?')),
+                  content: Text(tr('Örnek öğrenciler, örnek sınavlar ve kâğıtları silinir. Sizin eklediğiniz sınıf ve sınavlara dokunulmaz.')),
+                  actions: [
+                    TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr('Vazgeç'))),
+                    FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(tr('Sil'))),
+                  ],
+                ),
+              );
+              if (ok != true || !context.mounted) return;
+              store.clearDemo();
+              toast(context, tr('Örnek veriler silindi.'));
+            },
+            child: Text(tr('Örnekleri sil')),
+          ),
+        ]),
       ),
     );
   }
