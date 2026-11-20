@@ -429,9 +429,9 @@ enum InstitutionType {
   /// Üst kurum için örnek.
   String get parentHint => switch (this) {
         school => '',
-        university => tr('Örn. Ankara Üniversitesi'),
+        university => tr('Örn. Ankara Üniversitesi Rektörlüğü'),
         police => tr('Örn. Polis Akademisi Başkanlığı'),
-        military => tr('Örn. Millî Savunma Üniversitesi'),
+        military => tr('Örn. Millî Savunma Üniversitesi Rektörlüğü'),
         course => tr('Örn. Millî Eğitim Bakanlığı'),
         other => tr('Örn. Bakanlık ya da şirket adı'),
       };
@@ -453,6 +453,10 @@ enum InstitutionType {
         course => tr('Kurum Müdürü'),
         other => tr('Kurum Yöneticisi'),
       };
+
+  /// Türkiye biçiminde başlık varsayılan olarak Valilik / Kaymakamlık
+  /// altından mı başlar (MEB'e bağlı okul ve kurslar)?
+  bool get defaultLocalChain => this == school || this == course;
 
   String get defaultInstructorTitle => switch (this) {
         school => tr('Ders Öğretmeni'),
@@ -495,6 +499,16 @@ class SchoolInfo {
   /// Türkiye resmi yazı biçimi (T.C. ile başlar). null: uygulama diline göre.
   final bool? turkishFormat;
 
+  /// Başlık Valilik / Kaymakamlık altından mı? null: kurum türüne göre.
+  final bool? localHeader;
+
+  /// Valilik / Kaymakamlık altındaki müdürlük ("Millî Eğitim Müdürlüğü";
+  /// başına il/ilçe gelir). null: Millî Eğitim Müdürlüğü, boş: satır yok.
+  final String? localUnit;
+
+  /// Üst kurum ile kurum arasındaki ara birimler (fakülte, daire, komutanlık…).
+  final List<String> units;
+
   /// Unvan listelerinin ülkesi (tr, en, de…). null: uygulama diline göre.
   final String? titleSystem;
 
@@ -527,6 +541,9 @@ class SchoolInfo {
     this.instructorTitle = '',
     this.groupLabel = '',
     this.turkishFormat,
+    this.localHeader,
+    this.localUnit,
+    this.units = const [],
     this.titleSystem,
     this.fontFamily = 'netice',
     this.headerSize = 10.5,
@@ -555,6 +572,12 @@ class SchoolInfo {
       ? s.replaceAll('i', 'İ').replaceAll('ı', 'I').toUpperCase()
       : s.toUpperCase();
 
+  /// Başlık için büyük harf: Türkiye biçiminde (ve Azericede) i → İ; başka
+  /// ülkelerin biçiminde dilin kendi kuralı (BERLIN, ROMA…).
+  String _up(String s) => turkishStyle || L10n.code == 'az'
+      ? s.replaceAll('i', 'İ').replaceAll('ı', 'I').toUpperCase()
+      : s.toUpperCase();
+
   /// Türkiye'deki resmi yazı biçimi mi (T.C. ile başlayan)?
   bool get turkishStyle => turkishFormat ?? L10n.code == 'tr';
 
@@ -576,32 +599,102 @@ class SchoolInfo {
     return '${upper(group)}: ${upper(className)}';
   }
 
-  /// Okulda "ÇANKAYA KAYMAKAMLIĞI" ya da "ANKARA VALİLİĞİ" (ilçe merkez veya
-  /// boşsa); diğer kurumlarda üst kurum. Türkiye dışı biçimde yer bilgisi.
+  /// Başlık Valilik / Kaymakamlık altından mı başlar (MEB okulları, kurslar,
+  /// il emniyet müdürlüğü…)? Kapalıysa bakanlık ya da üst kurum altından başlar.
+  bool get localChain => localHeader ?? type.defaultLocalChain;
+
+  /// İlçe boş ya da "Merkez" ise il düzeyi (Valilik), değilse ilçe (Kaymakamlık).
+  bool get provincial {
+    final d = district.trim();
+    return d.isEmpty || upper(d) == 'MERKEZ';
+  }
+
+  /// Başlığın ikinci satırı (idarenin adı, büyük harfle): "ANKARA VALİLİĞİ",
+  /// "ÇANKAYA KAYMAKAMLIĞI" ya da üst kurum ("POLİS AKADEMİSİ BAŞKANLIĞI").
+  /// Türkiye dışı biçimde yer bilgisi.
   String get authority {
     final d = district.trim(), p = province.trim();
-    if (!turkishStyle) return [d, p, country.trim()].where((e) => e.isNotEmpty).map(upper).join(', ');
-    if (type != InstitutionType.school) return upper(parent.trim());
-    if (d.isNotEmpty && upper(d) != 'MERKEZ') return '${upper(d)} KAYMAKAMLIĞI';
+    if (!turkishStyle) return [d, p, country.trim()].where((e) => e.isNotEmpty).map(_up).join(', ');
+    if (!localChain) return upper(parent.trim());
+    if (!provincial) return '${upper(d)} KAYMAKAMLIĞI';
     if (p.isNotEmpty) return '${upper(p)} VALİLİĞİ';
     return '';
   }
 
-  /// Okulda "ATATÜRK ANADOLU LİSESİ MÜDÜRLÜĞÜ"; diğer kurumlarda adı olduğu gibi.
-  String get directorate {
-    final n = upper(name.trim());
-    if (n.isEmpty || !turkishStyle || type != InstitutionType.school) return n;
-    return n.endsWith('MÜDÜRLÜĞÜ') ? n : '$n MÜDÜRLÜĞÜ';
+  /// Valilik / Kaymakamlık altındaki müdürlük: "İl Millî Eğitim Müdürlüğü",
+  /// "İlçe Millî Eğitim Müdürlüğü", "İl Emniyet Müdürlüğü"… Boş: satır yok.
+  String get localDirectorate {
+    if (!turkishStyle || !localChain) return '';
+    final u = (localUnit ?? defaultLocalUnit).trim();
+    if (u.isEmpty) return '';
+    final lower = u.toLowerCase();
+    if (lower.startsWith('il ') || lower.startsWith('ilçe ') || lower.startsWith('i̇l ')) return titleCase(u);
+    return '${provincial ? 'İl' : 'İlçe'} ${titleCase(u)}';
   }
 
-  /// Resmi başlığın üst satırları, yukarıdan aşağıya.
+  static const defaultLocalUnit = 'Millî Eğitim Müdürlüğü';
+
+  /// Ara birimler (her biri ayrı satır, ilk harfleri büyük).
+  List<String> get unitLines => [for (final u in units) if (u.trim().isNotEmpty) titleCase(u.trim())];
+
+  /// Kurumun kendi satırı. Türkiye biçiminde ilk harfleri büyük (yönetmelik
+  /// md. 10: birim adı ilk harfleri büyük, diğerleri küçük); okulda sonuna
+  /// "Müdürlüğü" eklenir. Diğer ülkelerde büyük harf.
+  String get directorate {
+    final n = name.trim();
+    if (n.isEmpty) return '';
+    if (!turkishStyle) return _up(n);
+    final t = titleCase(n);
+    if (type != InstitutionType.school) return t;
+    const ends = ['Müdürlüğü', 'Başkanlığı', 'Dekanlığı', 'Rektörlüğü', 'Komutanlığı', 'Müdürlük'];
+    return ends.any(t.endsWith) ? t : '$t Müdürlüğü';
+  }
+
+  /// Resmi başlığın satırları, yukarıdan aşağıya. Türkiye biçimi, Resmî
+  /// Yazışmalarda Uygulanacak Usul ve Esaslar Hakkında Yönetmelik md. 10'a
+  /// göre: 1. satır "T.C.", 2. satır idarenin adı büyük harfle, alttaki
+  /// satırlar birimler (hiyerarşi sırasıyla) ilk harfleri büyük.
+  /// Örn. T.C. / ANKARA VALİLİĞİ / İl Millî Eğitim Müdürlüğü / Atatürk Lisesi Müdürlüğü.
   List<String> get letterhead => turkishStyle
-      ? ['T.C.', if (authority.isNotEmpty) authority, directorate]
+      ? [
+          'T.C.',
+          if (authority.isNotEmpty) authority,
+          if (localDirectorate.isNotEmpty) localDirectorate,
+          ...unitLines,
+          if (directorate.isNotEmpty) directorate,
+        ]
       : [
-          if (parent.trim().isNotEmpty) upper(parent.trim()),
-          directorate,
+          if (parent.trim().isNotEmpty) _up(parent.trim()),
+          ...[for (final u in units) if (u.trim().isNotEmpty) _up(u.trim())],
+          if (directorate.isNotEmpty) directorate,
           if (authority.isNotEmpty) authority,
         ];
+
+  /// Kelimelerin ilk harfini büyütür ("atatürk anadolu lisesi" → "Atatürk
+  /// Anadolu Lisesi"). Tümü büyük yazılmışsa önce küçültür. "ve", "ile",
+  /// "veya" bağlaçları küçük kalır; "T.C.", "MEB", "PMYO" gibi kısaltmalar korunur.
+  static String titleCase(String s) {
+    String lo(String x) => x.replaceAll('I', 'ı').replaceAll('İ', 'i').toLowerCase();
+    String up(String x) => x.replaceAll('i', 'İ').replaceAll('ı', 'I').toUpperCase();
+    String bare(String x) => x.replaceAll(RegExp(r'[^A-Za-zÇĞİÖŞÜçğıöşüÂÎÛâîû]'), '');
+    final letters = bare(s);
+    final allUpper = letters.length > 3 && letters == up(letters);
+    const small = {'ve', 'ile', 'veya'};
+    const abbr = {'MEB', 'PMYO', 'MYO', 'MSÜ', 'POMEM', 'TSK', 'YÖK', 'JSGA', 'EGM', 'AB', 'ABD'};
+    final words = s.split(' ');
+    return [
+      for (var i = 0; i < words.length; i++)
+        () {
+          final w = words[i], b = bare(w);
+          if (w.isEmpty || b.isEmpty) return w;
+          // Kısaltmalar olduğu gibi kalır.
+          if (w.contains('.') || abbr.contains(b) || (!allUpper && b.length > 1 && b == up(b))) return w;
+          final body = allUpper ? lo(w) : w;
+          if (i > 0 && small.contains(lo(body))) return lo(body);
+          return up(body.substring(0, 1)) + body.substring(1);
+        }(),
+    ].join(' ');
+  }
 
   /// Eğitim-öğretim yılı: eylülden itibaren yeni yıl başlar (Japonyada
   /// nisandan başlar ve tek yılla yazılır).
@@ -640,6 +733,9 @@ class SchoolInfo {
         instructorTitle: instructorTitle ?? this.instructorTitle,
         groupLabel: groupLabel ?? this.groupLabel,
         turkishFormat: turkishFormat,
+        localHeader: localHeader,
+        localUnit: localUnit,
+        units: units,
         titleSystem: titleSystem,
         fontFamily: fontFamily,
         headerSize: headerSize,
@@ -664,6 +760,9 @@ class SchoolInfo {
         'instructorTitle': instructorTitle,
         'groupLabel': groupLabel,
         if (turkishFormat != null) 'turkishFormat': turkishFormat,
+        if (localHeader != null) 'localHeader': localHeader,
+        if (localUnit != null) 'localUnit': localUnit,
+        if (units.isNotEmpty) 'units': units,
         if (titleSystem != null) 'titleSystem': titleSystem,
         'fontFamily': fontFamily,
         'headerSize': headerSize,
@@ -688,6 +787,9 @@ class SchoolInfo {
         instructorTitle: j['instructorTitle'] as String? ?? '',
         groupLabel: j['groupLabel'] as String? ?? '',
         turkishFormat: j['turkishFormat'] as bool?,
+        localHeader: j['localHeader'] as bool?,
+        localUnit: j['localUnit'] as String?,
+        units: [for (final u in (j['units'] as List?) ?? const []) '$u'],
         titleSystem: j['titleSystem'] as String?,
         fontFamily: j['fontFamily'] as String? ?? 'netice',
         headerSize: (j['headerSize'] as num?)?.toDouble() ?? 10.5,

@@ -4,6 +4,7 @@ import '../core/models.dart';
 import '../main.dart';
 import '../core/pro.dart';
 import '../core/titles.dart';
+import '../core/letterheads.dart';
 import 'pro_screen.dart';
 import 'widgets.dart';
 import '../l10n/l10n.dart';
@@ -21,11 +22,12 @@ class SchoolScreen extends StatefulWidget {
 class _SchoolScreenState extends State<SchoolScreen> {
   static const _keys = [
     'name', 'parent', 'province', 'district', 'country', 'principal', 'headTitle', 'teacher', 'instructorTitle',
-    'subject', 'groupLabel',
+    'subject', 'groupLabel', 'localUnit', 'units',
   ];
   final _c = <String, TextEditingController>{};
   InstitutionType _type = InstitutionType.school;
   bool _turkish = true;
+  bool _local = true;
   bool _official = true;
   String _system = 'tr';
   String _font = 'netice';
@@ -51,12 +53,15 @@ class _SchoolScreenState extends State<SchoolScreen> {
       'instructorTitle': s.instructorTitle,
       'subject': s.subject,
       'groupLabel': s.groupLabel,
+      'localUnit': s.localUnit ?? SchoolInfo.defaultLocalUnit,
+      'units': s.units.join('\n'),
     };
     for (final k in _keys) {
       _c[k] = TextEditingController(text: values[k])..addListener(() => setState(() {}));
     }
     _type = s.type;
     _turkish = s.turkishStyle;
+    _local = s.localChain;
     _official = s.officialHeader;
     _system = s.titleSystem ?? (_turkish ? 'tr' : TitleSystem.defaultCode());
     _font = s.fontFamily;
@@ -80,7 +85,10 @@ class _SchoolScreenState extends State<SchoolScreen> {
   SchoolInfo get _info => SchoolInfo(
         type: _type,
         name: _v('name'),
-        parent: _type == InstitutionType.school ? '' : _v('parent'),
+        parent: _v('parent'),
+        localHeader: _local == _type.defaultLocalChain ? null : _local,
+        localUnit: _v('localUnit') == SchoolInfo.defaultLocalUnit ? null : _v('localUnit'),
+        units: [for (final u in _c['units']!.text.split('\n')) if (u.trim().isNotEmpty) u.trim()],
         province: _v('province'),
         district: _v('district'),
         country: _v('country'),
@@ -224,20 +232,21 @@ class _SchoolScreenState extends State<SchoolScreen> {
               for (final k in InstitutionType.values)
                 DropdownMenuItem(value: k, child: Text(k.label, overflow: TextOverflow.ellipsis)),
             ],
-            onChanged: (v) => setState(() => _type = v ?? _type),
+            onChanged: (v) => setState(() {
+              _type = v ?? _type;
+              _local = _type.defaultLocalChain;
+            }),
           ),
           const SizedBox(height: 12),
-          if (!school)
+          if (_turkish) ..._hierarchy(info, head) else ...[
             _field('parent', tr('Bağlı olduğu kurum'), _type.parentHint, Icons.account_tree_outlined,
                 helper: tr('Başlıkta kurum adının üstünde yer alır')),
-          _field('name', school ? tr('Okul adı') : tr('Kurum adı'), _type.nameHint, Icons.account_balance_outlined),
-          if (school || !_turkish) ...[
-            _field('province', school && _turkish ? tr('İl') : tr('İl / eyalet'), tr('Örn. Ankara'),
-                Icons.location_city_outlined),
-            _field('district', school && _turkish ? tr('İlçe') : tr('Şehir / ilçe'),
-                school && _turkish ? tr('Örn. Çankaya (il merkezindeyse "Merkez")') : tr('Örn. Çankaya'), Icons.map_outlined),
+            _unitsField(),
+            _field('name', school ? tr('Okul adı') : tr('Kurum adı'), _type.nameHint, Icons.account_balance_outlined),
+            _field('province', tr('İl / eyalet'), tr('Örn. Ankara'), Icons.location_city_outlined),
+            _field('district', tr('Şehir / ilçe'), tr('Örn. Çankaya'), Icons.map_outlined),
+            _field('country', tr('Ülke'), tr('Örn. Almanya'), Icons.public_rounded),
           ],
-          if (!_turkish) _field('country', tr('Ülke'), tr('Örn. Almanya'), Icons.public_rounded),
           SectionTitle(tr('İmza ve unvanlar')),
           DropdownButtonFormField<String>(
             initialValue: _system,
@@ -340,6 +349,126 @@ class _SchoolScreenState extends State<SchoolScreen> {
         ]),
       ),
     );
+  }
+
+  Widget _unitsField() => Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: TextField(
+          controller: _c['units'],
+          textCapitalization: TextCapitalization.words,
+          minLines: 1,
+          maxLines: 4,
+          decoration: InputDecoration(
+            labelText: tr('Ara birimler (isteğe bağlı)'),
+            hintText: tr('Her satıra bir birim, üstten alta'),
+            helperText: tr('Üst kurum ile kurumunuz arasındaki birimler: fakülte, daire başkanlığı, komutanlık…'),
+            helperMaxLines: 3,
+            prefixIcon: const Icon(Icons.subdirectory_arrow_right_rounded),
+          ),
+        ),
+      );
+
+  /// Türkiye resmi yazı başlığı hiyerarşisi: Valilik / Kaymakamlık ya da üst
+  /// kurum, müdürlük, ara birimler ve kurumun kendisi.
+  List<Widget> _hierarchy(SchoolInfo info, TextStyle head) {
+    final school = _type == InstitutionType.school;
+    final muted = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6);
+    return [
+      Card(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              const Icon(Icons.gavel_rounded, size: 20),
+              const SizedBox(width: 8),
+              Expanded(child: Text(tr('Resmi başlık sırası'), style: const TextStyle(fontWeight: FontWeight.w800))),
+              TextButton.icon(onPressed: _pickPreset, icon: const Icon(Icons.auto_awesome_rounded, size: 18), label: Text(tr('Hazır örnek'))),
+            ]),
+            Text(
+                tr('Resmî Yazışma Yönetmeliğine göre: 1. satır T.C., 2. satır idarenin adı (büyük harf), altında birimler sırayla (ilk harfleri büyük).'),
+                style: TextStyle(fontSize: 12.5, color: muted)),
+            const SizedBox(height: 8),
+            SegmentedButton<bool>(
+              segments: [
+                ButtonSegment(value: true, label: Text(tr('Valilik / Kaymakamlık')), icon: const Icon(Icons.location_city_rounded)),
+                ButtonSegment(value: false, label: Text(tr('Bakanlık / üst kurum')), icon: const Icon(Icons.account_tree_rounded)),
+              ],
+              selected: {_local},
+              showSelectedIcon: false,
+              onSelectionChanged: (v) => setState(() => _local = v.first),
+            ),
+            const SizedBox(height: 14),
+            if (_local) ...[
+              _field('province', tr('İl'), tr('Örn. Ankara'), Icons.location_city_outlined),
+              _field('district', tr('İlçe'), tr('Örn. Çankaya (il merkezindeyse "Merkez" ya da boş)'), Icons.map_outlined,
+                  helper: tr('İlçe yazılırsa "... KAYMAKAMLIĞI" ve "İlçe ...", boşsa "... VALİLİĞİ" ve "İl ..." yazılır.')),
+              _field('localUnit', tr('Bağlı müdürlük'), SchoolInfo.defaultLocalUnit, Icons.apartment_rounded,
+                  helper: tr('Başına il ya da ilçe kendiliğinden eklenir. Satır istemiyorsanız boş bırakın.'),
+                  pick: _pickLocalUnit),
+            ] else
+              _field('parent', tr('Üst kurum (2. satır)'), _type.parentHint, Icons.account_tree_outlined,
+                  helper: tr('Bakanlık, rektörlük, başkanlık… Başlıkta büyük harfle yazılır.')),
+            _unitsField(),
+            _field('name', school ? tr('Okul adı') : tr('Kurum adı'), _type.nameHint, Icons.account_balance_outlined,
+                helper: school ? tr('Sonuna "Müdürlüğü" kendiliğinden eklenir.') : null),
+            if (!info.isEmpty) ...[
+              Container(
+                width: double.infinity,
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10), border: Border.all(color: Colors.black12)),
+                child: Column(children: [for (final line in info.letterhead) Text(line, textAlign: TextAlign.center, style: head)]),
+              ),
+            ],
+          ]),
+        ),
+      ),
+      const SizedBox(height: 12),
+    ];
+  }
+
+  Future<void> _pickPreset() async {
+    final list = HeaderPreset.of(_type);
+    final p = await showModalBottomSheet<HeaderPreset>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (ctx) => SafeArea(
+        child: ListView(shrinkWrap: true, padding: const EdgeInsets.fromLTRB(8, 0, 8, 16), children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+            child: Text(tr('Hazır başlık örnekleri'), style: Theme.of(ctx).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+          ),
+          for (final h in list)
+            ListTile(
+              title: Text(h.label, style: const TextStyle(fontWeight: FontWeight.w700)),
+              subtitle: Text([
+                'T.C.',
+                if (h.local) tr('VALİLİK / KAYMAKAMLIK') else SchoolInfo.upper(h.parent),
+                if (h.local && h.localUnit.isNotEmpty) tr('İl / İlçe {0}', [h.localUnit]),
+                ...h.units,
+                h.name,
+              ].where((e) => e.isNotEmpty).join('\n')),
+              isThreeLine: true,
+              onTap: () => Navigator.of(ctx).pop(h),
+            ),
+        ]),
+      ),
+    );
+    if (p == null) return;
+    setState(() {
+      _local = p.local;
+      _c['localUnit']!.text = p.localUnit;
+      _c['parent']!.text = p.parent;
+      _c['units']!.text = p.units.join('\n');
+      _c['name']!.text = p.name;
+    });
+    if (mounted) toast(context, tr('Örnek dolduruldu. Adları kendi kurumunuza göre düzeltin.'));
+  }
+
+  Future<void> _pickLocalUnit() async {
+    final v = await _choose(tr('Bağlı müdürlük'), [(tr('Valilik / Kaymakamlık birimleri'), HeaderPreset.localUnits)]);
+    if (v != null) _c['localUnit']!.text = v;
   }
 
   Widget _sig(TextStyle s, String name, String role) => Column(children: [
