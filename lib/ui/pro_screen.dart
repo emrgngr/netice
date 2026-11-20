@@ -159,6 +159,8 @@ class _ProScreenState extends State<ProScreen> {
             ),
             const SizedBox(height: 22),
             for (final x in ProFeature.values) _FeatureRow(x, highlight: x == f),
+            const SizedBox(height: 10),
+            const _TrustLine(),
             const SizedBox(height: 18),
             if (store.inTrial && !store.hasSubscription)
               Padding(
@@ -240,6 +242,22 @@ class _GoldPro extends StatelessWidget {
         child: const Text('PRO',
             style: TextStyle(color: NColors.ink, fontWeight: FontWeight.w900, fontSize: 16, letterSpacing: 1.2)),
       );
+}
+
+/// Güven satırı: üçüncü taraf reklam ve izleme olmadığını vurgular.
+class _TrustLine extends StatelessWidget {
+  const _TrustLine();
+
+  @override
+  Widget build(BuildContext context) => Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+        const Icon(Icons.verified_user_outlined, color: Color(0xFF7BE0B4), size: 16),
+        const SizedBox(width: 8),
+        Flexible(
+          child: Text(tr('Üçüncü taraf reklam yok · Sizi izleyen reklam ağı yok · Verileriniz cihazınızda kalır'),
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 12, fontWeight: FontWeight.w600, height: 1.4)),
+        ),
+      ]);
 }
 
 class _FeatureRow extends StatelessWidget {

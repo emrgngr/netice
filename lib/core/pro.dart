@@ -16,7 +16,7 @@ enum ProFeature {
   cloudBackup('Google Drive yedeği', 'Kendi hesabınıza her gün otomatik yedek'),
   advancedCharts('Gelişmiş grafikler', 'Pasta, madde haritası, puan yayılımı, kazanım radarı'),
   officialHeader('Resmi yazı başlığı', 'Kurumunuzun resmi başlığı ve imza alanı'),
-  noAds('Reklamsız kullanım', 'Hiçbir sayfada reklam gösterilmez');
+  noAds('Pro\'da hiç reklam yok', 'Kendi tanıtımlarımız da gösterilmez. Ücretsiz sürümde de üçüncü taraf reklam yok.');
 
   final String _title;
   final String _detail;
