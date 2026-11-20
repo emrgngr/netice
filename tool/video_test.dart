@@ -22,6 +22,7 @@ import 'package:netice/core/models.dart';
 import 'package:netice/ui/scan_screen.dart';
 import 'package:netice/ui/school_screen.dart';
 import 'package:netice/ui/settings_screen.dart';
+import 'package:netice/ui/widgets.dart';
 import 'package:netice/ui/splash_screen.dart';
 import 'package:netice/ui/student_detail_screen.dart';
 import 'package:netice/ui/students_screen.dart';
@@ -151,13 +152,17 @@ void main() {
     Finder tip(String s) => find.byTooltip(s);
 
     await scene('01_tanitim', const OnboardingScreen(), () => [find.textContaining(tr('Devam'))]);
-    await scene('02_ana', const HomeScreen(), () => [tip(tr('Yeni sınav')), text(tr('Okut'))]);
+    await scene('02_ana', const HomeScreen(), () => [tip(tr('Yeni sınav')), text(tr('Okut')), text(tr('Örnekleri sil'))]);
     await scene(
       '03_siniflar',
       const Scaffold(body: StudentsScreen(embedded: true)),
       () => [text(tr('Excel aktar')), text(tr('Öğrenci ekle'))],
     );
-    await scene('04_yeni_sinav', const NewExamScreen(), () => [find.byType(Slider), find.text(tr('Sınavı kaydet'))]);
+    await scene(
+      '04_yeni_sinav',
+      const NewExamScreen(),
+      () => [find.byType(NumberStepper), find.text(tr('Sınavı kaydet'))],
+    );
     await scene(
       '05_form_yazdir',
       const ExamScreen(examId: 'demo_exam'),

@@ -1,9 +1,9 @@
 {
  "00_acilis": "À l'ouverture de Netice, une courte animation vous accueille.",
  "01_tanitim": "Au premier lancement, quelques pages présentent l'application. Touchez Continuer pour avancer.",
- "02_ana": "L'accueil résume vos examens. Touchez le bouton plus en haut à droite pour un nouvel examen, ou Corriger pour lire les feuilles.",
+ "02_ana": "L’accueil résume vos évaluations. Touchez le bouton plus en haut à droite pour une nouvelle évaluation, ou Corriger pour lire les copies. Supprimez les données d’exemple avec Supprimer les exemples.",
  "03_siniflar": "Passez à Classes dans le menu du bas. Importez vos élèves depuis une liste Excel ou ajoutez-les un par un.",
- "04_yeni_sinav": "Sur l'écran du nouvel examen, choisissez le nombre de questions et de choix, saisissez le corrigé et touchez Enregistrer l'évaluation.",
+ "04_yeni_sinav": "Sur l’écran de nouvelle évaluation, réglez le nombre de questions avec les boutons plus et moins ou en le saisissant, choisissez le nombre de réponses, saisissez le corrigé et touchez Enregistrer l’évaluation.",
  "05_form_yazdir": "Dans l'examen, choisissez Imprimer les grilles dans le menu en haut à droite et distribuez les feuilles de réponses.",
  "06_okut": "Une fois l'examen terminé, touchez Corriger.",
  "07_okut_ekrani": "Scannez les feuilles avec la caméra ou choisissez leurs photos dans la galerie. Netice lit chaque feuille en quelques secondes.",
@@ -11,6 +11,6 @@
  "09_analiz": "L'onglet Analyse vous donne le rapport d'examen et les bulletins des élèves en PDF.",
  "10_ogrenci": "La page élève montre la progression et vous alerte quand les résultats d'un élève baissent.",
  "11_kurum": "Dans Profil, ouvrez Informations sur l’établissement et choisissez le type d’établissement. Saisissez l’organisme de tutelle, les unités et le nom, puis choisissez titres et grades dans les listes. Vos rapports porteront un en-tête officiel et une zone de signature.",
- "12_ayarlar": "Dans les Réglages, changez la langue et sauvegardez vos données.",
+ "12_ayarlar": "Dans Réglages, vous pouvez changer la langue, couper la mélodie d’ouverture et sauvegarder vos données.",
  "13_yardim": "En cas de doute, consultez le guide et la foire aux questions dans l'onglet Aide. Bon travail !"
 }
