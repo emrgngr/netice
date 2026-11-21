@@ -1,0 +1,833 @@
+/// Netice çekirdek veri modeli (MVP).
+///
+/// Ürün tasarım dokümanındaki varlıkların sadeleştirilmiş hâli: sınav,
+/// soru, cevap anahtarı, öğrenci, öğrenci cevabı ve sonuç.
+library;
+
+import '../l10n/l10n.dart';
+
+/// Bir sorunun öğrenci formundaki okunma durumu.
+enum MarkState {
+  /// Tek şık net biçimde işaretli.
+  filled,
+
+  /// Hiç işaret yok.
+  blank,
+
+  /// Birden çok şık işaretli (varsayılan: geçersiz, öğretmene sorulur).
+  multiple,
+
+  /// Doluluk oranı eşik bandında; öğretmen onayı gerekir.
+  uncertain,
+}
+
+/// Bir sorunun nasıl değerlendirildiği.
+enum Outcome { correct, wrong, blank, cancelled }
+
+class Student {
+  final String id;
+  final String firstName;
+  final String lastName;
+  final String number;
+  final String className;
+
+  const Student({
+    required this.id,
+    required this.firstName,
+    required this.lastName,
+    required this.number,
+    required this.className,
+  });
+
+  /// Çince ve Japonca adlar arasında boşluk bırakılmaz (王伟).
+  String get fullName => _cjk.hasMatch(firstName) && _cjk.hasMatch(lastName) ? '$firstName$lastName' : '$firstName $lastName';
+  static final _cjk = RegExp(r'^[\u3040-\u30FF\u3400-\u9FFF]+$');
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'firstName': firstName,
+        'lastName': lastName,
+        'number': number,
+        'className': className,
+      };
+
+  factory Student.fromJson(Map<String, dynamic> j) => Student(
+        id: j['id'] as String,
+        firstName: j['firstName'] as String,
+        lastName: j['lastName'] as String,
+        number: j['number'] as String,
+        className: j['className'] as String,
+      );
+}
+
+class Question {
+  /// 1'den başlayan soru numarası.
+  final int no;
+
+  /// Doğru kabul edilen şık indeksleri (0 = A). Birden çok olabilir.
+  final Set<int> correct;
+  final double points;
+  final bool cancelled;
+  final String? outcomeCode; // kazanım kodu
+
+  const Question({
+    required this.no,
+    required this.correct,
+    this.points = 1,
+    this.cancelled = false,
+    this.outcomeCode,
+  });
+
+  Question copyWith({Set<int>? correct, double? points, bool? cancelled, String? outcomeCode}) =>
+      Question(
+        no: no,
+        correct: correct ?? this.correct,
+        points: points ?? this.points,
+        cancelled: cancelled ?? this.cancelled,
+        outcomeCode: outcomeCode ?? this.outcomeCode,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'no': no,
+        'correct': correct.toList(),
+        'points': points,
+        'cancelled': cancelled,
+        'outcomeCode': outcomeCode,
+      };
+
+  factory Question.fromJson(Map<String, dynamic> j) => Question(
+        no: j['no'] as int,
+        correct: (j['correct'] as List).cast<int>().toSet(),
+        points: (j['points'] as num).toDouble(),
+        cancelled: j['cancelled'] as bool? ?? false,
+        outcomeCode: j['outcomeCode'] as String?,
+      );
+}
+
+/// Puanlama kuralı.
+class ScoringRule {
+  /// Kaç yanlış bir doğruyu götürür. 0 ise götürme yok (ör. 4 → 4Y = 1D).
+  final int wrongsPerCorrect;
+
+  /// Tam puan (ham puan bu değere ölçeklenir).
+  final double maxScore;
+
+  /// Geçme puanı (öğretmen belirler). Boşsa tam puanın yarısı.
+  final double? passScore;
+
+  const ScoringRule({this.wrongsPerCorrect = 0, this.maxScore = 100, this.passScore});
+
+  double get pass => passScore ?? maxScore / 2;
+
+  Map<String, dynamic> toJson() =>
+      {'wrongsPerCorrect': wrongsPerCorrect, 'maxScore': maxScore, if (passScore != null) 'passScore': passScore};
+
+  factory ScoringRule.fromJson(Map<String, dynamic> j) => ScoringRule(
+        wrongsPerCorrect: j['wrongsPerCorrect'] as int? ?? 0,
+        maxScore: (j['maxScore'] as num?)?.toDouble() ?? 100,
+        passScore: (j['passScore'] as num?)?.toDouble(),
+      );
+}
+
+/// Klasik (açık uçlu) soru: öğretmen elle puanlar.
+class OpenQuestion {
+  final String label;
+  final double maxPoints;
+  const OpenQuestion({required this.label, required this.maxPoints});
+
+  Map<String, dynamic> toJson() => {'label': label, 'maxPoints': maxPoints};
+  factory OpenQuestion.fromJson(Map<String, dynamic> j) =>
+      OpenQuestion(label: j['label'] as String? ?? '', maxPoints: (j['maxPoints'] as num).toDouble());
+}
+
+class Exam {
+  final String id;
+  final String name;
+  final String className;
+  final DateTime date;
+
+  /// 4 veya 5.
+  final int choiceCount;
+  final List<Question> questions;
+  final ScoringRule rule;
+
+  /// Ek kitapçıklar (B, C, D…): [bookletOrders][k][i], (k+1). kitapçıktaki
+  /// [i]. sorunun A kitapçığındaki karşılığıdır (0'dan). Şıklar aynı, yalnızca
+  /// soru sırası değişik. Boş liste = tek kitapçık.
+  final List<List<int>> bookletOrders;
+
+  /// Bir sınavda en fazla kaç kitapçık türü olabilir (A–H).
+  static const maxBooklets = 8;
+
+  /// Klasik sorular. Varsa tam puan = test kısmı + klasik kısım; test kısmı
+  /// (tam puan − klasik toplamı) üzerinden ölçeklenir.
+  final List<OpenQuestion> openQuestions;
+
+  /// Başka firma formu kullanılıyorsa şablonun kimliği; null = Netice formu.
+  final String? templateId;
+
+  const Exam({
+    required this.id,
+    required this.name,
+    required this.className,
+    required this.date,
+    required this.choiceCount,
+    required this.questions,
+    this.rule = const ScoringRule(),
+    this.bookletOrders = const [],
+    this.openQuestions = const [],
+    this.templateId,
+  });
+
+  int get questionCount => questions.length;
+
+  bool get hasOpen => openQuestions.isNotEmpty;
+  double get openMax => openQuestions.fold(0.0, (a, q) => a + q.maxPoints);
+
+  /// Test (optik) kısmın tam puanı.
+  double get testMax => (rule.maxScore - openMax).clamp(0, rule.maxScore).toDouble();
+
+  bool get hasBooklets => bookletOrders.isNotEmpty;
+
+  /// Kitapçık türü sayısı (tek kitapçıkta 1).
+  int get bookletCount => 1 + bookletOrders.length;
+
+  /// Kitapçığın harfi (0 = A).
+  static String bookletLetter(int b) => String.fromCharCode(65 + b);
+
+  /// [booklet] kitapçığındaki [i]. sorunun A'daki karşılığı.
+  int masterIndex(int booklet, int i) {
+    if (booklet <= 0 || booklet > bookletOrders.length) return i;
+    final o = bookletOrders[booklet - 1];
+    return i < o.length ? o[i] : i;
+  }
+
+  /// A'daki [aIndex]. soru [booklet] kitapçığında kaçıncı sırada basılı?
+  int printedIndex(int booklet, int aIndex) {
+    if (booklet <= 0 || booklet > bookletOrders.length) return aIndex;
+    final b = bookletOrders[booklet - 1].indexOf(aIndex);
+    return b < 0 ? aIndex : b;
+  }
+
+  /// [booklet] kitapçığının cevap anahtarı (o kitapçığın sırasıyla).
+  List<Question> questionsOf(int booklet) {
+    if (booklet <= 0 || booklet > bookletOrders.length) return questions;
+    final order = bookletOrders[booklet - 1];
+    return [
+      for (var i = 0; i < order.length; i++)
+        Question(
+          no: i + 1,
+          correct: questions[order[i]].correct,
+          points: questions[order[i]].points,
+          cancelled: questions[order[i]].cancelled,
+          outcomeCode: questions[order[i]].outcomeCode,
+        ),
+    ];
+  }
+
+  /// [booklet] kitapçığının cevaplarını A sırasına çevirir.
+  List<Answer> toMasterOrder(int booklet, List<Answer> b) {
+    if (booklet <= 0 || booklet > bookletOrders.length) return b;
+    final order = bookletOrders[booklet - 1];
+    final a = List<Answer>.filled(questions.length, const Answer.blank());
+    for (var i = 0; i < order.length && i < b.length; i++) {
+      a[order[i]] = b[i];
+    }
+    return a;
+  }
+
+  /// "3, 1, 2, …" biçimindeki sırayı çözer; 1..n'in tam bir permütasyonu değilse null.
+  static List<int>? parseBookletOrder(String text, int n) {
+    final parts = text.split(RegExp(r'[^0-9]+')).where((e) => e.isNotEmpty).map(int.parse).toList();
+    if (parts.length != n) return null;
+    final set = parts.toSet();
+    if (set.length != n || set.any((v) => v < 1 || v > n)) return null;
+    return [for (final v in parts) v - 1];
+  }
+
+  /// "ABCDA…" biçimindeki cevap anahtarından sınav oluşturur.
+  factory Exam.fromKeyString({
+    required String id,
+    required String name,
+    required String className,
+    required String key,
+    int choiceCount = 5,
+    ScoringRule rule = const ScoringRule(),
+    DateTime? date,
+  }) {
+    final qs = <Question>[];
+    final letters = key.toUpperCase().replaceAll(RegExp(r'\s'), '');
+    for (var i = 0; i < letters.length; i++) {
+      final idx = letters.codeUnitAt(i) - 65;
+      if (idx < 0 || idx >= choiceCount) {
+        throw FormatException('Geçersiz şık "${letters[i]}" (soru ${i + 1})');
+      }
+      qs.add(Question(no: i + 1, correct: {idx}));
+    }
+    return Exam(
+      id: id,
+      name: name,
+      className: className,
+      date: date ?? DateTime.now(),
+      choiceCount: choiceCount,
+      questions: qs,
+      rule: rule,
+    );
+  }
+
+  Exam copyWith({
+    List<Question>? questions,
+    ScoringRule? rule,
+    String? name,
+    String? className,
+    DateTime? date,
+    List<List<int>>? bookletOrders,
+    List<OpenQuestion>? openQuestions,
+    String? templateId,
+    bool clearTemplate = false,
+  }) =>
+      Exam(
+        id: id,
+        name: name ?? this.name,
+        className: className ?? this.className,
+        date: date ?? this.date,
+        choiceCount: choiceCount,
+        questions: questions ?? this.questions,
+        rule: rule ?? this.rule,
+        bookletOrders: bookletOrders ?? this.bookletOrders,
+        openQuestions: openQuestions ?? this.openQuestions,
+        templateId: clearTemplate ? null : (templateId ?? this.templateId),
+      );
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'className': className,
+        'date': date.toIso8601String(),
+        'choiceCount': choiceCount,
+        'questions': questions.map((q) => q.toJson()).toList(),
+        'rule': rule.toJson(),
+        if (bookletOrders.isNotEmpty) 'bookletOrders': bookletOrders,
+        // Eski sürümler yalnız B'yi tanır.
+        if (bookletOrders.isNotEmpty) 'bookletOrder': bookletOrders.first,
+        if (templateId != null) 'templateId': templateId,
+        if (openQuestions.isNotEmpty) 'openQuestions': openQuestions.map((q) => q.toJson()).toList(),
+      };
+
+  factory Exam.fromJson(Map<String, dynamic> j) => Exam(
+        id: j['id'] as String,
+        name: j['name'] as String,
+        className: j['className'] as String,
+        date: DateTime.parse(j['date'] as String),
+        choiceCount: j['choiceCount'] as int,
+        questions: (j['questions'] as List)
+            .map((e) => Question.fromJson(e as Map<String, dynamic>))
+            .toList(),
+        rule: ScoringRule.fromJson(j['rule'] as Map<String, dynamic>),
+        bookletOrders: j['bookletOrders'] is List
+            ? [for (final o in j['bookletOrders'] as List) (o as List).map((e) => e as int).toList()]
+            : [if (j['bookletOrder'] is List) (j['bookletOrder'] as List).map((e) => e as int).toList()],
+        templateId: j['templateId'] as String?,
+        openQuestions: [
+          for (final e in (j['openQuestions'] as List?) ?? const []) OpenQuestion.fromJson(e as Map<String, dynamic>)
+        ],
+      );
+}
+
+/// Bir sorunun öğrenci cevabı.
+class Answer {
+  final MarkState state;
+
+  /// İşaretlenen şıklar (0 = A).
+  final Set<int> marked;
+
+  /// Öğretmen tarafından onaylandı/düzeltildi mi.
+  final bool confirmed;
+
+  const Answer(this.state, this.marked, {this.confirmed = false});
+
+  const Answer.blank()
+      : state = MarkState.blank,
+        marked = const {},
+        confirmed = false;
+
+  factory Answer.choice(int i) => Answer(MarkState.filled, {i});
+
+  bool get needsReview =>
+      !confirmed &&
+      (state == MarkState.uncertain || state == MarkState.multiple);
+
+  Map<String, dynamic> toJson() => {
+        'state': state.name,
+        'marked': marked.toList(),
+        'confirmed': confirmed,
+      };
+
+  factory Answer.fromJson(Map<String, dynamic> j) => Answer(
+        MarkState.values.byName(j['state'] as String),
+        (j['marked'] as List).cast<int>().toSet(),
+        confirmed: j['confirmed'] as bool? ?? false,
+      );
+}
+
+/// Bir öğrencinin bir sınavdaki cevap kâğıdı.
+class Sheet {
+  final String examId;
+  final String? studentId;
+  /// Cevaplar her zaman A kitapçığı sırasıyla saklanır.
+  final List<Answer> answers;
+
+  /// Öğrencinin kitapçığı (0 = A, 1 = B, 2 = C…).
+  final int booklet;
+
+  /// Klasik soru puanları (öğretmen girer; girilmeyen null).
+  final List<double?> openScores;
+
+  /// İşaretli kâğıt görüntüsünün dosya adı (cihazdaki kagitlar/ klasöründe).
+  final String? imageId;
+
+  /// Öğrenci eşleşmediğinde kâğıttan okunan numara ('?' = okunamayan rakam).
+  final String? readNumber;
+
+  const Sheet({
+    required this.examId,
+    this.studentId,
+    required this.answers,
+    this.booklet = 0,
+    this.openScores = const [],
+    this.imageId,
+    this.readNumber,
+  });
+
+  bool get needsReview =>
+      studentId == null || answers.any((a) => a.needsReview);
+
+  Sheet copyWith({String? studentId, List<Answer>? answers, List<double?>? openScores, String? imageId}) => Sheet(
+        examId: examId,
+        studentId: studentId ?? this.studentId,
+        answers: answers ?? this.answers,
+        booklet: booklet,
+        openScores: openScores ?? this.openScores,
+        imageId: imageId ?? this.imageId,
+        readNumber: readNumber,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'examId': examId,
+        'studentId': studentId,
+        'answers': answers.map((a) => a.toJson()).toList(),
+        if (booklet != 0) 'booklet': booklet,
+        if (openScores.isNotEmpty) 'openScores': openScores,
+        if (imageId != null) 'imageId': imageId,
+        if (readNumber != null) 'readNumber': readNumber,
+      };
+
+  factory Sheet.fromJson(Map<String, dynamic> j) => Sheet(
+        examId: j['examId'] as String,
+        studentId: j['studentId'] as String?,
+        answers: (j['answers'] as List)
+            .map((e) => Answer.fromJson(e as Map<String, dynamic>))
+            .toList(),
+        booklet: j['booklet'] as int? ?? 0,
+        openScores: [for (final v in (j['openScores'] as List?) ?? const []) (v as num?)?.toDouble()],
+        imageId: j['imageId'] as String?,
+        readNumber: j['readNumber'] as String?,
+      );
+}
+
+/// Kurum türü: okul, üniversite/MYO, polis eğitim kurumları, askerî okullar,
+/// kurslar ve diğer kurumlar. Başlık, imza unvanları ve grup adı buna göre gelir.
+enum InstitutionType {
+  school,
+  university,
+  police,
+  military,
+  course,
+  other;
+
+  static InstitutionType byName(String? n) =>
+      InstitutionType.values.firstWhere((e) => e.name == n, orElse: () => InstitutionType.school);
+
+  String get label => switch (this) {
+        school => tr('Okul (ilkokul, ortaokul, lise)'),
+        university => tr('Üniversite, fakülte, meslek yüksekokulu'),
+        police => tr('Polis Akademisi, PMYO, POMEM'),
+        military => tr('Askerî okul, askerî lise, harp okulu, askerî üniversite'),
+        course => tr('Kurs, dershane, eğitim merkezi'),
+        other => tr('Diğer kurum (şirket, kamu eğitimi)'),
+      };
+
+  /// Üst kurum için örnek.
+  String get parentHint => switch (this) {
+        school => '',
+        university => tr('Örn. Ankara Üniversitesi Rektörlüğü'),
+        police => tr('Örn. Polis Akademisi Başkanlığı'),
+        military => tr('Örn. Millî Savunma Üniversitesi Rektörlüğü'),
+        course => tr('Örn. Millî Eğitim Bakanlığı'),
+        other => tr('Örn. Bakanlık ya da şirket adı'),
+      };
+
+  String get nameHint => switch (this) {
+        school => tr('Örn. Atatürk Anadolu Lisesi'),
+        university => tr('Örn. Sağlık Hizmetleri Meslek Yüksekokulu'),
+        police => tr('Örn. Ankara Polis Meslek Eğitim Merkezi Müdürlüğü'),
+        military => tr('Örn. Kara Harp Okulu Dekanlığı'),
+        course => tr('Örn. Bilgi Kurs Merkezi'),
+        other => tr('Örn. Eğitim Daire Başkanlığı'),
+      };
+
+  String get defaultHeadTitle => switch (this) {
+        school => tr('Okul Müdürü'),
+        university => tr('Müdür'),
+        police => tr('Müdür'),
+        military => tr('Komutan'),
+        course => tr('Kurum Müdürü'),
+        other => tr('Kurum Yöneticisi'),
+      };
+
+  /// Türkiye biçiminde başlık varsayılan olarak Valilik / Kaymakamlık
+  /// altından mı başlar (MEB'e bağlı okul ve kurslar)?
+  bool get defaultLocalChain => this == school || this == course;
+
+  String get defaultInstructorTitle => switch (this) {
+        school => tr('Ders Öğretmeni'),
+        university => tr('Öğretim Elemanı'),
+        police => tr('Öğretim Görevlisi'),
+        military => tr('Öğretim Elemanı'),
+        course => tr('Eğitmen'),
+        other => tr('Eğitmen'),
+      };
+
+  String get defaultGroupLabel => switch (this) {
+        school => tr('Sınıf'),
+        university => tr('Sınıf'),
+        police => tr('Sınıf'),
+        military => tr('Bölük'),
+        course => tr('Grup'),
+        other => tr('Grup'),
+      };
+}
+
+/// Kurum ve eğitici bilgileri. Raporlarda resmi yazı başlığı olarak kullanılır.
+class SchoolInfo {
+  final String province; // il / eyalet
+  final String district; // ilçe / şehir
+  final String name; // kurum adı
+  final String principal; // kurum amiri (müdür, dekan, komutan…)
+  final String teacher; // ders öğretmeni / eğitici
+  final String subject; // ders / branş
+  final InstitutionType type;
+
+  /// Bağlı olduğu üst kurum (üniversite, Polis Akademisi Başkanlığı, MSÜ…).
+  final String parent;
+  final String country;
+
+  /// Boşsa kurum türüne göre varsayılan kullanılır.
+  final String headTitle;
+  final String instructorTitle;
+  final String groupLabel;
+
+  /// Türkiye resmi yazı biçimi (T.C. ile başlar). null: uygulama diline göre.
+  final bool? turkishFormat;
+
+  /// Başlık Valilik / Kaymakamlık altından mı? null: kurum türüne göre.
+  final bool? localHeader;
+
+  /// Valilik / Kaymakamlık altındaki müdürlük ("Millî Eğitim Müdürlüğü";
+  /// başına il/ilçe gelir). null: Millî Eğitim Müdürlüğü, boş: satır yok.
+  final String? localUnit;
+
+  /// Üst kurum ile kurum arasındaki ara birimler (fakülte, daire, komutanlık…).
+  final List<String> units;
+
+  /// Unvan listelerinin ülkesi (tr, en, de…). null: uygulama diline göre.
+  final String? titleSystem;
+
+  /// Raporların yazı tipi: netice, times, arial.
+  final String fontFamily;
+
+  /// Resmi başlığın punto ve karakteri.
+  final double headerSize;
+  final bool headerBold;
+  final bool headerItalic;
+  final bool headerUnderline;
+
+  /// İmza alanının puntosu.
+  final double signSize;
+
+  /// Raporlarda resmi yazı başlığı ve imza alanı.
+  final bool officialHeader;
+
+  const SchoolInfo({
+    this.province = '',
+    this.district = '',
+    this.name = '',
+    this.principal = '',
+    this.teacher = '',
+    this.subject = '',
+    this.type = InstitutionType.school,
+    this.parent = '',
+    this.country = '',
+    this.headTitle = '',
+    this.instructorTitle = '',
+    this.groupLabel = '',
+    this.turkishFormat,
+    this.localHeader,
+    this.localUnit,
+    this.units = const [],
+    this.titleSystem,
+    this.fontFamily = 'netice',
+    this.headerSize = 10.5,
+    this.headerBold = true,
+    this.headerItalic = false,
+    this.headerUnderline = false,
+    this.signSize = 9.5,
+    this.officialHeader = true,
+  });
+
+  static const fontFamilies = ['netice', 'times', 'arial'];
+
+  static String fontLabel(String f) => switch (f) {
+        'times' => tr('Times New Roman benzeri (tırnaklı)'),
+        'arial' => tr('Arial benzeri (sade)'),
+        _ => tr('Netice (modern)'),
+      };
+
+  bool get isEmpty => name.trim().isEmpty;
+
+  /// Resmi başlık kullanılacak mı?
+  bool get official => officialHeader && !isEmpty;
+
+  /// Büyük harf; Türkçe ve Azericede i → İ, ı → I.
+  static String upper(String s) => L10n.code == 'tr' || L10n.code == 'az'
+      ? s.replaceAll('i', 'İ').replaceAll('ı', 'I').toUpperCase()
+      : s.toUpperCase();
+
+  /// Başlık için büyük harf: Türkiye biçiminde (ve Azericede) i → İ; başka
+  /// ülkelerin biçiminde dilin kendi kuralı (BERLIN, ROMA…).
+  String _up(String s) => turkishStyle || L10n.code == 'az'
+      ? s.replaceAll('i', 'İ').replaceAll('ı', 'I').toUpperCase()
+      : s.toUpperCase();
+
+  /// Türkiye'deki resmi yazı biçimi mi (T.C. ile başlayan)?
+  bool get turkishStyle => turkishFormat ?? L10n.code == 'tr';
+
+  String get headRole => headTitle.trim().isNotEmpty ? headTitle.trim() : type.defaultHeadTitle;
+
+  String get instructorRole {
+    if (instructorTitle.trim().isNotEmpty) return instructorTitle.trim();
+    if (type == InstitutionType.school && subject.trim().isNotEmpty) return tr('{0} Öğretmeni', [subject.trim()]);
+    return type.defaultInstructorTitle;
+  }
+
+  String get group => groupLabel.trim().isNotEmpty ? groupLabel.trim() : type.defaultGroupLabel;
+
+  /// Başlıktaki grup ifadesi: okulda "9-A SINIFI", diğerlerinde "BÖLÜK: 3".
+  String classLine(String className) {
+    if (type == InstitutionType.school && groupLabel.trim().isEmpty) {
+      return tr('{0} SINIFI', [upper(className)]);
+    }
+    return '${upper(group)}: ${upper(className)}';
+  }
+
+  /// Başlık Valilik / Kaymakamlık altından mı başlar (MEB okulları, kurslar,
+  /// il emniyet müdürlüğü…)? Kapalıysa bakanlık ya da üst kurum altından başlar.
+  bool get localChain => localHeader ?? type.defaultLocalChain;
+
+  /// İlçe boş ya da "Merkez" ise il düzeyi (Valilik), değilse ilçe (Kaymakamlık).
+  bool get provincial {
+    final d = district.trim();
+    return d.isEmpty || upper(d) == 'MERKEZ';
+  }
+
+  /// Başlığın ikinci satırı (idarenin adı, büyük harfle): "ANKARA VALİLİĞİ",
+  /// "ÇANKAYA KAYMAKAMLIĞI" ya da üst kurum ("POLİS AKADEMİSİ BAŞKANLIĞI").
+  /// Türkiye dışı biçimde yer bilgisi.
+  String get authority {
+    final d = district.trim(), p = province.trim();
+    if (!turkishStyle) return [d, p, country.trim()].where((e) => e.isNotEmpty).map(_up).join(', ');
+    if (!localChain) return upper(parent.trim());
+    if (!provincial) return '${upper(d)} KAYMAKAMLIĞI';
+    if (p.isNotEmpty) return '${upper(p)} VALİLİĞİ';
+    return '';
+  }
+
+  /// Valilik / Kaymakamlık altındaki müdürlük: "İl Millî Eğitim Müdürlüğü",
+  /// "İlçe Millî Eğitim Müdürlüğü", "İl Emniyet Müdürlüğü"… Boş: satır yok.
+  String get localDirectorate {
+    if (!turkishStyle || !localChain) return '';
+    final u = (localUnit ?? defaultLocalUnit).trim();
+    if (u.isEmpty) return '';
+    final lower = u.toLowerCase();
+    if (lower.startsWith('il ') || lower.startsWith('ilçe ') || lower.startsWith('i̇l ')) return titleCase(u);
+    return '${provincial ? 'İl' : 'İlçe'} ${titleCase(u)}';
+  }
+
+  static const defaultLocalUnit = 'Millî Eğitim Müdürlüğü';
+
+  /// Ara birimler (her biri ayrı satır, ilk harfleri büyük).
+  List<String> get unitLines => [for (final u in units) if (u.trim().isNotEmpty) titleCase(u.trim())];
+
+  /// Kurumun kendi satırı. Türkiye biçiminde ilk harfleri büyük (yönetmelik
+  /// md. 10: birim adı ilk harfleri büyük, diğerleri küçük); okulda sonuna
+  /// "Müdürlüğü" eklenir. Diğer ülkelerde büyük harf.
+  String get directorate {
+    final n = name.trim();
+    if (n.isEmpty) return '';
+    if (!turkishStyle) return _up(n);
+    final t = titleCase(n);
+    if (type != InstitutionType.school) return t;
+    const ends = ['Müdürlüğü', 'Başkanlığı', 'Dekanlığı', 'Rektörlüğü', 'Komutanlığı', 'Müdürlük'];
+    return ends.any(t.endsWith) ? t : '$t Müdürlüğü';
+  }
+
+  /// Resmi başlığın satırları, yukarıdan aşağıya. Türkiye biçimi, Resmî
+  /// Yazışmalarda Uygulanacak Usul ve Esaslar Hakkında Yönetmelik md. 10'a
+  /// göre: 1. satır "T.C.", 2. satır idarenin adı büyük harfle, alttaki
+  /// satırlar birimler (hiyerarşi sırasıyla) ilk harfleri büyük.
+  /// Örn. T.C. / ANKARA VALİLİĞİ / İl Millî Eğitim Müdürlüğü / Atatürk Lisesi Müdürlüğü.
+  List<String> get letterhead => turkishStyle
+      ? [
+          'T.C.',
+          if (authority.isNotEmpty) authority,
+          if (localDirectorate.isNotEmpty) localDirectorate,
+          ...unitLines,
+          if (directorate.isNotEmpty) directorate,
+        ]
+      : [
+          if (parent.trim().isNotEmpty) _up(parent.trim()),
+          ...[for (final u in units) if (u.trim().isNotEmpty) _up(u.trim())],
+          if (directorate.isNotEmpty) directorate,
+          if (authority.isNotEmpty) authority,
+        ];
+
+  /// Kelimelerin ilk harfini büyütür ("atatürk anadolu lisesi" → "Atatürk
+  /// Anadolu Lisesi"). Tümü büyük yazılmışsa önce küçültür. "ve", "ile",
+  /// "veya" bağlaçları küçük kalır; "T.C.", "MEB", "PMYO" gibi kısaltmalar korunur.
+  static String titleCase(String s) {
+    String lo(String x) => x.replaceAll('I', 'ı').replaceAll('İ', 'i').toLowerCase();
+    String up(String x) => x.replaceAll('i', 'İ').replaceAll('ı', 'I').toUpperCase();
+    String bare(String x) => x.replaceAll(RegExp(r'[^A-Za-zÇĞİÖŞÜçğıöşüÂÎÛâîû]'), '');
+    final letters = bare(s);
+    final allUpper = letters.length > 3 && letters == up(letters);
+    const small = {'ve', 'ile', 'veya'};
+    const abbr = {'MEB', 'PMYO', 'MYO', 'MSÜ', 'POMEM', 'TSK', 'YÖK', 'JSGA', 'EGM', 'AB', 'ABD'};
+    final words = s.split(' ');
+    return [
+      for (var i = 0; i < words.length; i++)
+        () {
+          final w = words[i], b = bare(w);
+          if (w.isEmpty || b.isEmpty) return w;
+          // Kısaltmalar olduğu gibi kalır.
+          if (w.contains('.') || abbr.contains(b) || (!allUpper && b.length > 1 && b == up(b))) return w;
+          final body = allUpper ? lo(w) : w;
+          if (i > 0 && small.contains(lo(body))) return lo(body);
+          return up(body.substring(0, 1)) + body.substring(1);
+        }(),
+    ].join(' ');
+  }
+
+  /// Eğitim-öğretim yılı: eylülden itibaren yeni yıl başlar (Japonyada
+  /// nisandan başlar ve tek yılla yazılır).
+  static String academicYear(DateTime d) {
+    if (L10n.code == 'ja') return '${d.month >= 4 ? d.year : d.year - 1}';
+    final start = d.month >= 9 ? d.year : d.year - 1;
+    return '$start-${start + 1}';
+  }
+
+  SchoolInfo copyWith({
+    String? province,
+    String? district,
+    String? name,
+    String? principal,
+    String? teacher,
+    String? subject,
+    InstitutionType? type,
+    String? parent,
+    String? country,
+    String? headTitle,
+    String? instructorTitle,
+    String? groupLabel,
+    bool? officialHeader,
+  }) =>
+      SchoolInfo(
+        province: province ?? this.province,
+        district: district ?? this.district,
+        name: name ?? this.name,
+        principal: principal ?? this.principal,
+        teacher: teacher ?? this.teacher,
+        subject: subject ?? this.subject,
+        type: type ?? this.type,
+        parent: parent ?? this.parent,
+        country: country ?? this.country,
+        headTitle: headTitle ?? this.headTitle,
+        instructorTitle: instructorTitle ?? this.instructorTitle,
+        groupLabel: groupLabel ?? this.groupLabel,
+        turkishFormat: turkishFormat,
+        localHeader: localHeader,
+        localUnit: localUnit,
+        units: units,
+        titleSystem: titleSystem,
+        fontFamily: fontFamily,
+        headerSize: headerSize,
+        headerBold: headerBold,
+        headerItalic: headerItalic,
+        headerUnderline: headerUnderline,
+        signSize: signSize,
+        officialHeader: officialHeader ?? this.officialHeader,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'province': province,
+        'district': district,
+        'name': name,
+        'principal': principal,
+        'teacher': teacher,
+        'subject': subject,
+        'type': type.name,
+        'parent': parent,
+        'country': country,
+        'headTitle': headTitle,
+        'instructorTitle': instructorTitle,
+        'groupLabel': groupLabel,
+        if (turkishFormat != null) 'turkishFormat': turkishFormat,
+        if (localHeader != null) 'localHeader': localHeader,
+        if (localUnit != null) 'localUnit': localUnit,
+        if (units.isNotEmpty) 'units': units,
+        if (titleSystem != null) 'titleSystem': titleSystem,
+        'fontFamily': fontFamily,
+        'headerSize': headerSize,
+        'headerBold': headerBold,
+        'headerItalic': headerItalic,
+        'headerUnderline': headerUnderline,
+        'signSize': signSize,
+        'officialHeader': officialHeader,
+      };
+
+  factory SchoolInfo.fromJson(Map<String, dynamic> j) => SchoolInfo(
+        province: j['province'] as String? ?? '',
+        district: j['district'] as String? ?? '',
+        name: j['name'] as String? ?? '',
+        principal: j['principal'] as String? ?? '',
+        teacher: j['teacher'] as String? ?? '',
+        subject: j['subject'] as String? ?? '',
+        type: InstitutionType.byName(j['type'] as String?),
+        parent: j['parent'] as String? ?? '',
+        country: j['country'] as String? ?? '',
+        headTitle: j['headTitle'] as String? ?? '',
+        instructorTitle: j['instructorTitle'] as String? ?? '',
+        groupLabel: j['groupLabel'] as String? ?? '',
+        turkishFormat: j['turkishFormat'] as bool?,
+        localHeader: j['localHeader'] as bool?,
+        localUnit: j['localUnit'] as String?,
+        units: [for (final u in (j['units'] as List?) ?? const []) '$u'],
+        titleSystem: j['titleSystem'] as String?,
+        fontFamily: j['fontFamily'] as String? ?? 'netice',
+        headerSize: (j['headerSize'] as num?)?.toDouble() ?? 10.5,
+        headerBold: j['headerBold'] as bool? ?? true,
+        headerItalic: j['headerItalic'] as bool? ?? false,
+        headerUnderline: j['headerUnderline'] as bool? ?? false,
+        signSize: (j['signSize'] as num?)?.toDouble() ?? 9.5,
+        officialHeader: j['officialHeader'] as bool? ?? true,
+      );
+}

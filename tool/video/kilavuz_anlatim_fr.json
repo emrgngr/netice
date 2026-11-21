@@ -1,0 +1,15 @@
+{
+ "_baslik": {
+  "start": "Premiers pas",
+  "exam": "Préparer l'évaluation",
+  "print": "Imprimer les grilles",
+  "scan": "Corriger les feuilles",
+  "report": "Résultats et rapports",
+  "data": "Vos données"
+ },
+ "k_sinav_ayar": "Dans les réglages de l'évaluation, fixez la note maximale, le seuil de réussite et la pénalité des réponses fausses. Vous y ajoutez aussi les types de sujet et les questions écrites.",
+ "k_sablon": "Si vous utilisez la grille d'un éditeur ou d'une autre société, créez-en une fois un modèle dans Réglages, rubrique Autres grilles.",
+ "k_kontrol": "Touchez une feuille corrigée. Les marques douteuses sont signalées en jaune, et vous les corrigez d'un simple toucher.",
+ "k_donem": "Le bilan de la période réunit les évaluations choisies en notes de période et en bulletins par objectifs.",
+ "k_yedek": "Netice fonctionne hors ligne et garde vos données uniquement sur votre appareil. Pour changer d'appareil, utilisez Enregistrer la sauvegarde dans un fichier."
+}

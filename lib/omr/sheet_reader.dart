@@ -1,0 +1,36 @@
+import 'dart:typed_data';
+
+import 'package:image/image.dart' as img;
+
+import 'form_layout.dart';
+import 'omr_reader.dart';
+import 'rectify.dart';
+import 'template.dart';
+
+/// Bir sınavın kâğıtlarını okumak için gereken bilgi: Netice formu ya da
+/// başka bir firmanın formu için şablon.
+class ReadSpec {
+  final int questions;
+  final int choices;
+  /// Kitapçık türü sayısı (1 = tek kitapçık).
+  final int booklets;
+  final FormTemplate? template;
+  const ReadSpec({required this.questions, required this.choices, this.booklets = 1, this.template});
+}
+
+/// Kâğıdı okur (Netice formu ya da şablon).
+OmrResult readSheet(GrayImage g, ReadSpec s) {
+  final t = s.template;
+  if (t == null) {
+    return OmrReader(FormLayout(questionCount: s.questions, choiceCount: s.choices, booklets: s.booklets)).read(g);
+  }
+  return TemplateReader(t, questionCount: s.questions, choiceCount: s.choices).read(g);
+}
+
+/// Okunan kâğıdın düzleştirilmiş JPEG görüntüsü.
+Uint8List sheetJpeg(GrayImage g, OmrResult r, ReadSpec s) {
+  final t = s.template;
+  if (t == null) return rectifiedJpeg(g, r.markers);
+  final im = rectifyPage(g, r.markers, aspect: t.aspect, width: 840);
+  return Uint8List.fromList(img.encodeJpg(im.convert(numChannels: 3), quality: 72));
+}

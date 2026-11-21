@@ -1,0 +1,15 @@
+{
+ "_baslik": {
+  "start": "Başlanğıc",
+  "exam": "İmtahan hazırlama",
+  "print": "Vərəqlərin çapı",
+  "scan": "Vərəq oxutma",
+  "report": "Nəticələr və hesabatlar",
+  "data": "Məlumatlarınız"
+ },
+ "k_sinav_ayar": "İmtahan ayarlarında tam balı, keçid balını və səhvlərin düzü aparmasını təyin edin. Variant növlərini və yazılı sualları da buradan əlavə edin.",
+ "k_sablon": "Nəşriyyatın və ya başqa şirkətin vərəqindən istifadə edirsinizsə, Ayarlardakı Digər vərəqlər bölməsində bir dəfə şablon yaradın.",
+ "k_kontrol": "Oxunmuş vərəqə toxunun. Qeyri-müəyyən işarələr sarı xəbərdarlıqla göstərilir, toxunaraq düzəldə bilərsiniz.",
+ "k_donem": "Yarımil hesabatı seçdiyiniz imtahanları birləşdirərək yarımil qiymətlərini və bacarıq karnelərini hazırlayır.",
+ "k_yedek": "Netice internetsiz işləyir və məlumatlarınızı yalnız cihazınızda saxlayır. Cihazı dəyişəndə Ehtiyatı fayla saxla düyməsindən istifadə edin."
+}

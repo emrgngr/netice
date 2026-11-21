@@ -1,0 +1,15 @@
+{
+ "_baslik": {
+  "start": "Başlarken",
+  "exam": "Sınav hazırlama",
+  "print": "Form yazdırma",
+  "scan": "Kâğıt okutma",
+  "report": "Sonuçlar ve raporlar",
+  "data": "Verileriniz"
+ },
+ "k_sinav_ayar": "Sınav ayarlarında tam puanı, geçme puanını ve yanlış götürmeyi belirleyin. Kitapçık türlerini ve klasik soruları da buradan ekleyin.",
+ "k_sablon": "Yayınevi ya da başka bir firmanın formunu kullanacaksanız Ayarlar'daki Başka firma formları bölümünden bir kez şablon oluşturun.",
+ "k_kontrol": "Okunan bir kâğıda dokunun. Belirsiz işaretler sarı uyarıyla gösterilir; dokunarak düzeltebilirsiniz.",
+ "k_donem": "Dönem raporu, seçtiğiniz sınavları birleştirerek dönem notlarını ve kazanım karnelerini hazırlar.",
+ "k_yedek": "Netice çevrimdışı çalışır ve verilerinizi yalnızca cihazınızda tutar. Cihaz değiştirirken Yedeği dosyaya kaydet'i kullanın."
+}
