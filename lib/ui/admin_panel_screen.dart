@@ -58,6 +58,7 @@ class AdminPanelScreen extends StatelessWidget {
                 onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LicenseScreen())),
               ),
             ),
+          const SizedBox(height: 4),
           GridView(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),

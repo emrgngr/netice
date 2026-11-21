@@ -301,7 +301,7 @@ class ExamScreen extends StatelessWidget {
         bottomNavigationBar: const AdBannerBar(AdPage.exam),
         body: Watermark(child: TabBarView(children: [
           _ResultsTab(exam: exam, results: results),
-          _AnalysisTab(exam: exam, results: results, reports: actions.where((a) => a.label != tr('Form yazdır') && a.label != tr('Klasik puan gir')).toList()),
+          _AnalysisTab(exam: exam, results: results, reports: actions.where((a) => a.label != tr('Form yazdır') && a.label != tr('Klasik puan gir') && a.icon != Icons.hub_outlined).toList()),
           SafeArea(top: false, child: ReviewList(exam: exam)),
         ])),
       ),
