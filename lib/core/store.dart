@@ -438,19 +438,22 @@ class AppStore extends ChangeNotifier {
 
   /// Okunan kâğıdı kaydeder. Aynı öğrencinin önceki kâğıdı varsa yenisiyle değiştirir.
   /// Makine kodundaki sınav koduna karşılık gelen sınav.
-  Exam? examByCode(int code) => exams.where((e) => FormCode.examCodeOf(e.id) == code).firstOrNull;
+  /// Önce tam eşleşen, yoksa kitapçık bitleriyle eşleşen sınav aranır.
+  Exam? examByCode(FormCode code) =>
+      exams.where((e) => FormCode.examCodeOf(e.id) == code.examCode).firstOrNull ??
+      exams.where((e) => code.resolve(FormCode.examCodeOf(e.id)) != null).firstOrNull;
 
   /// Okunan kâğıdı kaydeder. Formdaki makine kodu başka bir sınavı gösteriyorsa
   /// kâğıt o sınava kaydedilir (dönen kâğıdın examId'si farklı olur).
   /// Öğrenci, işaretlenen numaradan; o yoksa makine kodundan bulunur.
   Sheet addScan(Exam exam, OmrResult r) {
     final code = r.code;
-    final other = code == null ? null : examByCode(code.examCode);
+    final other = code == null ? null : examByCode(code);
     // Yalnızca aynı yapıdaki (soru/şık sayısı) sınava yönlendirilir; okuma o yapıya göre yapıldı.
     final target = other != null &&
             other.questionCount == exam.questionCount &&
             other.choiceCount == exam.choiceCount &&
-            other.hasBooklets == exam.hasBooklets
+            other.bookletCount == exam.bookletCount
         ? other
         : exam;
     Student? st;
@@ -462,8 +465,10 @@ class AppStore extends ChangeNotifier {
       st = studentsOf(target.className).where((s) => int.tryParse(s.number) == n).firstOrNull;
       if (st != null) break;
     }
-    final booklet = target.hasBooklets ? (r.booklet ?? code?.booklet ?? 0) : 0;
-    final answers = booklet == 1 ? target.toBookletA(r.answers) : r.answers;
+    final codeBooklet = code?.resolve(FormCode.examCodeOf(target.id))?.booklet;
+    var booklet = target.hasBooklets ? (r.booklet ?? codeBooklet ?? 0) : 0;
+    if (booklet >= target.bookletCount) booklet = 0;
+    final answers = target.toMasterOrder(booklet, r.answers);
     lastScanStatus = ScanStatus.added;
     var studentId = st?.id;
     var openScores = const <double?>[];
@@ -839,13 +844,13 @@ class AppStore extends ChangeNotifier {
 ReadSpec specFor(AppStore store, Exam exam) => ReadSpec(
       questions: exam.questionCount,
       choices: exam.choiceCount,
-      booklets: exam.hasBooklets,
+      booklets: exam.bookletCount,
       template: store.templateById(exam.templateId),
     );
 
 /// Seçili sınav için okuma motoru oluşturur.
 OmrReader readerFor(Exam exam) => OmrReader(
-    FormLayout(questionCount: exam.questionCount, choiceCount: exam.choiceCount, booklets: exam.hasBooklets));
+    FormLayout(questionCount: exam.questionCount, choiceCount: exam.choiceCount, booklets: exam.bookletCount));
 
 /// Okutulan kâğıdın kaydedilme biçimi.
 enum ScanStatus {

@@ -53,17 +53,26 @@ class FormLayout {
   final int questionCount;
   final int choiceCount;
 
-  /// Sınavın A/B kitapçığı var mı? Varsa formda kitapçık daireleri basılır ve okunur.
-  final bool booklets;
+  /// Kitapçık türü sayısı (1 = tek kitapçık). 2 ve üstünde formda kitapçık
+  /// daireleri (A, B, C…) basılır ve okunur.
+  final int booklets;
 
-  FormLayout({required this.questionCount, required this.choiceCount, this.booklets = false}) {
+  /// Formda en fazla kaç kitapçık dairesi olabilir (A–H).
+  static const maxBooklets = 8;
+
+  FormLayout({required this.questionCount, required this.choiceCount, this.booklets = 1}) {
     if (questionCount < 1 || questionCount > 100) {
       throw ArgumentError('Soru sayısı 1–100 arasında olmalı');
     }
     if (choiceCount != 4 && choiceCount != 5) {
       throw ArgumentError('Şık sayısı 4 ya da 5 olmalı');
     }
+    if (booklets < 1 || booklets > maxBooklets) {
+      throw ArgumentError('Kitapçık sayısı 1–$maxBooklets arasında olmalı');
+    }
   }
+
+  bool get hasBooklets => booklets > 1;
 
   // ---- Öğrenci numarası alanı ----
 
@@ -78,10 +87,24 @@ class FormLayout {
         studentOrigin.y + value * digitPitchY,
       );
 
-  // ---- Kitapçık türü (A / B) ----
+  // ---- Kitapçık türü (A, B, C…) ----
 
-  /// Kitapçık dairesinin merkezi (0 = A, 1 = B).
-  static Pt bookletBubble(int b) => Pt(113.5 + b * 9.0, 88.6);
+  /// Kitapçık dairelerinin sütun sayısı: 4'e kadar tek satır, fazlası iki satır.
+  int get bookletColumns => booklets <= 4 ? booklets : (booklets / 2).ceil();
+  int get bookletRows => booklets <= 4 ? 1 : 2;
+
+  /// Kitapçık dairesinin merkezi (0 = A, 1 = B, 2 = C…).
+  ///
+  /// İki kitapçıkta yerleşim eski formlarla aynıdır (basılmış A/B formları
+  /// okunmaya devam eder). Daha fazlasında daireler sıkışık bir ızgaraya dizilir.
+  Pt bookletBubble(int b) {
+    if (booklets <= 2) return Pt(113.5 + b * 9.0, 88.6);
+    final cols = bookletColumns;
+    final col = b % cols, row = b ~/ cols;
+    final x = 116.5 + (col - (cols - 1) / 2) * 6.6;
+    final y = bookletRows == 1 ? 88.6 : 86.8 + row * 6.3;
+    return Pt(x, y);
+  }
 
   // ---- Cevap alanı ----
 

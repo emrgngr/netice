@@ -119,7 +119,7 @@ class OmrResult {
   /// Kenardaki makine kodu (yeni formlarda); okunamadıysa null.
   final FormCode? code;
 
-  /// Öğrencinin işaretlediği kitapçık (0 = A, 1 = B); işaret yoksa null.
+  /// Öğrencinin işaretlediği kitapçık (0 = A, 1 = B, 2 = C…); işaret yoksa null.
   final int? booklet;
 
   const OmrResult({
@@ -210,8 +210,8 @@ class OmrReader {
 
     // Kitapçık türü.
     int? booklet;
-    if (layout.booklets) {
-      final a = classify([fillAt(FormLayout.bookletBubble(0)), fillAt(FormLayout.bookletBubble(1))]);
+    if (layout.hasBooklets) {
+      final a = classify([for (var k = 0; k < layout.booklets; k++) fillAt(layout.bookletBubble(k))]);
       if (a.state == MarkState.filled && a.marked.length == 1) booklet = a.marked.first;
     }
 

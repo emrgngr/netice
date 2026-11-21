@@ -32,7 +32,8 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
   late bool _booklet;
   String? _template;
   late List<(TextEditingController, TextEditingController)> _open;
-  late final TextEditingController _order;
+  /// B, C, D… kitapçıklarının sıraları (her biri bir kutu).
+  final List<TextEditingController> _orders = [];
   late DateTime _date;
   bool _loaded = false;
 
@@ -55,11 +56,32 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
       for (final q in _exam.openQuestions)
         (TextEditingController(text: q.label), TextEditingController(text: _num(q.maxPoints)))
     ];
-    _order = TextEditingController(
-        text: _exam.bookletOrder == null ? '' : _exam.bookletOrder!.map((v) => v + 1).join(', '))
-      ..addListener(() => setState(() {}));
+    for (final o in _exam.bookletOrders) {
+      _addOrder(o.map((v) => v + 1).join(', '));
+    }
+    if (_orders.isEmpty) _addOrder('');
     _date = _exam.date;
     _loaded = true;
+  }
+
+  void _addOrder(String text) => _orders.add(TextEditingController(text: text)..addListener(() => setState(() {})));
+
+  /// Kitapçık sayısını değiştirir; eklenen kitapçıkların kutuları boş gelir.
+  void _setBookletCount(int n) => setState(() {
+        while (_orders.length < n - 1) {
+          _addOrder('');
+        }
+        while (_orders.length > n - 1) {
+          _orders.removeLast().dispose();
+        }
+      });
+
+  @override
+  void dispose() {
+    for (final c in _orders) {
+      c.dispose();
+    }
+    super.dispose();
   }
 
   static String _num(double v) => v == v.roundToDouble() ? v.toInt().toString() : v.toString().replaceAll('.', L10n.decimal);
@@ -123,21 +145,24 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
     }
     final tpl = StoreScope.of(context).templateById(_template);
     if (tpl != null && _booklet) {
-      return toast(context, tr('Başka firma formlarında A/B kitapçık okunamaz; kitapçık seçeneğini kapatın.'));
+      return toast(context, tr('Başka firma formlarında kitapçık türü okunamaz; kitapçık seçeneğini kapatın.'));
     }
     if (tpl != null && tpl.questionCount < _qs.length) {
       return toast(context, tr('"{0}" şablonunda {1} soru var; sınavda {2} soru var. Şablona blok ekleyin.', [tpl.name, tpl.questionCount, _qs.length]));
     }
-    List<int>? order;
+    final orders = <List<int>>[];
     if (_booklet) {
-      order = Exam.parseBookletOrder(_order.text, _qs.length);
-      if (order == null) {
-        return toast(context, tr('B kitapçığı sırası 1–{0} arasındaki her numarayı bir kez içermeli.', [_qs.length]));
+      for (var b = 0; b < _orders.length; b++) {
+        final order = Exam.parseBookletOrder(_orders[b].text, _qs.length);
+        if (order == null) {
+          return toast(context,
+              tr('{0} kitapçığı sırası 1–{1} arasındaki her numarayı bir kez içermeli.', [Exam.bookletLetter(b + 1), _qs.length]));
+        }
+        orders.add(order);
       }
     }
     StoreScope.of(context).upsertExam(_exam.copyWith(
-      bookletOrder: order,
-      clearBooklet: !_booklet,
+      bookletOrders: orders,
       openQuestions: open,
       templateId: tpl?.id,
       clearTemplate: tpl == null,
@@ -149,6 +174,48 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
     ));
     toast(context, tr('Kaydedildi; tüm puanlar yeniden hesaplandı.'));
     Navigator.pop(context);
+  }
+
+  /// Bir kitapçığın (B, C…) soru sırası kutusu, anahtar önizlemesi ve karışık sıra düğmesi.
+  Widget _orderField(int booklet, TextEditingController c, Color muted) {
+    final t = Theme.of(context);
+    final letter = Exam.bookletLetter(booklet);
+    final o = Exam.parseBookletOrder(c.text, _qs.length);
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      TextField(
+        controller: c,
+        keyboardType: TextInputType.text,
+        minLines: 1,
+        maxLines: 3,
+        decoration: InputDecoration(
+          labelText: tr('{0} kitapçığındaki soruların A\'daki numaraları', [letter]),
+          hintText: tr('Örn. 3, 1, 4, 2, …  ({0}\'nin 1. sorusu A\'nın 3. sorusu)', [letter]),
+          errorText: c.text.trim().isEmpty || o != null ? null : tr('1–{0} arası her numara bir kez yazılmalı', [_qs.length]),
+        ),
+      ),
+      const SizedBox(height: 4),
+      Row(children: [
+        Expanded(
+          child: Text(
+            o == null
+                ? tr('{0} anahtarı sıra girilince burada görünür.', [letter])
+                : tr('{0} anahtarı: {1}', [
+                    letter,
+                    [
+                      for (final i in o)
+                        _qs[i].correct.isEmpty ? '–' : _qs[i].correct.map((c) => String.fromCharCode(65 + c)).join('/')
+                    ].join(' ')
+                  ]),
+            style: t.textTheme.bodySmall?.copyWith(color: muted),
+          ),
+        ),
+        TextButton.icon(
+          onPressed: () => setState(() => c.text = ([for (var i = 1; i <= _qs.length; i++) i]..shuffle()).join(', ')),
+          icon: const Icon(Icons.shuffle_rounded, size: 18),
+          label: Text(tr('Karışık sıra öner')),
+        ),
+      ]),
+    ]);
   }
 
   Future<void> _delete() async {
@@ -277,49 +344,35 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
                   SwitchListTile(
                     value: _booklet,
                     onChanged: (v) => setState(() => _booklet = v),
-                    title: Text(tr('A ve B kitapçığı var'), style: TextStyle(fontWeight: FontWeight.w700)),
-                    subtitle: Text(tr('Kopya önlemek için soruların yeri değişik ikinci kitapçık. Formda kitapçık dairesi çıkar, kâğıtlar kendiliğinden doğru anahtarla puanlanır.')),
+                    title: Text(tr('Birden çok kitapçık var (A, B, C…)'), style: TextStyle(fontWeight: FontWeight.w700)),
+                    subtitle: Text(tr('Kopya önlemek için soruların yeri değişik kitapçıklar. Formda kitapçık daireleri çıkar, kâğıtlar kendiliğinden doğru anahtarla puanlanır.')),
                   ),
                   if (_booklet)
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                        TextField(
-                          controller: _order,
-                          keyboardType: TextInputType.text,
-                          minLines: 1,
-                          maxLines: 3,
-                          decoration: InputDecoration(
-                            labelText: tr('B kitapçığındaki soruların A\'daki numaraları'),
-                            hintText: tr('Örn. 3, 1, 4, 2, …  (B\'nin 1. sorusu A\'nın 3. sorusu)'),
-                            errorText: _order.text.trim().isEmpty ||
-                                    Exam.parseBookletOrder(_order.text, _qs.length) != null
-                                ? null
-                                : tr('1–{0} arası her numara bir kez yazılmalı', [_qs.length]),
-                          ),
+                        Text(tr('Kitapçık sayısı'), style: t.textTheme.titleSmall),
+                        const SizedBox(height: 4),
+                        NumberStepper(
+                          value: _orders.length + 1,
+                          min: 2,
+                          max: Exam.maxBooklets,
+                          semanticLabel: tr('Kitapçık sayısı'),
+                          onChanged: _setBookletCount,
                         ),
-                        const SizedBox(height: 8),
-                        Row(children: [
-                          Expanded(
-                            child: Text(
-                              () {
-                                final o = Exam.parseBookletOrder(_order.text, _qs.length);
-                                if (o == null) return tr('B anahtarı sıra girilince burada görünür.');
-                                return tr('B anahtarı: {0}', [[
-                                  for (final i in o)
-                                    _qs[i].correct.isEmpty ? '–' : _qs[i].correct.map((c) => String.fromCharCode(65 + c)).join('/')
-                                ].join(' ')]);
-                              }(),
-                              style: t.textTheme.bodySmall?.copyWith(color: muted),
-                            ),
-                          ),
-                          TextButton.icon(
-                            onPressed: () => setState(() =>
-                                _order.text = ([for (var i = 1; i <= _qs.length; i++) i]..shuffle()).join(', ')),
-                            icon: const Icon(Icons.shuffle_rounded, size: 18),
-                            label: Text(tr('Karışık sıra öner')),
-                          ),
-                        ]),
+                        Text(
+                          tr('Kitapçıklar: {0}', [[for (var b = 0; b <= _orders.length; b++) Exam.bookletLetter(b)].join(', ')]),
+                          style: t.textTheme.bodySmall?.copyWith(color: muted),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          tr('A kitapçığı yukarıdaki cevap anahtarıdır. Diğer kitapçıklar için soruların A\'daki numaralarını sırayla yazın.'),
+                          style: t.textTheme.bodySmall?.copyWith(color: muted),
+                        ),
+                        for (var b = 0; b < _orders.length; b++) ...[
+                          const SizedBox(height: 14),
+                          _orderField(b + 1, _orders[b], muted),
+                        ],
                       ]),
                     ),
                 ]),
