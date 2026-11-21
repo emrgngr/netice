@@ -1,0 +1,69 @@
+name: Kurum lisansı üret
+
+# Bir okul, dershane, akademi veya fakülte için kurum lisans kodu üretir.
+# GitHub > Actions > "Kurum lisansı üret" > Run workflow. Kod, görevin özet
+# sayfasında çıkar; kuruma e-postayla gönderin.
+# Gerekli secret: KURUM_LISANS_ANAHTARI (proje dosyalarındaki
+# netice/kurum-lisans-anahtari/OKU_BENI.txt'ye bakın).
+on:
+  workflow_dispatch:
+    inputs:
+      kurum:
+        description: 'Kurumun raporlarda görünecek adı (ör. Atatürk Anadolu Lisesi)'
+        required: true
+        type: string
+      bitis:
+        description: 'Bitiş tarihi (YYYY-AA-GG, ör. 2027-09-30)'
+        required: true
+        type: string
+      ogretmen:
+        description: 'Lisanstaki öğretmen sayısı (bilgi amaçlı)'
+        required: false
+        type: string
+        default: '0'
+
+permissions:
+  contents: read
+
+jobs:
+  uret:
+    name: Kodları üret
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.50.0
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Öğretmen ve yönetici kodları
+        env:
+          KURUM_LISANS_ANAHTARI: ${{ secrets.KURUM_LISANS_ANAHTARI }}
+          KURUM: ${{ inputs.kurum }}
+          BITIS: ${{ inputs.bitis }}
+          OGRETMEN: ${{ inputs.ogretmen }}
+        run: |
+          set -euo pipefail
+          if [ -z "$KURUM_LISANS_ANAHTARI" ]; then
+            echo "KURUM_LISANS_ANAHTARI secret'ı eklenmemiş." >&2
+            exit 1
+          fi
+          OGR=$(dart run tool/kurum_lisans.dart --kurum "$KURUM" --bitis "$BITIS" --ogretmen "$OGRETMEN")
+          YON=$(dart run tool/kurum_lisans.dart --kurum "$KURUM" --bitis "$BITIS" --ogretmen "$OGRETMEN" --yonetici)
+          {
+            echo "## Kurum lisansı: $KURUM"
+            echo ""
+            echo "Bitiş: $BITIS · Öğretmen sayısı: $OGRETMEN"
+            echo ""
+            echo "### Öğretmen kodu (tüm öğretmenlere)"
+            echo '```'
+            echo "$OGR"
+            echo '```'
+            echo "### Yönetici kodu (yalnız müdür / bölüm başkanı)"
+            echo '```'
+            echo "$YON"
+            echo '```'
+            echo ""
+            echo "Uygulamada: Profil > Kurum lisansı > kodu yapıştır > Etkinleştir."
+          } >> "$GITHUB_STEP_SUMMARY"

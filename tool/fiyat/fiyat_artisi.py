@@ -3,10 +3,14 @@
 
 `.github/workflows/fiyat-artisi.yml` her yıl 19 Kasım'da bu betiği çalıştırır.
 
-* Google Play: netice_pro_aylik / netice_pro_yillik aboneliklerinin her
-  bölgedeki fiyatı %30 artırılır (Android Publisher API).
+* Google Play: netice_pro_yillik aboneliğinin ve netice_donem_3ay (3 aylık
+  sınav dönemi paketi, tek seferlik ürün) her bölgedeki fiyatı %30
+  artırılır (Android Publisher API). Eski aylık abonelik artık satılmıyor.
 * App Store: Türkiye fiyatı %30 artırılır, diğer ülkeler Apple'ın eşdeğer
   fiyatlarıyla güncellenir (App Store Connect API).
+
+App Store'daki sınav dönemi paketi (tek seferlik ürün) bu betikle değil,
+App Store Connect'ten elle güncellenir.
 
 Mevcut aboneler ESKİ fiyatla devam eder; yeni fiyat yalnızca yeni
 abonelere uygulanır. Böylece mağazaların "fiyat artışı bildirimi ve onayı"
@@ -37,7 +41,8 @@ import requests
 
 PACKAGE = "com.netice.netice"
 BUNDLE_ID = "com.netice.netice"
-PRODUCTS = ["netice_pro_aylik", "netice_pro_yillik"]
+PRODUCTS = ["netice_pro_yillik"]
+ONE_TIME_PRODUCTS = ["netice_donem_3ay"]  # tek seferlik (yenilenmeyen) ürünler
 BASE_DATE = dt.date(2026, 11, 19)  # lib/core/price_increase.dart ile aynı
 INCREASE = Decimal("1.30")
 APPLE_BASE_TERRITORY = os.environ.get("ASC_BASE_TERRITORY", "TUR")
@@ -147,6 +152,35 @@ def google_play() -> bool:
             print(r.text)
         r.raise_for_status()
         print(f"Google Play: {pid} güncellendi.")
+
+    # Tek seferlik ürünler (sınav dönemi paketi): fiyatlar mikro birimde.
+    iap = f"https://androidpublisher.googleapis.com/androidpublisher/v3/applications/{PACKAGE}/inappproducts"
+    for sku in ONE_TIME_PRODUCTS:
+        r = requests.get(f"{iap}/{sku}", headers=h, timeout=60)
+        if r.status_code == 404:
+            print(f"Google Play: {sku} henüz tanımlı değil, atlandı.")
+            continue
+        r.raise_for_status()
+        prod = r.json()
+
+        def raise_micros(p: dict) -> dict:
+            old = Decimal(p["priceMicros"]) / Decimal(10**6)
+            new = nice_round(old, old * INCREASE)
+            return {"currency": p["currency"], "priceMicros": str(int(new * 10**6))}
+
+        if "defaultPrice" in prod:
+            prod["defaultPrice"] = raise_micros(prod["defaultPrice"])
+        for region, price in list(prod.get("prices", {}).items()):
+            prod["prices"][region] = raise_micros(price)
+            if region in ("TR", "US", "DE"):
+                print(f"  {sku} {region}: {Decimal(price['priceMicros']) / 10**6} → {Decimal(prod['prices'][region]['priceMicros']) / 10**6} {price['currency']}")
+        if DRY_RUN:
+            continue
+        r = requests.put(f"{iap}/{sku}", headers=h, params={"autoConvertMissingPrices": "true"}, json=prod, timeout=120)
+        if not r.ok:
+            print(r.text)
+        r.raise_for_status()
+        print(f"Google Play: {sku} güncellendi.")
     return True
 
 

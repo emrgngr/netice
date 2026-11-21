@@ -3,6 +3,9 @@ import '../core/store.dart';
 
 import '../main.dart';
 import 'account_card.dart';
+import 'admin_panel_screen.dart';
+import 'common_exam_ui.dart';
+import 'license_screen.dart';
 import 'pro_screen.dart';
 import 'school_screen.dart';
 import 'theme.dart';
@@ -76,8 +79,12 @@ class ProfileScreen extends StatelessWidget {
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
             leading: const IconBadge(Icons.workspace_premium_rounded, color: Color(0xFFD4A24C)),
             title: Text(tr('Netice Pro'), style: const TextStyle(fontWeight: FontWeight.w800)),
-            subtitle: Text(store.hasSubscription
+            subtitle: Text(store.hasLicense
+                ? tr('Kurum lisansıyla etkin: {0}', [store.license!.institution])
+                : store.hasSubscription
                 ? tr('Aboneliğiniz etkin. Teşekkürler!')
+                : store.hasTermPass
+                ? tr('Sınav dönemi paketi: {0} tarihine kadar', [L10n.date(store.termPassUntil!)])
                 : store.inTrial
                     ? tr('Ücretsiz deneme: {0} gün kaldı', [store.trialDaysLeft])
                     : AppStore.proFreeOnThisPlatform
@@ -100,6 +107,40 @@ class ProfileScreen extends StatelessWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SchoolScreen())),
           ),
+        ),
+        const SizedBox(height: 10),
+        Card(
+          clipBehavior: Clip.antiAlias,
+          child: Column(children: [
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              leading: IconBadge(Icons.apartment_rounded, color: store.hasLicense ? NColors.emerald : const Color(0xFFD4A24C)),
+              title: Text(tr('Kurum lisansı'), style: const TextStyle(fontWeight: FontWeight.w700)),
+              subtitle: Text(store.hasLicense
+                  ? tr('{0} · {1} gün kaldı', [store.license!.institution, store.license!.daysLeft(DateTime.now())])
+                  : tr('Kurum kodunu girin ya da kurumunuz için bilgi alın')),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LicenseScreen())),
+            ),
+            const Divider(height: 1),
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              leading: const IconBadge(Icons.dashboard_customize_outlined),
+              title: Text(tr('Yönetici paneli'), style: const TextStyle(fontWeight: FontWeight.w700)),
+              subtitle: Text(tr('Tüm şubeler, ortak sınavlar ve destek gereken öğrenciler')),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => AdminPanelScreen.open(context),
+            ),
+            const Divider(height: 1),
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              leading: const IconBadge(Icons.move_to_inbox_outlined),
+              title: Text(tr('Ortak sınav dosyası aç'), style: const TextStyle(fontWeight: FontWeight.w700)),
+              subtitle: Text(tr('Başka öğretmenden gelen sınav veya sonuç dosyası')),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => importNeticeFile(context),
+            ),
+          ]),
         ),
       ]),
     );

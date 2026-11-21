@@ -6,6 +6,10 @@ import 'package:material_ui/material_ui.dart';
 import 'package:printing/printing.dart';
 
 import '../core/analysis.dart';
+import '../core/insights.dart';
+import '../core/progress.dart';
+import '../core/store.dart';
+import 'common_exam_ui.dart';
 import '../core/import_export.dart';
 import '../core/legal.dart';
 import '../core/models.dart';
@@ -245,6 +249,7 @@ class ExamScreen extends StatelessWidget {
       _Action(Icons.table_view_outlined, tr('Excel'), excel),
       _Action(Icons.school_outlined, tr('e-Okul listesi'), eokul),
       _Action(Icons.label_outline, tr('Sonuç etiketi'), labels),
+      _Action(Icons.hub_outlined, exam.isCommon ? tr('Ortak sınav') : tr('Ortak sınav yap'), () => openCommonExamMenu(context, exam)),
     ];
 
     return DefaultTabController(
@@ -303,6 +308,51 @@ class ExamScreen extends StatelessWidget {
     );
   }
 }
+
+/// "Ne yapmalı?" kartı: sınav sonrası öğretmene somut adımlar.
+List<Widget> _actionPlan(BuildContext context, ExamReport rep) {
+  final plan = classActionPlan(rep, StoreScope.of(context).studentById);
+  if (plan.isEmpty) return const [];
+  return [
+    SectionTitle(tr('Ne yapmalı?')),
+    Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          for (var i = 0; i < plan.length; i++)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Container(
+                  width: 24,
+                  height: 24,
+                  margin: const EdgeInsetsDirectional.only(end: 10),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(color: NColors.emerald.withValues(alpha: 0.15), shape: BoxShape.circle),
+                  child: Text('${i + 1}', style: const TextStyle(fontWeight: FontWeight.w800, color: NColors.emerald, fontSize: 12)),
+                ),
+                Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text(plan[i].title, style: const TextStyle(fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 2),
+                    Text(plan[i].detail),
+                  ]),
+                ),
+              ]),
+            ),
+          Text(tr('Bu öneriler cihazınızda, sonuçlarınızdan üretildi; hiçbir veri dışarı gönderilmedi.'),
+              style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.55))),
+        ]),
+      ),
+    ),
+  ];
+}
+
+/// Karneler için gelişim notları (öğrencinin tüm sınavlarına bakılarak).
+Map<String, List<String>> developmentNotes(AppStore store, Iterable<String?> ids) => {
+      for (final id in ids)
+        if (id != null && store.studentById[id] != null) id: studentDevelopmentNote(historyOf(store, store.studentById[id]!)),
+    };
 
 String _safe(String s) => s.replaceAll(RegExp(r'[^\wğüşıöçĞÜŞİÖÇ -]'), '').replaceAll(' ', '_');
 
@@ -764,6 +814,7 @@ class _AnalysisTab extends StatelessWidget {
           ]),
         ),
       ),
+      ..._actionPlan(context, rep),
       if (!StoreScope.of(context).isPro) ...[
         SectionTitle(tr('Grafikler')),
         const ProLocked(ProFeature.advancedCharts),
@@ -1191,7 +1242,8 @@ Future<void> openCardsPreview(BuildContext context, Exam exam, {String? studentI
       baseFileName: '${_safe(exam.name)}_karne',
       students: students,
       initialStudentId: studentId,
-      build: (id) => buildStudentCardsPdf(exam: exam, results: results, students: byId, onlyStudentId: id, school: store.reportSchool),
+      build: (id) => buildStudentCardsPdf(
+          exam: exam, results: results, students: byId, onlyStudentId: id, school: store.reportSchool, notes: developmentNotes(store, [id])),
     ),
   ));
 }
@@ -1208,7 +1260,12 @@ Future<void> shareStudentCard(BuildContext context, Exam exam, String studentId)
   if (st == null || r == null) return;
   try {
     final bytes = await buildStudentCardsPdf(
-        exam: exam, results: results, students: store.studentById, onlyStudentId: studentId, school: store.reportSchool);
+        exam: exam,
+        results: results,
+        students: store.studentById,
+        onlyStudentId: studentId,
+        school: store.reportSchool,
+        notes: developmentNotes(store, [studentId]));
     final rep = ExamReport.build(exam, results);
     final school = store.school.name.trim();
     final body = tr('Sayın Velimiz,\n\n{0} adlı öğrencimizin "{1}" ({2}) sınav karnesi ektedir.\nPuanı: {3} / {4} · Sınıf ortalaması: {5}\n\nSaygılarımızla,\n{6}{7}{8}', [st.fullName, exam.name, dmy(exam.date), fmt1(r.score), fmt1(exam.rule.maxScore), fmt1(rep.stats.mean), store.school.teacher.trim().isEmpty ? tr('Ders öğretmeni') : store.school.teacher.trim(), school.isEmpty ? '' : '\n$school', downloadSignature]);

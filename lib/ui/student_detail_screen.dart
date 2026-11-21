@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
+import '../core/insights.dart';
 import '../core/models.dart';
 import '../core/progress.dart';
 import '../main.dart';
@@ -96,6 +97,27 @@ class StudentDetailScreen extends StatelessWidget {
                     _Legend(NColors.emerald, tr('Öğrenci')),
                     _Legend(t.colorScheme.onSurface.withValues(alpha: 0.35), tr('Sınıf ortalaması')),
                   ]),
+                ]),
+              ),
+            ),
+            SectionTitle(tr('Gelişim notu')),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  for (final line in studentDevelopmentNote(h))
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        const Padding(
+                          padding: EdgeInsetsDirectional.only(top: 2, end: 10),
+                          child: Icon(Icons.auto_awesome, size: 16, color: NColors.emerald),
+                        ),
+                        Expanded(child: Text(line)),
+                      ]),
+                    ),
+                  Text(tr('Bu not karneye de eklenir.'),
+                      style: TextStyle(fontSize: 12, color: t.colorScheme.onSurface.withValues(alpha: 0.55))),
                 ]),
               ),
             ),

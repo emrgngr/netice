@@ -9,6 +9,7 @@ import 'package:pdf/src/pdf/font/arabic.dart' as arabic_text;
 import 'package:pdf/widgets.dart' as pw;
 
 import '../core/models.dart';
+import '../core/insights.dart';
 import '../core/progress.dart';
 import '../core/report.dart';
 import '../core/scoring.dart';
@@ -1018,6 +1019,28 @@ Future<Uint8List> buildResultsPdf({
             ],
           ),
         ),
+        () {
+          final plan = classActionPlan(r, students);
+          if (plan.isEmpty) return pw.SizedBox();
+          return pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
+            k.title(tr('Ne yapmalı? Eylem planı')),
+            for (var i = 0; i < plan.length; i++)
+              pw.Padding(
+                padding: const pw.EdgeInsets.only(bottom: 4),
+                child: pw.Row(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
+                  pw.SizedBox(
+                      width: 14,
+                      child: pw.Text('${i + 1}.', style: pw.TextStyle(fontSize: 8.5, fontWeight: pw.FontWeight.bold, color: _emerald))),
+                  pw.Expanded(
+                    child: pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
+                      pw.Text(plan[i].title, style: pw.TextStyle(fontSize: 8.5, fontWeight: pw.FontWeight.bold)),
+                      pw.Text(plan[i].detail, style: const pw.TextStyle(fontSize: 8.5)),
+                    ]),
+                  ),
+                ]),
+              ),
+          ]);
+        }(),
         pw.SizedBox(height: 6),
         pw.Row(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -1253,6 +1276,9 @@ Future<Uint8List> buildStudentCardsPdf({
 
   /// Verilirse yalnızca bu öğrencinin karnesi (istatistikler yine tüm sınıftan).
   String? onlyStudentId,
+
+  /// Öğrenci kimliği → tüm sınavlarına bakılarak yazılmış gelişim notu.
+  Map<String, List<String>> notes = const {},
 }) async {
   final fonts = await _Fonts.load(school.fontFamily);
   final r = ExamReport.build(exam, results);
@@ -1427,6 +1453,10 @@ Future<Uint8List> buildStudentCardsPdf({
                   ),
               ],
             ),
+            if ((notes[res.sheet.studentId] ?? const []).isNotEmpty) ...[
+              k.title(tr('Gelişim notu')),
+              pw.Text(notes[res.sheet.studentId]!.take(4).join(' '), style: const pw.TextStyle(fontSize: 8.5)),
+            ],
             if (wrongs.isNotEmpty) ...[
               k.title(tr('Tekrar edilmesi önerilen sorular')),
               pw.Text(
@@ -1510,7 +1540,8 @@ pw.Widget _heatmap(ExamReport r, Map<String, Student> students) {
 }
 
 /// Şube karşılaştırma raporu.
-Future<Uint8List> buildComparePdf(List<BranchRow> rows, {SchoolInfo school = const SchoolInfo()}) async {
+Future<Uint8List> buildComparePdf(List<BranchRow> rows,
+    {SchoolInfo school = const SchoolInfo(), Map<String, Student>? students}) async {
   final fonts = await _Fonts.load(school.fontFamily);
   final k = _Kit(rows.first.exam, school,
       headerInfo: tr('Şube karşılaştırması · {0}', [rows.map((r) => r.exam.className).join(', ')]),
@@ -1521,6 +1552,14 @@ Future<Uint8List> buildComparePdf(List<BranchRow> rows, {SchoolInfo school = con
   final best = rows.reduce((a, b) => a.report.stats.mean >= b.report.stats.mean ? a : b);
   final sameShape = rows.every((r) => r.exam.questionCount == rows.first.exam.questionCount);
   final codes = {for (final r in rows) ...r.report.outcomes.map((o) => o.code)}.toList();
+  // Tüm şubeler birlikte (ortak sınav): genel ortalama, başarı ve sıralama.
+  final all = [
+    for (final r in rows)
+      for (final st in r.report.standings) (r, st),
+  ]..sort((a, b) => b.$2.pct.compareTo(a.$2.pct));
+  final total = all.length;
+  final allMean = total == 0 ? 0.0 : all.map((x) => x.$2.result.score).reduce((a, b) => a + b) / total;
+  final allPass = total == 0 ? 0.0 : all.where((x) => x.$2.result.score >= x.$1.exam.rule.pass).length / total;
   doc.addPage(pw.MultiPage(textDirection: _dir, 
     pageFormat: PdfPageFormat.a4,
     margin: const pw.EdgeInsets.fromLTRB(36, 30, 36, 30),
@@ -1551,7 +1590,9 @@ Future<Uint8List> buildComparePdf(List<BranchRow> rows, {SchoolInfo school = con
               _f1(r.report.stats.max),
               _f1(r.report.stats.min),
               r.report.stats.kr20 == null ? '–' : _f2(r.report.stats.kr20!),
-            ]
+            ],
+          if (students != null && rows.length >= 2)
+            [tr('Tüm şubeler'), rows.first.exam.name, '$total', _f1(allMean), '–', '–', _pct(allPass), '–', '–', '–'],
         ],
         leftColumn: 1,
         widths: {1: const pw.FlexColumnWidth(3)},
@@ -1583,6 +1624,24 @@ Future<Uint8List> buildComparePdf(List<BranchRow> rows, {SchoolInfo school = con
             for (final r in rows) [r.exam.className, for (final it in r.report.items) '${(it.p * 100).round()}']
           ],
           fontSize: rows.first.exam.questionCount > 25 ? 5.5 : 7,
+        ),
+      ],
+      if (students != null && all.isNotEmpty) ...[
+        k.title(tr('Genel sıralama (tüm şubeler)'), tr('İlk {0} öğrenci', [math.min(20, total)])),
+        k.table(
+          [tr('Sıra'), tr('Öğrenci'), tr('Şube'), tr('Puan'), tr('Başarı')],
+          [
+            for (var i = 0; i < math.min(20, total); i++)
+              [
+                '${i + 1}',
+                students[all[i].$2.result.sheet.studentId]?.fullName ?? '–',
+                all[i].$1.exam.className,
+                _f1(all[i].$2.result.score),
+                _pct(all[i].$2.pct / 100),
+              ]
+          ],
+          leftColumn: 1,
+          widths: {1: const pw.FlexColumnWidth(3)},
         ),
       ],
       k.signatures(),

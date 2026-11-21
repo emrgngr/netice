@@ -11,6 +11,7 @@ import '../omr/form_layout.dart';
 import '../omr/omr_reader.dart';
 import '../omr/sheet_reader.dart';
 import '../omr/template.dart';
+import 'license.dart';
 import 'models.dart';
 import 'scoring.dart';
 import '../l10n/l10n.dart';
@@ -73,9 +74,40 @@ class AppStore extends ChangeNotifier {
   bool get inTrial => trialStart != null && DateTime.now().difference(trialStart!) < trialLength;
   int get trialDaysLeft => !inTrial ? 0 : ((trialLength - DateTime.now().difference(trialStart!)).inHours / 24).ceil();
 
+  /// Sınav dönemi paketi (3 ay, tek seferlik) bu tarihe kadar geçerli.
+  DateTime? termPassUntil;
+  bool get hasTermPass => termPassUntil != null && DateTime.now().isBefore(termPassUntil!);
+
+  /// Sınav dönemi paketi alındı: süre bugünden ya da kalan süreden 90 gün uzar.
+  void addTermPass(DateTime now, [Duration length = const Duration(days: 90)]) {
+    final from = termPassUntil != null && termPassUntil!.isAfter(now) ? termPassUntil! : now;
+    termPassUntil = from.add(length);
+    _changed();
+  }
+
+  /// Kurum lisansı (okul, dershane, akademi…): tüm Pro özellikleri; yönetici
+  /// koduyla ayrıca kurum yönetici paneli.
+  InstitutionLicense? license;
+  bool get hasLicense => license != null && license!.activeAt(DateTime.now());
+  bool get isInstitutionAdmin => hasLicense && license!.admin;
+
+  /// Kurum yönetici paneli: yönetici lisansında; denemede ve bilgisayar
+  /// sürümünde tanıtım için açık.
+  bool get canUseAdminPanel => isInstitutionAdmin || proFreeOnThisPlatform || (inTrial && !hasLicense);
+
+  void setLicense(InstitutionLicense? l) {
+    license = l;
+    if (l != null && school.name.trim().isEmpty) {
+      school = school.copyWith(name: l.institution);
+    }
+    _changed();
+  }
+
   bool get isPro =>
       proFreeOnThisPlatform ||
       inTrial ||
+      hasTermPass ||
+      hasLicense ||
       (proConfirmedAt != null && DateTime.now().difference(proConfirmedAt!) < proGrace);
 
   /// Abonelik var mı (bilgisayar istisnası hariç)?
@@ -88,9 +120,12 @@ class AppStore extends ChangeNotifier {
   }
 
   /// Raporlarda kullanılacak okul bilgisi: resmi başlık Pro özelliğidir.
-  SchoolInfo get reportSchool => isPro
-      ? school
-      : school.copyWith(officialHeader: false);
+  /// Kurum lisansında kurum adı lisanstan gelir; öğretmenler değiştiremez.
+  SchoolInfo get reportSchool {
+    var s = isPro ? school : school.copyWith(officialHeader: false);
+    if (hasLicense) s = s.copyWith(name: license!.institution);
+    return s;
+  }
 
   /// Ana sayfadaki öneri kartı bu tarihe kadar gizli.
   DateTime? promoHiddenUntil;
@@ -145,9 +180,19 @@ class AppStore extends ChangeNotifier {
       trialStart = DateTime.now();
       await save();
     }
+    await _loadLicense();
     _cleanImages();
     loaded = true;
     notifyListeners();
+  }
+
+  /// Kayıtlı lisans kodu her açılışta yeniden doğrulanır (dosya elle
+  /// değiştirilse bile imzasız kod kabul edilmez).
+  String? _pendingLicense;
+  Future<void> _loadLicense() async {
+    final code = _pendingLicense;
+    _pendingLicense = null;
+    if (code != null) license = await InstitutionLicense.verify(code);
   }
 
   /// Kayıtlar sırayla yazılır; üst üste gelen iki kayıt aynı geçici dosyayı
@@ -183,6 +228,8 @@ class AppStore extends ChangeNotifier {
         'proProduct': proProduct,
         'trialStart': trialStart?.toIso8601String(),
         'proConfirmedAt': proConfirmedAt?.toIso8601String(),
+        if (termPassUntil != null) 'termPassUntil': termPassUntil!.toIso8601String(),
+        if (license != null) 'license': license!.code,
       };
 
   void _apply(Map<String, dynamic> j) {
@@ -207,6 +254,8 @@ class AppStore extends ChangeNotifier {
     proProduct = j['proProduct'] as String? ?? proProduct;
     trialStart = DateTime.tryParse('${j['trialStart'] ?? ''}') ?? trialStart;
     proConfirmedAt = DateTime.tryParse('${j['proConfirmedAt'] ?? ''}') ?? proConfirmedAt;
+    termPassUntil = DateTime.tryParse('${j['termPassUntil'] ?? ''}') ?? termPassUntil;
+    if (j['license'] is String) _pendingLicense = j['license'] as String;
     promoHiddenUntil = DateTime.tryParse('${j['promoHiddenUntil'] ?? ''}') ?? promoHiddenUntil;
     ratePrompted = j['ratePrompted'] as bool? ?? ratePrompted;
     splashSound = j['splashSound'] as bool? ?? splashSound;
@@ -281,11 +330,15 @@ class AppStore extends ChangeNotifier {
     final probe = AppStore().._apply(j); // ayrıştırma hatası mevcut veriyi bozmasın
     final (email, name, last, auto) = (googleEmail, googleName, lastCloudBackup, cloudAuto);
     final (pp, pc, ts) = (proProduct, proConfirmedAt, trialStart);
+    final (tp, lic) = (termPassUntil, license);
     _apply(probe.toJsonMap());
-    // Abonelik mağazadan doğrulanır; yedek dosyasından gelmez.
+    // Abonelik, paket ve lisans bu cihaza aittir; yedek dosyasından gelmez.
     proProduct = pp;
     proConfirmedAt = pc;
     trialStart = ts;
+    termPassUntil = tp;
+    license = lic;
+    _pendingLicense = null;
     // Hesap bu cihaza aittir; yedekten gelmez.
     googleEmail = email;
     googleName = name;
@@ -347,6 +400,10 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
     save();
   }
+
+  /// Listeler dışarıdan toplu değiştirildikten sonra (ör. ortak sınav
+  /// aktarımı) ekranları yeniler ve kaydeder.
+  void commit() => _changed();
 
   static bool _isDemoExam(String id) => id.startsWith('demo_exam');
   static bool _isDemoStudent(String id) => id.startsWith('demo_') || id.startsWith('demoB_');
