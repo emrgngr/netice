@@ -17,7 +17,7 @@ class AnnotatedSheet extends StatelessWidget {
   final Exam exam;
   final Result result;
 
-  /// Kâğıdın kitapçığı; B ise daireler B sırasına göre gösterilir.
+  /// Kâğıdın kitapçığı; A değilse daireler o kitapçığın sırasına göre gösterilir.
   final int booklet;
 
   /// Başka firma formu ise şablonu.
@@ -48,7 +48,7 @@ class SheetMarksPainter extends CustomPainter {
     final t = template;
     final k = size.width / (t == null ? FormLayout.pageWidth : FormTemplate.width);
     final mm = size.width / FormLayout.pageWidth; // rozet ölçüsü (mm)
-    final layout = FormLayout(questionCount: exam.questionCount, choiceCount: exam.choiceCount, booklets: exam.hasBooklets);
+    final layout = FormLayout(questionCount: exam.questionCount, choiceCount: exam.choiceCount, booklets: exam.bookletCount);
     Offset at(Pt p) => Offset(p.x * k, p.y * k);
     // Şablonda daire boyutu bloktan gelir.
     final unit = t == null || t.blocks.isEmpty ? FormLayout.bubbleRadius : t.blocks.first.radius;
@@ -75,13 +75,8 @@ class SheetMarksPainter extends CustomPainter {
       }
     }
 
-    // A sırasındaki soru i, B kitapçığında hangi satırda basılı?
-    final order = exam.bookletOrder;
-    int printedRow(int aIndex) {
-      if (booklet != 1 || order == null) return aIndex;
-      final b = order.indexOf(aIndex);
-      return b < 0 ? aIndex : b;
-    }
+    // A sırasındaki soru i, öğrencinin kitapçığında hangi satırda basılı?
+    int printedRow(int aIndex) => exam.printedIndex(booklet, aIndex);
 
     for (var i = 0; i < exam.questionCount; i++) {
       final q = exam.questions[i];

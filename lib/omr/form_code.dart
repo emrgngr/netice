@@ -8,12 +8,22 @@ import 'form_layout.dart';
 ///   0       başlangıç (her zaman 1)
 ///   1..16   sınav kodu (16 bit)
 ///   17..36  öğrenci numarası (20 bit; tamamı 1 = boş form)
-///   37      kitapçık (0 = A, 1 = B)
+///   37      kitapçığın en düşük biti (A, C, E, G = 0; B, D, F, H = 1)
 ///   38..42  sağlama (5 bit)
 ///   43      bitiş (her zaman 1)
+///
+/// Kitapçığın üst iki biti (C ve sonrası) sınav kodunun en üst iki bitine
+/// XOR'lanır. Okurken sınav kodu bilinen sınavlarla karşılaştırılırken bu
+/// iki bit ayrıca çözülür ([resolve]). A ve B'de bu bitler 0 olduğundan
+/// eski basılmış formlar aynen okunur; sağlama hiç değişmez.
 class FormCode {
+  /// Sınav kodu. [decode] ile çözülen kodda kitapçığın üst bitlerini de
+  /// taşıyabilir; gerçek sınav ve kitapçık için [resolve] kullanılır.
   final int examCode;
   final int? studentNumber;
+
+  /// Kitapçık (0 = A, 1 = B, 2 = C…). [decode] ile çözülen kodda yalnızca
+  /// en düşük bit bilinir; tamamı [resolve] ile bulunur.
   final int booklet;
 
   const FormCode({required this.examCode, this.studentNumber, this.booklet = 0});
@@ -50,13 +60,15 @@ class FormCode {
     final sn = n == null || n < 0 || n >= _noStudent ? _noStudent : n;
     final b = List<bool>.filled(cells, false);
     b[0] = true;
+    final k = booklet.clamp(0, 7);
+    final field = (examCode ^ ((k >> 1) << 14)) & 0xFFFF;
     for (var i = 0; i < 16; i++) {
-      b[1 + i] = (examCode >> (15 - i)) & 1 == 1;
+      b[1 + i] = (field >> (15 - i)) & 1 == 1;
     }
     for (var i = 0; i < 20; i++) {
       b[17 + i] = (sn >> (19 - i)) & 1 == 1;
     }
-    b[37] = booklet == 1;
+    b[37] = k & 1 == 1;
     final c = _check(b);
     for (var i = 0; i < 5; i++) {
       b[38 + i] = (c >> (4 - i)) & 1 == 1;
@@ -87,6 +99,18 @@ class FormCode {
       examCode: exam,
       studentNumber: sn == _noStudent ? null : sn,
       booklet: b[37] ? 1 : 0,
+    );
+  }
+
+  /// Okunan kod [expectedExamCode] sınavına aitse, sınav kodu ve kitapçığı
+  /// tam olarak çözülmüş kodu döndürür; başka sınavınsa null.
+  FormCode? resolve(int expectedExamCode) {
+    final d = (examCode ^ expectedExamCode) & 0xFFFF;
+    if (d & 0x3FFF != 0) return null;
+    return FormCode(
+      examCode: expectedExamCode,
+      studentNumber: studentNumber,
+      booklet: (d >> 14) * 2 + (booklet & 1),
     );
   }
 

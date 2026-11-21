@@ -57,9 +57,10 @@ List<GuideSection> get guideSections => <GuideSection>[
       tr('Test kısmı kalan puana göre hesaplanır. Örnek: 100 puanlık sınavda 2 klasik soru 20\'şer puansa test 60 puan üzerinden değerlendirilir.'),
       tr('Kâğıtları okuttuktan sonra sınav ekranındaki "Klasik puan gir" ile her öğrencinin puanını yazın.'),
     ]),
-    GuideTopic(tr('A/B kitapçık'), [
-      tr('Sınav ayarlarında "Kitapçık türü"nü açın ve B kitapçığındaki soru sırasını girin (veya "Karışık sıra öner").'),
-      tr('B kitapçığı alan öğrenci formunda B\'yi işaretler; uygulama cevapları kendiliğinden A sırasına çevirir.'),
+    GuideTopic(tr('Kitapçık türleri (A, B, C…)'), [
+      tr('Sınav ayarlarında "Kitapçık türü"nü açın ve kitapçık sayısını seçin (en fazla 8: A–H).'),
+      tr('A dışındaki her kitapçık için soruların A\'daki numaralarını sırayla yazın (veya "Karışık sıra öner").'),
+      tr('Öğrenci formunda kendi kitapçığını işaretler; uygulama cevapları kendiliğinden A sırasına çevirir ve doğru anahtarla puanlar.'),
     ]),
   ]),
   GuideSection(tr('Form yazdırma'), 'print', [
@@ -156,6 +157,8 @@ List<Faq> get faqs => <Faq>[
       tr('Evet. Fotokopinin küçültülmemiş (%100) ve köşe karelerinin net olması yeterlidir. İsimli formlar yerine boş öğrenci formunu çoğaltıp öğrencilerin numaralarını kodlamasını isteyebilirsiniz.')),
   Faq(tr('Formlar'), tr('Kaç soruya kadar form hazırlanabilir?'),
       tr('Bir sınavda 5 ile 100 arasında soru olabilir; sorular 4 veya 5 şıklıdır.')),
+  Faq(tr('Puanlama'), tr('Sınavda A ve B dışında C, D gibi kitapçıklar da var. Olur mu?'),
+      tr('Evet. Sınav ayarları > Kitapçık türü bölümünden kitapçık sayısını 8\'e kadar (A–H) artırabilirsiniz. Her kitapçığın soru sırasını girdiğinizde formda o kadar kitapçık dairesi çıkar; her kâğıt kendi kitapçığının anahtarıyla puanlanır.')),
   Faq(tr('Puanlama'), tr('Yanlışlar doğruyu götürüyor mu?'),
       tr('Varsayılan olarak hayır. Sınav ayarlarında "3 yanlış 1 doğruyu götürür" gibi bir kural seçebilirsiniz.')),
   Faq(tr('Puanlama'), tr('Hatalı bir soruyu iptal edersem ne olur?'),

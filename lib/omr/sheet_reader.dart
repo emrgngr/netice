@@ -12,9 +12,10 @@ import 'template.dart';
 class ReadSpec {
   final int questions;
   final int choices;
-  final bool booklets;
+  /// Kitapçık türü sayısı (1 = tek kitapçık).
+  final int booklets;
   final FormTemplate? template;
-  const ReadSpec({required this.questions, required this.choices, this.booklets = false, this.template});
+  const ReadSpec({required this.questions, required this.choices, this.booklets = 1, this.template});
 }
 
 /// Kâğıdı okur (Netice formu ya da şablon).
