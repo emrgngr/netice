@@ -27,6 +27,7 @@ List<_Step> get _steps => [
   _Step(IllustrationKind.welcome, tr('Netice\'ye hoş geldiniz'),
       tr('Optik kâğıtları telefonunuzla okutun; puanlar, analizler ve raporlar kendiliğinden hazırlansın.'), [
     tr('İnternet gerekmez, veriler yalnızca bu cihazda kalır'),
+    tr('Üçüncü taraf reklam yok, sizi izleyen reklam ağı yok'),
     tr('Bir kâğıt ortalama 2 saniyede okunur'),
     tr('Emin olunamayan işaretler size sorulur, sessizce karar verilmez'),
   ]),
