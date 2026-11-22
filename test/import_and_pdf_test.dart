@@ -1,0 +1,128 @@
+import 'dart:io';
+
+import 'package:flutter_test/flutter_test.dart';
+import 'package:netice/core/import_export.dart';
+import 'package:netice/core/models.dart';
+import 'package:netice/core/progress.dart';
+import 'package:netice/core/scoring.dart';
+import 'package:netice/core/store.dart';
+import 'package:netice/omr/form_layout.dart';
+import 'package:netice/omr/form_raster.dart';
+import 'package:netice/omr/omr_reader.dart';
+import 'package:netice/reports/pdf_documents.dart';
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  test('Türkçe Excel CSV listesi (noktalı virgül, başlıklı) aktarılır', () {
+    const csv = 'Okul No;Adı;Soyadı;Sınıf\n1042;Elif;Kaya;9-A\n1043;Mert Can;Yıldız;9-A\n';
+    final list = StudentImport.parse(csv);
+    expect(list.length, 2);
+    expect(list[1].firstName, 'Mert Can');
+    expect(list[1].lastName, 'Yıldız');
+    expect(list[0].number, '1042');
+    expect(list[0].className, '9-A');
+  });
+
+  test('"Ad Soyad" tek sütun ve sınıf sütunu yoksa', () {
+    final list = StudentImport.parse('No,Ad Soyad\n7,Zeynep Aydın\n', defaultClass: '10-B');
+    expect(list.single.firstName, 'Zeynep');
+    expect(list.single.lastName, 'Aydın');
+    expect(list.single.className, '10-B');
+  });
+
+  test('örnek veri, okuma ve öğrenci eşleştirme uçtan uca çalışır', () async {
+    final dir = await Directory.systemTemp.createTemp('netice');
+    final store = AppStore();
+    await store.load(dir: dir);
+    final exam = store.exams.first;
+    expect(store.sheetsOf(exam.id).length, 24);
+
+    // Elif Kaya (1041) için örnek formu oku: cevaplar öncekinden çok farklı,
+    // kâğıt kontrole düşer; öğretmen "öncekinin yerine geçsin" der.
+    final raster = FormRaster(FormLayout(questionCount: exam.questionCount, choiceCount: exam.choiceCount));
+    final key = {for (var q = 0; q < exam.questionCount; q++) q: [exam.questions[q].correct.first]};
+    final r = readerFor(exam).read(GrayImage.fromImage(raster.render(answers: key, studentNumber: '001041')));
+    final scanned = store.addScan(exam, r);
+    expect(store.lastScanStatus, ScanStatus.conflict);
+    expect(store.conflictOwner(scanned)?.fullName, 'Elif Kaya');
+    store.assignSheet(scanned, store.conflictOwner(scanned)!.id);
+    final sheet = store.sheetsOf(exam.id).firstWhere((s) => s.answers == scanned.answers);
+    expect(store.studentById[sheet.studentId]!.fullName, 'Elif Kaya');
+    expect(store.sheetsOf(exam.id).length, 24);
+    expect(Scorer.score(exam, sheet).score, 100);
+    store.setSchool(const SchoolInfo(name: 'Örnek Lisesi', district: 'Merkez', province: 'İzmir'));
+    await store.save();
+
+    // Kalıcılık: yeniden yüklenince aynı veri gelir.
+    final again = AppStore();
+    await again.load(dir: dir);
+    expect(again.school.name, 'Örnek Lisesi');
+    expect(again.school.authority, 'İZMİR VALİLİĞİ');
+    expect(again.sheetsOf(exam.id).length, 24);
+    final csv = resultsCsv(exam, again.resultsOf(exam), again.studentById);
+    expect(csv, contains('Elif;Kaya'));
+  });
+
+  test('optik form ve sonuç raporu PDF olarak üretilir', () async {
+    final exam = Exam.fromKeyString(id: 'x', name: 'Deneme Sınavı', className: '9-A', key: 'ABCDEABCDEABCDEABCDE');
+    final forms = await buildFormsPdf(exam, const [
+      Student(id: '1', firstName: 'Şule', lastName: 'Güneş', number: '1042', className: '9-A'),
+    ]);
+    expect(String.fromCharCodes(forms.take(5)), '%PDF-');
+    final sheets = [
+      for (var i = 0; i < 5; i++)
+        Sheet(examId: 'x', studentId: null, answers: [for (var q = 0; q < 20; q++) Answer.choice((q + i) % 5)])
+    ];
+    final report = await buildResultsPdf(exam: exam, results: Scorer.scoreAll(exam, sheets), students: const {});
+    expect(report.length, greaterThan(1000));
+    final out = Directory('build/test_output')..createSync(recursive: true);
+    File('${out.path}/ornek_form.pdf').writeAsBytesSync(forms);
+    File('${out.path}/ornek_rapor.pdf').writeAsBytesSync(report);
+  });
+
+  test('örnek sınıf için kapsamlı rapor ve öğrenci karneleri', () async {
+    final store = AppStore()..seedDemo();
+    final exam = store.exams.first;
+    final results = store.resultsOf(exam);
+    const school = SchoolInfo(
+        province: 'Ankara',
+        district: 'Çankaya',
+        name: 'Atatürk Anadolu Lisesi',
+        principal: 'Ayşe Demir',
+        teacher: 'Emine Yılmaz',
+        subject: 'Fizik');
+    final report = await buildResultsPdf(exam: exam, results: results, students: store.studentById, school: school);
+    final cards = await buildStudentCardsPdf(exam: exam, results: results, students: store.studentById, school: school);
+    final eokul = await buildEokulPdf(
+        exam: exam, results: results, classStudents: store.studentsOf(exam.className), school: school);
+    final forms = await buildFormsPdf(exam, store.studentsOf(exam.className).take(1).toList(), school: school);
+    final key = await buildAnswerKeyPdf(exam, school: school);
+    final compare = await buildComparePdf(compareExams(store, store.exams.where((e) => e.name == exam.name).toList()
+      ..addAll(store.exams.where((e) => e.className != exam.className))), school: school);
+    expect(String.fromCharCodes(report.take(5)), '%PDF-');
+    expect(String.fromCharCodes(cards.take(5)), '%PDF-');
+    final out = Directory('build/test_output')..createSync(recursive: true);
+    File('${out.path}/sinif_raporu.pdf').writeAsBytesSync(report);
+    File('${out.path}/ogrenci_karneleri.pdf').writeAsBytesSync(cards);
+    File('${out.path}/resmi_eokul.pdf').writeAsBytesSync(eokul);
+    File('${out.path}/resmi_form.pdf').writeAsBytesSync(forms);
+    File('${out.path}/resmi_anahtar.pdf').writeAsBytesSync(key);
+    File('${out.path}/resmi_karsilastirma.pdf').writeAsBytesSync(compare);
+    expect(school.authority, 'ÇANKAYA KAYMAKAMLIĞI');
+    expect(school.directorate, 'Atatürk Anadolu Lisesi Müdürlüğü');
+    expect(school.letterhead,
+        ['T.C.', 'ÇANKAYA KAYMAKAMLIĞI', 'İlçe Millî Eğitim Müdürlüğü', 'Atatürk Anadolu Lisesi Müdürlüğü']);
+  });
+
+  test('Excel (.xlsx) listesi, başlıktan önceki satırlar atlanarak aktarılır', () {
+    final bytes = File('test/fixtures/ogrenci_listesi.xlsx').readAsBytesSync();
+    final list = StudentImport.parseXlsx(bytes);
+    expect(list.length, 3);
+    expect(list[0].number, '1042');
+    expect(list[0].firstName, 'Şule');
+    expect(list[1].firstName, 'Mert Can');
+    expect(list[2].className, '10-B');
+    expect(list[2].lastName, 'Öztürk');
+  });
+}

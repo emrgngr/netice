@@ -1,0 +1,925 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+import 'dart:math' as math;
+
+import 'package:flutter/foundation.dart';
+import 'package:path_provider/path_provider.dart';
+
+import '../omr/form_code.dart';
+import '../omr/form_layout.dart';
+import '../omr/omr_reader.dart';
+import '../omr/sheet_reader.dart';
+import '../omr/template.dart';
+import 'license.dart';
+import 'models.dart';
+import 'scoring.dart';
+import '../l10n/l10n.dart';
+
+/// Uygulamanın tüm verisi. İlk sürümde cihazda tek bir JSON dosyasında
+/// tutulur (internet gerekmez). Sonraki adım: şifreli SQLite + eşitleme.
+/// Geri yüklenen yedekteki kayıt sayıları.
+class BackupSummary {
+  final int students, exams, sheets;
+  const BackupSummary(this.students, this.exams, this.sheets);
+}
+
+class AppStore extends ChangeNotifier {
+  final List<Student> students = [];
+  final List<Exam> exams = [];
+  final List<Sheet> sheets = [];
+
+  /// Başka firma formları için şablonlar.
+  final List<FormTemplate> templates = [];
+
+  /// Okul ve öğretmen bilgileri (rapor başlıkları için).
+  SchoolInfo school = const SchoolInfo();
+
+  /// İlk açılış rehberi gösterildi mi?
+  bool onboardingDone = false;
+
+  /// Öğretmenin verdiği yıldız (0: henüz vermedi) ve otomatik sorulup sorulmadığı.
+  int rating = 0;
+
+  /// Google hesabı (yalnızca ad ve e-posta; parola veya anahtar saklanmaz).
+  String? googleEmail;
+
+  /// Uygulama dili (null = cihazın dili).
+  String? language;
+  String? googleName;
+
+  /// Google Drive'a son yedek zamanı ve otomatik bulut yedeği açık mı.
+  DateTime? lastCloudBackup;
+  bool cloudAuto = true;
+
+  /// Açılış animasyonunda melodi çalsın mı.
+  bool splashSound = true;
+
+  /// Günlük otomatik yedek alındığında çağrılır (bulut yedeği için).
+  Future<void> Function()? onDailyBackup;
+  bool ratePrompted = false;
+
+  /// Netice Pro: son doğrulanan abonelik ve zamanı. Doğrulama 40 gün
+  /// geçerlidir (çevrimdışı kullanım kesilmesin).
+  String? proProduct;
+  DateTime? proConfirmedAt;
+  static const proGrace = Duration(days: 40);
+
+  /// Bilgisayar sürümünde Pro özellikleri şimdilik açık.
+  static bool proFreeOnThisPlatform = !(Platform.isAndroid || Platform.isIOS);
+
+  /// İlk kurulumdan itibaren 14 gün tüm Pro özellikleri ücretsiz (kart gerekmez).
+  DateTime? trialStart;
+  static const trialLength = Duration(days: 14);
+  bool get inTrial => trialStart != null && DateTime.now().difference(trialStart!) < trialLength;
+  int get trialDaysLeft => !inTrial ? 0 : ((trialLength - DateTime.now().difference(trialStart!)).inHours / 24).ceil();
+
+  /// Sınav dönemi paketi (3 ay, tek seferlik) bu tarihe kadar geçerli.
+  DateTime? termPassUntil;
+  bool get hasTermPass => termPassUntil != null && DateTime.now().isBefore(termPassUntil!);
+
+  /// Sınav dönemi paketi alındı: süre bugünden ya da kalan süreden 90 gün uzar.
+  void addTermPass(DateTime now, [Duration length = const Duration(days: 90)]) {
+    final from = termPassUntil != null && termPassUntil!.isAfter(now) ? termPassUntil! : now;
+    termPassUntil = from.add(length);
+    _changed();
+  }
+
+  /// Kurum lisansı (okul, dershane, akademi…): tüm Pro özellikleri; yönetici
+  /// koduyla ayrıca kurum yönetici paneli.
+  InstitutionLicense? license;
+  bool get hasLicense => license != null && license!.activeAt(DateTime.now());
+  bool get isInstitutionAdmin => hasLicense && license!.admin;
+
+  /// Kurum yönetici paneli: yönetici lisansında; denemede ve bilgisayar
+  /// sürümünde tanıtım için açık.
+  bool get canUseAdminPanel => isInstitutionAdmin || proFreeOnThisPlatform || (inTrial && !hasLicense);
+
+  void setLicense(InstitutionLicense? l) {
+    license = l;
+    if (l != null && school.name.trim().isEmpty) {
+      school = school.copyWith(name: l.institution);
+    }
+    _changed();
+  }
+
+  bool get isPro =>
+      proFreeOnThisPlatform ||
+      inTrial ||
+      hasTermPass ||
+      hasLicense ||
+      (proConfirmedAt != null && DateTime.now().difference(proConfirmedAt!) < proGrace);
+
+  /// Abonelik var mı (bilgisayar istisnası hariç)?
+  bool get hasSubscription => proConfirmedAt != null && DateTime.now().difference(proConfirmedAt!) < proGrace;
+
+  void confirmPro(String product) {
+    proProduct = product;
+    proConfirmedAt = DateTime.now();
+    _changed();
+  }
+
+  /// Raporlarda kullanılacak okul bilgisi: resmi başlık Pro özelliğidir.
+  /// Kurum lisansında kurum adı lisanstan gelir; öğretmenler değiştiremez.
+  SchoolInfo get reportSchool {
+    var s = isPro ? school : school.copyWith(officialHeader: false);
+    if (hasLicense) s = s.copyWith(name: license!.institution);
+    return s;
+  }
+
+  /// Ana sayfadaki öneri kartı bu tarihe kadar gizli.
+  DateTime? promoHiddenUntil;
+  bool get showPromo => promoHiddenUntil == null || DateTime.now().isAfter(promoHiddenUntil!);
+
+  void hidePromo([Duration d = const Duration(days: 7)]) {
+    promoHiddenUntil = DateTime.now().add(d);
+    _changed();
+  }
+
+  /// Yeterince kullanıldıysa (30+ kâğıt) bir kez yıldız istenir.
+  bool get shouldAskRating => !ratePrompted && rating == 0 && sheets.length >= 30;
+
+  File? _file;
+  static final _rnd = math.Random();
+  bool loaded = false;
+
+  /// Bu dönem okunan kâğıt sayısı (zaman kazancı sayacı için).
+  int get readCount => sheets.length;
+
+  /// Kâğıt başına elle tahmini 1,5 dk (hesaplama ekranda açıklanır).
+  Duration get timeSaved => Duration(seconds: (readCount * 90).round());
+
+  Map<String, Student> get studentById => {for (final s in students) s.id: s};
+
+  List<String> get classNames {
+    final set = <String>{...students.map((s) => s.className), ...exams.map((e) => e.className)}
+      ..removeWhere((c) => c.isEmpty);
+    return set.toList()..sort();
+  }
+
+  List<Student> studentsOf(String className) =>
+      students.where((s) => s.className == className).toList()
+        ..sort((a, b) => a.number.compareTo(b.number));
+
+  List<Sheet> sheetsOf(String examId) => sheets.where((s) => s.examId == examId).toList();
+
+  List<Result> resultsOf(Exam exam) => Scorer.scoreAll(exam, sheetsOf(exam.id));
+
+  Exam? examById(String id) => exams.where((e) => e.id == id).firstOrNull;
+
+  Future<void> load({Directory? dir}) async {
+    final base = dir ?? await getApplicationSupportDirectory();
+    _file = File('${base.path}${Platform.pathSeparator}netice_data.json');
+    if (await _file!.exists()) {
+      _apply(jsonDecode(await _file!.readAsString()) as Map<String, dynamic>);
+    } else {
+      seedDemo();
+      await save();
+    }
+    if (trialStart == null) {
+      trialStart = DateTime.now();
+      await save();
+    }
+    await _loadLicense();
+    _cleanImages();
+    loaded = true;
+    notifyListeners();
+  }
+
+  /// Kayıtlı lisans kodu her açılışta yeniden doğrulanır (dosya elle
+  /// değiştirilse bile imzasız kod kabul edilmez).
+  String? _pendingLicense;
+  Future<void> _loadLicense() async {
+    final code = _pendingLicense;
+    _pendingLicense = null;
+    if (code != null) license = await InstitutionLicense.verify(code);
+  }
+
+  /// Kayıtlar sırayla yazılır; üst üste gelen iki kayıt aynı geçici dosyayı
+  /// paylaşıp birbirini bozmasın.
+  Future<void>? _saving;
+
+  Future<void> save() {
+    final prev = _saving;
+    final next = prev == null ? _write() : prev.catchError((_) {}).then((_) => _write());
+    _saving = next;
+    return next;
+  }
+
+  Map<String, dynamic> toJsonMap() => {
+        'app': 'netice',
+        'version': 1,
+        'savedAt': DateTime.now().toIso8601String(),
+        'students': students.map((s) => s.toJson()).toList(),
+        'exams': exams.map((e) => e.toJson()).toList(),
+        'sheets': sheets.map((s) => s.toJson()).toList(),
+        'templates': templates.map((t) => t.toJson()).toList(),
+        'school': school.toJson(),
+        'onboardingDone': onboardingDone,
+        'rating': rating,
+        'ratePrompted': ratePrompted,
+        'googleEmail': googleEmail,
+        if (language != null) 'language': language,
+        'googleName': googleName,
+        'lastCloudBackup': lastCloudBackup?.toIso8601String(),
+        'cloudAuto': cloudAuto,
+        'splashSound': splashSound,
+        'promoHiddenUntil': promoHiddenUntil?.toIso8601String(),
+        'proProduct': proProduct,
+        'trialStart': trialStart?.toIso8601String(),
+        'proConfirmedAt': proConfirmedAt?.toIso8601String(),
+        if (termPassUntil != null) 'termPassUntil': termPassUntil!.toIso8601String(),
+        if (license != null) 'license': license!.code,
+      };
+
+  void _apply(Map<String, dynamic> j) {
+    final st = (j['students'] as List).map((e) => Student.fromJson(e as Map<String, dynamic>)).toList();
+    final ex = (j['exams'] as List).map((e) => Exam.fromJson(e as Map<String, dynamic>)).toList();
+    final sh = (j['sheets'] as List).map((e) => Sheet.fromJson(e as Map<String, dynamic>)).toList();
+    students
+      ..clear()
+      ..addAll(st);
+    exams
+      ..clear()
+      ..addAll(ex);
+    sheets
+      ..clear()
+      ..addAll(sh);
+    templates
+      ..clear()
+      ..addAll([for (final t in (j['templates'] as List?) ?? const []) FormTemplate.fromJson((t as Map).cast<String, dynamic>())]);
+    school = j['school'] is Map ? SchoolInfo.fromJson((j['school'] as Map).cast<String, dynamic>()) : const SchoolInfo();
+    onboardingDone = j['onboardingDone'] as bool? ?? onboardingDone;
+    rating = (j['rating'] as num?)?.toInt() ?? rating;
+    proProduct = j['proProduct'] as String? ?? proProduct;
+    trialStart = DateTime.tryParse('${j['trialStart'] ?? ''}') ?? trialStart;
+    proConfirmedAt = DateTime.tryParse('${j['proConfirmedAt'] ?? ''}') ?? proConfirmedAt;
+    termPassUntil = DateTime.tryParse('${j['termPassUntil'] ?? ''}') ?? termPassUntil;
+    if (j['license'] is String) _pendingLicense = j['license'] as String;
+    promoHiddenUntil = DateTime.tryParse('${j['promoHiddenUntil'] ?? ''}') ?? promoHiddenUntil;
+    ratePrompted = j['ratePrompted'] as bool? ?? ratePrompted;
+    splashSound = j['splashSound'] as bool? ?? splashSound;
+    language = j['language'] as String? ?? language;
+    if (j.containsKey('googleEmail')) {
+      googleEmail = j['googleEmail'] as String?;
+      googleName = j['googleName'] as String?;
+      lastCloudBackup = DateTime.tryParse(j['lastCloudBackup'] as String? ?? '');
+      cloudAuto = j['cloudAuto'] as bool? ?? true;
+    }
+  }
+
+  /// Dili değiştirir; arayüz bu dilde yeniden çizilir.
+  void setLanguage(String? code) {
+    language = code;
+    L10n.use(code);
+    _changed();
+  }
+
+  void setGoogleAccount(String? email, String? name) {
+    googleEmail = email;
+    googleName = name;
+    _changed();
+  }
+
+  void setSplashSound(bool v) {
+    splashSound = v;
+    _changed();
+  }
+
+  void setCloudAuto(bool v) {
+    cloudAuto = v;
+    _changed();
+  }
+
+  void markCloudBackup(DateTime? t) {
+    lastCloudBackup = t;
+    _changed();
+  }
+
+  void setRating(int stars) {
+    rating = stars;
+    ratePrompted = true;
+    _changed();
+  }
+
+  void markRatePrompted() {
+    ratePrompted = true;
+    _changed();
+  }
+
+  void finishOnboarding() {
+    onboardingDone = true;
+    _changed();
+  }
+
+  /// Taşınabilir yedek dosyasının içeriği (tüm sınıflar, sınavlar, kâğıtlar ve okul bilgisi).
+  String exportBackup() => const JsonEncoder.withIndent(' ').convert(toJsonMap());
+
+  /// Yedeği okur ve mevcut verinin yerine koyar. Dosya Netice yedeği değilse
+  /// [FormatException] atar ve hiçbir şeyi değiştirmez.
+  Future<BackupSummary> restoreBackup(String text) async {
+    final Map<String, dynamic> j;
+    try {
+      j = jsonDecode(text) as Map<String, dynamic>;
+      if (j['students'] is! List || j['exams'] is! List || j['sheets'] is! List) throw const FormatException();
+    } catch (_) {
+      throw FormatException(tr('Bu dosya bir Netice yedeği değil.'));
+    }
+    // Önce mevcut hâlin bir yedeğini al; yanlış dosya seçilirse geri dönülebilsin.
+    await _autoBackup(force: true);
+    final probe = AppStore().._apply(j); // ayrıştırma hatası mevcut veriyi bozmasın
+    final (email, name, last, auto) = (googleEmail, googleName, lastCloudBackup, cloudAuto);
+    final (pp, pc, ts) = (proProduct, proConfirmedAt, trialStart);
+    final (tp, lic) = (termPassUntil, license);
+    _apply(probe.toJsonMap());
+    // Abonelik, paket ve lisans bu cihaza aittir; yedek dosyasından gelmez.
+    proProduct = pp;
+    proConfirmedAt = pc;
+    trialStart = ts;
+    termPassUntil = tp;
+    license = lic;
+    _pendingLicense = null;
+    // Hesap bu cihaza aittir; yedekten gelmez.
+    googleEmail = email;
+    googleName = name;
+    lastCloudBackup = last;
+    cloudAuto = auto;
+    notifyListeners();
+    await save();
+    return BackupSummary(students.length, exams.length, sheets.length);
+  }
+
+  Directory? get _backupDir =>
+      _file == null ? null : Directory('${_file!.parent.path}${Platform.pathSeparator}yedekler');
+
+  /// Otomatik yedekler, en yenisi başta.
+  List<File> autoBackups() {
+    final d = _backupDir;
+    if (d == null || !d.existsSync()) return [];
+    return d.listSync().whereType<File>().where((f) => f.path.endsWith('.json')).toList()
+      ..sort((a, b) => b.path.compareTo(a.path));
+  }
+
+  /// Günde bir otomatik yedek; son 14 yedek saklanır.
+  Future<void> _autoBackup({bool force = false}) async {
+    final d = _backupDir;
+    if (d == null) return;
+    final now = DateTime.now();
+    String two(int v) => v.toString().padLeft(2, '0');
+    final day = '${now.year}${two(now.month)}${two(now.day)}';
+    final existing = autoBackups();
+    if (!force && existing.any((f) => f.uri.pathSegments.last.startsWith('netice_yedek_$day'))) return;
+    await d.create(recursive: true);
+    final name = 'netice_yedek_${day}_${two(now.hour)}${two(now.minute)}${two(now.second)}.json';
+    await File('${d.path}${Platform.pathSeparator}$name').writeAsString(jsonEncode(toJsonMap()));
+    for (final old in autoBackups().skip(14)) {
+      try {
+        await old.delete();
+      } catch (_) {}
+    }
+    if (!force && onDailyBackup != null) {
+      // Bulut yedeği arka planda; hata asıl kaydı etkilemez.
+      unawaited(onDailyBackup!().catchError((_) {}));
+    }
+  }
+
+  Future<void> _write() async {
+    final f = _file;
+    if (f == null) return;
+    final tmp = File('${f.path}.tmp');
+    await tmp.writeAsString(jsonEncode(toJsonMap()));
+    await tmp.rename(f.path);
+    try {
+      await _autoBackup();
+    } catch (_) {
+      // Yedek alınamaması asıl kaydı engellemesin.
+    }
+  }
+
+  void _changed() {
+    notifyListeners();
+    save();
+  }
+
+  /// Listeler dışarıdan toplu değiştirildikten sonra (ör. ortak sınav
+  /// aktarımı) ekranları yeniler ve kaydeder.
+  void commit() => _changed();
+
+  static bool _isDemoExam(String id) => id.startsWith('demo_exam');
+  static bool _isDemoStudent(String id) => id.startsWith('demo_') || id.startsWith('demoB_');
+
+  /// İlk açılışta eklenen örnek sınıf ve sınavlar duruyor mu?
+  bool get hasDemo => exams.any((e) => _isDemoExam(e.id)) || students.any((s) => _isDemoStudent(s.id));
+
+  /// Örnek verileri siler; öğretmenin kendi kayıtlarına dokunmaz.
+  /// Bu cihazdaki tüm öğrenci, sınav, kâğıt ve okul bilgilerini siler.
+  /// [backups] true ise otomatik yedekler de silinir; değilse silmeden önce
+  /// son hâlin bir kopyası otomatik yedeklere eklenir (geri dönüş için).
+  Future<void> wipeAll({bool backups = false}) async {
+    if (!backups) {
+      try {
+        await _autoBackup(force: true);
+      } catch (_) {}
+    }
+    students.clear();
+    exams.clear();
+    sheets.clear();
+    school = const SchoolInfo();
+    _cleanImages();
+    if (backups) {
+      for (final f in autoBackups()) {
+        try {
+          await f.delete();
+        } catch (_) {}
+      }
+    }
+    notifyListeners();
+    await save();
+    if (backups) {
+      // Kayıt sırasında alınan günlük yedeği de temizle.
+      for (final f in autoBackups()) {
+        try {
+          await f.delete();
+        } catch (_) {}
+      }
+    }
+  }
+
+  void clearDemo() {
+    sheets.removeWhere((s) => _isDemoExam(s.examId));
+    _cleanImages();
+    exams.removeWhere((e) => _isDemoExam(e.id));
+    students.removeWhere((s) => _isDemoStudent(s.id));
+    _changed();
+  }
+
+  void setSchool(SchoolInfo info) {
+    school = info;
+    _changed();
+  }
+
+  void addStudents(List<Student> list) {
+    final existing = {for (final s in students) '${s.className}|${s.number}'};
+    students.addAll(list.where((s) => s.number.isEmpty || !existing.contains('${s.className}|${s.number}')));
+    _changed();
+  }
+
+  void updateStudent(Student st) {
+    final i = students.indexWhere((s) => s.id == st.id);
+    if (i >= 0) students[i] = st;
+    _changed();
+  }
+
+  /// Öğrenciyi siler; okunmuş kâğıtları "eşleşmeyen" olarak kalır.
+  void deleteStudent(String id) {
+    students.removeWhere((s) => s.id == id);
+    _changed();
+  }
+
+  void upsertExam(Exam exam) {
+    final i = exams.indexWhere((e) => e.id == exam.id);
+    if (i >= 0) {
+      exams[i] = exam;
+    } else {
+      exams.insert(0, exam);
+    }
+    _changed();
+  }
+
+  void deleteExam(String id) {
+    exams.removeWhere((e) => e.id == id);
+    sheets.removeWhere((s) => s.examId == id);
+    _cleanImages();
+    _changed();
+  }
+
+  /// Okunan kâğıdı kaydeder. Aynı öğrencinin önceki kâğıdı varsa yenisiyle değiştirir.
+  /// Makine kodundaki sınav koduna karşılık gelen sınav.
+  /// Önce tam eşleşen, yoksa kitapçık bitleriyle eşleşen sınav aranır.
+  Exam? examByCode(FormCode code) =>
+      exams.where((e) => FormCode.examCodeOf(e.id) == code.examCode).firstOrNull ??
+      exams.where((e) => code.resolve(FormCode.examCodeOf(e.id)) != null).firstOrNull;
+
+  /// Okunan kâğıdı kaydeder. Formdaki makine kodu başka bir sınavı gösteriyorsa
+  /// kâğıt o sınava kaydedilir (dönen kâğıdın examId'si farklı olur).
+  /// Öğrenci, işaretlenen numaradan; o yoksa makine kodundan bulunur.
+  Sheet addScan(Exam exam, OmrResult r) {
+    final code = r.code;
+    final other = code == null ? null : examByCode(code);
+    // Yalnızca aynı yapıdaki (soru/şık sayısı) sınava yönlendirilir; okuma o yapıya göre yapıldı.
+    final target = other != null &&
+            other.questionCount == exam.questionCount &&
+            other.choiceCount == exam.choiceCount &&
+            other.bookletCount == exam.bookletCount
+        ? other
+        : exam;
+    Student? st;
+    final numbers = [
+      if (r.studentNumber != null) int.tryParse(r.studentNumber!),
+      code?.studentNumber,
+    ].whereType<int>();
+    for (final n in numbers) {
+      st = studentsOf(target.className).where((s) => int.tryParse(s.number) == n).firstOrNull;
+      if (st != null) break;
+    }
+    final codeBooklet = code?.resolve(FormCode.examCodeOf(target.id))?.booklet;
+    var booklet = target.hasBooklets ? (r.booklet ?? codeBooklet ?? 0) : 0;
+    if (booklet >= target.bookletCount) booklet = 0;
+    final answers = target.toMasterOrder(booklet, r.answers);
+    lastScanStatus = ScanStatus.added;
+    var studentId = st?.id;
+    var openScores = const <double?>[];
+    if (st != null) {
+      final old = sheets.where((s) => s.examId == target.id && s.studentId == st!.id).firstOrNull;
+      if (old != null) {
+        final diff = differingAnswers(old.answers, answers);
+        if (diff == 0) {
+          // Aynı kâğıt yeniden okutuldu: öncekini (ve verilen kararları) koru.
+          lastScanStatus = ScanStatus.duplicate;
+          return old;
+        }
+        if (diff <= math.max(2, answers.length ~/ 10)) {
+          // Aynı kâğıdın yeniden okunuşu (birkaç işaret düzeltilmiş): yerine geçer.
+          lastScanStatus = ScanStatus.replaced;
+          openScores = old.openScores;
+          _deleteImage(old);
+          sheets.remove(old);
+        } else {
+          // Aynı numarayla bambaşka cevaplar: büyük olasılıkla numarası yanlış
+          // işaretlenmiş başka bir öğrenci. Eskiye dokunma, yeniyi kontrole al.
+          lastScanStatus = ScanStatus.conflict;
+          studentId = null;
+        }
+      }
+    }
+    final sheet = Sheet(
+      examId: target.id,
+      studentId: studentId,
+      answers: answers,
+      booklet: booklet,
+      openScores: openScores,
+      readNumber: studentId == null ? (r.numberPattern ?? r.studentNumber) : null,
+    );
+    sheets.add(sheet);
+    _changed();
+    return sheet;
+  }
+
+  /// İşaretli kâğıt görüntüleri: düzleştirilmiş fotoğraf, yalnızca bu cihazda.
+  Directory? get _imageDir =>
+      _file == null ? null : Directory('${_file!.parent.path}${Platform.pathSeparator}kagitlar');
+
+  File? sheetImageFile(Sheet s) {
+    final d = _imageDir;
+    if (d == null || s.imageId == null) return null;
+    final f = File('${d.path}${Platform.pathSeparator}${s.imageId}.jpg');
+    return f.existsSync() ? f : null;
+  }
+
+  /// Okunan kâğıdın görüntüsünü kaydeder ve kâğıda bağlar.
+  Future<Sheet?> attachSheetImage(Sheet sheet, Uint8List jpeg) async {
+    final d = _imageDir;
+    if (d == null) return null;
+    final i = sheets.indexOf(sheet);
+    if (i < 0) return null;
+    await d.create(recursive: true);
+    final id = '${DateTime.now().microsecondsSinceEpoch.toRadixString(36)}${_rnd.nextInt(1 << 20).toRadixString(36)}';
+    await File('${d.path}${Platform.pathSeparator}$id.jpg').writeAsBytes(jpeg, flush: true);
+    _deleteImage(sheet);
+    final j = sheets.indexOf(sheet);
+    if (j < 0) return null;
+    final updated = sheet.copyWith(imageId: id);
+    sheets[j] = updated;
+    _changed();
+    return updated;
+  }
+
+  void _deleteImage(Sheet s) {
+    final f = sheetImageFile(s);
+    if (f == null) return;
+    try {
+      f.deleteSync();
+    } catch (_) {}
+  }
+
+  /// Hiçbir kâğıda bağlı olmayan görüntüleri siler.
+  void _cleanImages() {
+    final d = _imageDir;
+    if (d == null || !d.existsSync()) return;
+    final used = {for (final s in sheets) if (s.imageId != null) '${s.imageId}.jpg'};
+    for (final f in d.listSync().whereType<File>()) {
+      if (!used.contains(f.uri.pathSegments.last)) {
+        try {
+          f.deleteSync();
+        } catch (_) {}
+      }
+    }
+  }
+
+  FormTemplate? templateById(String? id) => id == null ? null : templates.where((t) => t.id == id).firstOrNull;
+
+  /// Şablonu ekler ya da günceller.
+  void saveTemplate(FormTemplate t) {
+    final i = templates.indexWhere((x) => x.id == t.id);
+    if (i >= 0) {
+      templates[i] = t;
+    } else {
+      templates.add(t);
+    }
+    _changed();
+  }
+
+  /// Şablonu siler; onu kullanan sınavlar Netice formuna döner.
+  void deleteTemplate(String id) {
+    templates.removeWhere((t) => t.id == id);
+    for (var i = 0; i < exams.length; i++) {
+      if (exams[i].templateId == id) exams[i] = exams[i].copyWith(clearTemplate: true);
+    }
+    _changed();
+  }
+
+  /// Son [addScan] çağrısının sonucu (arayüz uyarıları için).
+  ScanStatus lastScanStatus = ScanStatus.added;
+
+  /// İki cevap listesinde işaretleri farklı olan soru sayısı.
+  static int differingAnswers(List<Answer> a, List<Answer> b) {
+    var d = (a.length - b.length).abs();
+    for (var i = 0; i < math.min(a.length, b.length); i++) {
+      final x = a[i].marked, y = b[i].marked;
+      if (x.length != y.length || !x.containsAll(y)) d++;
+    }
+    return d;
+  }
+
+  /// Kontroldeki kâğıdı öğrenciye verir; öğrencinin bu sınavda başka kâğıdı
+  /// varsa o silinir (yeni kâğıt onun yerine geçer).
+  void assignSheet(Sheet sheet, String studentId) {
+    final i = sheets.indexOf(sheet);
+    if (i < 0) return;
+    for (final old in sheets.where((s) => s.examId == sheet.examId && s.studentId == studentId && !identical(s, sheet))) {
+      _deleteImage(old);
+    }
+    sheets.removeWhere((s) => s.examId == sheet.examId && s.studentId == studentId && !identical(s, sheet));
+    sheets[sheets.indexOf(sheet)] = sheet.copyWith(studentId: studentId);
+    _changed();
+  }
+
+  /// Okunan numarası birebir tutan ve bu sınavda zaten kâğıdı olan öğrenci
+  /// (çakışan kâğıt için "öncekinin yerine geçsin" seçeneği).
+  Student? conflictOwner(Sheet sheet) {
+    final read = sheet.readNumber;
+    final exam = examById(sheet.examId);
+    if (read == null || read.contains('?') || exam == null) return null;
+    final have = sheetsOf(exam.id).map((s) => s.studentId).toSet();
+    return studentsOf(exam.className)
+        .where((s) => have.contains(s.id) && numberDistance(read, s.number) == 0)
+        .firstOrNull;
+  }
+
+  /// Bu sınavda kâğıdı okutulmamış öğrenciler.
+  List<Student> missingStudents(Exam exam) {
+    final have = sheetsOf(exam.id).map((s) => s.studentId).toSet();
+    return studentsOf(exam.className).where((s) => !have.contains(s.id)).toList();
+  }
+
+  /// Eşleşmeyen kâğıt için olası öğrenciler: okunan numaraya en yakın olanlar
+  /// (bu sınavda kâğıdı olmayanlar). Okunamayan rakamlar ('?') her rakama uyar;
+  /// en fazla iki rakam farkı olanlar, en yakından uzağa sıralanır.
+  List<Student> suggestStudents(Sheet sheet, {int limit = 3}) {
+    final read = sheet.readNumber;
+    final exam = examById(sheet.examId);
+    if (read == null || exam == null) return const [];
+    final taken = sheetsOf(exam.id).map((s) => s.studentId).toSet();
+    final scored = <(Student, int)>[];
+    for (final s in studentsOf(exam.className)) {
+      if (taken.contains(s.id)) continue;
+      final d = numberDistance(read, s.number);
+      if (d != null && d <= 2) scored.add((s, d));
+    }
+    scored.sort((a, b) => a.$2.compareTo(b.$2));
+    return [for (final e in scored.take(limit)) e.$1];
+  }
+
+  /// Okunan numara ile öğrenci numarası arasındaki rakam farkı; numara
+  /// karşılaştırılamıyorsa null.
+  static int? numberDistance(String read, String number) {
+    final digits = number.replaceAll(RegExp(r'\D'), '');
+    if (digits.isEmpty || digits.length > read.length) return null;
+    final n = digits.padLeft(read.length, '0');
+    var d = 0;
+    for (var i = 0; i < read.length; i++) {
+      if (read[i] != '?' && read[i] != n[i]) d++;
+    }
+    // Hepsi okunamadıysa öneri anlamsız.
+    if (!read.split('').any((c) => c != '?')) return null;
+    return d;
+  }
+
+  void replaceSheet(Sheet old, Sheet updated) {
+    final i = sheets.indexOf(old);
+    if (i >= 0) sheets[i] = updated;
+    _changed();
+  }
+
+  /// Örnek (kurgusal) veriyle ilk açılış: öğretmen sistemi hemen deneyebilir.
+  /// Örnek veride gelişim, erken uyarı ve şube karşılaştırması görünsün
+  /// diye: 9-A için daha eski bir quiz, 9-B şubesi için aynı quiz.
+  void _seedExtra(int nA) {
+    final rnd = math.Random(11);
+    final topics = [tr('Hareket'), tr('Kuvvet'), tr('Enerji'), tr('Isı ve sıcaklık')];
+    Exam tagged(Exam e) =>
+        e.copyWith(questions: [for (final q in e.questions) q.copyWith(outcomeCode: topics[(q.no - 1) ~/ 5])]);
+    List<Answer> answers(Exam e, double ability) => [
+          for (var q = 0; q < e.questionCount; q++)
+            () {
+              final key = e.questions[q].correct.first;
+              final roll = rnd.nextDouble();
+              if (roll < ability) return Answer.choice(key);
+              if (roll > 0.96) return const Answer.blank();
+              return Answer.choice((key + 1 + rnd.nextInt(4)) % 5);
+            }()
+        ];
+
+    // 9-A, Fizik Quiz 1: bazı öğrenciler bu sınavda daha iyiydi (düşüş örneği).
+    final q1 = tagged(Exam.fromKeyString(
+      id: 'demo_exam_q1',
+      name: tr('Fizik Quiz 1 (örnek)'),
+      className: '9-A',
+      key: 'CABDEBCADEACBDECABED',
+      date: DateTime.now().subtract(const Duration(days: 16)),
+    ));
+    exams.add(q1);
+    for (var i = 0; i < nA; i++) {
+      var ability = 0.35 + 0.6 * (nA - i) / nA;
+      if (i % 6 == 5) ability = (ability + 0.3).clamp(0, 0.97);
+      sheets.add(Sheet(examId: q1.id, studentId: 'demo_$i', answers: answers(q1, ability)));
+    }
+
+    // 9-B şubesi ve aynı Quiz 2.
+    final namesB = _demoNames(18, 3) ?? [
+      ['Aras', 'Yılmaz'], ['Beren', 'Şen'], ['Cem', 'Avcı'], ['Damla', 'Işık'], ['Eren', 'Toprak'],
+      ['Feyza', 'Keskin'], ['Göktuğ', 'Sarı'], ['Hira', 'Ekinci'], ['Kaan', 'Uysal'], ['Melis', 'Aksoy'],
+      ['Onur', 'Çakır'], ['Rana', 'Gök'], ['Sarp', 'Duman'], ['Tuana', 'Bayram'], ['Yiğit', 'Coşkun'],
+      ['Zehra', 'Önal'], ['Alp', 'Karaca'], ['Bade', 'Tunç'],
+    ];
+    for (var i = 0; i < namesB.length; i++) {
+      students.add(Student(
+          id: 'demoB_$i', firstName: namesB[i][0], lastName: namesB[i][1], number: '${2040 + i}', className: '9-B'));
+    }
+    final q2b = tagged(Exam.fromKeyString(
+      id: 'demo_exam_b',
+      name: tr('Fizik Quiz 2 (örnek)'),
+      className: '9-B',
+      key: 'BDACEABDCEBADCEADBCE',
+      date: DateTime.now().subtract(const Duration(days: 1)),
+    ));
+    exams.add(q2b);
+    for (var i = 0; i < namesB.length; i++) {
+      final ability = 0.45 + 0.5 * (namesB.length - i) / namesB.length;
+      sheets.add(Sheet(examId: q2b.id, studentId: 'demoB_$i', answers: answers(q2b, ability)));
+    }
+  }
+
+  /// Türkçe dışındaki dillerde örnek öğrenciler o dile uygun adlarla gelir.
+  static List<List<String>>? _demoNames(int count, int shift) {
+    final pool = _demoNamePool[L10n.code];
+    if (pool == null) return null;
+    final (first, last) = pool;
+    // Rusçada kadın adlarıyla soyadı da dişil olur (Иванов → Иванова).
+    String fit(String f, String l) => L10n.code == 'ru' && RegExp(r'[ая]$').hasMatch(f) && RegExp(r'(ов|ев|ин)$').hasMatch(l) ? '$lа' : l;
+    return [
+      for (var i = 0; i < count; i++)
+        // Çince ve Japoncada soyadı önce yazılır.
+        if (L10n.code == 'zh' || L10n.code == 'ja')
+          [last[(i * 5 + i ~/ last.length + shift * 3) % last.length], first[(i + shift) % first.length]]
+        else
+          [
+            first[(i + shift) % first.length],
+            fit(first[(i + shift) % first.length], last[(i * 5 + i ~/ last.length + shift * 3) % last.length])
+          ]
+    ];
+  }
+
+  static const _demoNamePool = {
+    'en': (
+      ['Olivia', 'Liam', 'Emma', 'Noah', 'Ava', 'Jack', 'Mia', 'Leo', 'Grace', 'Oscar', 'Ella', 'Harry'],
+      ['Smith', 'Jones', 'Taylor', 'Brown', 'Wilson', 'Evans', 'Walker', 'Clarke', 'Hughes', 'Wood', 'Hall', 'Green']
+    ),
+    'de': (
+      ['Emma', 'Paul', 'Mia', 'Leon', 'Hannah', 'Felix', 'Lea', 'Jonas', 'Lina', 'Max', 'Sophie', 'Lukas'],
+      ['Müller', 'Schmidt', 'Weber', 'Wagner', 'Becker', 'Hoffmann', 'Koch', 'Richter', 'Wolf', 'Klein', 'Braun', 'Krüger']
+    ),
+    'az': (
+      ['Aysel', 'Elvin', 'Nigar', 'Orxan', 'Leyla', 'Tural', 'Günay', 'Rəşad', 'Səbinə', 'Kənan', 'Aytən', 'Murad'],
+      ['Məmmədov', 'Əliyev', 'Həsənov', 'Hüseynov', 'Quliyev', 'İsmayılov', 'Rzayev', 'Kərimov', 'Abbasov', 'Nəsirov', 'Babayev', 'Cəfərov']
+    ),
+    'ar': (
+      ['محمد', 'فاطمة', 'أحمد', 'مريم', 'علي', 'سارة', 'يوسف', 'نور', 'عمر', 'ليلى', 'خالد', 'هدى'],
+      ['العلي', 'الحسن', 'السالم', 'الأحمد', 'الخطيب', 'المصري', 'النجار', 'الحداد', 'العمر', 'الزين', 'الشامي', 'الرفاعي']
+    ),
+    'es': (
+      ['Lucía', 'Hugo', 'Martina', 'Mateo', 'Sofía', 'Pablo', 'Julia', 'Daniel', 'Paula', 'Álvaro', 'Elena', 'Diego'],
+      ['García', 'López', 'Martínez', 'Sánchez', 'Pérez', 'Gómez', 'Ruiz', 'Díaz', 'Moreno', 'Muñoz', 'Romero', 'Navarro']
+    ),
+    'ru': (
+      ['Анна', 'Иван', 'Мария', 'Артём', 'Софья', 'Максим', 'Алиса', 'Дмитрий', 'Ева', 'Михаил', 'Полина', 'Кирилл'],
+      ['Иванов', 'Смирнов', 'Кузнецов', 'Попов', 'Соколов', 'Лебедев', 'Козлов', 'Новиков', 'Морозов', 'Волков', 'Зайцев', 'Павлов']
+    ),
+    'it': (
+      ['Giulia', 'Leonardo', 'Sofia', 'Francesco', 'Aurora', 'Lorenzo', 'Alice', 'Mattia', 'Ginevra', 'Tommaso', 'Emma', 'Riccardo'],
+      ['Rossi', 'Russo', 'Ferrari', 'Esposito', 'Bianchi', 'Romano', 'Colombo', 'Ricci', 'Marino', 'Greco', 'Bruno', 'Gallo']
+    ),
+    'fr': (
+      ['Louise', 'Gabriel', 'Jade', 'Raphaël', 'Emma', 'Louis', 'Alice', 'Arthur', 'Chloé', 'Jules', 'Léa', 'Hugo'],
+      ['Martin', 'Bernard', 'Dubois', 'Thomas', 'Robert', 'Petit', 'Durand', 'Leroy', 'Moreau', 'Simon', 'Laurent', 'Lefebvre']
+    ),
+    'zh': (
+      ['伟', '芳', '娜', '敏', '静', '磊', '洋', '婷', '杰', '欣', '浩', '雪'],
+      ['王', '李', '张', '刘', '陈', '杨', '黄', '赵', '吴', '周', '徐', '孙']
+    ),
+    'ja': (
+      ['陽翔', '結衣', '蓮', '葵', '湊', '陽菜', '大翔', '凛', '悠真', '芽依', '颯太', '美咲'],
+      ['佐藤', '鈴木', '高橋', '田中', '伊藤', '渡辺', '山本', '中村', '小林', '加藤', '吉田', '山田']
+    ),
+  };
+
+  void seedDemo() {
+    final names = _demoNames(24, 0) ?? [
+      ['Deniz', 'Arslan'], ['Elif', 'Kaya'], ['Mert', 'Yıldız'], ['Zeynep', 'Aydın'],
+      ['Can', 'Demir'], ['Selin', 'Koç'], ['Ali', 'Şahin'], ['Ece', 'Çelik'],
+      ['Burak', 'Öztürk'], ['Defne', 'Kılıç'], ['Emre', 'Aslan'], ['İpek', 'Doğan'],
+      ['Kerem', 'Kurt'], ['Lara', 'Özdemir'], ['Ozan', 'Erdem'], ['Pelin', 'Güneş'],
+      ['Arda', 'Polat'], ['Duru', 'Tekin'], ['Efe', 'Yalçın'], ['Nehir', 'Ateş'],
+      ['Umut', 'Bulut'], ['Yağmur', 'Kara'], ['Baran', 'Uçar'], ['Asya', 'Bozkurt'],
+    ];
+    for (var i = 0; i < names.length; i++) {
+      students.add(Student(
+        id: 'demo_$i',
+        firstName: names[i][0],
+        lastName: names[i][1],
+        number: '${1040 + i}',
+        className: '9-A',
+      ));
+    }
+    final exam = Exam.fromKeyString(
+      id: 'demo_exam',
+      name: tr('Fizik Quiz 2 (örnek)'),
+      className: '9-A',
+      key: 'BDACEABDCEBADCEADBCE',
+      date: DateTime.now().subtract(const Duration(days: 2)),
+    );
+    // Örnek kazanımlar: her 5 soru bir konu.
+    final topics = [tr('Hareket'), tr('Kuvvet'), tr('Enerji'), tr('Isı ve sıcaklık')];
+    exams.add(exam.copyWith(questions: [
+      for (final q in exam.questions) q.copyWith(outcomeCode: topics[(q.no - 1) ~/ 5]),
+    ]));
+    _seedExtra(names.length);
+    final rnd = math.Random(7);
+    for (var i = 0; i < names.length; i++) {
+      final ability = 0.35 + 0.6 * (names.length - i) / names.length;
+      sheets.add(Sheet(
+        examId: exam.id,
+        studentId: 'demo_$i',
+        answers: [
+          for (var q = 0; q < exam.questionCount; q++)
+            () {
+              final roll = rnd.nextDouble();
+              final key = exam.questions[q].correct.first;
+              // 12. soruda çoğu iyi öğrenci D'yi seçer: anahtar uyarısı örneği.
+              if (q == 11 && ability > 0.6) return Answer.choice(3);
+              if (roll < ability) return Answer.choice(key);
+              if (roll > 0.96) return const Answer.blank();
+              return Answer.choice((key + 1 + rnd.nextInt(4)) % 5);
+            }()
+        ],
+      ));
+    }
+  }
+}
+
+/// Sınavın kâğıtlarını okuma bilgisi (Netice formu ya da şablon).
+ReadSpec specFor(AppStore store, Exam exam) => ReadSpec(
+      questions: exam.questionCount,
+      choices: exam.choiceCount,
+      booklets: exam.bookletCount,
+      template: store.templateById(exam.templateId),
+    );
+
+/// Seçili sınav için okuma motoru oluşturur.
+OmrReader readerFor(Exam exam) => OmrReader(
+    FormLayout(questionCount: exam.questionCount, choiceCount: exam.choiceCount, booklets: exam.bookletCount));
+
+/// Okutulan kâğıdın kaydedilme biçimi.
+enum ScanStatus {
+  /// Yeni kâğıt.
+  added,
+
+  /// Aynı öğrencinin önceki kâğıdının yerine geçti (yeniden okuma).
+  replaced,
+
+  /// Aynı kâğıt zaten okunmuştu; değişiklik yapılmadı.
+  duplicate,
+
+  /// Bu numarayla farklı cevaplı bir kâğıt zaten var; yenisi kontrole alındı.
+  conflict,
+}

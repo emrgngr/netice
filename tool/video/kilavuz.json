@@ -1,0 +1,35 @@
+{
+ "bolumler": {
+  "start": [
+   "02_ana",
+   "11_kurum",
+   "03_siniflar"
+  ],
+  "exam": [
+   "04_yeni_sinav",
+   "k_sinav_ayar"
+  ],
+  "print": [
+   "05_form_yazdir",
+   "k_sablon"
+  ],
+  "scan": [
+   "06_okut",
+   "07_okut_ekrani",
+   "k_kontrol"
+  ],
+  "report": [
+   "08_sonuclar",
+   "09_analiz",
+   "10_ogrenci",
+   "k_donem"
+  ],
+  "data": [
+   "12_ayarlar",
+   "k_yedek"
+  ]
+ },
+ "kareler": {
+  "k_kontrol": "08_sonuclar"
+ }
+}

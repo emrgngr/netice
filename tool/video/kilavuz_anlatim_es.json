@@ -1,0 +1,15 @@
+{
+ "_baslik": {
+  "start": "Primeros pasos",
+  "exam": "Preparar el examen",
+  "print": "Imprimir hojas",
+  "scan": "Corregir hojas",
+  "report": "Resultados e informes",
+  "data": "Tus datos"
+ },
+ "k_sinav_ayar": "En Ajustes del examen, fija la puntuación máxima, la nota de aprobado y si las incorrectas restan. Aquí también añades tipos de cuadernillo y preguntas escritas.",
+ "k_sablon": "Si usas la hoja de una editorial o de otra empresa, crea una plantilla una sola vez en Ajustes, apartado Otras hojas.",
+ "k_kontrol": "Toca una hoja corregida. Las marcas dudosas aparecen con un aviso amarillo y puedes corregirlas con un toque.",
+ "k_donem": "El informe del trimestre combina los exámenes que elijas en notas del trimestre e informes por objetivos.",
+ "k_yedek": "Netice funciona sin conexión y guarda tus datos solo en tu dispositivo. Al cambiar de dispositivo, usa Guardar copia en archivo."
+}

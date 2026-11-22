@@ -1,0 +1,16 @@
+{
+ "00_acilis": "Wenn Sie Netice öffnen, begrüßt Sie eine kurze Startanimation.",
+ "01_tanitim": "Beim ersten Start sehen Sie einige Seiten, die die App vorstellen. Tippen Sie auf Weiter.",
+ "02_ana": "Die Startseite zeigt eine Übersicht Ihrer Prüfungen. Tippen Sie oben rechts auf Plus für eine neue Prüfung oder auf Auswerten, um Bögen auszuwerten. Die Beispieldaten entfernen Sie mit Beispiele löschen.",
+ "03_siniflar": "Wechseln Sie im unteren Menü zu Klassen. Importieren Sie Ihre Schüler aus einer Excel-Liste oder fügen Sie sie einzeln hinzu.",
+ "04_yeni_sinav": "Legen Sie bei der neuen Prüfung die Anzahl der Fragen mit Plus und Minus oder per Eingabe fest, wählen Sie die Antwortzahl, geben Sie den Lösungsschlüssel ein und tippen Sie auf Prüfung speichern.",
+ "05_form_yazdir": "Wählen Sie in der Prüfung oben rechts im Menü Bögen drucken und verteilen Sie die Antwortbögen.",
+ "06_okut": "Wenn die Prüfung vorbei ist, tippen Sie auf Auswerten.",
+ "07_okut_ekrani": "Scannen Sie die Bögen mit der Kamera oder wählen Sie Fotos aus der Galerie. Netice liest jeden Bogen in Sekunden.",
+ "08_sonuclar": "Unter Ergebnisse sehen Sie für jeden Schüler richtige, falsche und leere Antworten sowie die Punktzahl.",
+ "09_analiz": "Unter Analyse erhalten Sie den Prüfungsbericht und die Schülerzeugnisse als PDF.",
+ "10_ogrenci": "Die Schülerseite zeigt die Entwicklung und warnt Sie, wenn die Leistungen eines Schülers nachlassen.",
+ "11_kurum": "Öffnen Sie im Profil die Angaben zur Einrichtung und wählen Sie die Art der Einrichtung. Tragen Sie übergeordnete Stelle, Abteilungen und Namen ein und wählen Sie Titel und Dienstgrade aus den Listen. Ihre Berichte erhalten dann einen amtlichen Briefkopf und ein Unterschriftenfeld.",
+ "12_ayarlar": "In den Einstellungen ändern Sie die Sprache, schalten die Startmelodie aus und sichern Ihre Daten.",
+ "13_yardim": "Wenn Sie nicht weiterkommen, helfen die Anleitung und die häufigen Fragen unter Hilfe. Viel Erfolg!"
+}
