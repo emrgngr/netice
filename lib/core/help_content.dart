@@ -33,8 +33,9 @@ List<GuideSection> get guideSections => <GuideSection>[
     ]),
     GuideTopic(tr('Öğrencileri ekleyin'), [
       tr('Alttaki "Sınıflar" sekmesine geçin.'),
-      tr('Tek tek eklemek için "+" düğmesini, toplu eklemek için "Excel aktar"ı kullanın.'),
+      tr('Tek tek eklemek için "+" düğmesini, toplu eklemek için "Excel / PDF aktar"ı kullanın.'),
       tr('Excel dosyasında "Okul No, Adı, Soyadı, Sınıf" sütunları olması yeterlidir. e-Okul\'dan aldığınız liste de doğrudan okunur.'),
+      tr('Bütün sınıflar tek dosyada olabilir: Excel\'in her sayfası ya da PDF\'teki her "9. Sınıf / A Şubesi" başlığı ayrı sınıfa yazılır. Sınıf, sayfanın adından da alınır (ör. 9-A).'),
     ], tip: tr('Okul numarası doğru girilirse kâğıtlar öğrenciyle kendiliğinden eşleşir.')),
     GuideTopic(tr('Örnek verileri silin'), [
       tr('Uygulama ilk açılışta örnek bir sınıf ve sınav gösterir.'),

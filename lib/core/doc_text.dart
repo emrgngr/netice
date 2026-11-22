@@ -18,7 +18,12 @@ String documentText(Uint8List bytes, String fileName) {
       case 'docx':
         return docxText(bytes);
       case 'xlsx':
-        return [for (final r in StudentImport.xlsxRows(bytes)) r.where((c) => c.trim().isNotEmpty).join(' | ')].join('\n');
+        return [
+          for (final (name, rows) in StudentImport.xlsxSheets(bytes)) ...[
+            if (name.isNotEmpty) name,
+            for (final r in rows) r.where((c) => c.trim().isNotEmpty).join(' | '),
+          ],
+        ].join('\n');
       default:
         if (bytes.length > 4 && bytes[0] == 0x25 && bytes[1] == 0x50 && bytes[2] == 0x44 && bytes[3] == 0x46) {
           return pdfText(bytes);
@@ -98,19 +103,32 @@ String pdfText(Uint8List data) {
   final objs = <int, _Obj>{};
 
   Uint8List? decode(String dict, Uint8List body) {
-    if (dict.contains('/FlateDecode')) {
-      try {
-        return Uint8List.fromList(const ZLibDecoder().decodeBytes(body));
-      } catch (_) {
-        try {
-          return Uint8List.fromList(Inflate(body).getBytes());
-        } catch (_) {
+    // Süzgeçler sırayla uygulanır: ör. [/ASCII85Decode /FlateDecode].
+    final fm = RegExp(r'/Filter\s*(\[[^\]]*\]|/\w+)').firstMatch(dict);
+    if (fm == null) return body;
+    var out = body;
+    for (final f in RegExp(r'/(\w+)').allMatches(fm.group(1)!).map((m) => m.group(1)!)) {
+      switch (f) {
+        case 'FlateDecode' || 'Fl':
+          try {
+            out = Uint8List.fromList(const ZLibDecoder().decodeBytes(out));
+          } catch (_) {
+            try {
+              out = Uint8List.fromList(Inflate(out).getBytes());
+            } catch (_) {
+              return null;
+            }
+          }
+        case 'ASCII85Decode' || 'A85':
+          out = _ascii85(out);
+        case 'ASCIIHexDecode' || 'AHx':
+          final h = latin1.decode(out).replaceAll(RegExp(r'[^0-9A-Fa-f]'), '');
+          out = Uint8List.fromList([for (var k = 0; k + 1 < h.length; k += 2) int.parse(h.substring(k, k + 2), radix: 16)]);
+        default:
           return null;
-        }
       }
     }
-    if (RegExp(r'/Filter\s*/(?!FlateDecode)').hasMatch(dict) || RegExp(r'/Filter\s*\[').hasMatch(dict)) return null;
-    return body;
+    return out;
   }
 
   final objRe = RegExp(r'(\d+)\s+\d+\s+obj\b');
@@ -333,10 +351,16 @@ void _runContent(Uint8List s, _CMap? Function(String font) fontMap, StringBuffer
   double? lastTextY;
   var forceBreak = false;
   var pendingSpace = false;
+  // Grafik dönüşümünün dikey kısmı (cm ile; q/Q yığını). Tablo hücreleri
+  // çoğu zaman "cm" ile yerleştirilir.
+  var ctmD = 1.0, ctmF = 0.0;
+  final stack = <(double, double)>[];
+  double absY() => ctmD * lineY + ctmF;
 
   void emit(String t) {
+    final y = absY();
     if (lastTextY != null) {
-      if (forceBreak || (lineY - lastTextY!).abs() > 1) {
+      if (forceBreak || (y - lastTextY!).abs() > 1) {
         out.writeln();
       } else if (pendingSpace) {
         out.write(' ');
@@ -344,7 +368,7 @@ void _runContent(Uint8List s, _CMap? Function(String font) fontMap, StringBuffer
     }
     forceBreak = false;
     pendingSpace = false;
-    lastTextY = lineY;
+    lastTextY = y;
     out.write(t);
   }
 
@@ -517,6 +541,16 @@ void _runContent(Uint8List s, _CMap? Function(String font) fontMap, StringBuffer
               }
             }
           }
+        case 'q':
+          stack.add((ctmD, ctmF));
+        case 'Q':
+          if (stack.isNotEmpty) (ctmD, ctmF) = stack.removeLast();
+        case 'cm':
+          // Yeni = m × eski; yalnız dikey bileşenler (döndürme yok sayılır).
+          final d = num(3), f = num(1);
+          ctmF = f * ctmD + ctmF;
+          ctmD = d * ctmD;
+          space();
         case 'BT':
           lineY = 0;
         case 'Td' || 'TD':
@@ -526,7 +560,9 @@ void _runContent(Uint8List s, _CMap? Function(String font) fontMap, StringBuffer
         case 'T*':
           newline();
         case 'Tm':
+          // Mutlak konum: önceki T*'ın satır sonu yerine y karşılaştırılır.
           lineY = num(1);
+          forceBreak = false;
           space();
         case 'ET':
           space();
@@ -534,4 +570,40 @@ void _runContent(Uint8List s, _CMap? Function(String font) fontMap, StringBuffer
       ops.clear();
     }
   }
+}
+
+Uint8List _ascii85(Uint8List b) {
+  final out = <int>[];
+  final group = <int>[];
+  for (var i = 0; i < b.length; i++) {
+    final c = b[i];
+    if (c == 126) break; // "~>" sonu
+    if (c <= 32) continue;
+    if (c == 122 && group.isEmpty) {
+      out.addAll(const [0, 0, 0, 0]);
+      continue;
+    }
+    if (c < 33 || c > 117) continue;
+    group.add(c - 33);
+    if (group.length == 5) {
+      var v = 0;
+      for (final d in group) {
+        v = v * 85 + d;
+      }
+      out.addAll([(v >> 24) & 255, (v >> 16) & 255, (v >> 8) & 255, v & 255]);
+      group.clear();
+    }
+  }
+  if (group.isNotEmpty) {
+    final n = group.length;
+    while (group.length < 5) {
+      group.add(84);
+    }
+    var v = 0;
+    for (final d in group) {
+      v = v * 85 + d;
+    }
+    out.addAll([(v >> 24) & 255, (v >> 16) & 255, (v >> 8) & 255, v & 255].take(n - 1));
+  }
+  return Uint8List.fromList(out);
 }
