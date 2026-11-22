@@ -131,9 +131,10 @@ class AdAdmin extends ChangeNotifier {
   }
 
   /// PIN unutulursa: kayıtlı GitHub yayın anahtarının aynısı girilirse sıfırlanır.
+  /// Bu cihazda yayın anahtarı yoksa buradan hiçbir şey yayınlanamaz; kod anahtarsız sıfırlanabilir.
   Future<bool> resetPinWithToken(String t) async {
     await load();
-    if (token.isEmpty || t.trim() != token) return false;
+    if (token.isNotEmpty && t.trim() != token) return false;
     _pinHash = '';
     _pinSalt = '';
     _failed = 0;
