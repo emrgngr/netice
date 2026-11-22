@@ -1474,5 +1474,9 @@
 "Tek tek eklemek için \"+\" düğmesini, toplu eklemek için \"Excel / PDF aktar\"ı kullanın.": "1人ずつは「+」、まとめて追加するには「Excel / PDF を取り込む」を使います。",
 "{0} sınıf bulundu:": "{0} クラスが見つかりました:",
 "Öğrenci listesi (Excel, PDF, Word veya CSV)": "生徒名簿 (Excel、PDF、Word または CSV)",
-"Tamam, önizle": "OK、プレビュー"
+"Tamam, önizle": "OK、プレビュー",
+"Bu form Netice ile hazırlandı. Kâğıtları telefonunuzla okutun, sonuçlar ve raporlar saniyeler içinde hazır.": "この用紙は Netice で作成されました。スマホで読み取れば、結果とレポートが数秒で完成します。",
+"Ücretsiz indirin: Google Play ve App Store'da \"Netice\" arayın · {0}": "無料ダウンロード: Google Play と App Store で「Netice」を検索 · {0}",
+"Daireyi taşırmadan tamamen karartın.": "はみ出さずに丸を完全に塗りつぶしてください。",
+"Değiştirirken eskisini iyice silin.": "変更するときは前の印をよく消してください。"
 }
