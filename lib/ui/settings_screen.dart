@@ -3,7 +3,6 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../core/legal.dart';
@@ -29,6 +28,20 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  /// Gizli yönetici hareketi: logoya 4 saniye içinde 5 dokunuş.
+  final _taps = <DateTime>[];
+
+  void _secretTap() {
+    final now = DateTime.now();
+    _taps
+      ..removeWhere((t) => now.difference(t) > const Duration(seconds: 4))
+      ..add(now);
+    if (_taps.length >= 5) {
+      _taps.clear();
+      openAdminGate(context);
+    }
+  }
+
   String _stamp(DateTime d) =>
       '${d.year}${d.month.toString().padLeft(2, '0')}${d.day.toString().padLeft(2, '0')}';
 
@@ -354,15 +367,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ]),
           ),
           const SizedBox(height: 20),
-          // Yönetici girişi: logoya 3 saniye basılı tutmak (görünür bir iz bırakmaz), ardından PIN.
-          RawGestureDetector(
+          // Yönetici girişi: logoya 4 saniye içinde 5 kez dokunmak (görünür bir iz bırakmaz), ardından PIN.
+          GestureDetector(
             behavior: HitTestBehavior.opaque,
-            gestures: {
-              LongPressGestureRecognizer: GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(
-                () => LongPressGestureRecognizer(duration: const Duration(seconds: 3)),
-                (r) => r.onLongPress = () => openAdminGate(context),
-              ),
-            },
+            onTap: _secretTap,
             child: Center(
             child: Column(children: [
               const NeticeMark(size: 36),

@@ -655,7 +655,7 @@ class _AdEditScreenState extends State<AdEditScreen> {
   }
 }
 
-/// Gizli hareketten (Ayarlar'da logoya 3 sn basılı tutma) sonra açılır:
+/// Gizli hareketten (Ayarlar'da logoya 4 sn içinde 5 dokunuş) sonra açılır:
 /// PIN yoksa oluşturulur, varsa sorulur; doğruysa Reklam yönetimi açılır.
 Future<void> openAdminGate(BuildContext context) async {
   final admin = AdAdmin.instance;
