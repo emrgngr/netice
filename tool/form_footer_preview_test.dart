@@ -13,7 +13,7 @@ void main() {
     const lang = String.fromEnvironment('LANG_SHOT', defaultValue: 'tr');
     L10n.use(lang);
     final store = AppStore()..seedDemo();
-    final exam = store.exams.first;
+    final exam = store.exams.first.copyWith(numberDigits: const int.fromEnvironment('DIGITS', defaultValue: 10));
     final pdf = await buildFormsPdf(exam, store.studentsOf(exam.className).take(1).toList(), school: store.reportSchool);
     final out = Directory('build/form_footer')..createSync(recursive: true);
     File('${out.path}/form_$lang.pdf').writeAsBytesSync(pdf);

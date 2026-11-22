@@ -400,5 +400,9 @@
  "Bu form Netice ile hazırlandı. Kâğıtları telefonunuzla okutun, sonuçlar ve raporlar saniyeler içinde hazır.": "Modulo creato con Netice. Scansiona i fogli con il telefono: risultati e report pronti in pochi secondi.",
  "Ücretsiz indirin: Google Play ve App Store'da \"Netice\" arayın · {0}": "Scarica gratis: cerca \"Netice\" su Google Play e App Store · {0}",
  "Daireyi taşırmadan tamamen karartın.": "Annerisci tutto il cerchio senza uscire dal bordo.",
- "Değiştirirken eskisini iyice silin.": "Per cambiare, cancella bene il segno precedente."
+ "Değiştirirken eskisini iyice silin.": "Per cambiare, cancella bene il segno precedente.",
+ "Formdaki öğrenci numarası": "Matricola sul modulo",
+ "10 hane": "10 cifre",
+ "6 hane (eski formlar)": "6 cifre (moduli precedenti)",
+ "Basılmış formlarınız hangi düzendeyse onu seçin; değiştirirseniz formları yeniden basın.": "Scegli il layout dei moduli stampati; se lo cambi, ristampali."
 }

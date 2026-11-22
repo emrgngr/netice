@@ -48,7 +48,7 @@ class FormRaster {
         img.drawCircle(im, x: _p(b.x), y: _p(b.y), radius: r, color: outline);
       }
     }
-    for (var d = 0; d < FormLayout.studentDigits; d++) {
+    for (var d = 0; d < layout.digits; d++) {
       for (var v = 0; v < 10; v++) {
         final b = layout.studentBubble(d, v);
         img.drawCircle(im, x: _p(b.x), y: _p(b.y), radius: r, color: outline);
@@ -82,7 +82,7 @@ class FormRaster {
     });
     if (booklet != null && layout.hasBooklets) fillBubble(layout.bookletBubble(booklet));
     if (studentNumber != null) {
-      for (var d = 0; d < studentNumber.length && d < FormLayout.studentDigits; d++) {
+      for (var d = 0; d < studentNumber.length && d < layout.digits; d++) {
         fillBubble(layout.studentBubble(d, int.parse(studentNumber[d])));
       }
     }

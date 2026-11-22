@@ -176,6 +176,9 @@ class Exam {
   /// sınavın kopyaları bu kimliği paylaşır. null = yalnız bu sınıfın sınavı.
   final String? commonId;
 
+  /// Formdaki öğrenci numarası hane sayısı (6 ya da 10). Eski sınavlar 6.
+  final int numberDigits;
+
   const Exam({
     required this.id,
     required this.name,
@@ -189,6 +192,7 @@ class Exam {
     this.openQuestions = const [],
     this.templateId,
     this.commonId,
+    this.numberDigits = 6,
   });
 
   bool get isCommon => commonId != null;
@@ -317,6 +321,7 @@ class Exam {
     bool clearTemplate = false,
     String? id,
     String? commonId,
+    int? numberDigits,
   }) =>
       Exam(
         id: id ?? this.id,
@@ -331,6 +336,7 @@ class Exam {
         openQuestions: openQuestions ?? this.openQuestions,
         templateId: clearTemplate ? null : (templateId ?? this.templateId),
         commonId: commonId ?? this.commonId,
+        numberDigits: numberDigits ?? this.numberDigits,
       );
 
   Map<String, dynamic> toJson() => {
@@ -350,6 +356,7 @@ class Exam {
           ],
         if (templateId != null) 'templateId': templateId,
         if (commonId != null) 'commonId': commonId,
+        if (numberDigits != 6) 'numberDigits': numberDigits,
         if (openQuestions.isNotEmpty) 'openQuestions': openQuestions.map((q) => q.toJson()).toList(),
       };
 
@@ -372,6 +379,7 @@ class Exam {
         ],
         templateId: j['templateId'] as String?,
         commonId: j['commonId'] as String?,
+        numberDigits: j['numberDigits'] == 10 ? 10 : 6,
         openQuestions: [
           for (final e in (j['openQuestions'] as List?) ?? const []) OpenQuestion.fromJson(e as Map<String, dynamic>)
         ],
