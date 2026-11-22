@@ -47,8 +47,11 @@ class FormLayout {
   /// Bir sütundaki en fazla soru sayısı.
   static const questionsPerColumn = 25;
 
-  /// Öğrenci numarası hane sayısı.
+  /// Öğrenci numarası hane sayısı (eski formlar): 6.
   static const studentDigits = 6;
+
+  /// Bu formdaki öğrenci numarası hane sayısı: 6 ya da 10.
+  final int digits;
 
   final int questionCount;
   final int choiceCount;
@@ -60,7 +63,10 @@ class FormLayout {
   /// Formda en fazla kaç kitapçık dairesi olabilir (A–H).
   static const maxBooklets = 8;
 
-  FormLayout({required this.questionCount, required this.choiceCount, this.booklets = 1}) {
+  FormLayout({required this.questionCount, required this.choiceCount, this.booklets = 1, this.digits = 6}) {
+    if (digits != 6 && digits != 10) {
+      throw ArgumentError('Öğrenci numarası 6 ya da 10 hane olmalı');
+    }
     if (questionCount < 1 || questionCount > 100) {
       throw ArgumentError('Soru sayısı 1–100 arasında olmalı');
     }
@@ -76,14 +82,23 @@ class FormLayout {
 
   // ---- Öğrenci numarası alanı ----
 
-  /// Numara ızgarasının sol üst dairesinin merkezi.
+  /// Numara ızgarasının sol üst dairesinin merkezi (6 haneli formda).
+  /// 10 haneli formda ızgara sola uzar, sütunlar biraz sıklaşır; sağ kenar
+  /// aynı kalır.
   static const studentOrigin = Pt(140, 40);
   static const digitPitchX = 7.0;
   static const digitPitchY = 6.2;
 
+  bool get wideNumber => digits == 10;
+  double get _digitPitch => wideNumber ? 6.0 : digitPitchX;
+  double get _studentLeft => wideNumber ? 126.0 : studentOrigin.x;
+
+  /// Bilgi alanlarının (ad, sınıf…) sağ kenarı: numara kutusunun solu.
+  double get infoRight => wideNumber ? 116.0 : 128.0;
+
   /// [digit] numaralı hanenin (0 = en soldaki) [value] değerinin dairesi.
   Pt studentBubble(int digit, int value) => Pt(
-        studentOrigin.x + digit * digitPitchX,
+        _studentLeft + digit * _digitPitch,
         studentOrigin.y + value * digitPitchY,
       );
 
@@ -98,10 +113,12 @@ class FormLayout {
   /// İki kitapçıkta yerleşim eski formlarla aynıdır (basılmış A/B formları
   /// okunmaya devam eder). Daha fazlasında daireler sıkışık bir ızgaraya dizilir.
   Pt bookletBubble(int b) {
-    if (booklets <= 2) return Pt(113.5 + b * 9.0, 88.6);
+    // 10 haneli formda numara kutusu genişlediği için daireler sola kayar.
+    final shift = wideNumber ? -16.0 : 0.0;
+    if (booklets <= 2) return Pt(113.5 + shift + b * 9.0, 88.6);
     final cols = bookletColumns;
     final col = b % cols, row = b ~/ cols;
-    final x = 116.5 + (col - (cols - 1) / 2) * 6.6;
+    final x = 116.5 + shift + (col - (cols - 1) / 2) * 6.6;
     final y = bookletRows == 1 ? 88.6 : 86.8 + row * 6.3;
     return Pt(x, y);
   }

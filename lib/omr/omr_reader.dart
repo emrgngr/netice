@@ -189,7 +189,7 @@ class OmrReader {
 
     final digits = StringBuffer();
     var numberOk = true;
-    for (var d = 0; d < FormLayout.studentDigits; d++) {
+    for (var d = 0; d < layout.digits; d++) {
       final fills = [for (var v = 0; v < 10; v++) fillAt(layout.studentBubble(d, v))];
       final a = classify(fills);
       if (a.state == MarkState.filled && a.marked.length == 1) {
@@ -261,7 +261,7 @@ class OmrReader {
     var n = 0;
     final pts = <Pt>[
       for (var q = 0; q < math.min(layout.questionCount, 12); q++) layout.answerBubble(q, 1),
-      for (var d = 0; d < FormLayout.studentDigits; d++) layout.studentBubble(d, 5),
+      for (var d = 0; d < layout.digits; d++) layout.studentBubble(d, 5),
     ];
     for (final c in pts) {
       for (var a = 0; a < 12; a++) {

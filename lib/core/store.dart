@@ -157,9 +157,13 @@ class AppStore extends ChangeNotifier {
     return set.toList()..sort();
   }
 
-  List<Student> studentsOf(String className) =>
-      students.where((s) => s.className == className).toList()
-        ..sort((a, b) => a.number.compareTo(b.number));
+  List<Student> studentsOf(String className) => students.where((s) => s.className == className).toList()
+    ..sort((a, b) {
+      // Sayıca sırala (2, 10); sayı değilse yazı olarak.
+      final x = int.tryParse(a.number), y = int.tryParse(b.number);
+      if (x != null && y != null && x != y) return x.compareTo(y);
+      return a.number.compareTo(b.number);
+    });
 
   List<Sheet> sheetsOf(String examId) => sheets.where((s) => s.examId == examId).toList();
 
@@ -172,6 +176,7 @@ class AppStore extends ChangeNotifier {
     _file = File('${base.path}${Platform.pathSeparator}netice_data.json');
     if (await _file!.exists()) {
       _apply(jsonDecode(await _file!.readAsString()) as Map<String, dynamic>);
+      if (numberMissing() > 0) await save();
     } else {
       seedDemo();
       await save();
@@ -458,16 +463,61 @@ class AppStore extends ChangeNotifier {
     _changed();
   }
 
-  void addStudents(List<Student> list) {
+  /// Öğrencileri ekler (aynı sınıfta aynı numara ya da numarasızsa aynı ad
+  /// varsa atlar). Numarası olmayanlara sıra numarası verilir; kaç kişiye
+  /// verildiğini döndürür.
+  int addStudents(List<Student> list) {
     final existing = {for (final s in students) '${s.className}|${s.number}'};
-    students.addAll(list.where((s) => s.number.isEmpty || !existing.contains('${s.className}|${s.number}')));
+    final names = {for (final s in students) '${s.className}|${s.fullName.toLowerCase()}'};
+    students.addAll(list.where((s) => s.number.isEmpty
+        ? !names.contains('${s.className}|${s.fullName.toLowerCase()}')
+        : !existing.contains('${s.className}|${s.number}')));
+    final n = numberMissing();
     _changed();
+    return n;
   }
 
   void updateStudent(Student st) {
     final i = students.indexWhere((s) => s.id == st.id);
     if (i >= 0) students[i] = st;
+    numberMissing();
     _changed();
+  }
+
+  /// Numarası olmayan öğrencilere (dershane, kurs… numara kullanmayan
+  /// kurumlar) sınıfında kullanılmayan en küçük sayıdan başlayarak sıra
+  /// numarası verir; böylece isimli formlar ve işaretlenen numara öğrenciyle
+  /// eşleşir. Kaç öğrenciye numara verildiğini döndürür.
+  int numberMissing() {
+    final used = <String, Set<int>>{};
+    for (final s in students) {
+      final n = int.tryParse(s.number);
+      if (n != null) used.putIfAbsent(s.className, () => {}).add(n);
+    }
+    // Numarasızlar sınıf içinde ad soyad alfabetik sırasıyla numaralanır.
+    final missing = [
+      for (var i = 0; i < students.length; i++)
+        if (students[i].number.trim().isEmpty) i
+    ]..sort((a, b) {
+        final x = students[a], y = students[b];
+        final c = x.className.compareTo(y.className);
+        if (c != 0) return c;
+        final n = alphaKey(x.firstName).compareTo(alphaKey(y.firstName));
+        return n != 0 ? n : alphaKey(x.lastName).compareTo(alphaKey(y.lastName));
+      });
+    var count = 0;
+    for (final i in missing) {
+      final s = students[i];
+      final set = used.putIfAbsent(s.className, () => {});
+      var n = 1;
+      while (set.contains(n)) {
+        n++;
+      }
+      set.add(n);
+      students[i] = Student(id: s.id, firstName: s.firstName, lastName: s.lastName, number: '$n', className: s.className);
+      count++;
+    }
+    return count;
   }
 
   /// Öğrenciyi siler; okunmuş kâğıtları "eşleşmeyen" olarak kalır.
@@ -902,12 +952,14 @@ ReadSpec specFor(AppStore store, Exam exam) => ReadSpec(
       questions: exam.questionCount,
       choices: exam.choiceCount,
       booklets: exam.bookletCount,
+      digits: exam.numberDigits,
       template: store.templateById(exam.templateId),
     );
 
 /// Seçili sınav için okuma motoru oluşturur.
 OmrReader readerFor(Exam exam) => OmrReader(
-    FormLayout(questionCount: exam.questionCount, choiceCount: exam.choiceCount, booklets: exam.bookletCount));
+    FormLayout(
+        questionCount: exam.questionCount, choiceCount: exam.choiceCount, booklets: exam.bookletCount, digits: exam.numberDigits));
 
 /// Okutulan kâğıdın kaydedilme biçimi.
 enum ScanStatus {
@@ -922,4 +974,15 @@ enum ScanStatus {
 
   /// Bu numarayla farklı cevaplı bir kâğıt zaten var; yenisi kontrole alındı.
   conflict,
+}
+
+/// Türkçe alfabeye göre sıralama anahtarı (Ç Ğ I İ Ö Ş Ü doğru yerinde).
+String alphaKey(String s) {
+  const order = 'aâbcçdefgğhıiîjklmnoöprsştuûüvyzqwx';
+  final b = StringBuffer();
+  for (final ch in s.replaceAll('I', 'ı').replaceAll('İ', 'i').toLowerCase().split('')) {
+    final k = order.indexOf(ch);
+    b.writeCharCode(k >= 0 ? 0x100 + k : (ch == ' ' ? 0x20 : 0x200 + ch.codeUnitAt(0)));
+  }
+  return b.toString();
 }

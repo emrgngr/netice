@@ -14,15 +14,17 @@ class ReadSpec {
   final int choices;
   /// Kitapçık türü sayısı (1 = tek kitapçık).
   final int booklets;
+  /// Öğrenci numarası hane sayısı (6 ya da 10).
+  final int digits;
   final FormTemplate? template;
-  const ReadSpec({required this.questions, required this.choices, this.booklets = 1, this.template});
+  const ReadSpec({required this.questions, required this.choices, this.booklets = 1, this.digits = 6, this.template});
 }
 
 /// Kâğıdı okur (Netice formu ya da şablon).
 OmrResult readSheet(GrayImage g, ReadSpec s) {
   final t = s.template;
   if (t == null) {
-    return OmrReader(FormLayout(questionCount: s.questions, choiceCount: s.choices, booklets: s.booklets)).read(g);
+    return OmrReader(FormLayout(questionCount: s.questions, choiceCount: s.choices, booklets: s.booklets, digits: s.digits)).read(g);
   }
   return TemplateReader(t, questionCount: s.questions, choiceCount: s.choices).read(g);
 }

@@ -400,5 +400,11 @@
  "Bu form Netice ile hazırlandı. Kâğıtları telefonunuzla okutun, sonuçlar ve raporlar saniyeler içinde hazır.": "Este formulario se creó con Netice. Escanee las hojas con el móvil: resultados e informes en segundos.",
  "Ücretsiz indirin: Google Play ve App Store'da \"Netice\" arayın · {0}": "Descarga gratis: busque \"Netice\" en Google Play y App Store · {0}",
  "Daireyi taşırmadan tamamen karartın.": "Rellene el círculo por completo sin salirse.",
- "Değiştirirken eskisini iyice silin.": "Al cambiar, borre bien la marca anterior."
+ "Değiştirirken eskisini iyice silin.": "Al cambiar, borre bien la marca anterior.",
+ "Formdaki öğrenci numarası": "Número de alumno en el formulario",
+ "10 hane": "10 dígitos",
+ "6 hane (eski formlar)": "6 dígitos (formularios antiguos)",
+ "Basılmış formlarınız hangi düzendeyse onu seçin; değiştirirseniz formları yeniden basın.": "Elija el diseño de sus formularios impresos; si lo cambia, vuelva a imprimirlos.",
+ "Optik formdaki numarayla eşleşir. Boş bırakılırsa sıra numarası verilir.": "Se empareja con el número del formulario. Si se deja vacío, se asigna un número de orden.",
+ "Numarası olmayan {0} öğrenciye sıra numarası verildi.": "Se asignó un número de orden a {0} alumnos sin número."
 }

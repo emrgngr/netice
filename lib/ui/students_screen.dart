@@ -114,12 +114,16 @@ class _StudentsScreenState extends State<StudentsScreen> {
     ];
     final store = StoreScope.of(context);
     final before = store.students.length;
-    store.addStudents(list);
+    final numbered = store.addStudents(list);
     final added = store.students.length - before;
     final classes = list.map((s) => s.className).toSet().length;
+    final numberNote = numbered > 0 ? tr('Numarası olmayan {0} öğrenciye sıra numarası verildi.', [numbered]) : '';
     toast(
         context,
-        tr('{0} öğrenci, {1} sınıfa aktarıldı.{2}', [added, classes, added < list.length ? tr(' {0} kişi zaten kayıtlı olduğu için atlandı.', [list.length - added]) : '']));
+        [
+          tr('{0} öğrenci, {1} sınıfa aktarıldı.{2}', [added, classes, added < list.length ? tr(' {0} kişi zaten kayıtlı olduğu için atlandı.', [list.length - added]) : '']),
+          if (numberNote.isNotEmpty) numberNote,
+        ].join(' '));
   }
 
   /// Elle öğrenci ekleme veya düzenleme. [existing] varsa düzenler.
@@ -144,7 +148,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
                   decoration: InputDecoration(labelText: tr('Soyadı'))),
               const SizedBox(height: 10),
               TextField(controller: no, keyboardType: TextInputType.number,
-                  decoration: InputDecoration(labelText: tr('Okul no'), helperText: tr('Optik formdaki numarayla eşleşir'))),
+                  decoration: InputDecoration(labelText: tr('Okul no'), helperText: tr('Optik formdaki numarayla eşleşir. Boş bırakılırsa sıra numarası verilir.'))),
               const SizedBox(height: 10),
               TextField(controller: cls, textCapitalization: TextCapitalization.characters,
                   decoration: InputDecoration(labelText: tr('Sınıf / şube'), hintText: tr('ör. 9-A'))),
