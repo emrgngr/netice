@@ -902,12 +902,14 @@ ReadSpec specFor(AppStore store, Exam exam) => ReadSpec(
       questions: exam.questionCount,
       choices: exam.choiceCount,
       booklets: exam.bookletCount,
+      digits: exam.numberDigits,
       template: store.templateById(exam.templateId),
     );
 
 /// Seçili sınav için okuma motoru oluşturur.
 OmrReader readerFor(Exam exam) => OmrReader(
-    FormLayout(questionCount: exam.questionCount, choiceCount: exam.choiceCount, booklets: exam.bookletCount));
+    FormLayout(
+        questionCount: exam.questionCount, choiceCount: exam.choiceCount, booklets: exam.bookletCount, digits: exam.numberDigits));
 
 /// Okutulan kâğıdın kaydedilme biçimi.
 enum ScanStatus {

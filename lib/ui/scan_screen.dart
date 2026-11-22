@@ -175,9 +175,9 @@ class _ScanScreenState extends State<ScanScreen> {
         if (rnd.nextDouble() > 0.08)
           q: [rnd.nextDouble() < 0.7 ? exam.questions[q].correct.first : rnd.nextInt(exam.choiceCount)]
     };
-    final number = st == null ? null : (int.tryParse(st.number) ?? 0).toString().padLeft(FormLayout.studentDigits, '0');
+    final number = st == null ? null : (int.tryParse(st.number) ?? 0).toString().padLeft(exam.numberDigits, '0');
     setState(() => _busy = true);
-    final gray = await compute(_sampleJob, _Sample(exam.questionCount, exam.choiceCount, answers, number));
+    final gray = await compute(_sampleJob, _Sample(exam.questionCount, exam.choiceCount, answers, number, exam.numberDigits));
     await _readGray(tr('Örnek form{0}', [st == null ? '' : ' · ${st.fullName}']), gray);
     setState(() => _busy = false);
   }
@@ -411,10 +411,11 @@ class _Sample {
   final int questions, choices;
   final Map<int, List<int>> answers;
   final String? number;
-  _Sample(this.questions, this.choices, this.answers, this.number);
+  final int digits;
+  _Sample(this.questions, this.choices, this.answers, this.number, this.digits);
 }
 
 GrayImage _sampleJob(_Sample s) {
-  final raster = FormRaster(FormLayout(questionCount: s.questions, choiceCount: s.choices));
+  final raster = FormRaster(FormLayout(questionCount: s.questions, choiceCount: s.choices, digits: s.digits));
   return GrayImage.fromImage(raster.render(answers: s.answers, studentNumber: s.number));
 }

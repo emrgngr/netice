@@ -170,8 +170,17 @@ class _FormJob {
   try {
     final gray = GrayImage.decode(j.bytes);
     if (gray == null) return null;
-    final r = OmrReader(FormLayout(questionCount: j.questions, choiceCount: j.choices, booklets: j.booklets)).read(gray);
-    return ([for (final q in r.questions) q.answer.marked.toSet()], r.booklet);
+    // Form 6 ya da 10 haneli numarayla basılmış olabilir (kitapçık daireleri
+    // farklı yerde): kitapçığı okunabilen yerleşim seçilir.
+    (List<Set<int>>, int?)? best;
+    for (final digits in const [10, 6]) {
+      final layout = FormLayout(questionCount: j.questions, choiceCount: j.choices, booklets: j.booklets, digits: digits);
+      final r = OmrReader(layout).read(gray);
+      final out = ([for (final q in r.questions) q.answer.marked.toSet()], r.booklet);
+      if (r.booklet != null || !layout.hasBooklets) return out;
+      best ??= out;
+    }
+    return best;
   } catch (_) {
     return null;
   }

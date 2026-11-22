@@ -200,6 +200,7 @@ class _NewExamScreenState extends State<NewExamScreen> {
             for (var b = 1; b < _booklets; b++) [for (var i = 0; i < _count; i++) {_keys[b][i]!}]
           ],
           commonId: commonId,
+          numberDigits: 10,
         ),
     ];
     for (final e in exams) {
