@@ -1,17 +1,19 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 
+import '../core/key_import.dart';
 import '../core/models.dart';
 import '../core/report.dart';
 import '../main.dart';
 import 'exam_screen.dart';
-import 'key_from_photo.dart';
+import 'key_import_ui.dart';
 import 'theme.dart';
 import 'widgets.dart';
 import '../l10n/l10n.dart';
 
-/// Hızlı sınav oluşturma: soru sayısı, şık sayısı, cevap anahtarı tuş takımı.
-/// Klavyeden "ABCDE…" yazmak da çalışır.
+/// Hızlı sınav oluşturma: soru sayısı, şık sayısı, kitapçıklar, her
+/// kitapçığın cevap anahtarı (tuş takımı, klavye, belge ya da görselden)
+/// ve sınavın yapılacağı sınıflar.
 class NewExamScreen extends StatefulWidget {
   const NewExamScreen({super.key});
 
@@ -21,15 +23,24 @@ class NewExamScreen extends StatefulWidget {
 
 class _NewExamScreenState extends State<NewExamScreen> {
   final _name = TextEditingController();
-  final _class = TextEditingController();
+  final _otherClass = TextEditingController();
   final _outcomes = TextEditingController();
   final _focus = FocusNode();
   int _count = 20;
   int _choices = 5;
   int _wrongsPerCorrect = 0;
-  final List<int?> _key = List.filled(100, null);
-  int _cursor = 0;
+  int _booklets = 1;
+
+  /// Düzenlenen kitapçık (0 = A).
+  int _bk = 0;
+  final List<List<int?>> _keys = List.generate(Exam.maxBooklets, (_) => List<int?>.filled(100, null));
+  final List<int> _cursors = List.filled(Exam.maxBooklets, 0);
+  final Set<String> _classes = {};
   DateTime _date = DateTime.now();
+
+  List<int?> get _key => _keys[_bk];
+  int get _cursor => _cursors[_bk];
+  set _cursor(int v) => _cursors[_bk] = v;
 
   Future<void> _pickDate() async {
     final d = await showDatePicker(
@@ -56,8 +67,17 @@ class _NewExamScreenState extends State<NewExamScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final classes = StoreScope.of(context).classNames;
-      if (classes.isNotEmpty && _class.text.isEmpty) _class.text = classes.first;
+      if (classes.isNotEmpty && _classes.isEmpty) setState(() => _classes.add(classes.first));
     });
+  }
+
+  @override
+  void dispose() {
+    _name.dispose();
+    _otherClass.dispose();
+    _outcomes.dispose();
+    _focus.dispose();
+    super.dispose();
   }
 
   void _set(int choice) {
@@ -67,38 +87,108 @@ class _NewExamScreenState extends State<NewExamScreen> {
     });
   }
 
-  Future<void> _fromPhoto() async {
-    final key = await readKeyFromPhoto(context, questions: _count, choices: _choices);
-    if (key == null) return;
+  int _filled(int b) => List.generate(_count, (i) => _keys[b][i]).where((k) => k != null).length;
+
+  Future<void> _import() async {
+    final src = await pickKeySource(context);
+    if (src == null || !mounted) return;
+    final r = await importKey(context, src, questions: _count, choices: _choices, booklets: _booklets);
+    if (r == null || !mounted) return;
     setState(() {
-      for (var i = 0; i < _count; i++) {
-        _key[i] = key[i].isEmpty ? null : key[i].first;
+      // Belgedeki soru sayısı daha fazlaysa soru sayısını büyütür.
+      var maxQ = 0;
+      for (final k in r.keys.values) {
+        for (var i = k.length - 1; i >= 0; i--) {
+          if (k[i] != null) {
+            if (i + 1 > maxQ) maxQ = i + 1;
+            break;
+          }
+        }
       }
-      final firstEmpty = List.generate(_count, (i) => _key[i]).indexOf(null);
-      _cursor = firstEmpty < 0 ? _count - 1 : firstEmpty;
+      for (final q in r.topics.keys) {
+        if (q > maxQ) maxQ = q;
+      }
+      if (src != KeySource.neticeForm && maxQ > _count) _count = maxQ.clamp(5, 100);
+      if (r.bookletCount > _booklets) _booklets = r.bookletCount.clamp(1, Exam.maxBooklets);
+      for (final e in r.keys.entries) {
+        if (e.key >= _booklets) continue;
+        for (var i = 0; i < e.value.length && i < 100; i++) {
+          if (e.value[i] != null) _keys[e.key][i] = e.value[i];
+        }
+        final empty = List.generate(_count, (i) => _keys[e.key][i]).indexOf(null);
+        _cursors[e.key] = empty < 0 ? _count - 1 : empty;
+      }
+      if (r.topics.isNotEmpty) _outcomes.text = topicsToRanges(r.topics, _count);
+      _bk = r.keys.keys.isEmpty ? _bk : r.keys.keys.reduce((a, b) => a < b ? a : b).clamp(0, _booklets - 1);
     });
+    final parts = [
+      for (var b = 0; b < _booklets; b++)
+        if (r.keys.containsKey(b)) tr('{0}: {1}/{2}', [Exam.bookletLetter(b), _filled(b), _count]),
+    ];
+    toast(
+      context,
+      [
+        if (parts.isNotEmpty) tr('Okunan cevaplar: {0}.', [parts.join(', ')]),
+        if (r.topics.isNotEmpty) tr('{0} sorunun konusu Kazanımlar bölümüne yerleştirildi.', [r.topics.length]),
+        tr('Lütfen kontrol edin.'),
+      ].join(' '),
+    );
   }
 
-  bool get _complete => List.generate(_count, (i) => _key[i]).every((k) => k != null);
+  List<String> get _selectedClasses {
+    final other = _otherClass.text.trim();
+    return [..._classes, if (other.isNotEmpty && !_classes.contains(other)) other];
+  }
 
   void _save() {
     final name = _name.text.trim();
     if (name.isEmpty) return toast(context, tr('Sınava bir ad verin.'));
-    if (!_complete) return toast(context, tr('Cevap anahtarında boş soru var.'));
+    for (var b = 0; b < _booklets; b++) {
+      if (_filled(b) < _count) {
+        setState(() => _bk = b);
+        return toast(
+          context,
+          _booklets > 1
+              ? tr('{0} kitapçığının cevap anahtarında boş soru var.', [Exam.bookletLetter(b)])
+              : tr('Cevap anahtarında boş soru var.'),
+        );
+      }
+    }
     final outcomes = parseOutcomeRanges(_outcomes.text, _count);
-    final exam = Exam(
-      id: 'e${DateTime.now().millisecondsSinceEpoch}',
-      name: name,
-      className: _class.text.trim(),
-      date: _date,
-      choiceCount: _choices,
-      questions: [
-        for (var i = 0; i < _count; i++) Question(no: i + 1, correct: {_key[i]!}, outcomeCode: outcomes[i + 1])
-      ],
-      rule: ScoringRule(wrongsPerCorrect: _wrongsPerCorrect),
-    );
-    StoreScope.of(context).upsertExam(exam);
-    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => ExamScreen(examId: exam.id)));
+    final classes = _selectedClasses;
+    if (classes.isEmpty) classes.add('');
+    final stamp = DateTime.now().millisecondsSinceEpoch;
+    final commonId = classes.length > 1 ? 'ortak_${stamp.toRadixString(36)}' : null;
+    final store = StoreScope.of(context);
+    final exams = <Exam>[
+      for (var c = 0; c < classes.length; c++)
+        Exam(
+          id: classes.length == 1 ? 'e$stamp' : 'e${stamp}_$c',
+          name: name,
+          className: classes[c],
+          date: _date,
+          choiceCount: _choices,
+          questions: [
+            for (var i = 0; i < _count; i++) Question(no: i + 1, correct: {_keys[0][i]!}, outcomeCode: outcomes[i + 1])
+          ],
+          rule: ScoringRule(wrongsPerCorrect: _wrongsPerCorrect),
+          // Her kitapçığın kendi anahtarı var; soru sıraları birebir tutulur.
+          bookletOrders: [
+            for (var b = 1; b < _booklets; b++) [for (var i = 0; i < _count; i++) i]
+          ],
+          bookletKeys: [
+            for (var b = 1; b < _booklets; b++) [for (var i = 0; i < _count; i++) {_keys[b][i]!}]
+          ],
+          commonId: commonId,
+        ),
+    ];
+    for (final e in exams) {
+      store.upsertExam(e);
+    }
+    if (exams.length > 1) {
+      toast(context, tr('{0} sınıf için sınav oluşturuldu. Sonuçlar ortak raporda birleşir.', [exams.length]));
+    }
+    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => ExamScreen(examId: exams.first.id)));
   }
 
   KeyEventResult _onKey(FocusNode node, KeyEvent e) {
@@ -126,9 +216,52 @@ class _NewExamScreenState extends State<NewExamScreen> {
     return KeyEventResult.ignored;
   }
 
+  Widget _classPicker(ThemeData t) {
+    final all = StoreScope.of(context).classNames;
+    if (all.isEmpty) {
+      return TextField(
+        controller: _otherClass,
+        decoration: InputDecoration(labelText: tr('Sınıf / şube'), hintText: tr('ör. 9-A')),
+      );
+    }
+    final allSelected = all.every(_classes.contains);
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Text(tr('Sınavın yapılacağı sınıflar'), style: t.textTheme.titleSmall),
+      const SizedBox(height: 6),
+      Wrap(spacing: 8, runSpacing: 4, children: [
+        FilterChip(
+          label: Text(tr('Tüm sınıflar')),
+          selected: allSelected,
+          onSelected: (v) => setState(() => v ? _classes.addAll(all) : _classes.clear()),
+        ),
+        for (final c in all)
+          FilterChip(
+            label: Text(c),
+            selected: _classes.contains(c),
+            onSelected: (v) => setState(() => v ? _classes.add(c) : _classes.remove(c)),
+          ),
+      ]),
+      const SizedBox(height: 6),
+      TextField(
+        controller: _otherClass,
+        onChanged: (_) => setState(() {}),
+        decoration: InputDecoration(labelText: tr('Başka sınıf / şube (isteğe bağlı)'), hintText: tr('ör. 9-A')),
+      ),
+      if (_selectedClasses.length > 1)
+        Padding(
+          padding: const EdgeInsets.only(top: 6, left: 4),
+          child: Text(
+            tr('Her sınıf için aynı sınav oluşturulur; sonuçlar ortak raporda birleşir.'),
+            style: t.textTheme.bodySmall,
+          ),
+        ),
+    ]);
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context);
+    final letterMax = letter(_choices - 1);
     return Scaffold(
       appBar: AppBar(title: Text(tr('Yeni sınav'))),
       bottomNavigationBar: SafeArea(
@@ -152,7 +285,7 @@ class _NewExamScreenState extends State<NewExamScreen> {
           child: ListView(padding: const EdgeInsets.all(20), children: [
             TextField(controller: _name, decoration: InputDecoration(labelText: tr('Sınav adı'), hintText: tr('ör. Fizik Quiz 3'))),
             const SizedBox(height: 12),
-            TextField(controller: _class, decoration: InputDecoration(labelText: tr('Sınıf / şube'), hintText: tr('ör. 9-A'))),
+            _classPicker(t),
             const SizedBox(height: 12),
             Row(children: [
               Expanded(
@@ -180,50 +313,88 @@ class _NewExamScreenState extends State<NewExamScreen> {
               semanticLabel: tr('Soru sayısı'),
               onChanged: (v) => setState(() {
                 _count = v;
-                if (_cursor >= _count) _cursor = _count - 1;
+                for (var b = 0; b < Exam.maxBooklets; b++) {
+                  if (_cursors[b] >= _count) _cursors[b] = _count - 1;
+                }
               }),
             ),
             const SizedBox(height: 12),
             // Dar ekranlarda ve uzun çevirilerde taşmasın diye alt alta.
             Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              SizedBox(
-                child: SegmentedButton<int>(
-                  showSelectedIcon: false,
-                  segments: [ButtonSegment(value: 4, label: Text(tr('4 şık'))), ButtonSegment(value: 5, label: Text(tr('5 şık')))],
-                  selected: {_choices},
-                  onSelectionChanged: (s) => setState(() {
-                    _choices = s.first;
-                    for (var i = 0; i < _key.length; i++) {
-                      if ((_key[i] ?? 0) >= _choices) _key[i] = null;
+              SegmentedButton<int>(
+                showSelectedIcon: false,
+                segments: [ButtonSegment(value: 4, label: Text(tr('4 şık'))), ButtonSegment(value: 5, label: Text(tr('5 şık')))],
+                selected: {_choices},
+                onSelectionChanged: (s) => setState(() {
+                  _choices = s.first;
+                  for (final k in _keys) {
+                    for (var i = 0; i < k.length; i++) {
+                      if ((k[i] ?? 0) >= _choices) k[i] = null;
                     }
-                  }),
-                ),
+                  }
+                }),
               ),
               const SizedBox(height: 12),
-              SizedBox(
-                child: DropdownButtonFormField<int>(
-                  isExpanded: true,
-                  initialValue: _wrongsPerCorrect,
-                  decoration: InputDecoration(labelText: tr('Yanlış götürme')),
-                  items: [
-                    DropdownMenuItem(value: 0, child: Text(tr('Yok'))),
-                    DropdownMenuItem(value: 3, child: Text(tr('3 yanlış 1 doğru'))),
-                    DropdownMenuItem(value: 4, child: Text(tr('4 yanlış 1 doğru'))),
-                  ],
-                  onChanged: (v) => setState(() => _wrongsPerCorrect = v ?? 0),
-                ),
+              DropdownButtonFormField<int>(
+                isExpanded: true,
+                initialValue: _wrongsPerCorrect,
+                decoration: InputDecoration(labelText: tr('Yanlış götürme')),
+                items: [
+                  DropdownMenuItem(value: 0, child: Text(tr('Yok'))),
+                  DropdownMenuItem(value: 3, child: Text(tr('3 yanlış 1 doğru'))),
+                  DropdownMenuItem(value: 4, child: Text(tr('4 yanlış 1 doğru'))),
+                ],
+                onChanged: (v) => setState(() => _wrongsPerCorrect = v ?? 0),
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<int>(
+                key: ValueKey('kitapcik_$_booklets'),
+                isExpanded: true,
+                initialValue: _booklets,
+                decoration: InputDecoration(labelText: tr('Kitapçık türü')),
+                items: [
+                  for (var n = 1; n <= Exam.maxBooklets; n++)
+                    DropdownMenuItem(
+                      value: n,
+                      child: Text(n == 1
+                          ? tr('Tek kitapçık')
+                          : tr('{0} kitapçık ({1})', [n, List.generate(n, Exam.bookletLetter).join(', ')])),
+                    ),
+                ],
+                onChanged: (v) => setState(() {
+                  _booklets = v ?? 1;
+                  if (_bk >= _booklets) _bk = 0;
+                }),
               ),
             ]),
             SectionTitle(tr('Cevap anahtarı'),
                 trailing: TextButton.icon(
-                  onPressed: _fromPhoto,
-                  icon: const Icon(Icons.photo_camera_outlined, size: 18),
-                  label: Text(tr('Fotoğraftan oku')),
+                  onPressed: _import,
+                  icon: const Icon(Icons.upload_file_rounded, size: 18),
+                  label: Text(tr('Görselden / belgeden oku')),
                 )),
+            if (_booklets > 1) ...[
+              Wrap(spacing: 8, runSpacing: 4, children: [
+                for (var b = 0; b < _booklets; b++)
+                  ChoiceChip(
+                    selected: b == _bk,
+                    avatar: _filled(b) == _count ? const Icon(Icons.check_circle_rounded, size: 18, color: NColors.emerald) : null,
+                    label: Text(tr('{0} kitapçığı · {1}/{2}', [Exam.bookletLetter(b), _filled(b), _count])),
+                    onSelected: (_) => setState(() => _bk = b),
+                  ),
+              ]),
+              const SizedBox(height: 6),
+            ],
             Padding(
               padding: const EdgeInsets.only(left: 4, bottom: 8),
-              child: Text(tr('Tuşlarla veya klavyeden A–{0} yazın. Doğru cevaplarla doldurduğunuz bir Netice formunun fotoğrafını da seçebilirsiniz.', [letter(_choices - 1)]),
-                  style: t.textTheme.bodySmall),
+              child: Text(
+                _booklets > 1
+                    ? tr('Her kitapçığın cevaplarını ayrı girin: üstten kitapçığı seçip tuşlarla veya klavyeden A–{0} yazın. Cevap anahtarı belgesini (PDF, Word, Excel) ya da fotoğrafını yüklerseniz tüm kitapçıklar otomatik dolar.',
+                        [letterMax])
+                    : tr('Tuşlarla veya klavyeden A–{0} yazın. Cevap anahtarı belgesini (PDF, Word, Excel) ya da fotoğrafını yüklerseniz cevaplar otomatik dolar.',
+                        [letterMax]),
+                style: t.textTheme.bodySmall,
+              ),
             ),
             Focus(
               focusNode: _focus,
@@ -277,11 +448,11 @@ class _NewExamScreenState extends State<NewExamScreen> {
             TextField(
               controller: _outcomes,
               minLines: 2,
-              maxLines: 6,
+              maxLines: 8,
               decoration: InputDecoration(
                 hintText: tr('1-5 Hareket\n6-10 Kuvvet'),
-                helperText: tr('Her satıra soru aralığı ve konu adı yazın. Raporda konu bazlı başarı gösterilir.'),
-                helperMaxLines: 2,
+                helperText: tr('Her satıra soru aralığı ve konu adı yazın. Yüklediğiniz belgede konu dağılımı varsa buraya kendiliğinden yerleşir. Raporda konu bazlı başarı gösterilir.'),
+                helperMaxLines: 3,
               ),
             ),
             const SizedBox(height: 12),
