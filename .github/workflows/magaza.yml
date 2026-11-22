@@ -1,0 +1,45 @@
+name: Mağaza görselleri
+
+# Google Play için başlıklı ekran görüntüleri, simge, öne çıkan görsel ve
+# müzikli tanıtım videosu üretir; "Netice-Magaza" adıyla indirilebilir.
+on:
+  workflow_dispatch:
+  push:
+    branches: [ilk-surum, main, 'claude/magaza*']
+    paths: ['tool/magaza/**', 'tool/screenshots_test.dart', '.github/workflows/magaza.yml']
+
+jobs:
+  gorseller:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.50.0
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: |
+          for i in 1 2 3 4 5; do
+            sudo apt-get update -qq && sudo apt-get install -y -qq -o Acquire::Retries=5 ffmpeg libraqm0 >/dev/null && break
+            sleep $((i*20))
+          done
+          which ffmpeg
+      - run: pip install --quiet pillow
+      - name: Ekran görüntüleri
+        run: flutter test tool/screenshots_test.dart
+      - name: Görseller ve video
+        run: |
+          python3 tool/magaza/gorseller.py tool/magaza/ornek_form.png build/magaza
+          B=https://d8j0ntlcm91z4.cloudfront.net/user_3HBbhHFwxHnCS5yFDPNhwCMiEXw
+          curl -sSf --retry 3 -o build/muzik.mp3 "$B/$(python3 -c "import json;print(json.load(open('tool/video/muzik.json'))['muzik'])")"
+          curl -sSf --retry 3 -o build/acilis.mp3 "$B/$(python3 -c "import json;print(json.load(open('tool/video/muzik.json'))['acilis'])")"
+          bash tool/magaza/video.sh build/magaza/video build/magaza/tanitim_videosu.mp4 build/muzik.mp3 build/acilis.mp3
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Netice-Magaza
+          path: |
+            build/magaza/telefon
+            build/magaza/simge_512.png
+            build/magaza/kapak_1024x500.png
+            build/magaza/tanitim_videosu.mp4

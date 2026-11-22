@@ -89,7 +89,7 @@ void main() {
     await shot(tester, StoreScope(store: store, child: _themed(const ExamSettingsScreen(examId: 'demo_exam'))),
         const Size(390, 1100), 'mobil_sinav_ayarlari');
     await shot(tester, app, const Size(390, 1500), 'mobil_ana_sayfa_uzun');
-    await shot(tester, app, const Size(412, 915), 'mobil_siniflar', then: () async => tester.tap(find.text('Sınıflar')));
+    await shot(tester, app, const Size(412, 915), 'mobil_siniflar', then: () async => tester.tap(find.byIcon(Icons.groups_outlined).first));
     store.school = const SchoolInfo(
         province: 'Ankara',
         district: 'Çankaya',
