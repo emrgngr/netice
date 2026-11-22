@@ -1479,6 +1479,10 @@
 "Ücretsiz indirin: Google Play ve App Store'da \"Netice\" arayın · {0}": "Téléchargement gratuit : cherchez « Netice » sur Google Play et l’App Store · {0}",
 "Daireyi taşırmadan tamamen karartın.": "Noircissez entièrement le cercle sans déborder.",
 "Değiştirirken eskisini iyice silin.": "Pour modifier, effacez bien l’ancienne marque.",
+"Formdaki öğrenci numarası": "Numéro d’élève sur le formulaire",
+"10 hane": "10 chiffres",
+"6 hane (eski formlar)": "6 chiffres (anciens formulaires)",
+"Basılmış formlarınız hangi düzendeyse onu seçin; değiştirirseniz formları yeniden basın.": "Choisissez la mise en page de vos formulaires imprimés ; si vous la changez, réimprimez-les.",
 "Optik formdaki numarayla eşleşir. Boş bırakılırsa sıra numarası verilir.": "Correspond au numéro du formulaire. Laissé vide, un numéro d’ordre est attribué.",
 "Numarası olmayan {0} öğrenciye sıra numarası verildi.": "Un numéro d’ordre a été attribué à {0} élèves sans numéro."
 }

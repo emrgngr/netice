@@ -48,7 +48,7 @@ class SheetMarksPainter extends CustomPainter {
     final t = template;
     final k = size.width / (t == null ? FormLayout.pageWidth : FormTemplate.width);
     final mm = size.width / FormLayout.pageWidth; // rozet ölçüsü (mm)
-    final layout = FormLayout(questionCount: exam.questionCount, choiceCount: exam.choiceCount, booklets: exam.bookletCount);
+    final layout = FormLayout(questionCount: exam.questionCount, choiceCount: exam.choiceCount, booklets: exam.bookletCount, digits: exam.numberDigits);
     Offset at(Pt p) => Offset(p.x * k, p.y * k);
     // Şablonda daire boyutu bloktan gelir.
     final unit = t == null || t.blocks.isEmpty ? FormLayout.bubbleRadius : t.blocks.first.radius;
