@@ -9,6 +9,8 @@ import 'package:netice/core/store.dart';
 import 'package:netice/main.dart';
 import 'package:netice/ui/ad_admin_screen.dart';
 import 'package:netice/ui/ad_slot.dart';
+import 'package:netice/ui/logo.dart';
+import 'package:netice/ui/settings_screen.dart';
 
 void main() {
   test('reklam listesi JSON gidiş-dönüş', () {
@@ -121,5 +123,32 @@ void main() {
     await tester.tap(find.byIcon(Icons.visibility_outlined));
     await tester.pump();
     expect(obscured(), isFalse);
+  });
+
+  testWidgets('gizli hareket: logoya 4 sn içinde 5 dokunuş kod ekranını açar', (tester) async {
+    await tester.pumpWidget(StoreScope(store: AppStore(), child: const MaterialApp(home: SettingsScreen())));
+    await tester.pump();
+    final logo = find.byType(NeticeMark);
+    await tester.scrollUntilVisible(logo, 400, scrollable: find.byType(Scrollable).first);
+    await tester.pump();
+    Future<void> taps(int n) => tester.runAsync(() async {
+          for (var i = 0; i < n; i++) {
+            await tester.tap(logo);
+            await Future<void>.delayed(const Duration(milliseconds: 100));
+          }
+        });
+    await taps(4);
+    await tester.pump();
+    expect(find.byType(AlertDialog), findsNothing);
+    // 4 saniyeden uzun ara verilirse sayım baştan başlar.
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 4200)));
+    await taps(1);
+    await tester.pump();
+    expect(find.byType(AlertDialog), findsNothing);
+    await taps(4);
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 500)));
+    await tester.pump();
+    await tester.pump();
+    expect(find.byType(AlertDialog), findsOneWidget);
   });
 }
