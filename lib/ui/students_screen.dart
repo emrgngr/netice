@@ -1,8 +1,10 @@
 import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../core/doc_text.dart';
 import '../core/import_export.dart';
 import '../core/models.dart';
 import '../main.dart';
@@ -29,9 +31,9 @@ class _StudentsScreenState extends State<StudentsScreen> {
 
   Future<void> _import() async {
     final files = await FilePicker.pickFiles(
-      dialogTitle: tr('Öğrenci listesi (Excel veya CSV)'),
+      dialogTitle: tr('Öğrenci listesi (Excel, PDF, Word veya CSV)'),
       type: FileType.custom,
-      allowedExtensions: ['xlsx', 'csv', 'txt', 'xls'],
+      allowedExtensions: ['xlsx', 'pdf', 'docx', 'csv', 'txt', 'xls'],
     );
     if (files.isEmpty || !mounted) return;
     final file = files.first;
@@ -47,6 +49,18 @@ class _StudentsScreenState extends State<StudentsScreen> {
       } catch (_) {
         return toast(context, tr('Excel dosyası okunamadı. Dosyayı .xlsx veya CSV olarak yeniden kaydedin.'));
       }
+    } else if (name.endsWith('.pdf') || name.endsWith('.docx')) {
+      try {
+        final text = await compute((List<Object> a) => documentText(a[0] as Uint8List, a[1] as String), [bytes, name]);
+        parsed = StudentImport.parseText(text);
+      } catch (_) {
+        parsed = const [];
+      }
+      if (!mounted) return;
+      if (parsed.isEmpty) {
+        return toast(context,
+            tr('Belgede öğrenci listesi bulunamadı. Satırlar "sıra no, okul no, ad, soyad" düzeninde olmalı. Taranmış (fotoğraf) PDF okunamaz.'));
+      }
     } else {
       String text;
       try {
@@ -59,6 +73,10 @@ class _StudentsScreenState extends State<StudentsScreen> {
     }
     final classCtl = TextEditingController(text: _class ?? '');
     final needsClass = parsed.any((s) => s.className.isEmpty);
+    final byClass = <String, int>{};
+    for (final s in parsed) {
+      byClass[s.className] = (byClass[s.className] ?? 0) + 1;
+    }
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -66,6 +84,12 @@ class _StudentsScreenState extends State<StudentsScreen> {
         content: SizedBox(
           width: 420,
           child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+            if (byClass.length > 1) ...[
+              Text(tr('{0} sınıf bulundu:', [byClass.length]), style: const TextStyle(fontWeight: FontWeight.w600)),
+              const SizedBox(height: 4),
+              Text([for (final e in byClass.entries) '${e.key.isEmpty ? '?' : e.key} (${e.value})'].join(', ')),
+              const SizedBox(height: 10),
+            ],
             for (final s in parsed.take(5)) Text('${s.number}  ${s.fullName}  ${s.className}'),
             if (parsed.length > 5) Text(tr('… ve {0} öğrenci daha', [parsed.length - 5])),
             if (needsClass) ...[
@@ -196,7 +220,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
           children: [
             Text(tr('Sınıflar ve öğrenciler'), style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
             Wrap(spacing: 8, runSpacing: 8, children: [
-              FilledButton.icon(onPressed: _import, icon: const Icon(Icons.upload_file), label: Text(tr('Excel aktar'))),
+              FilledButton.icon(onPressed: _import, icon: const Icon(Icons.upload_file), label: Text(tr('Excel / PDF aktar'))),
               OutlinedButton.icon(
                   onPressed: () => _edit(), icon: const Icon(Icons.person_add_alt), label: Text(tr('Öğrenci ekle'))),
             ]),

@@ -66,6 +66,7 @@ class ExamScreen extends StatelessWidget {
       final cls = store.studentsOf(exam.className);
       var copies = 10;
       var alternate = true;
+      var picked = cls.isNotEmpty ? 'named' : 'blank';
       final choice = await showModalBottomSheet<String>(
         context: context,
         showDragHandle: true,
@@ -90,7 +91,9 @@ class ExamScreen extends StatelessWidget {
                           ? tr('Bu sınıfta kayıtlı öğrenci yok')
                           : tr('{0} öğrenci · ad, sınıf ve numara basılı gelir', [cls.length]),
                     ),
-                    onTap: () => Navigator.pop(ctx, 'named'),
+                    selected: picked == 'named',
+                    trailing: Icon(picked == 'named' ? Icons.radio_button_checked : Icons.radio_button_unchecked),
+                    onTap: () => setSheet(() => picked = 'named'),
                   ),
                   if (exam.hasBooklets && cls.isNotEmpty)
                     SwitchListTile(
@@ -113,26 +116,51 @@ class ExamScreen extends StatelessWidget {
                             ChoiceChip(
                               label: Text(tr('{0} adet', [n])),
                               selected: copies == n,
-                              onSelected: (_) => setSheet(() => copies = n),
+                              onSelected: (_) => setSheet(() {
+                                copies = n;
+                                picked = 'blank';
+                              }),
                             ),
                         ],
                       ),
                     ),
-                    onTap: () => Navigator.pop(ctx, 'blank'),
+                    selected: picked == 'blank',
+                    trailing: Icon(picked == 'blank' ? Icons.radio_button_checked : Icons.radio_button_unchecked),
+                    onTap: () => setSheet(() => picked = 'blank'),
                   ),
                   ListTile(
                     leading: const Icon(Icons.key_outlined),
                     title: Text(tr('Cevap anahtarı')),
                     subtitle: Text(tr('Doğru şıklar karartılmış form ve anahtar listesi')),
-                    onTap: () => Navigator.pop(ctx, 'key'),
+                    selected: picked == 'key',
+                    trailing: Icon(picked == 'key' ? Icons.radio_button_checked : Icons.radio_button_unchecked),
+                    onTap: () => setSheet(() => picked = 'key'),
                   ),
                   ListTile(
                     leading: const Icon(Icons.edit_note_outlined),
                     title: Text(tr('Boş cevap anahtarı formu')),
                     subtitle: Text(tr('Elle doldurup Sınav ayarlarından fotoğrafla okutun')),
-                    onTap: () => Navigator.pop(ctx, 'keyBlank'),
+                    selected: picked == 'keyBlank',
+                    trailing: Icon(picked == 'keyBlank' ? Icons.radio_button_checked : Icons.radio_button_unchecked),
+                    onTap: () => setSheet(() => picked = 'keyBlank'),
                   ),
-                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                    child: Row(children: [
+                      Expanded(
+                        child: OutlinedButton(onPressed: () => Navigator.pop(ctx), child: Text(tr('Vazgeç'))),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 2,
+                        child: FilledButton.icon(
+                          onPressed: () => Navigator.pop(ctx, picked),
+                          icon: const Icon(Icons.check_rounded),
+                          label: Text(tr('Tamam, önizle')),
+                        ),
+                      ),
+                    ]),
+                  ),
                 ],
               ),
             ),

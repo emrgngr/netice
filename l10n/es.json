@@ -1467,5 +1467,12 @@
 "{0}: {1}/{2}": "{0}: {1}/{2}",
 "Başka sınıf / şube ekle": "Añadir otro grupo",
 "Birden çok sınıf için virgülle ayırın.": "Separe varios grupos con comas.",
-"ör. 9-A, 9-B, 9-C": "p. ej. 3.º A, 3.º B"
+"ör. 9-A, 9-B, 9-C": "p. ej. 3.º A, 3.º B",
+"Belgede öğrenci listesi bulunamadı. Satırlar \"sıra no, okul no, ad, soyad\" düzeninde olmalı. Taranmış (fotoğraf) PDF okunamaz.": "No se encontró una lista de alumnos. Las filas deben ser \"n.º, n.º de alumno, nombre, apellido\". Los PDF escaneados (foto) no se pueden leer.",
+"Bütün sınıflar tek dosyada olabilir: Excel'in her sayfası ya da PDF'teki her \"9. Sınıf / A Şubesi\" başlığı ayrı sınıfa yazılır. Sınıf, sayfanın adından da alınır (ör. 9-A).": "Todos los grupos pueden ir en un archivo: cada hoja de Excel o cada encabezado de grupo del PDF va a su propio grupo. El grupo también se toma del nombre de la hoja (p. ej. 3.º A).",
+"Excel / PDF aktar": "Importar Excel / PDF",
+"Tek tek eklemek için \"+\" düğmesini, toplu eklemek için \"Excel / PDF aktar\"ı kullanın.": "Use \"+\" para añadir uno a uno o \"Importar Excel / PDF\" para añadir muchos.",
+"{0} sınıf bulundu:": "{0} grupos encontrados:",
+"Öğrenci listesi (Excel, PDF, Word veya CSV)": "Lista de alumnos (Excel, PDF, Word o CSV)",
+"Tamam, önizle": "Aceptar, vista previa"
 }
