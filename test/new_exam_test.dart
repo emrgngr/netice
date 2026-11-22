@@ -60,4 +60,37 @@ void main() {
     expect(e.questionsOf(1).map((q) => q.correct.first), [4, 3, 2, 1, 0]);
     await tester.pumpWidget(const SizedBox());
   });
+
+  testWidgets('kayıtlı sınıf yokken virgülle birden çok sınıf yazılır', (tester) async {
+    tester.view.physicalSize = const Size(1200, 4000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final store = AppStore();
+    await tester.pumpWidget(StoreScope(store: store, child: const MaterialApp(home: NewExamScreen())));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.widgetWithText(TextField, 'Sınav adı'), 'Yazışma');
+    await tester.enterText(find.widgetWithText(TextField, 'Sınıf / şube'), 'A, B');
+    await tester.pump();
+    expect(find.widgetWithText(FilterChip, 'A'), findsOneWidget);
+    await tester.enterText(find.widgetWithText(TextField, 'Başka sınıf / şube ekle'), 'C');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pump();
+    expect(find.text('Tüm sınıflar'), findsOneWidget);
+    expect(find.textContaining('ortak raporda'), findsOneWidget);
+
+    for (var i = 0; i < 15; i++) {
+      await tester.tap(find.byIcon(Icons.remove_rounded).first);
+      await tester.pump();
+    }
+    for (final k in 'ABCDE'.split('')) {
+      await tester.tap(find.widgetWithText(OutlinedButton, k));
+      await tester.pump();
+    }
+    await tester.tap(find.text('Sınavı kaydet'));
+    await tester.pump();
+    expect(store.exams.map((e) => e.className).toSet(), {'A', 'B', 'C'});
+    expect(store.exams.map((x) => x.commonId).toSet().length, 1);
+    await tester.pumpWidget(const SizedBox());
+  });
 }
