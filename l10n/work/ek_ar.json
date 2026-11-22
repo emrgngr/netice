@@ -386,5 +386,8 @@
  "{0} kitapçığının cevap anahtarında boş soru var.": "في مفتاح إجابة الكراسة {0} أسئلة فارغة.",
  "{0} sorunun konusu Kazanımlar bölümüne yerleştirildi.": "أُضيفت مواضيع {0} سؤالا إلى قسم النواتج.",
  "{0} sınıf için sınav oluşturuldu. Sonuçlar ortak raporda birleşir.": "أُنشئ الاختبار لـ {0} صفوف. تُجمع النتائج في تقرير مشترك.",
- "{0}: {1}/{2}": "{0}: {1}/{2}"
+ "{0}: {1}/{2}": "{0}: {1}/{2}",
+ "Başka sınıf / şube ekle": "إضافة صف آخر",
+ "Birden çok sınıf için virgülle ayırın.": "افصل بين الصفوف بفواصل.",
+ "ör. 9-A, 9-B, 9-C": "مثل 9-أ، 9-ب، 9-ج"
 }

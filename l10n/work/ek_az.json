@@ -386,5 +386,8 @@
  "{0} kitapçığının cevap anahtarında boş soru var.": "{0} kitabçasının cavab açarında boş sual var.",
  "{0} sorunun konusu Kazanımlar bölümüne yerleştirildi.": "{0} sualın mövzusu Bacarıqlar bölməsinə yerləşdirildi.",
  "{0} sınıf için sınav oluşturuldu. Sonuçlar ortak raporda birleşir.": "{0} sinif üçün imtahan yaradıldı. Nəticələr ortaq hesabatda birləşir.",
- "{0}: {1}/{2}": "{0}: {1}/{2}"
+ "{0}: {1}/{2}": "{0}: {1}/{2}",
+ "Başka sınıf / şube ekle": "Başqa sinif əlavə et",
+ "Birden çok sınıf için virgülle ayırın.": "Bir neçə sinfi vergüllə ayırın.",
+ "ör. 9-A, 9-B, 9-C": "məs. 9-A, 9-B, 9-C"
 }
