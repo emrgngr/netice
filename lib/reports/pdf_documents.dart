@@ -582,11 +582,12 @@ void _bubble(PdfGraphics g, double cx, double cy, double r, String label, _FontP
   g.setLineWidth(0.7);
   g.drawEllipse(cx, cy, r, r);
   g.strokePath();
-  // Harf açık gri basılır; okuma motoru bunu "boş" sayar.
-  g.setFillColor(PdfColors.grey500);
-  final (font, shaped) = fonts(label);
-  final w = font.stringMetrics(shaped).width * 6.0;
-  g.drawString(font, 6.0, shaped, cx - w / 2, cy - 2.1);
+  // Harf/rakam belirgin ama dolgudan açık griyle basılır; okuma motoru
+  // bunu "boş" sayar (taranmış PDF denemeleriyle doğrulandı).
+  g.setFillColor(PdfColors.grey700);
+  final (font, shaped) = fonts(label, bold: true);
+  final w = font.stringMetrics(shaped).width * 6.6;
+  g.drawString(font, 6.6, shaped, cx - w / 2, cy - 2.3);
 }
 
 String _f1(double v) => v.toStringAsFixed(1).replaceAll('.', L10n.decimal);
