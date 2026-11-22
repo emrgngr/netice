@@ -386,5 +386,8 @@
  "{0} kitapçığının cevap anahtarında boş soru var.": "Le corrigé de la version {0} contient des questions vides.",
  "{0} sorunun konusu Kazanımlar bölümüne yerleştirildi.": "Les thèmes de {0} questions ont été ajoutés aux Objectifs.",
  "{0} sınıf için sınav oluşturuldu. Sonuçlar ortak raporda birleşir.": "Évaluation créée pour {0} classes. Les résultats sont réunis dans un rapport commun.",
- "{0}: {1}/{2}": "{0}: {1}/{2}"
+ "{0}: {1}/{2}": "{0}: {1}/{2}",
+ "Başka sınıf / şube ekle": "Ajouter une autre classe",
+ "Birden çok sınıf için virgülle ayırın.": "Séparez plusieurs classes par des virgules.",
+ "ör. 9-A, 9-B, 9-C": "ex. 3e A, 3e B"
 }

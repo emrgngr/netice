@@ -36,6 +36,7 @@ class _NewExamScreenState extends State<NewExamScreen> {
   final List<List<int?>> _keys = List.generate(Exam.maxBooklets, (_) => List<int?>.filled(100, null));
   final List<int> _cursors = List.filled(Exam.maxBooklets, 0);
   final Set<String> _classes = {};
+  final List<String> _typed = []; // Bu ekranda yazılarak eklenen sınıflar.
   DateTime _date = DateTime.now();
 
   List<int?> get _key => _keys[_bk];
@@ -135,9 +136,28 @@ class _NewExamScreenState extends State<NewExamScreen> {
     );
   }
 
+  static List<String> _split(String text) =>
+      [for (final c in text.split(RegExp(r'[,;\n]'))) if (c.trim().isNotEmpty) c.trim()];
+
   List<String> get _selectedClasses {
-    final other = _otherClass.text.trim();
-    return [..._classes, if (other.isNotEmpty && !_classes.contains(other)) other];
+    final out = [..._classes];
+    for (final c in _split(_otherClass.text)) {
+      if (!out.contains(c)) out.add(c);
+    }
+    return out;
+  }
+
+  /// Yazılan sınıfları ("9-A, 9-B") düğme olarak ekler ve seçer.
+  void _addTyped() {
+    final names = _split(_otherClass.text);
+    if (names.isEmpty) return;
+    setState(() {
+      for (final c in names) {
+        if (!_typed.contains(c)) _typed.add(c);
+        _classes.add(c);
+      }
+      _otherClass.clear();
+    });
   }
 
   void _save() {
@@ -217,35 +237,46 @@ class _NewExamScreenState extends State<NewExamScreen> {
   }
 
   Widget _classPicker(ThemeData t) {
-    final all = StoreScope.of(context).classNames;
-    if (all.isEmpty) {
-      return TextField(
-        controller: _otherClass,
-        decoration: InputDecoration(labelText: tr('Sınıf / şube'), hintText: tr('ör. 9-A')),
-      );
+    final all = [...StoreScope.of(context).classNames];
+    for (final c in _typed) {
+      if (!all.contains(c)) all.add(c);
     }
-    final allSelected = all.every(_classes.contains);
+    final allSelected = all.isNotEmpty && all.every(_classes.contains);
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(tr('Sınavın yapılacağı sınıflar'), style: t.textTheme.titleSmall),
       const SizedBox(height: 6),
-      Wrap(spacing: 8, runSpacing: 4, children: [
-        FilterChip(
-          label: Text(tr('Tüm sınıflar')),
-          selected: allSelected,
-          onSelected: (v) => setState(() => v ? _classes.addAll(all) : _classes.clear()),
-        ),
-        for (final c in all)
-          FilterChip(
-            label: Text(c),
-            selected: _classes.contains(c),
-            onSelected: (v) => setState(() => v ? _classes.add(c) : _classes.remove(c)),
-          ),
-      ]),
-      const SizedBox(height: 6),
+      if (all.isNotEmpty) ...[
+        Wrap(spacing: 8, runSpacing: 4, children: [
+          if (all.length > 1)
+            FilterChip(
+              label: Text(tr('Tüm sınıflar')),
+              selected: allSelected,
+              onSelected: (v) => setState(() => v ? _classes.addAll(all) : _classes.clear()),
+            ),
+          for (final c in all)
+            FilterChip(
+              label: Text(c),
+              selected: _classes.contains(c),
+              onSelected: (v) => setState(() => v ? _classes.add(c) : _classes.remove(c)),
+            ),
+        ]),
+        const SizedBox(height: 6),
+      ],
       TextField(
         controller: _otherClass,
-        onChanged: (_) => setState(() {}),
-        decoration: InputDecoration(labelText: tr('Başka sınıf / şube (isteğe bağlı)'), hintText: tr('ör. 9-A')),
+        onChanged: (v) => v.contains(',') ? _addTyped() : setState(() {}),
+        onSubmitted: (_) => _addTyped(),
+        textInputAction: TextInputAction.done,
+        decoration: InputDecoration(
+          labelText: all.isEmpty ? tr('Sınıf / şube') : tr('Başka sınıf / şube ekle'),
+          hintText: tr('ör. 9-A, 9-B, 9-C'),
+          helperText: tr('Birden çok sınıf için virgülle ayırın.'),
+          suffixIcon: IconButton(
+            tooltip: tr('Ekle'),
+            icon: const Icon(Icons.add_circle_outline),
+            onPressed: _addTyped,
+          ),
+        ),
       ),
       if (_selectedClasses.length > 1)
         Padding(

@@ -386,5 +386,8 @@
  "{0} kitapçığının cevap anahtarında boş soru var.": "{0} 卷的答案中有空题。",
  "{0} sorunun konusu Kazanımlar bölümüne yerleştirildi.": "已将 {0} 道题的主题填入目标部分。",
  "{0} sınıf için sınav oluşturuldu. Sonuçlar ortak raporda birleşir.": "已为 {0} 个班级创建考试。结果合并到联合报告中。",
- "{0}: {1}/{2}": "{0}: {1}/{2}"
+ "{0}: {1}/{2}": "{0}: {1}/{2}",
+ "Başka sınıf / şube ekle": "添加其他班级",
+ "Birden çok sınıf için virgülle ayırın.": "多个班级请用逗号分隔。",
+ "ör. 9-A, 9-B, 9-C": "例如 9-A, 9-B, 9-C"
 }
