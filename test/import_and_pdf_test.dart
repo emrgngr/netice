@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:netice/core/doc_text.dart';
 import 'package:netice/core/import_export.dart';
 import 'package:netice/core/models.dart';
 import 'package:netice/core/progress.dart';
@@ -124,5 +125,38 @@ void main() {
     expect(list[1].firstName, 'Mert Can');
     expect(list[2].className, '10-B');
     expect(list[2].lastName, 'Öztürk');
+  });
+
+  test('Excel dosyasının bütün sayfaları okunur; sınıf sayfa adından ya da başlıktan alınır', () {
+    final bytes = File('test/fixtures/ogrenci_cok_sayfa.xlsx').readAsBytesSync();
+    final list = StudentImport.parseXlsx(bytes);
+    final byClass = <String, List<String>>{};
+    for (final s in list) {
+      byClass.putIfAbsent(s.className, () => []).add(s.fullName);
+    }
+    expect(byClass.keys.toList(), ['9-A', '9-B', '10-C']);
+    expect(byClass['9-A'], ['Ali Kaya', 'Ayşe Demir']);
+    expect(byClass['9-B']!.first, 'Mert Can Yıldız');
+    expect(byClass['9-B']!.length, 3);
+    expect(list.firstWhere((s) => s.lastName == 'Ak').number, '202');
+    expect(byClass['10-C'], ['Deniz Er']);
+  });
+
+  test('PDF sınıf listeleri sınıflarına dağıtılır', () {
+    final text = documentText(File('test/fixtures/ogrenci_listesi.pdf').readAsBytesSync(), 'liste.pdf');
+    final list = StudentImport.parseText(text);
+    expect([for (final s in list) '${s.className} ${s.number} ${s.firstName}|${s.lastName}'], [
+      '9-A 1042 ŞULE|YILMAZ',
+      '9-A 1043 MERT CAN|ÖZTÜRK',
+      '9-B 2001 İREM|ÇAĞLAR',
+      '9-B 2002 Ömer|Güneş',
+      '9-B 2003 Ada|Su',
+    ]);
+  });
+
+  test('düz yazı listesi: satırdaki sınıf hücresi ve "Sınıf:" başlığı', () {
+    final list = StudentImport.parseText('Sınıf: 11-D\n1 501 Ali Veli\n2 502 Can Ay 12/E\n503 Ece Nur');
+    expect([for (final s in list) '${s.className} ${s.number} ${s.fullName}'],
+        ['11-D 501 Ali Veli', '12-E 502 Can Ay', '11-D 503 Ece Nur']);
   });
 }

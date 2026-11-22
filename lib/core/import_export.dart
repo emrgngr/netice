@@ -46,12 +46,134 @@ class StudentImport {
     return parseRows(_rows(text), defaultClass: defaultClass);
   }
 
-  /// Excel (.xlsx) dosyasının ilk sayfasını okur.
-  static List<Student> parseXlsx(List<int> bytes, {String defaultClass = ''}) =>
-      parseRows(xlsxRows(bytes), defaultClass: defaultClass);
+  /// Excel (.xlsx) dosyasının bütün sayfalarını okur. Sınıf sütunu olmayan
+  /// sayfalarda sınıf, başlık üstündeki "9. Sınıf / A Şubesi" satırından ya da
+  /// sayfanın adından ("9-A") alınır; ikisi de yoksa [defaultClass].
+  static List<Student> parseXlsx(List<int> bytes, {String defaultClass = ''}) {
+    final out = <Student>[];
+    for (final (name, rows) in xlsxSheets(bytes)) {
+      final cls = _classFromTitle(rows) ?? (_genericSheet(name) ? null : name.trim()) ?? defaultClass;
+      out.addAll(parseRows(rows, defaultClass: cls));
+    }
+    return out;
+  }
+
+  /// "Sayfa1", "Sheet2", "Feuil1"… gibi Excel'in kendi verdiği adlar sınıf değildir.
+  static bool _genericSheet(String name) =>
+      name.trim().isEmpty ||
+      RegExp(r'^(sayfa|sheet|tabelle|feuil|hoja|foglio|лист|工作表|シート|ورقة|vərəq)\s*\d*$', caseSensitive: false)
+          .hasMatch(name.trim());
+
+  static final _titleClass = RegExp(
+      r'(\d{1,2})\s*\.?\s*(?:SINIF|Sınıf|sınıf|SINIFI|Sınıfı|sınıfı)\s*[/\-–,]?\s*([A-ZÇĞİÖŞÜ])\s*(?:ŞUBESİ|Şubesi|şubesi|ŞUBE|Şube|şube)');
+  static final _labelClass =
+      RegExp(r'^(?:SINIF|Sınıf|sınıf|SINIFI|Sınıfı|sınıfı|Sınıf\s*/\s*Şube|ŞUBE|Şube|şube)\s*[:\-]?\s*(.*)$');
+
+  /// Başlık satırından önceki satırlarda yazan sınıf adı (e-Okul dökümleri).
+  static String? _classFromTitle(List<List<String>> rows) {
+    final hi = rows.take(15).toList().indexWhere(_isHeader);
+    if (hi <= 0) return null;
+    for (final r in rows.take(hi)) {
+      for (var i = 0; i < r.length; i++) {
+        final m = _titleClass.firstMatch(r[i]);
+        if (m != null) return '${m.group(1)}-${m.group(2)}';
+        final l = _labelClass.firstMatch(r[i].trim());
+        if (l != null) {
+          var v = l.group(1)!.trim();
+          if (v.isEmpty) v = r.skip(i + 1).firstWhere((c) => c.trim().isNotEmpty, orElse: () => '').trim();
+          if (v.isNotEmpty && v.length <= 12) return v;
+        }
+      }
+    }
+    return null;
+  }
+
+  static final _lineClass = RegExp(
+      r'^\s*(\d{1,2})\s*[-/.]?\s*([A-ZÇĞİÖŞÜ])\s*(?:SINIFI|Sınıfı|sınıfı|SINIF|Sınıf|sınıf|ŞUBESİ|Şubesi|şubesi)\b');
+  static final _cellClass = RegExp(r'^(\d{1,2})\s*[-/]\s*([A-ZÇĞİÖŞÜ])$');
+  static final _gender = RegExp(r'^(?:KIZ|Kız|kız|ERKEK|Erkek|erkek|K|E)$');
+  static final _word = RegExp(r"^[A-Za-zÇĞİÖŞÜçğıöşüÂÎÛâîû.'’\-]+$");
+
+  /// PDF ya da Word'den çıkan düz yazıdaki öğrenci listesi. Sayfalardaki
+  /// "9. Sınıf / A Şubesi", "Sınıf: 9-A" ya da "9-A SINIFI" başlıkları
+  /// altındaki öğrenciler o sınıfa yazılır; satırda "9-A" gibi bir hücre
+  /// varsa o kullanılır. Satır "sıra no, okul no, ad, soyad…" ya da
+  /// "okul no, ad soyad…" biçiminde olmalıdır.
+  static List<Student> parseText(String text, {String defaultClass = ''}) {
+    final out = <Student>[];
+    var cls = defaultClass;
+    var i = 0;
+    final seen = <String>{};
+    for (var line in text.split(RegExp(r'\r?\n'))) {
+      line = line.replaceAll('|', ' ').replaceAll(RegExp(r'\s+'), ' ').trim();
+      if (line.isEmpty) continue;
+      final t = _titleClass.firstMatch(line) ?? _lineClass.firstMatch(line);
+      if (t != null) {
+        cls = '${t.group(1)}-${t.group(2)}';
+        continue;
+      }
+      final l = _labelClass.firstMatch(line);
+      if (l != null && !RegExp(r'^\d').hasMatch(line)) {
+        final v = l.group(1)!.trim();
+        final c = _cellClass.firstMatch(v);
+        if (c != null) {
+          cls = '${c.group(1)}-${c.group(2)}';
+        } else if (v.isNotEmpty && v.length <= 12 && !v.contains(' ')) {
+          cls = v;
+        }
+        continue;
+      }
+      final tok = line.split(' ');
+      var k = 0;
+      final nums = <String>[];
+      while (k < tok.length && nums.length < 3 && RegExp(r'^\d{1,12}[.)]?$').hasMatch(tok[k])) {
+        nums.add(tok[k].replaceAll(RegExp(r'\D'), ''));
+        k++;
+      }
+      if (nums.isEmpty) continue;
+      String? rowClass;
+      final name = <String>[];
+      for (; k < tok.length; k++) {
+        final c = _cellClass.firstMatch(tok[k]);
+        if (c != null) {
+          rowClass = '${c.group(1)}-${c.group(2)}';
+          break;
+        }
+        if (name.length >= 2 && _gender.hasMatch(tok[k])) break;
+        if (!_word.hasMatch(tok[k]) || !RegExp(r'[A-Za-zÇĞİÖŞÜçğıöşü]').hasMatch(tok[k])) break;
+        name.add(tok[k]);
+      }
+      if (rowClass == null) {
+        for (final x in tok.skip(k)) {
+          final c = _cellClass.firstMatch(x);
+          if (c != null) {
+            rowClass = '${c.group(1)}-${c.group(2)}';
+            break;
+          }
+        }
+      }
+      if (name.length < 2) continue;
+      final no = nums.length >= 2 ? nums[1] : nums[0];
+      final klass = rowClass ?? cls;
+      if (!seen.add('$klass|$no|${name.join(' ')}')) continue;
+      final last = name.removeLast();
+      out.add(Student(
+        id: 's${DateTime.now().microsecondsSinceEpoch}_${i++}',
+        firstName: name.join(' '),
+        lastName: last,
+        number: no,
+        className: klass,
+      ));
+    }
+    return out;
+  }
 
   /// .xlsx içindeki ilk çalışma sayfasını satır listesine çevirir.
-  static List<List<String>> xlsxRows(List<int> bytes) {
+  static List<List<String>> xlsxRows(List<int> bytes) => xlsxSheets(bytes).firstOrNull?.$2 ?? [];
+
+  /// .xlsx içindeki bütün çalışma sayfaları, kitaptaki sırayla: (ad, satırlar).
+  /// Boş sayfalar atlanır.
+  static List<(String, List<List<String>>)> xlsxSheets(List<int> bytes) {
     final zip = ZipDecoder().decodeBytes(bytes);
     String? read(String name) {
       final f = zip.findFile(name);
@@ -65,25 +187,37 @@ class StudentImport {
         shared.add(si.findAllElements('t').map((t) => t.innerText).join());
       }
     }
-    // İlk sayfanın dosya adını workbook ilişkilerinden bul; yoksa sheet1.
-    var sheetPath = 'xl/worksheets/sheet1.xml';
+    // Sayfaların dosya adlarını workbook ilişkilerinden bul; yoksa sheet1.
+    final sheets = <(String, String)>[];
     final wb = read('xl/workbook.xml');
     final rels = read('xl/_rels/workbook.xml.rels');
     if (wb != null && rels != null) {
-      final first = XmlDocument.parse(wb).findAllElements('sheet').firstOrNull;
-      final rid = first?.attributes.where((a) => a.name.local == 'id').firstOrNull?.value;
-      final target = XmlDocument.parse(rels)
-          .findAllElements('Relationship')
-          .where((r) => r.getAttribute('Id') == rid)
-          .firstOrNull
-          ?.getAttribute('Target');
-      if (target != null) {
-        sheetPath = target.startsWith('/') ? target.substring(1) : 'xl/${target.replaceFirst(RegExp(r'^\./'), '')}';
+      final relDoc = XmlDocument.parse(rels);
+      for (final sh in XmlDocument.parse(wb).findAllElements('sheet')) {
+        final rid = sh.attributes.where((a) => a.name.local == 'id').firstOrNull?.value;
+        final target = relDoc
+            .findAllElements('Relationship')
+            .where((r) => r.getAttribute('Id') == rid)
+            .firstOrNull
+            ?.getAttribute('Target');
+        if (target == null) continue;
+        final path = target.startsWith('/') ? target.substring(1) : 'xl/${target.replaceFirst(RegExp(r'^\./'), '')}';
+        sheets.add((sh.getAttribute('name') ?? '', path));
       }
     }
-    final sheet = read(sheetPath);
-    if (sheet == null) return [];
+    if (sheets.isEmpty) sheets.add(('', 'xl/worksheets/sheet1.xml'));
 
+    final out = <(String, List<List<String>>)>[];
+    for (final (name, path) in sheets) {
+      final xml = read(path);
+      if (xml == null) continue;
+      final rows = _sheetRows(xml, shared);
+      if (rows.isNotEmpty) out.add((name, rows));
+    }
+    return out;
+  }
+
+  static List<List<String>> _sheetRows(String xml, List<String> shared) {
     int colIndex(String ref) {
       var n = 0;
       for (final ch in ref.codeUnits) {
@@ -94,7 +228,7 @@ class StudentImport {
     }
 
     final rows = <List<String>>[];
-    for (final row in XmlDocument.parse(sheet).findAllElements('row')) {
+    for (final row in XmlDocument.parse(xml).findAllElements('row')) {
       final cells = <String>[];
       var next = 0;
       for (final c in row.findElements('c')) {
