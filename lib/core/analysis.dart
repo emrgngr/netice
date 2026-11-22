@@ -172,14 +172,17 @@ class Analysis {
           counts[a.marked.first]++;
         }
       }
-      for (final r in upper) {
+      // Kendi anahtarıyla puanlanan kitapçıkların şıkları A'nınkiyle
+      // karşılaştırılamaz; anahtar uyarısı yalnız A sırasındaki kâğıtlardan.
+      final upperA = upper.where((r) => !exam.hasOwnKey(r.sheet.booklet)).toList();
+      for (final r in upperA) {
         final a = r.sheet.answers[i];
         if (a.marked.length == 1) upperCounts[a.marked.first]++;
       }
       int? suspicious;
-      if (!q.cancelled && upper.isNotEmpty) {
+      if (!q.cancelled && upperA.isNotEmpty) {
         for (var c = 0; c < exam.choiceCount; c++) {
-          if (!q.correct.contains(c) && upperCounts[c] > upper.length / 2) {
+          if (!q.correct.contains(c) && upperCounts[c] > upperA.length / 2) {
             suspicious = c;
           }
         }
