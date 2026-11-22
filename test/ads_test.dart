@@ -7,6 +7,7 @@ import 'package:netice/core/ad_admin.dart';
 import 'package:netice/core/ads.dart';
 import 'package:netice/core/store.dart';
 import 'package:netice/main.dart';
+import 'package:netice/ui/ad_admin_screen.dart';
 import 'package:netice/ui/ad_slot.dart';
 
 void main() {
@@ -105,5 +106,20 @@ void main() {
     expect(await a.resetPinWithToken('yanlis'), isFalse);
     expect(await a.resetPinWithToken('github_pat_ornek'), isTrue);
     expect(a.hasPin, isFalse);
+    // Yayın anahtarı yoksa bu cihazdan bir şey yayınlanamaz: kod anahtarsız sıfırlanır.
+    a.token = '';
+    await a.setPin('482913');
+    expect(await a.resetPinWithToken(''), isTrue);
+    expect(a.hasPin, isFalse);
+  });
+
+  testWidgets('gizli alan göz düğmesiyle gösterilir', (tester) async {
+    final c = TextEditingController(text: '482913');
+    await tester.pumpWidget(MaterialApp(home: Scaffold(body: SecretField(controller: c, label: 'Kod', number: true))));
+    bool obscured() => tester.widget<TextField>(find.byType(TextField)).obscureText;
+    expect(obscured(), isTrue);
+    await tester.tap(find.byIcon(Icons.visibility_outlined));
+    await tester.pump();
+    expect(obscured(), isFalse);
   });
 }
