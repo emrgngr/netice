@@ -432,8 +432,8 @@ void _paintForm(PdfGraphics g, PdfPoint size, FormLayout layout, Exam exam, Stud
     g.drawEllipse(x(wx[2]), y(85.4), 0.45 * mm, 0.45 * mm);
     g.fillPath();
     final guide = [
-      tr('Daireyi tamamen karartın; kurşun kalem ya da koyu'),
-      tr('tükenmez kullanın. Değiştirirken eskisini iyice silin.'),
+      tr('Daireyi taşırmadan tamamen karartın.'),
+      tr('Değiştirirken eskisini iyice silin.'),
       tr('Kenardaki siyah karelere yazmayın, kâğıdı katlamayın.'),
     ];
     final pt = fit(guide, 6.3);
@@ -540,6 +540,27 @@ void _paintForm(PdfGraphics g, PdfPoint size, FormLayout layout, Exam exam, Stud
   // ---- Alt bilgi ----
   text(tr('Sınav kodu: {0}', [exam.id]), 24, 271.5, 5.6, color: _muted);
   text(tr('Formu %100 ölçekle yazdırın; fotokopiyle çoğaltabilirsiniz.'), 186, 271.5, 5.6, right: true, color: _muted);
+
+  // ---- Tanıtım (alt köşe kareleri arasında; okuma alanlarının dışında) ----
+  g.setStrokeColor(_frame);
+  g.setLineWidth(0.4);
+  g.drawLine(x(24), y(277.6), x(186), y(277.6));
+  g.strokePath();
+  void fitted(String t, double py, double pt, {bool bold = false, PdfColor color = _muted}) {
+    while (pt > 4.2 && width(t, pt, bold: bold) > 160) {
+      pt -= 0.2;
+    }
+    text(t, 105, py, pt, bold: bold, color: color, center: true);
+  }
+
+  fitted(tr('Bu form Netice ile hazırlandı. Kâğıtları telefonunuzla okutun, sonuçlar ve raporlar saniyeler içinde hazır.'),
+      281.6, 6.4,
+      bold: true, color: _ink);
+  fitted(
+      tr('Ücretsiz indirin: Google Play ve App Store\'da "Netice" arayın · {0}',
+          ['play.google.com/store/apps/details?id=$androidPackage']),
+      285.6, 5.6,
+      color: _emerald);
 }
 
 void _bubble(PdfGraphics g, double cx, double cy, double r, String label, _FontPicker fonts) {
