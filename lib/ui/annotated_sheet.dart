@@ -79,7 +79,7 @@ class SheetMarksPainter extends CustomPainter {
     int printedRow(int aIndex) => exam.printedIndex(booklet, aIndex);
 
     for (var i = 0; i < exam.questionCount; i++) {
-      final q = exam.questions[i];
+      final q = exam.questionAt(result.sheet.booklet, i);
       final row = printedRow(i);
       final marked = result.sheet.answers[i].marked;
       if (q.cancelled) {

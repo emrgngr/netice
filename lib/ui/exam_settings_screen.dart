@@ -30,6 +30,9 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
   late List<TextEditingController> _codes;
   late int _wpc;
   late bool _booklet;
+
+  /// Kitapçıklar Yeni sınav'da kendi anahtarlarıyla girildi (soru sırası yok).
+  bool get _ownKeys => _exam.bookletKeys.isNotEmpty;
   String? _template;
   late List<(TextEditingController, TextEditingController)> _open;
   /// B, C, D… kitapçıklarının sıraları (her biri bir kutu).
@@ -163,6 +166,7 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
     }
     StoreScope.of(context).upsertExam(_exam.copyWith(
       bookletOrders: orders,
+      bookletKeys: _booklet ? _exam.bookletKeys : const [],
       openQuestions: open,
       templateId: tpl?.id,
       clearTemplate: tpl == null,
@@ -347,7 +351,24 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
                     title: Text(tr('Birden çok kitapçık var (A, B, C…)'), style: TextStyle(fontWeight: FontWeight.w700)),
                     subtitle: Text(tr('Kopya önlemek için soruların yeri değişik kitapçıklar. Formda kitapçık daireleri çıkar, kâğıtlar kendiliğinden doğru anahtarla puanlanır.')),
                   ),
-                  if (_booklet)
+                  if (_booklet && _ownKeys)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                        Text(
+                          tr('Her kitapçığın kendi cevap anahtarı var; kâğıtlar işaretlenen kitapçığın anahtarıyla puanlanır.'),
+                          style: t.textTheme.bodySmall?.copyWith(color: muted),
+                        ),
+                        for (var b = 0; b < _exam.bookletKeys.length; b++) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            '${Exam.bookletLetter(b + 1)}: ${[for (final k in _exam.bookletKeys[b]) k.map(letter).join('/')].join(' ')}',
+                            style: const TextStyle(fontFamily: 'monospace', fontSize: 13),
+                          ),
+                        ],
+                      ]),
+                    ),
+                  if (_booklet && !_ownKeys)
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [

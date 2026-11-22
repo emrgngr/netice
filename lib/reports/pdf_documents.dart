@@ -1445,7 +1445,7 @@ Future<Uint8List> buildStudentCardsPdf({
                         pw.Text(
                           res.outcomes[i] == Outcome.correct || exam.questions[i].cancelled
                               ? _answer(res.sheet.answers[i])
-                              : '${_answer(res.sheet.answers[i])} (${exam.questions[i].correct.map(_letter).join('/')})',
+                              : '${_answer(res.sheet.answers[i])} (${exam.questionAt(res.sheet.booklet, i).correct.map(_letter).join('/')})',
                           style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
                         ),
                       ],
