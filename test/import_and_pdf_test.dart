@@ -41,9 +41,9 @@ void main() {
 
     // Elif Kaya (1041) için örnek formu oku: cevaplar öncekinden çok farklı,
     // kâğıt kontrole düşer; öğretmen "öncekinin yerine geçsin" der.
-    final raster = FormRaster(FormLayout(questionCount: exam.questionCount, choiceCount: exam.choiceCount));
+    final raster = FormRaster(FormLayout(questionCount: exam.questionCount, choiceCount: exam.choiceCount, digits: exam.numberDigits));
     final key = {for (var q = 0; q < exam.questionCount; q++) q: [exam.questions[q].correct.first]};
-    final r = readerFor(exam).read(GrayImage.fromImage(raster.render(answers: key, studentNumber: '001041')));
+    final r = readerFor(exam).read(GrayImage.fromImage(raster.render(answers: key, studentNumber: '0000001041')));
     final scanned = store.addScan(exam, r);
     expect(store.lastScanStatus, ScanStatus.conflict);
     expect(store.conflictOwner(scanned)?.fullName, 'Elif Kaya');
