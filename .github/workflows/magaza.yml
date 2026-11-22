@@ -38,6 +38,15 @@ jobs:
           curl -sSf --retry 3 -o build/muzik.mp3 "$B/$(python3 -c "import json;print(json.load(open('tool/video/muzik.json'))['muzik'])")"
           curl -sSf --retry 3 -o build/acilis.mp3 "$B/$(python3 -c "import json;print(json.load(open('tool/video/muzik.json'))['acilis'])")"
           bash tool/magaza/video.sh build/magaza/video build/magaza/tanitim_videosu.mp4 build/muzik.mp3 build/acilis.mp3
+      - name: Seslendirmeli premium video
+        run: |
+          B=https://d8j0ntlcm91z4.cloudfront.net/user_3HBbhHFwxHnCS5yFDPNhwCMiEXw
+          mkdir -p build/premium_ses
+          cp build/muzik.mp3 build/acilis.mp3 build/premium_ses/
+          for f in $(python3 -c "import json;print(' '.join(s['ses'] for s in json.load(open('tool/magaza/premium.json'))['sahneler']))"); do
+            curl -sSf --retry 3 -o "build/premium_ses/$f" "$B/$f"
+          done
+          python3 tool/magaza/premium.py build/magaza/video build/premium_ses build/magaza/tanitim_videosu_seslendirmeli.mp4
       - uses: actions/upload-artifact@v4
         with:
           name: Netice-Magaza
@@ -46,13 +55,14 @@ jobs:
             build/magaza/simge_512.png
             build/magaza/kapak_1024x500.png
             build/magaza/tanitim_videosu.mp4
-      - name: Videoyu magaza-ciktilari dalına koy
+            build/magaza/tanitim_videosu_seslendirmeli.mp4
+      - name: Videoları magaza-ciktilari dalına koy
         run: |
-          mkdir -p /tmp/cikti && cp build/magaza/tanitim_videosu.mp4 /tmp/cikti/
+          mkdir -p /tmp/cikti && cp build/magaza/tanitim_videosu.mp4 build/magaza/tanitim_videosu_seslendirmeli.mp4 /tmp/cikti/
           cd /tmp/cikti
           git init -q -b magaza-ciktilari
           git config user.name "github-actions"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add tanitim_videosu.mp4
+          git add tanitim_videosu.mp4 tanitim_videosu_seslendirmeli.mp4
           git commit -q -m "Tanıtım videosu (${GITHUB_SHA::7})"
           git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" magaza-ciktilari
