@@ -400,5 +400,7 @@
  "Bu form Netice ile hazırlandı. Kâğıtları telefonunuzla okutun, sonuçlar ve raporlar saniyeler içinde hazır.": "Бланк создан в Netice. Сканируйте листы телефоном: результаты и отчёты готовы за секунды.",
  "Ücretsiz indirin: Google Play ve App Store'da \"Netice\" arayın · {0}": "Скачайте бесплатно: найдите «Netice» в Google Play и App Store · {0}",
  "Daireyi taşırmadan tamamen karartın.": "Полностью закрасьте кружок, не выходя за край.",
- "Değiştirirken eskisini iyice silin.": "При исправлении тщательно сотрите старую отметку."
+ "Değiştirirken eskisini iyice silin.": "При исправлении тщательно сотрите старую отметку.",
+ "Optik formdaki numarayla eşleşir. Boş bırakılırsa sıra numarası verilir.": "Сопоставляется с номером на бланке. Если оставить пустым, будет присвоен порядковый номер.",
+ "Numarası olmayan {0} öğrenciye sıra numarası verildi.": "{0} ученикам без номера присвоен порядковый номер."
 }

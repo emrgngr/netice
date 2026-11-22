@@ -1478,5 +1478,7 @@
 "Bu form Netice ile hazırlandı. Kâğıtları telefonunuzla okutun, sonuçlar ve raporlar saniyeler içinde hazır.": "Formulaire créé avec Netice. Scannez les feuilles avec votre téléphone : résultats et rapports en quelques secondes.",
 "Ücretsiz indirin: Google Play ve App Store'da \"Netice\" arayın · {0}": "Téléchargement gratuit : cherchez « Netice » sur Google Play et l’App Store · {0}",
 "Daireyi taşırmadan tamamen karartın.": "Noircissez entièrement le cercle sans déborder.",
-"Değiştirirken eskisini iyice silin.": "Pour modifier, effacez bien l’ancienne marque."
+"Değiştirirken eskisini iyice silin.": "Pour modifier, effacez bien l’ancienne marque.",
+"Optik formdaki numarayla eşleşir. Boş bırakılırsa sıra numarası verilir.": "Correspond au numéro du formulaire. Laissé vide, un numéro d’ordre est attribué.",
+"Numarası olmayan {0} öğrenciye sıra numarası verildi.": "Un numéro d’ordre a été attribué à {0} élèves sans numéro."
 }

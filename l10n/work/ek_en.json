@@ -400,5 +400,7 @@
  "Bu form Netice ile hazırlandı. Kâğıtları telefonunuzla okutun, sonuçlar ve raporlar saniyeler içinde hazır.": "This form was made with Netice. Scan the sheets with your phone; results and reports are ready in seconds.",
  "Ücretsiz indirin: Google Play ve App Store'da \"Netice\" arayın · {0}": "Free download: search \"Netice\" on Google Play and the App Store · {0}",
  "Daireyi taşırmadan tamamen karartın.": "Fill the circle completely without going outside it.",
- "Değiştirirken eskisini iyice silin.": "When changing an answer, erase the old one completely."
+ "Değiştirirken eskisini iyice silin.": "When changing an answer, erase the old one completely.",
+ "Optik formdaki numarayla eşleşir. Boş bırakılırsa sıra numarası verilir.": "Matches the number on the answer sheet. If left empty, a sequence number is assigned.",
+ "Numarası olmayan {0} öğrenciye sıra numarası verildi.": "{0} students without a number were given a sequence number."
 }

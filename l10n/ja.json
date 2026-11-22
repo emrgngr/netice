@@ -1478,5 +1478,7 @@
 "Bu form Netice ile hazırlandı. Kâğıtları telefonunuzla okutun, sonuçlar ve raporlar saniyeler içinde hazır.": "この用紙は Netice で作成されました。スマホで読み取れば、結果とレポートが数秒で完成します。",
 "Ücretsiz indirin: Google Play ve App Store'da \"Netice\" arayın · {0}": "無料ダウンロード: Google Play と App Store で「Netice」を検索 · {0}",
 "Daireyi taşırmadan tamamen karartın.": "はみ出さずに丸を完全に塗りつぶしてください。",
-"Değiştirirken eskisini iyice silin.": "変更するときは前の印をよく消してください。"
+"Değiştirirken eskisini iyice silin.": "変更するときは前の印をよく消してください。",
+"Optik formdaki numarayla eşleşir. Boş bırakılırsa sıra numarası verilir.": "解答用紙の番号と照合されます。空欄の場合は通し番号が付きます。",
+"Numarası olmayan {0} öğrenciye sıra numarası verildi.": "番号のない {0} 人に通し番号を付けました。"
 }
