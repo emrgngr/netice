@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../core/legal.dart';
 import '../core/pro.dart';
 import '../main.dart';
+import 'license_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
 import '../l10n/l10n.dart';
@@ -169,9 +170,20 @@ class _ProScreenState extends State<ProScreen> {
                     textAlign: TextAlign.center,
                     style: const TextStyle(color: Color(0xFFE9C46A), fontWeight: FontWeight.w600, fontSize: 13)),
               ),
-            if (store.hasSubscription)
+            if (store.hasLicense)
+              _LicenseActiveCard(store.license!.institution, store.license!.daysLeft(DateTime.now()))
+            else if (store.hasSubscription)
               _ActiveCard(product: store.proProduct)
             else ...[
+              if (store.hasTermPass)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 14),
+                  child: Text(
+                      tr('Sınav dönemi paketiniz {0} tarihine kadar geçerli. Yeni paket alırsanız süre bunun üzerine eklenir.',
+                          [L10n.date(store.termPassUntil!)]),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Color(0xFF7BE0B4), fontWeight: FontWeight.w600, fontSize: 13)),
+                ),
               for (final p in _plans)
                 _PlanTile(
                   plan: p,
@@ -201,9 +213,15 @@ class _ProScreenState extends State<ProScreen> {
                 child: Text(tr('Satın alımları geri yükle'), style: TextStyle(color: Colors.white70)),
               ),
             ],
+            const SizedBox(height: 4),
+            _InstitutionCta(onTap: () async {
+              await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LicenseScreen()));
+              if (context.mounted && StoreScope.of(context).isPro && widget.feature != null) Navigator.of(context).maybePop();
+              if (mounted) setState(() {});
+            }),
             const SizedBox(height: 6),
             Text(
-              tr('{0} alınır. Abonelik, dönem bitmeden en az 24 saat önce iptal edilmezse aynı süre ve fiyatla kendiliğinden yenilenir. {1} bölümünden istediğiniz zaman iptal edebilirsiniz; iptal edilen abonelik dönem sonuna kadar geçerlidir. Pro\'ya geçmek verilerinizin yerini değiştirmez: her şey yine bu cihazda kalır.', [Platform.isIOS ? tr('Ödeme Apple Kimliğinizden') : tr('Ödeme Google Play hesabınızdan'), Platform.isIOS ? tr('Ayarlar > Apple Kimliği > Abonelikler') : tr('Google Play > Abonelikler')]),
+              tr('{0} alınır. Sınav dönemi paketi tek seferliktir ve yenilenmez. Yıllık abonelik, dönem bitmeden en az 24 saat önce iptal edilmezse aynı süre ve fiyatla kendiliğinden yenilenir. {1} bölümünden istediğiniz zaman iptal edebilirsiniz; iptal edilen abonelik dönem sonuna kadar geçerlidir. Pro\'ya geçmek verilerinizin yerini değiştirmez: her şey yine bu cihazda kalır.', [Platform.isIOS ? tr('Ödeme Apple Kimliğinizden') : tr('Ödeme Google Play hesabınızdan'), Platform.isIOS ? tr('Ayarlar > Apple Kimliği > Abonelikler') : tr('Google Play > Abonelikler')]),
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.white.withValues(alpha: 0.45), fontSize: 11.5, height: 1.45),
             ),
@@ -272,6 +290,8 @@ class _FeatureRow extends StatelessWidget {
     ProFeature.cloudBackup: Icons.cloud_done_outlined,
     ProFeature.advancedCharts: Icons.donut_large_rounded,
     ProFeature.officialHeader: Icons.account_balance_outlined,
+    ProFeature.commonExam: Icons.hub_outlined,
+    ProFeature.adminPanel: Icons.dashboard_customize_outlined,
     ProFeature.noAds: Icons.block_rounded,
   };
 
@@ -330,7 +350,7 @@ class _PlanTile extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                         decoration: BoxDecoration(color: const Color(0xFFE9C46A), borderRadius: BorderRadius.circular(6)),
-                        child: Text(tr('{0} tasarruf', [L10n.percent(33)]),
+                        child: Text(tr('Önerilen'),
                             style: const TextStyle(color: NColors.ink, fontSize: 10.5, fontWeight: FontWeight.w900)),
                       ),
                     ],
@@ -372,6 +392,64 @@ class _ActiveCard extends StatelessWidget {
                 mode: LaunchMode.externalApplication),
             child: Text(tr('Aboneliği yönet')),
           ),
+        ]),
+      );
+}
+
+/// "Okulunuz / kurumunuz için" çağrısı: kurum lisansı ekranını açar.
+class _InstitutionCta extends StatelessWidget {
+  final VoidCallback onTap;
+  const _InstitutionCta({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) => InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: const Color(0xFFE9C46A).withValues(alpha: 0.5)),
+            color: const Color(0xFFE9C46A).withValues(alpha: 0.06),
+          ),
+          child: Row(children: [
+            const Icon(Icons.apartment_rounded, color: Color(0xFFE9C46A)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(tr('Okulunuz veya kurumunuz için'),
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 14.5)),
+                Text(tr('Kurum lisansıyla tüm öğretmenlere Pro, ortak sınav ve yönetici paneli. Kurum kodunuz varsa buradan girin.'),
+                    style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 12.5)),
+              ]),
+            ),
+            const Icon(Icons.chevron_right, color: Colors.white54),
+          ]),
+        ),
+      );
+}
+
+class _LicenseActiveCard extends StatelessWidget {
+  final String institution;
+  final int daysLeft;
+  const _LicenseActiveCard(this.institution, this.daysLeft);
+
+  @override
+  Widget build(BuildContext context) => Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: NColors.emerald.withValues(alpha: 0.16),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: NColors.emerald),
+        ),
+        child: Column(children: [
+          const Icon(Icons.apartment_rounded, color: NColors.emerald, size: 36),
+          const SizedBox(height: 8),
+          Text(tr('Kurum lisansı etkin · {0}', [institution]),
+              textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 16)),
+          const SizedBox(height: 4),
+          Text(tr('{0} gün kaldı', [daysLeft]), style: const TextStyle(color: Colors.white70)),
         ]),
       );
 }

@@ -16,6 +16,8 @@ enum ProFeature {
   cloudBackup('Google Drive yedeği', 'Kendi hesabınıza her gün otomatik yedek'),
   advancedCharts('Gelişmiş grafikler', 'Pasta, madde haritası, puan yayılımı, kazanım radarı'),
   officialHeader('Resmi yazı başlığı', 'Kurumunuzun resmi başlığı ve imza alanı'),
+  commonExam('Ortak sınav', 'Tüm şubeler aynı sınavı okur, sonuçlar tek raporda birleşir'),
+  adminPanel('Kurum yönetici paneli', 'Tüm şubeler, sınavlar ve risk altındaki öğrenciler tek ekranda'),
   noAds('Pro\'da hiç reklam yok', 'Kendi tanıtımlarımız da gösterilmez. Ücretsiz sürümde de üçüncü taraf reklam yok.');
 
   final String _title;
@@ -26,11 +28,22 @@ enum ProFeature {
   String get detail => tr(_detail);
 }
 
-/// Mağazada tanımlanacak abonelik kimlikleri (Google Play Console >
-/// Para kazanma > Abonelikler).
+/// Mağazada tanımlanacak ürün kimlikleri.
+///
+/// * [proYearlyId]: yıllık abonelik (Google Play Console > Para kazanma >
+///   Abonelikler).
+/// * [proTermPassId]: 3 aylık "sınav dönemi paketi"; tek seferlik ürün,
+///   kendiliğinden yenilenmez (Para kazanma > Uygulama içi ürünler, tüketilebilir).
+/// * [proMonthlyId]: eski aylık abonelik; artık satılmaz, yalnızca daha önce
+///   alanlar için tanınır.
 const proMonthlyId = 'netice_pro_aylik';
 const proYearlyId = 'netice_pro_yillik';
-const proProductIds = {proMonthlyId, proYearlyId};
+const proTermPassId = 'netice_donem_3ay';
+const proSubscriptionIds = {proMonthlyId, proYearlyId};
+const proProductIds = {proMonthlyId, proYearlyId, proTermPassId};
+
+/// Sınav dönemi paketinin süresi.
+const termPassLength = Duration(days: 90);
 
 class ProPlan {
   final String id;
@@ -54,11 +67,12 @@ class ProService {
 
   static List<ProPlan> plansFor(DateTime now) {
     final years = priceIncreaseYears(now);
-    final yearly = tr('799 TL / yıl');
+    final yearly = tr('299 TL / yıl');
     return [
       ProPlan(proYearlyId, tr('Yıllık'), increasePriceText(yearly, years),
-          monthlyNoteText(tr('Ayda yaklaşık 67 TL · en avantajlı'), yearly, years)),
-      ProPlan(proMonthlyId, tr('Aylık'), increasePriceText(tr('99 TL / ay'), years), tr('İstediğiniz zaman iptal')),
+          monthlyNoteText(tr('Ayda yaklaşık 25 TL · en avantajlı'), yearly, years)),
+      ProPlan(proTermPassId, tr('Sınav dönemi paketi'), increasePriceText(tr('119 TL / 3 ay'), years),
+          tr('Tek seferlik ödeme · kendiliğinden yenilenmez')),
     ];
   }
 
@@ -101,7 +115,7 @@ class ProService {
       return [
         for (final f in fallbackPlans)
           if (byId[f.id] != null)
-            ProPlan(f.id, f.title, '${byId[f.id]!.price} / ${f.id == proYearlyId ? tr('yıl') : tr('ay')}', f.note, byId[f.id])
+            ProPlan(f.id, f.title, '${byId[f.id]!.price} / ${f.id == proYearlyId ? tr('yıl') : tr('3 ay')}', f.note, byId[f.id])
           else
             f,
       ];
@@ -118,7 +132,13 @@ class ProService {
       return tr('Abonelik henüz mağazada açılmadı. Uygulama Google Play\'de yayımlanınca satın alınabilecek.');
     }
     try {
-      await InAppPurchase.instance.buyNonConsumable(purchaseParam: PurchaseParam(productDetails: d));
+      final param = PurchaseParam(productDetails: d);
+      if (d.id == proTermPassId) {
+        // Dönem paketi tekrar tekrar alınabilir; her alımda süre 90 gün uzar.
+        await InAppPurchase.instance.buyConsumable(purchaseParam: param);
+      } else {
+        await InAppPurchase.instance.buyNonConsumable(purchaseParam: param);
+      }
       return null;
     } catch (e) {
       return tr('Satın alma başlatılamadı: {0}', [e]);
@@ -139,6 +159,11 @@ class ProService {
     for (final p in list) {
       if (!proProductIds.contains(p.productID)) continue;
       switch (p.status) {
+        case PurchaseStatus.purchased when p.productID == proTermPassId:
+          _store?.addTermPass(DateTime.now());
+          _events.add(tr('Sınav dönemi paketi etkinleştirildi. Teşekkürler!'));
+        case PurchaseStatus.restored when p.productID == proTermPassId:
+          break; // Tek seferlik paket geri yüklenmez; süresi cihazda tutulur.
         case PurchaseStatus.purchased:
         case PurchaseStatus.restored:
           _store?.confirmPro(p.productID);

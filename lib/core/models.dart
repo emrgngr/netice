@@ -166,6 +166,10 @@ class Exam {
   /// Başka firma formu kullanılıyorsa şablonun kimliği; null = Netice formu.
   final String? templateId;
 
+  /// Ortak sınav kimliği: farklı öğretmenlerin farklı şubelerde okuduğu aynı
+  /// sınavın kopyaları bu kimliği paylaşır. null = yalnız bu sınıfın sınavı.
+  final String? commonId;
+
   const Exam({
     required this.id,
     required this.name,
@@ -177,7 +181,10 @@ class Exam {
     this.bookletOrders = const [],
     this.openQuestions = const [],
     this.templateId,
+    this.commonId,
   });
+
+  bool get isCommon => commonId != null;
 
   int get questionCount => questions.length;
 
@@ -285,9 +292,11 @@ class Exam {
     List<OpenQuestion>? openQuestions,
     String? templateId,
     bool clearTemplate = false,
+    String? id,
+    String? commonId,
   }) =>
       Exam(
-        id: id,
+        id: id ?? this.id,
         name: name ?? this.name,
         className: className ?? this.className,
         date: date ?? this.date,
@@ -297,6 +306,7 @@ class Exam {
         bookletOrders: bookletOrders ?? this.bookletOrders,
         openQuestions: openQuestions ?? this.openQuestions,
         templateId: clearTemplate ? null : (templateId ?? this.templateId),
+        commonId: commonId ?? this.commonId,
       );
 
   Map<String, dynamic> toJson() => {
@@ -311,6 +321,7 @@ class Exam {
         // Eski sürümler yalnız B'yi tanır.
         if (bookletOrders.isNotEmpty) 'bookletOrder': bookletOrders.first,
         if (templateId != null) 'templateId': templateId,
+        if (commonId != null) 'commonId': commonId,
         if (openQuestions.isNotEmpty) 'openQuestions': openQuestions.map((q) => q.toJson()).toList(),
       };
 
@@ -328,6 +339,7 @@ class Exam {
             ? [for (final o in j['bookletOrders'] as List) (o as List).map((e) => e as int).toList()]
             : [if (j['bookletOrder'] is List) (j['bookletOrder'] as List).map((e) => e as int).toList()],
         templateId: j['templateId'] as String?,
+        commonId: j['commonId'] as String?,
         openQuestions: [
           for (final e in (j['openQuestions'] as List?) ?? const []) OpenQuestion.fromJson(e as Map<String, dynamic>)
         ],

@@ -102,7 +102,7 @@ List<BranchRow> compareExams(AppStore store, List<Exam> exams) => [
 Map<String, List<Exam>> sameNameGroups(AppStore store) {
   final g = <String, List<Exam>>{};
   for (final e in store.exams) {
-    g.putIfAbsent(e.name.trim().toLowerCase(), () => []).add(e);
+    g.putIfAbsent(e.commonId ?? e.name.trim().toLowerCase(), () => []).add(e);
   }
   g.removeWhere((_, v) => v.length < 2);
   return g;
