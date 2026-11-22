@@ -1482,5 +1482,7 @@
 "Formdaki öğrenci numarası": "用紙の生徒番号",
 "10 hane": "10 桁",
 "6 hane (eski formlar)": "6 桁 (以前の用紙)",
-"Basılmış formlarınız hangi düzendeyse onu seçin; değiştirirseniz formları yeniden basın.": "印刷済みの用紙に合う形式を選んでください。変更した場合は印刷し直してください。"
+"Basılmış formlarınız hangi düzendeyse onu seçin; değiştirirseniz formları yeniden basın.": "印刷済みの用紙に合う形式を選んでください。変更した場合は印刷し直してください。",
+"Optik formdaki numarayla eşleşir. Boş bırakılırsa sıra numarası verilir.": "解答用紙の番号と照合されます。空欄の場合は通し番号が付きます。",
+"Numarası olmayan {0} öğrenciye sıra numarası verildi.": "番号のない {0} 人に通し番号を付けました。"
 }

@@ -404,5 +404,7 @@
  "Formdaki öğrenci numarası": "Schülernummer auf dem Bogen",
  "10 hane": "10 Stellen",
  "6 hane (eski formlar)": "6 Stellen (ältere Bögen)",
- "Basılmış formlarınız hangi düzendeyse onu seçin; değiştirirseniz formları yeniden basın.": "Wählen Sie das Layout Ihrer gedruckten Bögen; nach einer Änderung neu drucken."
+ "Basılmış formlarınız hangi düzendeyse onu seçin; değiştirirseniz formları yeniden basın.": "Wählen Sie das Layout Ihrer gedruckten Bögen; nach einer Änderung neu drucken.",
+ "Optik formdaki numarayla eşleşir. Boş bırakılırsa sıra numarası verilir.": "Wird mit der Nummer auf dem Bogen abgeglichen. Leer gelassen, wird eine laufende Nummer vergeben.",
+ "Numarası olmayan {0} öğrenciye sıra numarası verildi.": "{0} Schüler ohne Nummer haben eine laufende Nummer erhalten."
 }

@@ -1482,5 +1482,7 @@
 "Formdaki öğrenci numarası": "Número de alumno en el formulario",
 "10 hane": "10 dígitos",
 "6 hane (eski formlar)": "6 dígitos (formularios antiguos)",
-"Basılmış formlarınız hangi düzendeyse onu seçin; değiştirirseniz formları yeniden basın.": "Elija el diseño de sus formularios impresos; si lo cambia, vuelva a imprimirlos."
+"Basılmış formlarınız hangi düzendeyse onu seçin; değiştirirseniz formları yeniden basın.": "Elija el diseño de sus formularios impresos; si lo cambia, vuelva a imprimirlos.",
+"Optik formdaki numarayla eşleşir. Boş bırakılırsa sıra numarası verilir.": "Se empareja con el número del formulario. Si se deja vacío, se asigna un número de orden.",
+"Numarası olmayan {0} öğrenciye sıra numarası verildi.": "Se asignó un número de orden a {0} alumnos sin número."
 }
