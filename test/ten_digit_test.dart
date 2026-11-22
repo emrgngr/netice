@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:netice/core/models.dart';
 import 'package:netice/core/store.dart';
@@ -56,5 +59,37 @@ void main() {
     final old = Exam.fromJson({...exam().toJson()}..remove('numberDigits'));
     expect(old.numberDigits, 6);
     expect(Exam.fromJson(exam().toJson()).numberDigits, 10);
+  });
+
+  test('eski sürümden gelen, hiç okunmamış sınav 10 haneye geçer; okunmuş olan 6 da kalır', () async {
+    final dir = Directory.systemTemp.createTempSync('onhane');
+    final old = AppStore()..seedDemo();
+    final m = jsonDecode(jsonEncode(old.toJsonMap())) as Map<String, dynamic>;
+    for (final e in m['exams'] as List) {
+      (e as Map).remove('numberDigits');
+    }
+    // Öğretmenin kendi sınavları: biri okunmuş, biri hiç okunmamış.
+    final mine = Exam.fromKeyString(id: 'benim', name: 'Kendi', className: '9-A', key: 'ABCD').toJson()..remove('numberDigits');
+    final read = Exam.fromKeyString(id: 'okunmus', name: 'Okunmuş', className: '9-A', key: 'ABCD').toJson()..remove('numberDigits');
+    (m['exams'] as List).addAll([mine, read]);
+    final s0 = (m['sheets'] as List).first as Map;
+    (m['sheets'] as List).add({...s0, 'id': 'k1', 'examId': 'okunmus'});
+    File('${dir.path}/netice_data.json').writeAsStringSync(jsonEncode(m));
+    final st = AppStore();
+    await st.load(dir: dir);
+    for (final e in st.exams) {
+      expect(e.numberDigits, e.id == 'okunmus' ? 6 : 10, reason: e.id);
+    }
+    // Kaydedildi: yeniden açınca aynı kalır, ayarlardan seçilen 6 da korunur.
+    final again = AppStore();
+    await again.load(dir: dir);
+    expect([for (final e in again.exams) e.numberDigits], [for (final e in st.exams) e.numberDigits]);
+  });
+
+  test('yeni sınav varsayılan olarak 10 hanelidir', () {
+    final e = Exam.fromKeyString(id: 'x', name: 'x', className: '9-A', key: 'ABCD');
+    expect(e.numberDigits, 10);
+    expect(Exam.fromJson(e.toJson()).numberDigits, 10);
+    expect(Exam.fromJson(e.copyWith(numberDigits: 6).toJson()).numberDigits, 6);
   });
 }
