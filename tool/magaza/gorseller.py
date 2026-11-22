@@ -212,7 +212,7 @@ def main():
         landscape(s, form, os.path.join(out, 'video', f'kare_{i:02d}.png'), i)
     logo_slide(os.path.join(out, 'video', 'kare_00.png'), 'Optik okuma ve sınav analizi', 'Öğretmenler ve kurumlar için')
     logo_slide(os.path.join(out, 'video', 'kare_99.png'), 'Google Play’de ücretsiz indirin', 'Çevrimdışı çalışır · Verileriniz cihazınızda')
-    Image.open(os.path.join(ROOT, 'assets', 'icon', 'netice_icon_1024.png')).convert('RGB').resize((512, 512), Image.LANCZOS).save(os.path.join(out, 'simge_512.png'))
+    Image.open(os.path.join(ROOT, 'assets', 'icon', 'netice_icon_1024.png')).convert('RGBA').resize((512, 512), Image.LANCZOS).save(os.path.join(out, 'simge_512.png'))
     feature(os.path.join(out, 'kapak_1024x500.png'))
 
 
