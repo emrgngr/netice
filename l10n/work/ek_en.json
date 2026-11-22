@@ -386,5 +386,8 @@
  "{0} kitapçığının cevap anahtarında boş soru var.": "Booklet {0}’s answer key has empty questions.",
  "{0} sorunun konusu Kazanımlar bölümüne yerleştirildi.": "Topics for {0} questions were added to the Outcomes section.",
  "{0} sınıf için sınav oluşturuldu. Sonuçlar ortak raporda birleşir.": "Exam created for {0} classes. Results are combined in a joint report.",
- "{0}: {1}/{2}": "{0}: {1}/{2}"
+ "{0}: {1}/{2}": "{0}: {1}/{2}",
+ "Başka sınıf / şube ekle": "Add another class",
+ "Birden çok sınıf için virgülle ayırın.": "Separate multiple classes with commas.",
+ "ör. 9-A, 9-B, 9-C": "e.g. 9-A, 9-B, 9-C"
 }

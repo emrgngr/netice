@@ -1464,5 +1464,8 @@
 "{0} kitapçığının cevap anahtarında boş soru var.": "Im Schlüssel von Version {0} fehlen Antworten.",
 "{0} sorunun konusu Kazanımlar bölümüne yerleştirildi.": "Themen für {0} Fragen wurden bei den Lernzielen eingetragen.",
 "{0} sınıf için sınav oluşturuldu. Sonuçlar ortak raporda birleşir.": "Prüfung für {0} Klassen angelegt. Die Ergebnisse werden in einem gemeinsamen Bericht zusammengeführt.",
-"{0}: {1}/{2}": "{0}: {1}/{2}"
+"{0}: {1}/{2}": "{0}: {1}/{2}",
+"Başka sınıf / şube ekle": "Weitere Klasse hinzufügen",
+"Birden çok sınıf için virgülle ayırın.": "Mehrere Klassen mit Kommas trennen.",
+"ör. 9-A, 9-B, 9-C": "z. B. 9a, 9b, 9c"
 }
