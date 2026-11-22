@@ -134,11 +134,7 @@ class _AdAdminScreenState extends State<AdAdminScreen> {
                   mode: LaunchMode.externalApplication),
             ),
             const SizedBox(height: 12),
-            TextField(
-              controller: c,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: 'Anahtar (github_pat_…)', border: OutlineInputBorder()),
-            ),
+            SecretField(controller: c, label: 'Anahtar (github_pat_…)'),
           ]),
         ),
         actions: [
@@ -543,7 +539,7 @@ class _AdEditScreenState extends State<AdEditScreen> {
         SectionTitle('2. Bilgiler'),
         TextField(
           controller: _name,
-          decoration: const InputDecoration(labelText: 'Reklam adı (yalnızca siz görürsünüz)', border: OutlineInputBorder()),
+          decoration: const InputDecoration(labelText: 'Reklam / firma adı (yalnızca siz görürsünüz)', border: OutlineInputBorder()),
         ),
         const SizedBox(height: 12),
         TextField(
@@ -567,7 +563,9 @@ class _AdEditScreenState extends State<AdEditScreen> {
               }),
             ),
         ]),
-        Text('Siteye dokunun, sonra ürün sayfasının adresini tamamlayın (ya da ürün sayfasının adresini kopyalayıp yapıştırın).',
+        Text(
+            'Kendi siteleriniz için düğmeye dokunup ürün sayfasının adresini tamamlayın. Başka bir firmanın reklamı için '
+            'o firmanın adresini yukarıdaki kutuya yazın ya da yapıştırın.',
             style: TextStyle(color: muted, fontSize: 12)),
         SectionTitle('3. Biçim'),
         SegmentedButton<AdFormat>(
@@ -688,8 +686,6 @@ class _PinDialogState extends State<_PinDialog> {
   bool _busy = false;
   String? _error;
 
-  InputDecoration _dec(String label) => InputDecoration(labelText: label, border: const OutlineInputBorder(), counterText: '');
-
   Future<void> _submit() async {
     setState(() {
       _busy = true;
@@ -747,10 +743,21 @@ class _PinDialogState extends State<_PinDialog> {
       content: SingleChildScrollView(
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           if (_forgot) ...[
-            const Text('Reklam yönetiminde kayıtlı GitHub yayın anahtarınızı yapıştırın. Eşleşirse yeni kod oluşturabilirsiniz.',
-                style: TextStyle(fontSize: 13.5)),
-            const SizedBox(height: 12),
-            TextField(controller: _a, obscureText: true, decoration: _dec('Yayın anahtarı (github_pat_…)')),
+            if (_admin.token.isNotEmpty) ...[
+              const Text(
+                  'Kodunuzu güvenlik için kimse göremez. Sıfırlamak için Reklam yönetiminde kayıtlı GitHub yayın '
+                  'anahtarınızı yapıştırın. Eşleşirse yeni kod belirlersiniz.',
+                  style: TextStyle(fontSize: 13.5)),
+              const SizedBox(height: 12),
+              SecretField(controller: _a, label: 'Yayın anahtarı (github_pat_…)'),
+              const SizedBox(height: 6),
+              const Text('Anahtarınız da yoksa uygulamayı silip yeniden kurun; kod sıfırlanır, yayındaki reklamlar silinmez.',
+                  style: TextStyle(fontSize: 12.5)),
+            ] else
+              const Text(
+                  'Bu cihazda henüz yayın anahtarı kayıtlı değil, yani buradan reklam yayınlanamaz. '
+                  'Sıfırla\'ya dokunup yeni bir kod belirleyin. Taslak reklamlarınız korunur.',
+                  style: TextStyle(fontSize: 13.5)),
           ] else ...[
             if (_create)
               const Padding(
@@ -758,25 +765,16 @@ class _PinDialogState extends State<_PinDialog> {
                 child: Text('Yalnızca sizin bileceğiniz 6–12 rakamlı bir kod belirleyin. Kod bu cihazda şifrelenmiş olarak saklanır.',
                     style: TextStyle(fontSize: 13.5)),
               ),
-            TextField(
+            SecretField(
               controller: _a,
               autofocus: true,
-              obscureText: true,
-              keyboardType: TextInputType.number,
-              maxLength: 12,
-              decoration: _dec('Kod'),
+              number: true,
+              label: 'Kod',
               onSubmitted: _create ? null : (_) => _submit(),
             ),
             if (_create) ...[
               const SizedBox(height: 10),
-              TextField(
-                controller: _b,
-                obscureText: true,
-                keyboardType: TextInputType.number,
-                maxLength: 12,
-                decoration: _dec('Kodu tekrar girin'),
-                onSubmitted: (_) => _submit(),
-              ),
+              SecretField(controller: _b, number: true, label: 'Kodu tekrar girin', onSubmitted: (_) => _submit()),
             ],
           ],
           if (_error != null)
@@ -784,7 +782,7 @@ class _PinDialogState extends State<_PinDialog> {
               padding: const EdgeInsets.only(top: 10),
               child: Text(_error!, style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w600)),
             ),
-          if (!_create && !_forgot && _admin.token.isNotEmpty)
+          if (!_create && !_forgot)
             Align(
               alignment: AlignmentDirectional.centerStart,
               child: TextButton(
@@ -793,7 +791,7 @@ class _PinDialogState extends State<_PinDialog> {
                   _error = null;
                   _a.clear();
                 }),
-                child: const Text('Kodu unuttum'),
+                child: const Text('Kodumu unuttum'),
               ),
             ),
         ]),
@@ -809,4 +807,50 @@ class _PinDialogState extends State<_PinDialog> {
       ],
     );
   }
+}
+
+/// Gizli alan (kod, anahtar): göz düğmesiyle gösterilir/gizlenir.
+class SecretField extends StatefulWidget {
+  final TextEditingController controller;
+  final String label;
+  final bool number;
+  final bool autofocus;
+  final ValueChanged<String>? onSubmitted;
+  const SecretField({
+    super.key,
+    required this.controller,
+    required this.label,
+    this.number = false,
+    this.autofocus = false,
+    this.onSubmitted,
+  });
+
+  @override
+  State<SecretField> createState() => _SecretFieldState();
+}
+
+class _SecretFieldState extends State<SecretField> {
+  bool _show = false;
+
+  @override
+  Widget build(BuildContext context) => TextField(
+    controller: widget.controller,
+    autofocus: widget.autofocus,
+    obscureText: !_show,
+    autocorrect: false,
+    enableSuggestions: false,
+    keyboardType: widget.number ? TextInputType.number : TextInputType.visiblePassword,
+    maxLength: widget.number ? 12 : null,
+    onSubmitted: widget.onSubmitted,
+    decoration: InputDecoration(
+      labelText: widget.label,
+      border: const OutlineInputBorder(),
+      counterText: '',
+      suffixIcon: IconButton(
+        tooltip: _show ? 'Gizle' : 'Göster',
+        icon: Icon(_show ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+        onPressed: () => setState(() => _show = !_show),
+      ),
+    ),
+  );
 }
