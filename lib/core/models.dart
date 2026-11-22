@@ -156,6 +156,12 @@ class Exam {
   /// soru sırası değişik. Boş liste = tek kitapçık.
   final List<List<int>> bookletOrders;
 
+  /// Kitapçıkların (B, C…) kendi cevap anahtarları, o kitapçığın basılı
+  /// sırasıyla. Öğretmen her kitapçığın anahtarını ayrı girdiğinde (soruların
+  /// A'daki karşılığı bilinmez) dolu olur; o kitapçığın sırası birebirdir ve
+  /// kâğıtları bu anahtarla puanlanır. Boş = sıra eşlemesi kullanılır.
+  final List<List<Set<int>>> bookletKeys;
+
   /// Bir sınavda en fazla kaç kitapçık türü olabilir (A–H).
   static const maxBooklets = 8;
 
@@ -179,6 +185,7 @@ class Exam {
     required this.questions,
     this.rule = const ScoringRule(),
     this.bookletOrders = const [],
+    this.bookletKeys = const [],
     this.openQuestions = const [],
     this.templateId,
     this.commonId,
@@ -202,6 +209,20 @@ class Exam {
   /// Kitapçığın harfi (0 = A).
   static String bookletLetter(int b) => String.fromCharCode(65 + b);
 
+  /// [booklet] kitapçığının kendi cevap anahtarı var mı?
+  bool hasOwnKey(int booklet) =>
+      booklet > 0 && booklet <= bookletKeys.length && bookletKeys[booklet - 1].length == questions.length;
+
+  /// [booklet] kitapçığındaki kâğıtların [i]. cevabı (A sırasıyla saklanmış)
+  /// hangi soruyla puanlanır? Kendi anahtarı olan kitapçıkta doğru şık o
+  /// kitapçığın anahtarından gelir; puan, iptal ve kazanım A'dakiyle aynıdır.
+  Question questionAt(int booklet, int i) {
+    final q = questions[i];
+    if (!hasOwnKey(booklet)) return q;
+    final k = bookletKeys[booklet - 1][i];
+    return k.isEmpty ? q : q.copyWith(correct: k);
+  }
+
   /// [booklet] kitapçığındaki [i]. sorunun A'daki karşılığı.
   int masterIndex(int booklet, int i) {
     if (booklet <= 0 || booklet > bookletOrders.length) return i;
@@ -218,6 +239,7 @@ class Exam {
 
   /// [booklet] kitapçığının cevap anahtarı (o kitapçığın sırasıyla).
   List<Question> questionsOf(int booklet) {
+    if (hasOwnKey(booklet)) return [for (var i = 0; i < questions.length; i++) questionAt(booklet, i)];
     if (booklet <= 0 || booklet > bookletOrders.length) return questions;
     final order = bookletOrders[booklet - 1];
     return [
@@ -289,6 +311,7 @@ class Exam {
     String? className,
     DateTime? date,
     List<List<int>>? bookletOrders,
+    List<List<Set<int>>>? bookletKeys,
     List<OpenQuestion>? openQuestions,
     String? templateId,
     bool clearTemplate = false,
@@ -304,6 +327,7 @@ class Exam {
         questions: questions ?? this.questions,
         rule: rule ?? this.rule,
         bookletOrders: bookletOrders ?? this.bookletOrders,
+        bookletKeys: bookletKeys ?? this.bookletKeys,
         openQuestions: openQuestions ?? this.openQuestions,
         templateId: clearTemplate ? null : (templateId ?? this.templateId),
         commonId: commonId ?? this.commonId,
@@ -320,6 +344,10 @@ class Exam {
         if (bookletOrders.isNotEmpty) 'bookletOrders': bookletOrders,
         // Eski sürümler yalnız B'yi tanır.
         if (bookletOrders.isNotEmpty) 'bookletOrder': bookletOrders.first,
+        if (bookletKeys.isNotEmpty)
+          'bookletKeys': [
+            for (final k in bookletKeys) [for (final c in k) c.toList()]
+          ],
         if (templateId != null) 'templateId': templateId,
         if (commonId != null) 'commonId': commonId,
         if (openQuestions.isNotEmpty) 'openQuestions': openQuestions.map((q) => q.toJson()).toList(),
@@ -338,6 +366,10 @@ class Exam {
         bookletOrders: j['bookletOrders'] is List
             ? [for (final o in j['bookletOrders'] as List) (o as List).map((e) => e as int).toList()]
             : [if (j['bookletOrder'] is List) (j['bookletOrder'] as List).map((e) => e as int).toList()],
+        bookletKeys: [
+          for (final k in (j['bookletKeys'] as List?) ?? const [])
+            [for (final c in k as List) (c as List).map((e) => e as int).toSet()]
+        ],
         templateId: j['templateId'] as String?,
         commonId: j['commonId'] as String?,
         openQuestions: [

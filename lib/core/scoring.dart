@@ -55,7 +55,7 @@ class Scorer {
     var c = 0, w = 0, b = 0;
     var earned = 0.0, wrongPoints = 0.0, possible = 0.0;
     for (var i = 0; i < exam.questions.length; i++) {
-      final q = exam.questions[i];
+      final q = exam.questionAt(sheet.booklet, i);
       final a = i < sheet.answers.length ? sheet.answers[i] : const Answer.blank();
       final o = outcomeFor(q, a);
       outcomes.add(o);
