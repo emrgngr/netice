@@ -1483,6 +1483,8 @@
 "10 hane": "10 digits",
 "6 hane (eski formlar)": "6 digits (older forms)",
 "Basılmış formlarınız hangi düzendeyse onu seçin; değiştirirseniz formları yeniden basın.": "Choose the layout your printed forms use; if you change it, print the forms again.",
+"Optik formdaki numarayla eşleşir. Boş bırakılırsa sıra numarası verilir.": "Matches the number on the answer sheet. If left empty, a sequence number is assigned.",
+"Numarası olmayan {0} öğrenciye sıra numarası verildi.": "{0} students without a number were given a sequence number.",
 "Üçüncü taraf reklam yok · Sizi izleyen reklam ağı yok": "No third-party ads · No ad network tracking you",
 "Üçüncü taraf reklam yok, sizi izleyen reklam ağı yok": "No third-party ads, no ad network tracking you",
 "Pro'da hiç reklam yok": "No ads at all with Pro",

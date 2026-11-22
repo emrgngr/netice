@@ -13,7 +13,8 @@ import 'package:netice/omr/omr_reader.dart';
 /// işaretlenmiş, döndürülmüş JPEG) okunması.
 void main() {
   Exam exam() => Exam.fromKeyString(id: 'kitapcik', name: 'Kimya Yazılı', className: '10-B', key: 'ABCDEABCDEABCDEABCDE')
-      .copyWith(bookletOrders: [
+      // Örnek fotoğraflar eski 6 haneli formlardan.
+      .copyWith(numberDigits: 6, bookletOrders: [
         [for (var i = 0; i < 20; i++) (i * 7) % 20]
       ]);
 
@@ -73,7 +74,7 @@ void main() {
     for (final n in [3, 4, 6, 8]) {
       test('$n kitapçık: her kitapçığın dairesi okunur ve kâğıt kendi anahtarıyla puanlanır', () {
         final e = many(n);
-        final layout = FormLayout(questionCount: 20, choiceCount: 5, booklets: n);
+        final layout = FormLayout(questionCount: 20, choiceCount: 5, booklets: n, digits: e.numberDigits);
         for (var b = 0; b < n; b++) {
           // Öğrenci tüm soruları kendi kitapçığının doğru şıkkıyla doldurur.
           final key = e.questionsOf(b);
@@ -93,7 +94,7 @@ void main() {
 
     test('daire işaretlenmemişse kitapçık makine kodundan bulunur', () {
       final e = many(5);
-      final layout = FormLayout(questionCount: 20, choiceCount: 5, booklets: 5);
+      final layout = FormLayout(questionCount: 20, choiceCount: 5, booklets: 5, digits: e.numberDigits);
       final key = e.questionsOf(4);
       final im = FormRaster(layout).render(
         answers: {for (var i = 0; i < 20; i++) i: [key[i].correct.first]},

@@ -405,6 +405,8 @@
  "10 hane": "10 أرقام",
  "6 hane (eski formlar)": "6 أرقام (النماذج القديمة)",
  "Basılmış formlarınız hangi düzendeyse onu seçin; değiştirirseniz formları yeniden basın.": "اختر التنسيق المطابق لنماذجك المطبوعة؛ وإذا غيّرته فاطبع النماذج من جديد.",
+ "Optik formdaki numarayla eşleşir. Boş bırakılırsa sıra numarası verilir.": "يطابق الرقم في النموذج. إذا تُرك فارغا يُعطى رقم تسلسلي.",
+ "Numarası olmayan {0} öğrenciye sıra numarası verildi.": "أُعطي رقم تسلسلي لـ {0} طلاب بلا رقم.",
  "Üçüncü taraf reklam yok · Sizi izleyen reklam ağı yok": "لا إعلانات من جهات خارجية · لا شبكة إعلانية تتتبعك",
  "Üçüncü taraf reklam yok, sizi izleyen reklam ağı yok": "لا إعلانات من جهات خارجية، ولا شبكة إعلانية تتتبعك",
  "Pro'da hiç reklam yok": "لا إعلانات إطلاقا مع Pro",

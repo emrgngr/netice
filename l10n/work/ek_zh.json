@@ -405,6 +405,8 @@
  "10 hane": "10 位",
  "6 hane (eski formlar)": "6 位（旧版答题卡）",
  "Basılmış formlarınız hangi düzendeyse onu seçin; değiştirirseniz formları yeniden basın.": "请选择与已打印答题卡一致的格式；更改后请重新打印。",
+ "Optik formdaki numarayla eşleşir. Boş bırakılırsa sıra numarası verilir.": "与答题卡上的号码匹配。留空则自动分配序号。",
+ "Numarası olmayan {0} öğrenciye sıra numarası verildi.": "已为 {0} 名无学号的学生分配序号。",
  "Üçüncü taraf reklam yok · Sizi izleyen reklam ağı yok": "无第三方广告 · 无追踪您的广告网络",
  "Üçüncü taraf reklam yok, sizi izleyen reklam ağı yok": "无第三方广告，无追踪您的广告网络",
  "Pro'da hiç reklam yok": "Pro 版完全无广告",

@@ -1483,6 +1483,8 @@
 "10 hane": "10 rəqəm",
 "6 hane (eski formlar)": "6 rəqəm (köhnə formalar)",
 "Basılmış formlarınız hangi düzendeyse onu seçin; değiştirirseniz formları yeniden basın.": "Çap olunmuş formalarınız hansı düzəndədirsə onu seçin; dəyişsəniz formaları yenidən çap edin.",
+"Optik formdaki numarayla eşleşir. Boş bırakılırsa sıra numarası verilir.": "Optik formadakı nömrə ilə uyğunlaşır. Boş qalsa, sıra nömrəsi verilir.",
+"Numarası olmayan {0} öğrenciye sıra numarası verildi.": "Nömrəsi olmayan {0} şagirdə sıra nömrəsi verildi.",
 "Üçüncü taraf reklam yok · Sizi izleyen reklam ağı yok": "Üçüncü tərəf reklamı yoxdur · Sizi izləyən reklam şəbəkəsi yoxdur",
 "Üçüncü taraf reklam yok, sizi izleyen reklam ağı yok": "Üçüncü tərəf reklamı yoxdur, sizi izləyən reklam şəbəkəsi yoxdur",
 "Pro'da hiç reklam yok": "Pro-da heç bir reklam yoxdur",

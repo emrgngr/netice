@@ -1483,6 +1483,8 @@
 "10 hane": "10 chiffres",
 "6 hane (eski formlar)": "6 chiffres (anciens formulaires)",
 "Basılmış formlarınız hangi düzendeyse onu seçin; değiştirirseniz formları yeniden basın.": "Choisissez la mise en page de vos formulaires imprimés ; si vous la changez, réimprimez-les.",
+"Optik formdaki numarayla eşleşir. Boş bırakılırsa sıra numarası verilir.": "Correspond au numéro du formulaire. Laissé vide, un numéro d’ordre est attribué.",
+"Numarası olmayan {0} öğrenciye sıra numarası verildi.": "Un numéro d’ordre a été attribué à {0} élèves sans numéro.",
 "Üçüncü taraf reklam yok · Sizi izleyen reklam ağı yok": "Aucune publicité tierce · Aucune régie publicitaire qui vous suit",
 "Üçüncü taraf reklam yok, sizi izleyen reklam ağı yok": "Aucune publicité tierce, aucune régie publicitaire qui vous suit",
 "Pro'da hiç reklam yok": "Aucune publicité avec Pro",

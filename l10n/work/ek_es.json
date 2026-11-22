@@ -405,6 +405,8 @@
  "10 hane": "10 dígitos",
  "6 hane (eski formlar)": "6 dígitos (formularios antiguos)",
  "Basılmış formlarınız hangi düzendeyse onu seçin; değiştirirseniz formları yeniden basın.": "Elija el diseño de sus formularios impresos; si lo cambia, vuelva a imprimirlos.",
+ "Optik formdaki numarayla eşleşir. Boş bırakılırsa sıra numarası verilir.": "Se empareja con el número del formulario. Si se deja vacío, se asigna un número de orden.",
+ "Numarası olmayan {0} öğrenciye sıra numarası verildi.": "Se asignó un número de orden a {0} alumnos sin número.",
  "Üçüncü taraf reklam yok · Sizi izleyen reklam ağı yok": "Sin anuncios de terceros · Sin redes publicitarias que te rastreen",
  "Üçüncü taraf reklam yok, sizi izleyen reklam ağı yok": "Sin anuncios de terceros, sin redes publicitarias que te rastreen",
  "Pro'da hiç reklam yok": "Con Pro, ningún anuncio",
