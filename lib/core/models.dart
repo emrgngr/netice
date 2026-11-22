@@ -192,7 +192,7 @@ class Exam {
     this.openQuestions = const [],
     this.templateId,
     this.commonId,
-    this.numberDigits = 6,
+    this.numberDigits = 10,
   });
 
   bool get isCommon => commonId != null;
@@ -356,7 +356,7 @@ class Exam {
           ],
         if (templateId != null) 'templateId': templateId,
         if (commonId != null) 'commonId': commonId,
-        if (numberDigits != 6) 'numberDigits': numberDigits,
+        'numberDigits': numberDigits,
         if (openQuestions.isNotEmpty) 'openQuestions': openQuestions.map((q) => q.toJson()).toList(),
       };
 
@@ -379,6 +379,7 @@ class Exam {
         ],
         templateId: j['templateId'] as String?,
         commonId: j['commonId'] as String?,
+        // Alan yoksa eski sürümde basılmış 6 haneli formdur.
         numberDigits: j['numberDigits'] == 10 ? 10 : 6,
         openQuestions: [
           for (final e in (j['openQuestions'] as List?) ?? const []) OpenQuestion.fromJson(e as Map<String, dynamic>)
