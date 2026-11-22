@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:netice/core/models.dart';
+import 'package:netice/core/progress.dart';
+import 'package:netice/core/report.dart';
 import 'package:netice/core/scoring.dart';
 import 'package:netice/l10n/l10n.dart';
 import 'package:netice/reports/pdf_documents.dart';
@@ -35,6 +37,17 @@ void main() {
       final report = await buildResultsPdf(
           exam: exam, results: Scorer.scoreAll(exam, sheets), students: {'1': st}, school: school);
       expect(String.fromCharCodes(report.take(5)), '%PDF-');
+      final results = Scorer.scoreAll(exam, sheets);
+      final cards = await buildStudentCardsPdf(
+          exam: exam, results: results, students: {'1': st}, school: school,
+          notes: {'1': [tr('Son 3 sınavda istikrarlı bir çizgide.'), tr('Güçlü olduğu konu: {0} ({1}).', ['A', L10n.percent(80)])]});
+      expect(String.fromCharCodes(cards.take(5)), '%PDF-');
+      final b = exam.copyWith(id: 'y', className: '9-B');
+      final cmp = await buildComparePdf([
+        BranchRow(exam, ExamReport.build(exam, results)),
+        BranchRow(b, ExamReport.build(b, Scorer.scoreAll(b, [for (final s in sheets) Sheet(examId: 'y', studentId: s.studentId, answers: s.answers)]))),
+      ], school: school, students: {'1': st});
+      expect(String.fromCharCodes(cmp.take(5)), '%PDF-');
       final out = Directory('build/test_output')..createSync(recursive: true);
       File('${out.path}/form_${e.key}.pdf').writeAsBytesSync(forms);
       File('${out.path}/rapor_${e.key}.pdf').writeAsBytesSync(report);

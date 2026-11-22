@@ -11,6 +11,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:netice/core/store.dart';
 import 'package:netice/l10n/l10n.dart';
 import 'package:netice/main.dart';
+import 'package:netice/ui/admin_panel_screen.dart';
 import 'package:netice/ui/compare_screen.dart';
 import 'package:netice/ui/exam_screen.dart';
 import 'package:netice/ui/exam_settings_screen.dart';
@@ -19,6 +20,7 @@ import 'package:netice/ui/home_screen.dart';
 import 'package:netice/ui/new_exam_screen.dart';
 import 'package:netice/ui/onboarding_screen.dart';
 import 'package:netice/ui/open_scores_screen.dart';
+import 'package:netice/ui/license_screen.dart';
 import 'package:netice/ui/pro_screen.dart';
 import 'package:netice/ui/profile_screen.dart';
 import 'package:netice/ui/scan_screen.dart';
@@ -159,6 +161,8 @@ void main() {
     await screen('18_pro', const ProScreen());
     await screen('19_okut', const ScanScreen(examId: 'demo_exam'));
     await screen('20_sablonlar', const TemplatesScreen());
+    await screen('21_kurum_lisansi', const LicenseScreen());
+    await screen('22_yonetici_paneli', const AdminPanelScreen());
 
     FlutterError.onError = old;
     File('build/audit/$lang/sorunlar.txt').writeAsStringSync(problems.toSet().join('\n'));

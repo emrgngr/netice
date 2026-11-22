@@ -29,5 +29,9 @@
  "{0} soru",
  "{0}. soru",
  "İşlevsiz: {0}",
- "Std. sapma"
+ "Std. sapma",
+ "Ortak sınav",
+ "Tüm şubeler aynı sınavı okur, sonuçlar tek raporda birleşir",
+ "Kurum yönetici paneli",
+ "Tüm şubeler, sınavlar ve risk altındaki öğrenciler tek ekranda"
 ]
