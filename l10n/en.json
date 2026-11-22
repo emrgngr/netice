@@ -1474,5 +1474,9 @@
 "Tek tek eklemek için \"+\" düğmesini, toplu eklemek için \"Excel / PDF aktar\"ı kullanın.": "Use \"+\" to add one by one, or \"Import Excel / PDF\" to add many at once.",
 "{0} sınıf bulundu:": "{0} classes found:",
 "Öğrenci listesi (Excel, PDF, Word veya CSV)": "Student list (Excel, PDF, Word or CSV)",
-"Tamam, önizle": "OK, preview"
+"Tamam, önizle": "OK, preview",
+"Bu form Netice ile hazırlandı. Kâğıtları telefonunuzla okutun, sonuçlar ve raporlar saniyeler içinde hazır.": "This form was made with Netice. Scan the sheets with your phone; results and reports are ready in seconds.",
+"Ücretsiz indirin: Google Play ve App Store'da \"Netice\" arayın · {0}": "Free download: search \"Netice\" on Google Play and the App Store · {0}",
+"Daireyi taşırmadan tamamen karartın.": "Fill the circle completely without going outside it.",
+"Değiştirirken eskisini iyice silin.": "When changing an answer, erase the old one completely."
 }
