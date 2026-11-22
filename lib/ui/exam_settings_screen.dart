@@ -30,6 +30,7 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
   late List<TextEditingController> _codes;
   late int _wpc;
   late bool _booklet;
+  late int _digits;
 
   /// Kitapçıklar Yeni sınav'da kendi anahtarlarıyla girildi (soru sırası yok).
   bool get _ownKeys => _exam.bookletKeys.isNotEmpty;
@@ -54,6 +55,7 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
     _codes = [for (final q in _qs) TextEditingController(text: q.outcomeCode ?? '')];
     _wpc = _exam.rule.wrongsPerCorrect;
     _booklet = _exam.hasBooklets;
+    _digits = _exam.numberDigits;
     _template = _exam.templateId;
     _open = [
       for (final q in _exam.openQuestions)
@@ -175,6 +177,7 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
       date: _date,
       questions: qs,
       rule: ScoringRule(wrongsPerCorrect: _wpc, maxScore: max, passScore: pass),
+      numberDigits: _digits,
     ));
     toast(context, tr('Kaydedildi; tüm puanlar yeniden hesaplandı.'));
     Navigator.pop(context);
@@ -321,6 +324,22 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
                           DropdownMenuItem(value: tp.id, child: Text(tp.name, overflow: TextOverflow.ellipsis)),
                       ],
                       onChanged: (v) => setState(() => _template = v),
+                    ),
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<int>(
+                      isExpanded: true,
+                      initialValue: _digits,
+                      decoration: InputDecoration(labelText: tr('Formdaki öğrenci numarası')),
+                      items: [
+                        DropdownMenuItem(value: 10, child: Text(tr('10 hane'))),
+                        DropdownMenuItem(value: 6, child: Text(tr('6 hane (eski formlar)'))),
+                      ],
+                      onChanged: (v) => setState(() => _digits = v ?? 10),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      tr('Basılmış formlarınız hangi düzendeyse onu seçin; değiştirirseniz formları yeniden basın.'),
+                      style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const SizedBox(height: 8),
                     Text(
