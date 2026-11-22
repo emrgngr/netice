@@ -158,7 +158,7 @@ void main() {
     await scene(
       '03_siniflar',
       const Scaffold(body: StudentsScreen(embedded: true)),
-      () => [text(tr('Excel aktar')), text(tr('Öğrenci ekle'))],
+      () => [text(tr('Excel / PDF aktar')), text(tr('Öğrenci ekle'))],
     );
     await scene(
       '04_yeni_sinav',

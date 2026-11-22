@@ -1467,5 +1467,12 @@
 "{0}: {1}/{2}": "{0}: {1}/{2}",
 "Başka sınıf / şube ekle": "Başqa sinif əlavə et",
 "Birden çok sınıf için virgülle ayırın.": "Bir neçə sinfi vergüllə ayırın.",
-"ör. 9-A, 9-B, 9-C": "məs. 9-A, 9-B, 9-C"
+"ör. 9-A, 9-B, 9-C": "məs. 9-A, 9-B, 9-C",
+"Belgede öğrenci listesi bulunamadı. Satırlar \"sıra no, okul no, ad, soyad\" düzeninde olmalı. Taranmış (fotoğraf) PDF okunamaz.": "Sənəddə şagird siyahısı tapılmadı. Sətirlər \"sıra no, məktəb no, ad, soyad\" düzənində olmalıdır. Skan edilmiş (şəkil) PDF oxunmur.",
+"Bütün sınıflar tek dosyada olabilir: Excel'in her sayfası ya da PDF'teki her \"9. Sınıf / A Şubesi\" başlığı ayrı sınıfa yazılır. Sınıf, sayfanın adından da alınır (ör. 9-A).": "Bütün siniflər bir faylda ola bilər: Excel-in hər vərəqi və ya PDF-dəki hər \"9-cu sinif / A\" başlığı ayrı sinfə yazılır. Sinif vərəqin adından da götürülür (məs. 9-A).",
+"Excel / PDF aktar": "Excel / PDF köçür",
+"Tek tek eklemek için \"+\" düğmesini, toplu eklemek için \"Excel / PDF aktar\"ı kullanın.": "Tək-tək əlavə etmək üçün \"+\" düyməsini, toplu əlavə üçün \"Excel / PDF köçür\"ü istifadə edin.",
+"{0} sınıf bulundu:": "{0} sinif tapıldı:",
+"Öğrenci listesi (Excel, PDF, Word veya CSV)": "Şagird siyahısı (Excel, PDF, Word və ya CSV)",
+"Tamam, önizle": "Oldu, önizlə"
 }

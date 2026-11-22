@@ -389,5 +389,12 @@
  "{0}: {1}/{2}": "{0}: {1}/{2}",
  "Başka sınıf / şube ekle": "Добавить другой класс",
  "Birden çok sınıf için virgülle ayırın.": "Несколько классов разделяйте запятыми.",
- "ör. 9-A, 9-B, 9-C": "напр. 9-А, 9-Б, 9-В"
+ "ör. 9-A, 9-B, 9-C": "напр. 9-А, 9-Б, 9-В",
+ "Belgede öğrenci listesi bulunamadı. Satırlar \"sıra no, okul no, ad, soyad\" düzeninde olmalı. Taranmış (fotoğraf) PDF okunamaz.": "В документе не найден список учеников. Строки должны иметь вид «№, номер ученика, имя, фамилия». Отсканированные PDF (фото) не читаются.",
+ "Bütün sınıflar tek dosyada olabilir: Excel'in her sayfası ya da PDF'teki her \"9. Sınıf / A Şubesi\" başlığı ayrı sınıfa yazılır. Sınıf, sayfanın adından da alınır (ör. 9-A).": "Все классы могут быть в одном файле: каждый лист Excel или каждый заголовок класса в PDF попадает в свой класс. Класс берётся и из имени листа (напр. 9-А).",
+ "Excel / PDF aktar": "Импорт Excel / PDF",
+ "Tek tek eklemek için \"+\" düğmesini, toplu eklemek için \"Excel / PDF aktar\"ı kullanın.": "Нажмите «+», чтобы добавить по одному, или «Импорт Excel / PDF», чтобы добавить сразу многих.",
+ "{0} sınıf bulundu:": "Найдено классов: {0}:",
+ "Öğrenci listesi (Excel, PDF, Word veya CSV)": "Список учеников (Excel, PDF, Word или CSV)",
+ "Tamam, önizle": "ОК, просмотр"
 }
