@@ -586,6 +586,18 @@ void showSheetDetail(BuildContext context, Exam exam, Result r) {
                 label: Text(tr('Karneyi veliye gönder')),
               ),
             ),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              style: TextButton.styleFrom(foregroundColor: Theme.of(ctx).colorScheme.error),
+              onPressed: () {
+                Navigator.pop(ctx);
+                deleteSheetWithUndo(context, r.sheet);
+              },
+              icon: const Icon(Icons.delete_outline_rounded, size: 18),
+              label: Text(tr('Bu okumayı sil')),
+            ),
+          ),
           const SizedBox(height: 12),
           Wrap(spacing: 6, runSpacing: 6, children: [
             for (var i = 0; i < exam.questionCount; i++)
@@ -1306,4 +1318,43 @@ Future<void> shareStudentCard(BuildContext context, Exam exam, String studentId)
   } catch (e) {
     messenger?.showSnackBar(SnackBar(content: Text(tr('Karne paylaşılamadı: {0}', [e]))));
   }
+}
+
+/// Tek okunan kâğıdı onay alarak siler; öğrenci bilgileri kalır. Geri alınabilir.
+Future<void> deleteSheetWithUndo(BuildContext context, Sheet sheet) async {
+  final store = StoreScope.of(context);
+  final name = store.studentById[sheet.studentId]?.fullName;
+  final ok = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text(tr('Bu okuma silinsin mi?')),
+      content: Text(name == null
+          ? tr('Yalnızca bu kâğıdın okuma sonucu silinir. Öğrencileriniz ve sınıflarınız olduğu gibi kalır; kâğıdı yeniden okutabilirsiniz.')
+          : tr('{0} için okunan kâğıt silinir. Öğrenci kaydı ve diğer sınavları olduğu gibi kalır; kâğıdı yeniden okutabilirsiniz.', [name])),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr('Vazgeç'))),
+        FilledButton.icon(
+          style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error),
+          onPressed: () => Navigator.pop(ctx, true),
+          icon: const Icon(Icons.delete_outline_rounded),
+          label: Text(tr('Sil')),
+        ),
+      ],
+    ),
+  );
+  if (ok != true || !context.mounted) return;
+  final index = store.removeSheet(sheet);
+  if (index < 0) return;
+  final messenger = ScaffoldMessenger.of(context);
+  messenger.clearSnackBars();
+  messenger
+      .showSnackBar(SnackBar(
+        content: Text(tr('Okuma silindi.')),
+        duration: const Duration(seconds: 6),
+        action: SnackBarAction(label: tr('Geri al'), onPressed: () => store.restoreSheet(index, sheet)),
+      ))
+      .closed
+      .then((reason) {
+    if (reason != SnackBarClosedReason.action) store.forgetRemoved();
+  });
 }
