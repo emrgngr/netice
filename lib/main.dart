@@ -53,7 +53,12 @@ class NeticeApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: NTheme.light(),
           darkTheme: NTheme.dark(),
-          themeMode: ThemeMode.system,
+          themeMode: switch (store.themeMode) {
+            'light' => ThemeMode.light,
+            'dark' => ThemeMode.dark,
+            _ => ThemeMode.system,
+          },
+          themeAnimationDuration: const Duration(milliseconds: 350),
           locale: L10n.locale,
           supportedLocales: [for (final l in AppLanguage.all) Locale(l.code)],
           localizationsDelegates: GlobalMaterialLocalizations.delegates,

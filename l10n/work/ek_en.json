@@ -421,5 +421,13 @@
  "{0} için okunan kâğıt silinir. Öğrenci kaydı ve diğer sınavları olduğu gibi kalır; kâğıdı yeniden okutabilirsiniz.": "The scanned sheet for {0} will be deleted. The student record and other exams stay as they are; you can scan the sheet again.",
  "{0} sınav seçildi": "{0} exams selected",
  "{0} sınav silindi.": "{0} exams deleted.",
- "{0} sınav silinsin mi?": "Delete {0} exams?"
+ "{0} sınav silinsin mi?": "Delete {0} exams?",
+ "Gece": "Dark",
+ "Gece moduna geç": "Switch to dark mode",
+ "Gece ve gündüz modu": "Dark and light mode",
+ "Görünüm": "Appearance",
+ "Gündüz": "Light",
+ "Gündüz moduna geç": "Switch to light mode",
+ "Otomatik": "Auto",
+ "Otomatik seçilirse telefonun ayarına uyar": "Auto follows your phone's setting"
 }

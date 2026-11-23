@@ -1499,5 +1499,13 @@
 "{0} için okunan kâğıt silinir. Öğrenci kaydı ve diğer sınavları olduğu gibi kalır; kâğıdı yeniden okutabilirsiniz.": "سيتم حذف الورقة المقروءة الخاصة بـ {0}. يبقى سجل الطالب واختباراته الأخرى كما هي، ويمكنك قراءة الورقة مرة أخرى.",
 "{0} sınav seçildi": "تم تحديد {0} اختبار",
 "{0} sınav silindi.": "تم حذف {0} اختبار.",
-"{0} sınav silinsin mi?": "حذف {0} اختبار؟"
+"{0} sınav silinsin mi?": "حذف {0} اختبار؟",
+"Gece": "داكن",
+"Gece moduna geç": "التبديل إلى الوضع الداكن",
+"Gece ve gündüz modu": "الوضع الداكن والفاتح",
+"Görünüm": "المظهر",
+"Gündüz": "فاتح",
+"Gündüz moduna geç": "التبديل إلى الوضع الفاتح",
+"Otomatik": "تلقائي",
+"Otomatik seçilirse telefonun ayarına uyar": "الوضع التلقائي يتبع إعداد الهاتف"
 }
