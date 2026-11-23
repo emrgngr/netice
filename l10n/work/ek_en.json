@@ -406,5 +406,20 @@
  "6 hane (eski formlar)": "6 digits (older forms)",
  "Basılmış formlarınız hangi düzendeyse onu seçin; değiştirirseniz formları yeniden basın.": "Choose the layout your printed forms use; if you change it, print the forms again.",
  "Optik formdaki numarayla eşleşir. Boş bırakılırsa sıra numarası verilir.": "Matches the number on the answer sheet. If left empty, a sequence number is assigned.",
- "Numarası olmayan {0} öğrenciye sıra numarası verildi.": "{0} students without a number were given a sequence number."
+ "Numarası olmayan {0} öğrenciye sıra numarası verildi.": "{0} students without a number were given a sequence number.",
+ "Bu okuma silinsin mi?": "Delete this scan?",
+ "Bu okumayı sil": "Delete this scan",
+ "Geri al": "Undo",
+ "Okuma silindi.": "Scan deleted.",
+ "Seç ve sil": "Select and delete",
+ "Seçilen sınavlar ve okunan {0} kâğıt silinir. Öğrencileriniz, sınıflarınız ve diğer sınavlarınız olduğu gibi kalır.": "The selected exams and {0} scanned sheets will be deleted. Your students, classes and other exams stay as they are.",
+ "Seçilenleri sil": "Delete selected",
+ "Seçimi kaldır": "Clear selection",
+ "Sınav silindi.": "Exam deleted.",
+ "Tümünü seç": "Select all",
+ "Yalnızca bu kâğıdın okuma sonucu silinir. Öğrencileriniz ve sınıflarınız olduğu gibi kalır; kâğıdı yeniden okutabilirsiniz.": "Only this sheet's scan result will be deleted. Your students and classes stay as they are; you can scan the sheet again.",
+ "{0} için okunan kâğıt silinir. Öğrenci kaydı ve diğer sınavları olduğu gibi kalır; kâğıdı yeniden okutabilirsiniz.": "The scanned sheet for {0} will be deleted. The student record and other exams stay as they are; you can scan the sheet again.",
+ "{0} sınav seçildi": "{0} exams selected",
+ "{0} sınav silindi.": "{0} exams deleted.",
+ "{0} sınav silinsin mi?": "Delete {0} exams?"
 }

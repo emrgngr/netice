@@ -406,5 +406,20 @@
  "6 hane (eski formlar)": "6 dígitos (formularios antiguos)",
  "Basılmış formlarınız hangi düzendeyse onu seçin; değiştirirseniz formları yeniden basın.": "Elija el diseño de sus formularios impresos; si lo cambia, vuelva a imprimirlos.",
  "Optik formdaki numarayla eşleşir. Boş bırakılırsa sıra numarası verilir.": "Se empareja con el número del formulario. Si se deja vacío, se asigna un número de orden.",
- "Numarası olmayan {0} öğrenciye sıra numarası verildi.": "Se asignó un número de orden a {0} alumnos sin número."
+ "Numarası olmayan {0} öğrenciye sıra numarası verildi.": "Se asignó un número de orden a {0} alumnos sin número.",
+ "Bu okuma silinsin mi?": "¿Eliminar esta lectura?",
+ "Bu okumayı sil": "Eliminar esta lectura",
+ "Geri al": "Deshacer",
+ "Okuma silindi.": "Lectura eliminada.",
+ "Seç ve sil": "Seleccionar y eliminar",
+ "Seçilen sınavlar ve okunan {0} kâğıt silinir. Öğrencileriniz, sınıflarınız ve diğer sınavlarınız olduğu gibi kalır.": "Se eliminarán los exámenes seleccionados y {0} hojas leídas. Sus alumnos, clases y otros exámenes no cambian.",
+ "Seçilenleri sil": "Eliminar seleccionados",
+ "Seçimi kaldır": "Quitar selección",
+ "Sınav silindi.": "Examen eliminado.",
+ "Tümünü seç": "Seleccionar todo",
+ "Yalnızca bu kâğıdın okuma sonucu silinir. Öğrencileriniz ve sınıflarınız olduğu gibi kalır; kâğıdı yeniden okutabilirsiniz.": "Solo se eliminará el resultado de lectura de esta hoja. Sus alumnos y clases no cambian; puede volver a leer la hoja.",
+ "{0} için okunan kâğıt silinir. Öğrenci kaydı ve diğer sınavları olduğu gibi kalır; kâğıdı yeniden okutabilirsiniz.": "Se eliminará la hoja leída de {0}. El registro del alumno y sus otros exámenes no cambian; puede volver a leer la hoja.",
+ "{0} sınav seçildi": "{0} exámenes seleccionados",
+ "{0} sınav silindi.": "{0} exámenes eliminados.",
+ "{0} sınav silinsin mi?": "¿Eliminar {0} exámenes?"
 }

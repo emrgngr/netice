@@ -558,6 +558,55 @@ class AppStore extends ChangeNotifier {
     _changed();
   }
 
+  /// Seçilen sınavları ve okunan kâğıtlarını kaldırır; öğrenciler ve diğer
+  /// sınavlar kalır. Görüntüler hemen silinmez, böylece [restoreExams] ile
+  /// geri alınabilir; [forgetRemoved] geri alma süresi bitince çağrılır.
+  RemovedExams removeExams(Iterable<String> ids) {
+    final set = ids.toSet();
+    final removed = RemovedExams(
+      [for (var i = 0; i < exams.length; i++) if (set.contains(exams[i].id)) (i, exams[i])],
+      sheets.where((s) => set.contains(s.examId)).toList(),
+    );
+    exams.removeWhere((e) => set.contains(e.id));
+    sheets.removeWhere((s) => set.contains(s.examId));
+    _changed();
+    return removed;
+  }
+
+  /// [removeExams] ile kaldırılanları eski yerlerine geri koyar.
+  void restoreExams(RemovedExams r) {
+    final back = <String>{};
+    for (final (i, e) in r.exams) {
+      if (exams.any((x) => x.id == e.id)) continue;
+      exams.insert(i.clamp(0, exams.length), e);
+      back.add(e.id);
+    }
+    sheets.addAll(r.sheets.where((s) => back.contains(s.examId)));
+    _changed();
+  }
+
+  /// Tek bir okunan kâğıdı kaldırır (öğrenci ve sınav kalır). Kâğıdın
+  /// listedeki yerini döndürür; bulunamazsa -1. Görüntü [forgetRemoved]
+  /// çağrılana kadar silinmez, böylece [restoreSheet] ile geri alınabilir.
+  int removeSheet(Sheet sheet) {
+    final i = sheets.indexWhere((s) => identical(s, sheet));
+    if (i < 0) return -1;
+    sheets.removeAt(i);
+    _changed();
+    return i;
+  }
+
+  /// [removeSheet] ile kaldırılan kâğıdı eski yerine koyar.
+  void restoreSheet(int index, Sheet sheet) {
+    if (index < 0 || sheets.any((s) => identical(s, sheet))) return;
+    if (examById(sheet.examId) == null) return;
+    sheets.insert(index.clamp(0, sheets.length), sheet);
+    _changed();
+  }
+
+  /// Geri alınmayan silmeden kalan görüntüleri temizler.
+  void forgetRemoved() => _cleanImages();
+
   /// Okunan kâğıdı kaydeder. Aynı öğrencinin önceki kâğıdı varsa yenisiyle değiştirir.
   /// Makine kodundaki sınav koduna karşılık gelen sınav.
   /// Önce tam eşleşen, yoksa kitapçık bitleriyle eşleşen sınav aranır.
@@ -1000,4 +1049,11 @@ String alphaKey(String s) {
     b.writeCharCode(k >= 0 ? 0x100 + k : (ch == ' ' ? 0x20 : 0x200 + ch.codeUnitAt(0)));
   }
   return b.toString();
+}
+
+/// Geri alınabilsin diye kaldırılan sınavlar (eski sıralarıyla) ve kâğıtları.
+class RemovedExams {
+  final List<(int, Exam)> exams;
+  final List<Sheet> sheets;
+  const RemovedExams(this.exams, this.sheets);
 }
