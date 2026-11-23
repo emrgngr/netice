@@ -421,5 +421,13 @@
  "{0} için okunan kâğıt silinir. Öğrenci kaydı ve diğer sınavları olduğu gibi kalır; kâğıdı yeniden okutabilirsiniz.": "Il foglio letto di {0} verrà eliminato. La scheda dello studente e gli altri esami restano invariati; puoi leggere di nuovo il foglio.",
  "{0} sınav seçildi": "{0} esami selezionati",
  "{0} sınav silindi.": "{0} esami eliminati.",
- "{0} sınav silinsin mi?": "Eliminare {0} esami?"
+ "{0} sınav silinsin mi?": "Eliminare {0} esami?",
+ "Gece": "Scuro",
+ "Gece moduna geç": "Passa alla modalità scura",
+ "Gece ve gündüz modu": "Modalità scura e chiara",
+ "Görünüm": "Aspetto",
+ "Gündüz": "Chiaro",
+ "Gündüz moduna geç": "Passa alla modalità chiara",
+ "Otomatik": "Automatico",
+ "Otomatik seçilirse telefonun ayarına uyar": "Automatico segue l'impostazione del telefono"
 }

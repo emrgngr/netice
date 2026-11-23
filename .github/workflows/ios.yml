@@ -1,0 +1,114 @@
+name: iPhone App Store
+
+# İmzalı iPhone uygulamasını (IPA) derler ve App Store Connect'e (TestFlight)
+# yükler. İmza sertifikası ve profil, App Store Connect API anahtarıyla
+# Xcode tarafından otomatik oluşturulur; depoda sertifika tutulmaz.
+# Gerekli secret'lar: ASC_KEY_ID, ASC_ISSUER_ID, ASC_PRIVATE_KEY (.p8 içeriği),
+# APPLE_TEAM_ID. İsteğe bağlı: GOOGLE_IOS_CLIENT_ID.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      yukle:
+        description: 'App Store Connect (TestFlight) için yükle'
+        type: boolean
+        default: true
+
+jobs:
+  ipa:
+    name: iPhone uygulaması (App Store)
+    runs-on: macos-latest
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+    steps:
+      - name: Anahtarlar var mı?
+        id: hazir
+        run: |
+          if [ -z "$ASC_KEY_ID" ] || [ -z "$ASC_ISSUER_ID" ] || [ -z "$ASC_PRIVATE_KEY" ] || [ -z "$APPLE_TEAM_ID" ]; then
+            echo "::notice::App Store anahtarları eklenmemiş (ASC_KEY_ID, ASC_ISSUER_ID, ASC_PRIVATE_KEY, APPLE_TEAM_ID); iPhone yüklemesi atlandı."
+            echo "tamam=0" >> "$GITHUB_OUTPUT"
+          else
+            echo "tamam=1" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v5
+        if: steps.hazir.outputs.tamam == '1'
+      - name: Açılış melodisi
+        if: steps.hazir.outputs.tamam == '1'
+        run: |
+          f=$(python3 -c "import json;print(json.load(open('tool/video/muzik.json'))['acilis'])")
+          curl -sSfL --retry 3 -o assets/sounds/acilis.mp3 "https://d8j0ntlcm91z4.cloudfront.net/user_3HBbhHFwxHnCS5yFDPNhwCMiEXw/$f" || echo 'melodi indirilemedi'
+      - uses: subosito/flutter-action@v2
+        if: steps.hazir.outputs.tamam == '1'
+        with:
+          flutter-version: 3.50.0
+          channel: stable
+          cache: true
+      - name: API anahtarı
+        if: steps.hazir.outputs.tamam == '1'
+        run: |
+          mkdir -p ~/.appstoreconnect/private_keys
+          KEY=~/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8
+          printf '%s\n' "$ASC_PRIVATE_KEY" > "$KEY"
+          echo "ASC_KEY_PATH=$KEY" >> "$GITHUB_ENV"
+      - name: Google giriş URL şeması
+        if: steps.hazir.outputs.tamam == '1'
+        env:
+          IOS_CLIENT_ID: ${{ secrets.GOOGLE_IOS_CLIENT_ID }}
+        run: |
+          if [ -n "$IOS_CLIENT_ID" ]; then
+            REV=$(echo "$IOS_CLIENT_ID" | awk -F. '{for(i=NF;i>0;i--) printf "%s%s", $i, (i>1?".":"")}')
+            /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes array" ios/Runner/Info.plist
+            /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0 dict" ios/Runner/Info.plist
+            /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0:CFBundleURLSchemes array" ios/Runner/Info.plist
+            /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0:CFBundleURLSchemes:0 string $REV" ios/Runner/Info.plist
+            /usr/libexec/PlistBuddy -c "Add :GIDClientID string $IOS_CLIENT_ID" ios/Runner/Info.plist
+          fi
+      - name: Flutter hazırlığı
+        if: steps.hazir.outputs.tamam == '1'
+        run: |
+          flutter pub get
+          flutter build ios --release --config-only --build-number=${{ github.run_number }} --dart-define=GOOGLE_IOS_CLIENT_ID=${{ secrets.GOOGLE_IOS_CLIENT_ID }}
+      - name: Arşiv (imzalı)
+        if: steps.hazir.outputs.tamam == '1'
+        run: |
+          xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner -configuration Release \
+            -destination 'generic/platform=iOS' -archivePath build/Runner.xcarchive \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$ASC_KEY_PATH" -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CODE_SIGN_STYLE=Automatic \
+            archive | tail -40
+          test -d build/Runner.xcarchive
+      - name: IPA
+        if: steps.hazir.outputs.tamam == '1'
+        run: |
+          cat > build/ExportOptions.plist <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>teamID</key><string>${APPLE_TEAM_ID}</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>uploadSymbols</key><true/>
+            <key>destination</key><string>export</string>
+          </dict></plist>
+          PLIST
+          xcodebuild -exportArchive -archivePath build/Runner.xcarchive \
+            -exportOptionsPlist build/ExportOptions.plist -exportPath build/ipa \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$ASC_KEY_PATH" -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" | tail -20
+          ls -la build/ipa
+      - uses: actions/upload-artifact@v4
+        if: steps.hazir.outputs.tamam == '1'
+        with:
+          name: Netice-iPhone-IPA
+          path: build/ipa/*.ipa
+      - name: App Store Connect'e yükle (TestFlight)
+        if: steps.hazir.outputs.tamam == '1' && (github.event_name == 'push' || inputs.yukle)
+        run: |
+          xcrun altool --upload-app --type ios -f build/ipa/*.ipa \
+            --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"

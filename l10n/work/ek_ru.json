@@ -421,5 +421,13 @@
  "{0} için okunan kâğıt silinir. Öğrenci kaydı ve diğer sınavları olduğu gibi kalır; kâğıdı yeniden okutabilirsiniz.": "Отсканированный бланк ученика {0} будет удалён. Запись ученика и другие экзамены останутся без изменений; бланк можно отсканировать снова.",
  "{0} sınav seçildi": "Выбрано экзаменов: {0}",
  "{0} sınav silindi.": "Удалено экзаменов: {0}.",
- "{0} sınav silinsin mi?": "Удалить экзамены ({0})?"
+ "{0} sınav silinsin mi?": "Удалить экзамены ({0})?",
+ "Gece": "Тёмная",
+ "Gece moduna geç": "Включить тёмную тему",
+ "Gece ve gündüz modu": "Тёмная и светлая тема",
+ "Görünüm": "Оформление",
+ "Gündüz": "Светлая",
+ "Gündüz moduna geç": "Включить светлую тему",
+ "Otomatik": "Авто",
+ "Otomatik seçilirse telefonun ayarına uyar": "Авто — как в настройках телефона"
 }
