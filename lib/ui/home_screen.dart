@@ -1,3 +1,4 @@
+import 'dart:ui' show ImageFilter;
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -283,6 +284,8 @@ class _DashboardState extends State<_Dashboard> {
                   style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800, letterSpacing: -0.5)),
             ]),
           ),
+          const _ThemeToggle(onDark: true),
+          const SizedBox(width: 6),
           IconButton.filledTonal(
             style: IconButton.styleFrom(backgroundColor: Colors.white.withValues(alpha: 0.12), foregroundColor: Colors.white),
             tooltip: tr('Yeni sınav'),
@@ -323,6 +326,7 @@ class _DashboardState extends State<_Dashboard> {
                 const Spacer(),
                 const LiveClock(),
                 const SizedBox(width: 8),
+                const _ThemeToggle(),
                 IconButton(tooltip: tr('Yardım ve SSS'), onPressed: openHelp, icon: const Icon(Icons.help_outline_rounded)),
                 IconButton(tooltip: tr('Ayarlar'), onPressed: openSettings, icon: const Icon(Icons.settings_outlined)),
                 const SizedBox(width: 8),
@@ -671,79 +675,170 @@ class OfflineNotice extends StatelessWidget {
 
 /// Alt menü: yüzen, yuvarlatılmış bir bar. Seçili sekme zümrüt bir hap
 /// içinde simge ve adıyla öne çıkar, diğerleri yalnızca simgeyle durur.
+/// Gece/gündüz arasında tek dokunuşla geçiş.
+class _ThemeToggle extends StatelessWidget {
+  final bool onDark;
+  const _ThemeToggle({this.onDark = false});
+
+  @override
+  Widget build(BuildContext context) {
+    final store = StoreScope.of(context);
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final icon = AnimatedSwitcher(
+      duration: const Duration(milliseconds: 320),
+      transitionBuilder: (child, a) => RotationTransition(
+        turns: Tween(begin: 0.6, end: 1.0).animate(a),
+        child: ScaleTransition(scale: a, child: child),
+      ),
+      child: Icon(dark ? Icons.light_mode_rounded : Icons.dark_mode_rounded, key: ValueKey(dark)),
+    );
+    void toggle() {
+      HapticFeedback.selectionClick();
+      store.setThemeMode(dark ? 'light' : 'dark');
+    }
+
+    final tip = dark ? tr('Gündüz moduna geç') : tr('Gece moduna geç');
+    if (!onDark) return IconButton(tooltip: tip, onPressed: toggle, icon: icon);
+    return IconButton.filledTonal(
+      style: IconButton.styleFrom(
+          backgroundColor: Colors.white.withValues(alpha: 0.12),
+          foregroundColor: dark ? const Color(0xFFFCD34D) : Colors.white),
+      tooltip: tip,
+      onPressed: toggle,
+      icon: icon,
+    );
+  }
+}
+
+/// Alt menü: yüzen cam görünümlü şerit. Seçili sekmenin arkasında kayan
+/// zümrüt bir hap durur; tüm sekmelerin adı her zaman görünür.
 class _Dock extends StatelessWidget {
   final List<(IconData, IconData, String)> tabs;
   final int index;
   final ValueChanged<int> onSelect;
   const _Dock({required this.tabs, required this.index, required this.onSelect});
 
+  static const _dur = Duration(milliseconds: 320);
+  static const _curve = Curves.easeOutBack;
+
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context);
     final dark = t.brightness == Brightness.dark;
-    final muted = t.colorScheme.onSurface.withValues(alpha: 0.55);
+    final muted = t.colorScheme.onSurface.withValues(alpha: dark ? 0.62 : 0.5);
+    final active = dark ? const Color(0xFF6EE7B7) : const Color(0xFF047857);
+    final scale = MediaQuery.textScalerOf(context).clamp(maxScaleFactor: 1.15);
     return SafeArea(
       minimum: const EdgeInsets.only(bottom: 10),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
-        child: Container(
-          height: 66,
-          padding: const EdgeInsets.symmetric(horizontal: 6),
+        padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+        child: DecoratedBox(
           decoration: BoxDecoration(
-            color: dark ? NColors.darkSurface : Colors.white,
-            borderRadius: BorderRadius.circular(26),
-            border: Border.all(color: t.colorScheme.outlineVariant.withValues(alpha: 0.5)),
+            borderRadius: BorderRadius.circular(30),
             boxShadow: [
-              BoxShadow(color: NColors.ink.withValues(alpha: dark ? 0.4 : 0.12), blurRadius: 24, offset: const Offset(0, 10)),
+              BoxShadow(color: NColors.ink.withValues(alpha: dark ? 0.55 : 0.16), blurRadius: 30, offset: const Offset(0, 12)),
+              BoxShadow(color: NColors.emerald.withValues(alpha: dark ? 0.10 : 0.06), blurRadius: 40, spreadRadius: -8),
             ],
           ),
-          child: Row(children: [
-            for (final (i, (icon, sel, label)) in tabs.indexed)
-              Expanded(
-                flex: i == index ? 2 : 1,
-                child: Semantics(
-                  button: true,
-                  selected: i == index,
-                  label: label,
-                  child: Tooltip(
-                    message: label,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(20),
-                      onTap: () {
-                        HapticFeedback.selectionClick();
-                        onSelect(i);
-                      },
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 240),
-                        curve: Curves.easeOutCubic,
-                        margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 9),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(30),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+              child: Container(
+                height: 74,
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: dark
+                        ? [const Color(0xFF1B2A57).withValues(alpha: 0.94), NColors.darkSurface.withValues(alpha: 0.94)]
+                        : [Colors.white.withValues(alpha: 0.96), const Color(0xFFF7F8FB).withValues(alpha: 0.94)],
+                  ),
+                  border: Border.all(color: dark ? Colors.white.withValues(alpha: 0.08) : NColors.ink.withValues(alpha: 0.07)),
+                ),
+                child: LayoutBuilder(builder: (context, c) {
+                  final w = c.maxWidth / tabs.length;
+                  const pillW = 52.0, pillH = 32.0;
+                  return Stack(children: [
+                    // Kayan zümrüt hap.
+                    AnimatedPositioned(
+                      duration: _dur,
+                      curve: _curve,
+                      left: w * index + (w - pillW) / 2,
+                      top: 9,
+                      width: pillW,
+                      height: pillH,
+                      child: DecoratedBox(
                         decoration: BoxDecoration(
-                          color: i == index ? NColors.emerald.withValues(alpha: dark ? 0.22 : 0.14) : Colors.transparent,
-                          borderRadius: BorderRadius.circular(18),
-                        ),
-                        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                          Icon(i == index ? sel : icon,
-                              size: 24, color: i == index ? (dark ? NColors.emerald : const Color(0xFF047857)) : muted),
-                          if (i == index) ...[
-                            const SizedBox(width: 6),
-                            Flexible(
-                              child: Text(label,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.fade,
-                                  softWrap: false,
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 13,
-                                      color: dark ? NColors.emerald : const Color(0xFF047857))),
-                            ),
+                          gradient: emeraldGradient,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(color: NColors.emerald.withValues(alpha: dark ? 0.45 : 0.38), blurRadius: 14, offset: const Offset(0, 4)),
                           ],
-                        ]),
+                        ),
                       ),
                     ),
-                  ),
-                ),
+                    Row(children: [
+                      for (final (i, (icon, sel, label)) in tabs.indexed)
+                        Expanded(
+                          child: Semantics(
+                            button: true,
+                            selected: i == index,
+                            label: label,
+                            excludeSemantics: true,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(22),
+                              splashColor: NColors.emerald.withValues(alpha: 0.12),
+                              highlightColor: Colors.transparent,
+                              onTap: () {
+                                HapticFeedback.selectionClick();
+                                onSelect(i);
+                              },
+                              child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [
+                                const SizedBox(height: 9),
+                                SizedBox(
+                                  height: pillH,
+                                  child: Center(
+                                    child: AnimatedScale(
+                                      duration: _dur,
+                                      curve: _curve,
+                                      scale: i == index ? 1.08 : 1,
+                                      child: Icon(i == index ? sel : icon,
+                                          size: 23, color: i == index ? NColors.ink : muted),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 2),
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: AnimatedDefaultTextStyle(
+                                      duration: _dur,
+                                      style: TextStyle(
+                                        fontFamily: t.textTheme.labelSmall?.fontFamily,
+                                        fontSize: 11.5,
+                                        height: 1.1,
+                                        letterSpacing: 0.1,
+                                        fontWeight: i == index ? FontWeight.w800 : FontWeight.w600,
+                                        color: i == index ? active : muted,
+                                      ),
+                                      child: Text(label, maxLines: 1, softWrap: false, textScaler: scale),
+                                    ),
+                                  ),
+                                ),
+                              ]),
+                            ),
+                          ),
+                        ),
+                    ]),
+                  ]);
+                }),
               ),
-          ]),
+            ),
+          ),
         ),
       ),
     );

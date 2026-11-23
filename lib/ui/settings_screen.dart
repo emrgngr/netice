@@ -239,6 +239,41 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onTap: () => pickLanguage(context),
             ),
           ),
+          SectionTitle(tr('Görünüm')),
+          Card(
+            clipBehavior: Clip.antiAlias,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Row(children: [
+                  const IconBadge(Icons.contrast_rounded, color: NColors.emerald),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text(tr('Gece ve gündüz modu'), style: const TextStyle(fontWeight: FontWeight.w700)),
+                      Text(tr('Otomatik seçilirse telefonun ayarına uyar'),
+                          style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))),
+                    ]),
+                  ),
+                ]),
+                const SizedBox(height: 14),
+                SizedBox(
+                  width: double.infinity,
+                  child: SegmentedButton<String>(
+                    showSelectedIcon: false,
+                    style: const ButtonStyle(visualDensity: VisualDensity.compact, padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 4)), textStyle: WidgetStatePropertyAll(TextStyle(fontSize: 13, fontWeight: FontWeight.w700))),
+                    segments: [
+                      ButtonSegment(value: 'system', icon: const Icon(Icons.brightness_auto_rounded), label: FittedBox(fit: BoxFit.scaleDown, child: Text(tr('Otomatik'), maxLines: 1, softWrap: false))),
+                      ButtonSegment(value: 'light', icon: const Icon(Icons.light_mode_rounded), label: FittedBox(fit: BoxFit.scaleDown, child: Text(tr('Gündüz'), maxLines: 1, softWrap: false))),
+                      ButtonSegment(value: 'dark', icon: const Icon(Icons.dark_mode_rounded), label: FittedBox(fit: BoxFit.scaleDown, child: Text(tr('Gece'), maxLines: 1, softWrap: false))),
+                    ],
+                    selected: {store.themeMode},
+                    onSelectionChanged: (v) => store.setThemeMode(v.first),
+                  ),
+                ),
+              ]),
+            ),
+          ),
           SectionTitle(tr('Ses')),
           Card(
             clipBehavior: Clip.antiAlias,

@@ -55,6 +55,9 @@ class AppStore extends ChangeNotifier {
   /// Açılış animasyonunda melodi çalsın mı.
   bool splashSound = true;
 
+  /// Görünüm: 'system' (cihaza göre), 'light' (gündüz) veya 'dark' (gece).
+  String themeMode = 'system';
+
   /// Günlük otomatik yedek alındığında çağrılır (bulut yedeği için).
   Future<void> Function()? onDailyBackup;
   bool ratePrompted = false;
@@ -232,6 +235,7 @@ class AppStore extends ChangeNotifier {
         'lastCloudBackup': lastCloudBackup?.toIso8601String(),
         'cloudAuto': cloudAuto,
         'splashSound': splashSound,
+        'themeMode': themeMode,
         'promoHiddenUntil': promoHiddenUntil?.toIso8601String(),
         'proProduct': proProduct,
         'trialStart': trialStart?.toIso8601String(),
@@ -279,6 +283,8 @@ class AppStore extends ChangeNotifier {
     promoHiddenUntil = DateTime.tryParse('${j['promoHiddenUntil'] ?? ''}') ?? promoHiddenUntil;
     ratePrompted = j['ratePrompted'] as bool? ?? ratePrompted;
     splashSound = j['splashSound'] as bool? ?? splashSound;
+    final tm = j['themeMode'];
+    if (tm == 'system' || tm == 'light' || tm == 'dark') themeMode = tm as String;
     language = j['language'] as String? ?? language;
     if (j.containsKey('googleEmail')) {
       googleEmail = j['googleEmail'] as String?;
@@ -286,6 +292,13 @@ class AppStore extends ChangeNotifier {
       lastCloudBackup = DateTime.tryParse(j['lastCloudBackup'] as String? ?? '');
       cloudAuto = j['cloudAuto'] as bool? ?? true;
     }
+  }
+
+  /// Gece/gündüz görünümünü değiştirir ('system', 'light', 'dark').
+  void setThemeMode(String mode) {
+    if (mode == themeMode) return;
+    themeMode = mode;
+    _changed();
   }
 
   /// Dili değiştirir; arayüz bu dilde yeniden çizilir.
