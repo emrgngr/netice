@@ -1484,5 +1484,20 @@
 "6 hane (eski formlar)": "6 chiffres (anciens formulaires)",
 "Basılmış formlarınız hangi düzendeyse onu seçin; değiştirirseniz formları yeniden basın.": "Choisissez la mise en page de vos formulaires imprimés ; si vous la changez, réimprimez-les.",
 "Optik formdaki numarayla eşleşir. Boş bırakılırsa sıra numarası verilir.": "Correspond au numéro du formulaire. Laissé vide, un numéro d’ordre est attribué.",
-"Numarası olmayan {0} öğrenciye sıra numarası verildi.": "Un numéro d’ordre a été attribué à {0} élèves sans numéro."
+"Numarası olmayan {0} öğrenciye sıra numarası verildi.": "Un numéro d’ordre a été attribué à {0} élèves sans numéro.",
+"Bu okuma silinsin mi?": "Supprimer cette lecture ?",
+"Bu okumayı sil": "Supprimer cette lecture",
+"Geri al": "Annuler",
+"Okuma silindi.": "Lecture supprimée.",
+"Seç ve sil": "Sélectionner et supprimer",
+"Seçilen sınavlar ve okunan {0} kâğıt silinir. Öğrencileriniz, sınıflarınız ve diğer sınavlarınız olduğu gibi kalır.": "Les examens sélectionnés et {0} feuilles lues seront supprimés. Vos élèves, classes et autres examens restent inchangés.",
+"Seçilenleri sil": "Supprimer la sélection",
+"Seçimi kaldır": "Désélectionner",
+"Sınav silindi.": "Examen supprimé.",
+"Tümünü seç": "Tout sélectionner",
+"Yalnızca bu kâğıdın okuma sonucu silinir. Öğrencileriniz ve sınıflarınız olduğu gibi kalır; kâğıdı yeniden okutabilirsiniz.": "Seul le résultat de lecture de cette feuille sera supprimé. Vos élèves et classes restent inchangés ; vous pouvez relire la feuille.",
+"{0} için okunan kâğıt silinir. Öğrenci kaydı ve diğer sınavları olduğu gibi kalır; kâğıdı yeniden okutabilirsiniz.": "La feuille lue de {0} sera supprimée. La fiche de l'élève et ses autres examens restent inchangés ; vous pouvez relire la feuille.",
+"{0} sınav seçildi": "{0} examens sélectionnés",
+"{0} sınav silindi.": "{0} examens supprimés.",
+"{0} sınav silinsin mi?": "Supprimer {0} examens ?"
 }

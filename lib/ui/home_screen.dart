@@ -127,8 +127,66 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class _Dashboard extends StatelessWidget {
+class _Dashboard extends StatefulWidget {
   const _Dashboard();
+
+  @override
+  State<_Dashboard> createState() => _DashboardState();
+}
+
+class _DashboardState extends State<_Dashboard> {
+  /// Son sınavlar listesinde silmek için seçilenler.
+  final _selected = <String>{};
+  bool _selecting = false;
+
+  void _toggle(String id) => setState(() {
+        if (!_selected.remove(id)) _selected.add(id);
+        if (_selected.isEmpty) _selecting = false;
+      });
+
+  void _endSelect() => setState(() {
+        _selecting = false;
+        _selected.clear();
+      });
+
+  Future<void> _deleteSelected() async {
+    final store = StoreScope.of(context);
+    final ids = _selected.where((id) => store.examById(id) != null).toSet();
+    if (ids.isEmpty) return;
+    final sheetCount = store.sheets.where((s) => ids.contains(s.examId)).length;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(ids.length == 1 ? tr('Sınav silinsin mi?') : tr('{0} sınav silinsin mi?', [ids.length])),
+        content: Text(tr('Seçilen sınavlar ve okunan {0} kâğıt silinir. Öğrencileriniz, sınıflarınız ve diğer sınavlarınız olduğu gibi kalır.', [sheetCount])),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr('Vazgeç'))),
+          FilledButton.icon(
+            style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error),
+            onPressed: () => Navigator.pop(ctx, true),
+            icon: const Icon(Icons.delete_outline_rounded),
+            label: Text(tr('Sil')),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    final removed = store.removeExams(ids);
+    _endSelect();
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.clearSnackBars();
+    final done = ids.length == 1 ? tr('Sınav silindi.') : tr('{0} sınav silindi.', [ids.length]);
+    final closed = messenger
+        .showSnackBar(SnackBar(
+          content: Text(done),
+          duration: const Duration(seconds: 6),
+          action: SnackBarAction(label: tr('Geri al'), onPressed: () => store.restoreExams(removed)),
+        ))
+        .closed;
+    closed.then((reason) {
+      if (reason != SnackBarClosedReason.action) store.forgetRemoved();
+    });
+  }
 
   Future<void> _startScan(BuildContext context) async {
     final store = StoreScope.of(context);
@@ -315,7 +373,37 @@ class _Dashboard extends StatelessWidget {
         ),
         SliverPadding(
           padding: EdgeInsets.symmetric(horizontal: wide ? 28 : 16),
-          sliver: SliverToBoxAdapter(child: SectionTitle(tr('Son sınavlar'))),
+          sliver: SliverToBoxAdapter(
+            child: SectionTitle(
+              _selecting ? tr('{0} sınav seçildi', [_selected.length]) : tr('Son sınavlar'),
+              trailing: store.exams.isEmpty
+                  ? null
+                  : _selecting
+                      ? Row(mainAxisSize: MainAxisSize.min, children: [
+                          TextButton(
+                            onPressed: () => setState(() {
+                              if (_selected.length == store.exams.length) {
+                                _selected.clear();
+                              } else {
+                                _selected.addAll(store.exams.map((e) => e.id));
+                              }
+                            }),
+                            child: Text(_selected.length == store.exams.length ? tr('Seçimi kaldır') : tr('Tümünü seç')),
+                          ),
+                          IconButton(
+                            tooltip: tr('Seçilenleri sil'),
+                            onPressed: _selected.isEmpty ? null : _deleteSelected,
+                            icon: Icon(Icons.delete_outline_rounded, color: _selected.isEmpty ? null : t.colorScheme.error),
+                          ),
+                          IconButton(tooltip: tr('Vazgeç'), onPressed: _endSelect, icon: const Icon(Icons.close_rounded)),
+                        ])
+                      : TextButton.icon(
+                          onPressed: () => setState(() => _selecting = true),
+                          icon: const Icon(Icons.checklist_rounded, size: 18),
+                          label: Text(tr('Seç ve sil')),
+                        ),
+            ),
+          ),
         ),
         if (store.exams.isEmpty)
           SliverPadding(
@@ -346,20 +434,34 @@ class _Dashboard extends StatelessWidget {
               final st = Analysis.examStats(e, rs);
               final review = store.sheetsOf(e.id).where((s) => s.needsReview).length;
               final total = store.studentsOf(e.className).length;
+              final picked = _selected.contains(e.id);
               return Card(
                 clipBehavior: Clip.antiAlias,
+                shape: picked
+                    ? RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20), side: const BorderSide(color: NColors.emerald, width: 2))
+                    : null,
                 child: InkWell(
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => ExamScreen(examId: e.id))),
+                  onTap: _selecting
+                      ? () => _toggle(e.id)
+                      : () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => ExamScreen(examId: e.id))),
+                  onLongPress: () => setState(() {
+                    _selecting = true;
+                    _selected.add(e.id);
+                  }),
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(16, 14, 14, 14),
                     child: Row(children: [
                       Container(
                         width: 46,
                         height: 46,
-                        decoration: BoxDecoration(gradient: inkGradient, borderRadius: BorderRadius.circular(14)),
+                        decoration: BoxDecoration(
+                            gradient: picked ? emeraldGradient : inkGradient, borderRadius: BorderRadius.circular(14)),
                         alignment: Alignment.center,
-                        child: Text(e.className.isEmpty ? '–' : e.className,
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 13)),
+                        child: picked
+                            ? const Icon(Icons.check_rounded, color: Colors.white)
+                            : Text(e.className.isEmpty ? '–' : e.className,
+                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 13)),
                       ),
                       const SizedBox(width: 14),
                       Expanded(
