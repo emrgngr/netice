@@ -406,5 +406,20 @@
  "6 hane (eski formlar)": "6 桁 (以前の用紙)",
  "Basılmış formlarınız hangi düzendeyse onu seçin; değiştirirseniz formları yeniden basın.": "印刷済みの用紙に合う形式を選んでください。変更した場合は印刷し直してください。",
  "Optik formdaki numarayla eşleşir. Boş bırakılırsa sıra numarası verilir.": "解答用紙の番号と照合されます。空欄の場合は通し番号が付きます。",
- "Numarası olmayan {0} öğrenciye sıra numarası verildi.": "番号のない {0} 人に通し番号を付けました。"
+ "Numarası olmayan {0} öğrenciye sıra numarası verildi.": "番号のない {0} 人に通し番号を付けました。",
+ "Bu okuma silinsin mi?": "この読み取りを削除しますか？",
+ "Bu okumayı sil": "この読み取りを削除",
+ "Geri al": "元に戻す",
+ "Okuma silindi.": "読み取りを削除しました。",
+ "Seç ve sil": "選択して削除",
+ "Seçilen sınavlar ve okunan {0} kâğıt silinir. Öğrencileriniz, sınıflarınız ve diğer sınavlarınız olduğu gibi kalır.": "選択した試験と読み取った {0} 枚の用紙が削除されます。生徒、クラス、他の試験はそのまま残ります。",
+ "Seçilenleri sil": "選択項目を削除",
+ "Seçimi kaldır": "選択を解除",
+ "Sınav silindi.": "試験を削除しました。",
+ "Tümünü seç": "すべて選択",
+ "Yalnızca bu kâğıdın okuma sonucu silinir. Öğrencileriniz ve sınıflarınız olduğu gibi kalır; kâğıdı yeniden okutabilirsiniz.": "この用紙の読み取り結果だけが削除されます。生徒とクラスはそのまま残ります。用紙は再度読み取れます。",
+ "{0} için okunan kâğıt silinir. Öğrenci kaydı ve diğer sınavları olduğu gibi kalır; kâğıdı yeniden okutabilirsiniz.": "{0} の読み取った用紙が削除されます。生徒の記録と他の試験はそのまま残ります。用紙は再度読み取れます。",
+ "{0} sınav seçildi": "{0} 件の試験を選択",
+ "{0} sınav silindi.": "{0} 件の試験を削除しました。",
+ "{0} sınav silinsin mi?": "{0} 件の試験を削除しますか？"
 }

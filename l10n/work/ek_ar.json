@@ -406,5 +406,20 @@
  "6 hane (eski formlar)": "6 أرقام (النماذج القديمة)",
  "Basılmış formlarınız hangi düzendeyse onu seçin; değiştirirseniz formları yeniden basın.": "اختر التنسيق المطابق لنماذجك المطبوعة؛ وإذا غيّرته فاطبع النماذج من جديد.",
  "Optik formdaki numarayla eşleşir. Boş bırakılırsa sıra numarası verilir.": "يطابق الرقم في النموذج. إذا تُرك فارغا يُعطى رقم تسلسلي.",
- "Numarası olmayan {0} öğrenciye sıra numarası verildi.": "أُعطي رقم تسلسلي لـ {0} طلاب بلا رقم."
+ "Numarası olmayan {0} öğrenciye sıra numarası verildi.": "أُعطي رقم تسلسلي لـ {0} طلاب بلا رقم.",
+ "Bu okuma silinsin mi?": "حذف هذه القراءة؟",
+ "Bu okumayı sil": "حذف هذه القراءة",
+ "Geri al": "تراجع",
+ "Okuma silindi.": "تم حذف القراءة.",
+ "Seç ve sil": "تحديد وحذف",
+ "Seçilen sınavlar ve okunan {0} kâğıt silinir. Öğrencileriniz, sınıflarınız ve diğer sınavlarınız olduğu gibi kalır.": "سيتم حذف الاختبارات المحددة و{0} ورقة مقروءة. يبقى طلابك وصفوفك واختباراتك الأخرى كما هي.",
+ "Seçilenleri sil": "حذف المحدد",
+ "Seçimi kaldır": "إلغاء التحديد",
+ "Sınav silindi.": "تم حذف الاختبار.",
+ "Tümünü seç": "تحديد الكل",
+ "Yalnızca bu kâğıdın okuma sonucu silinir. Öğrencileriniz ve sınıflarınız olduğu gibi kalır; kâğıdı yeniden okutabilirsiniz.": "سيتم حذف نتيجة قراءة هذه الورقة فقط. يبقى طلابك وصفوفك كما هي، ويمكنك قراءة الورقة مرة أخرى.",
+ "{0} için okunan kâğıt silinir. Öğrenci kaydı ve diğer sınavları olduğu gibi kalır; kâğıdı yeniden okutabilirsiniz.": "سيتم حذف الورقة المقروءة الخاصة بـ {0}. يبقى سجل الطالب واختباراته الأخرى كما هي، ويمكنك قراءة الورقة مرة أخرى.",
+ "{0} sınav seçildi": "تم تحديد {0} اختبار",
+ "{0} sınav silindi.": "تم حذف {0} اختبار.",
+ "{0} sınav silinsin mi?": "حذف {0} اختبار؟"
 }

@@ -1484,5 +1484,20 @@
 "6 hane (eski formlar)": "6 cifre (moduli precedenti)",
 "Basılmış formlarınız hangi düzendeyse onu seçin; değiştirirseniz formları yeniden basın.": "Scegli il layout dei moduli stampati; se lo cambi, ristampali.",
 "Optik formdaki numarayla eşleşir. Boş bırakılırsa sıra numarası verilir.": "Corrisponde al numero sul modulo. Se vuoto, viene assegnato un numero progressivo.",
-"Numarası olmayan {0} öğrenciye sıra numarası verildi.": "Assegnato un numero progressivo a {0} studenti senza numero."
+"Numarası olmayan {0} öğrenciye sıra numarası verildi.": "Assegnato un numero progressivo a {0} studenti senza numero.",
+"Bu okuma silinsin mi?": "Eliminare questa lettura?",
+"Bu okumayı sil": "Elimina questa lettura",
+"Geri al": "Annulla",
+"Okuma silindi.": "Lettura eliminata.",
+"Seç ve sil": "Seleziona ed elimina",
+"Seçilen sınavlar ve okunan {0} kâğıt silinir. Öğrencileriniz, sınıflarınız ve diğer sınavlarınız olduğu gibi kalır.": "Gli esami selezionati e {0} fogli letti verranno eliminati. Studenti, classi e altri esami restano invariati.",
+"Seçilenleri sil": "Elimina selezionati",
+"Seçimi kaldır": "Deseleziona",
+"Sınav silindi.": "Esame eliminato.",
+"Tümünü seç": "Seleziona tutto",
+"Yalnızca bu kâğıdın okuma sonucu silinir. Öğrencileriniz ve sınıflarınız olduğu gibi kalır; kâğıdı yeniden okutabilirsiniz.": "Verrà eliminato solo il risultato di lettura di questo foglio. Studenti e classi restano invariati; puoi leggere di nuovo il foglio.",
+"{0} için okunan kâğıt silinir. Öğrenci kaydı ve diğer sınavları olduğu gibi kalır; kâğıdı yeniden okutabilirsiniz.": "Il foglio letto di {0} verrà eliminato. La scheda dello studente e gli altri esami restano invariati; puoi leggere di nuovo il foglio.",
+"{0} sınav seçildi": "{0} esami selezionati",
+"{0} sınav silindi.": "{0} esami eliminati.",
+"{0} sınav silinsin mi?": "Eliminare {0} esami?"
 }
