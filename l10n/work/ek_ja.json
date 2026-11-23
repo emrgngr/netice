@@ -421,5 +421,13 @@
  "{0} için okunan kâğıt silinir. Öğrenci kaydı ve diğer sınavları olduğu gibi kalır; kâğıdı yeniden okutabilirsiniz.": "{0} の読み取った用紙が削除されます。生徒の記録と他の試験はそのまま残ります。用紙は再度読み取れます。",
  "{0} sınav seçildi": "{0} 件の試験を選択",
  "{0} sınav silindi.": "{0} 件の試験を削除しました。",
- "{0} sınav silinsin mi?": "{0} 件の試験を削除しますか？"
+ "{0} sınav silinsin mi?": "{0} 件の試験を削除しますか？",
+ "Gece": "ダーク",
+ "Gece moduna geç": "ダークモードに切り替え",
+ "Gece ve gündüz modu": "ダークモードとライトモード",
+ "Görünüm": "表示",
+ "Gündüz": "ライト",
+ "Gündüz moduna geç": "ライトモードに切り替え",
+ "Otomatik": "自動",
+ "Otomatik seçilirse telefonun ayarına uyar": "自動はスマートフォンの設定に従います"
 }

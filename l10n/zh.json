@@ -1499,5 +1499,13 @@
 "{0} için okunan kâğıt silinir. Öğrenci kaydı ve diğer sınavları olduğu gibi kalır; kâğıdı yeniden okutabilirsiniz.": "将删除 {0} 的已识别答题卡。学生记录和其他考试保持不变；可以重新扫描这张答题卡。",
 "{0} sınav seçildi": "已选择 {0} 场考试",
 "{0} sınav silindi.": "已删除 {0} 场考试。",
-"{0} sınav silinsin mi?": "删除 {0} 场考试？"
+"{0} sınav silinsin mi?": "删除 {0} 场考试？",
+"Gece": "深色",
+"Gece moduna geç": "切换到深色模式",
+"Gece ve gündüz modu": "深色与浅色模式",
+"Görünüm": "外观",
+"Gündüz": "浅色",
+"Gündüz moduna geç": "切换到浅色模式",
+"Otomatik": "自动",
+"Otomatik seçilirse telefonun ayarına uyar": "自动：跟随手机设置"
 }

@@ -1499,5 +1499,13 @@
 "{0} için okunan kâğıt silinir. Öğrenci kaydı ve diğer sınavları olduğu gibi kalır; kâğıdı yeniden okutabilirsiniz.": "Der gescannte Bogen von {0} wird gelöscht. Der Schülerdatensatz und andere Prüfungen bleiben unverändert; Sie können den Bogen erneut scannen.",
 "{0} sınav seçildi": "{0} Prüfungen ausgewählt",
 "{0} sınav silindi.": "{0} Prüfungen gelöscht.",
-"{0} sınav silinsin mi?": "{0} Prüfungen löschen?"
+"{0} sınav silinsin mi?": "{0} Prüfungen löschen?",
+"Gece": "Dunkel",
+"Gece moduna geç": "Zum dunklen Modus wechseln",
+"Gece ve gündüz modu": "Dunkler und heller Modus",
+"Görünüm": "Darstellung",
+"Gündüz": "Hell",
+"Gündüz moduna geç": "Zum hellen Modus wechseln",
+"Otomatik": "Automatisch",
+"Otomatik seçilirse telefonun ayarına uyar": "Automatisch folgt der Einstellung des Telefons"
 }
