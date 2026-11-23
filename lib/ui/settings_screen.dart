@@ -261,7 +261,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   width: double.infinity,
                   child: SegmentedButton<String>(
                     showSelectedIcon: false,
-                    style: const ButtonStyle(visualDensity: VisualDensity.compact, padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 4)), textStyle: WidgetStatePropertyAll(TextStyle(fontSize: 13, fontWeight: FontWeight.w700))),
+                    style: ButtonStyle(visualDensity: VisualDensity.compact, padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 4)), textStyle: WidgetStatePropertyAll(Theme.of(context).textTheme.labelLarge?.copyWith(fontSize: 13, fontWeight: FontWeight.w700))),
                     segments: [
                       ButtonSegment(value: 'system', icon: const Icon(Icons.brightness_auto_rounded), label: FittedBox(fit: BoxFit.scaleDown, child: Text(tr('Otomatik'), maxLines: 1, softWrap: false))),
                       ButtonSegment(value: 'light', icon: const Icon(Icons.light_mode_rounded), label: FittedBox(fit: BoxFit.scaleDown, child: Text(tr('Gündüz'), maxLines: 1, softWrap: false))),
