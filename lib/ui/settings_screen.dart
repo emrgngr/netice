@@ -16,6 +16,8 @@ import 'help_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
 import 'template_screen.dart';
+import 'grade_scale_screen.dart';
+import '../core/report.dart';
 import '../l10n/l10n.dart';
 import '../core/ads.dart';
 import 'ad_slot.dart';
@@ -248,6 +250,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   : AppLanguage.byCode(L10n.code).name),
               trailing: Text(AppLanguage.byCode(L10n.code).flag, style: const TextStyle(fontSize: 22)),
               onTap: () => pickLanguage(context),
+            ),
+          ),
+          SectionTitle(tr('Not sistemi')),
+          Card(
+            clipBehavior: Clip.antiAlias,
+            child: tile(
+              Icons.military_tech_rounded,
+              NColors.emerald,
+              tr('Not sistemi'),
+              store.gradeScale?.name ?? tr('Uygulama dilinin sistemi: {0}', [Level.languageDefault.map((l) => l.name).join(' · ')]),
+              () async {
+                await GradeScaleScreen.open(context);
+                if (mounted) setState(() {});
+              },
             ),
           ),
           SectionTitle(tr('Görünüm')),

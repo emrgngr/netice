@@ -11,8 +11,10 @@ import '../omr/form_layout.dart';
 import '../omr/omr_reader.dart';
 import '../omr/sheet_reader.dart';
 import '../omr/template.dart';
+import 'grade_scale.dart';
 import 'license.dart';
 import 'referral.dart';
+import 'report.dart';
 import 'models.dart';
 import 'scoring.dart';
 import '../l10n/l10n.dart';
@@ -35,6 +37,9 @@ class AppStore extends ChangeNotifier {
 
   /// Okul ve öğretmen bilgileri (rapor başlıkları için).
   SchoolInfo school = const SchoolInfo();
+
+  /// Seçilen not sistemi; boşsa uygulama dilininki.
+  GradeScale? gradeScale;
 
   /// İlk açılış rehberi gösterildi mi?
   bool onboardingDone = false;
@@ -294,6 +299,7 @@ class AppStore extends ChangeNotifier {
         'sheets': sheets.map((s) => s.toJson()).toList(),
         'templates': templates.map((t) => t.toJson()).toList(),
         'school': school.toJson(),
+        if (gradeScale != null) 'gradeScale': gradeScale!.toJson(),
         'onboardingDone': onboardingDone,
         'rating': rating,
         'ratePrompted': ratePrompted,
@@ -347,6 +353,8 @@ class AppStore extends ChangeNotifier {
       ..clear()
       ..addAll([for (final t in (j['templates'] as List?) ?? const []) FormTemplate.fromJson((t as Map).cast<String, dynamic>())]);
     school = j['school'] is Map ? SchoolInfo.fromJson((j['school'] as Map).cast<String, dynamic>()) : const SchoolInfo();
+    gradeScale = GradeScale.fromJson(j['gradeScale']);
+    Level.useScale(gradeScale);
     onboardingDone = j['onboardingDone'] as bool? ?? onboardingDone;
     rating = (j['rating'] as num?)?.toInt() ?? rating;
     proProduct = j['proProduct'] as String? ?? proProduct;
@@ -595,6 +603,12 @@ class AppStore extends ChangeNotifier {
     _cleanImages();
     exams.removeWhere((e) => _isDemoExam(e.id));
     students.removeWhere((s) => _isDemoStudent(s.id));
+    _changed();
+  }
+
+  void setGradeScale(GradeScale? s) {
+    gradeScale = s;
+    Level.useScale(s);
     _changed();
   }
 

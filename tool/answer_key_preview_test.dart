@@ -29,6 +29,21 @@ void main() {
             created: DateTime(2026),
             updated: DateTime(2026),
           ),
+        for (var i = 0; i < 2; i++)
+          BankQuestion(
+            id: 'o$i',
+            subject: 'Biyoloji',
+            topic: 'Hücre zarından madde geçişleri',
+            outcome: outcomes[i + 1],
+            type: QuestionType.open,
+            text: '${outcomes[i + 1]} olayını bir örnekle açıklayınız.',
+            answerText: i == 0
+                ? 'Maddelerin çok yoğun ortamdan az yoğun ortama enerji harcamadan geçmesidir. Örnek: odaya sıkılan parfüm kokusunun yayılması.'
+                : 'Suyun seçici geçirgen zardan az yoğun çözeltiden çok yoğun çözeltiye geçmesidir. Örnek: tuzlu suya konan hücrenin büzülmesi.',
+            solution: 'Tanım (4 puan) + doğru örnek (6 puan).',
+            created: DateTime(2026),
+            updated: DateTime(2026),
+          ),
       ];
       final plan = BookletPlan.build(balanceAnswers(qs, seed: 3), const BookletOptions(title: '9. Sınıf Biyoloji Quiz', bookletCount: 2, shuffleChoices: true, totalScore: 100));
       final pdf = await buildBookletPdf(plan,
