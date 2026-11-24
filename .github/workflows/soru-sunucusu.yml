@@ -87,6 +87,8 @@ jobs:
             echo "Adres henüz hazır değil, 30 sn sonra yeniden denenecek ($i/20)"
             sleep 30
           done
+          # Yeni sürümün her yere ulaşması birkaç saniye sürebilir.
+          sleep 20
           # Gerçek bir deneme: her türden 1 soru üretir (anahtar, model ve türler çalışıyor mu).
           NOT='Fotosentez, yeşil bitkilerin ışık enerjisini kullanarak karbondioksit ve sudan glikoz ve oksijen ürettiği olaydır. Kloroplastlarda gerçekleşir; klorofil ışığı soğurur.'
           jq -n --arg t "$NOT" '{note:{subject:"Biyoloji",topic:"Fotosentez",text:$t},count:4,choices:5,lang:"tr",types:["multiple","true_false","fill","open"]}' > deneme.json
@@ -96,3 +98,4 @@ jobs:
           echo "HTTP $KOD"
           jq '{sorular: [.questions[] | {tur: .type, soru: .text, cevap: (if .type == "multiple" then .choices[.correct] elif .type == "true_false" then (if .correct == 0 then "Doğru" else "Yanlış" end) else .answer end), konu: .topic}], hata: .error, sorun: .problem}' cevap.json || cat cevap.json
           test "$KOD" = "200"
+          test "$(jq '[.questions[].type] | unique | length' cevap.json)" -ge 3
