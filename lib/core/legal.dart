@@ -10,6 +10,8 @@ const contactEmail = 'bilgi@cooktatlihayat.com';
 /// o zamana kadar paylaşım metni bağlantısız gider, yıldızlar uygulamada kalır.
 const storePublished = false;
 const androidPackage = 'com.netice.netice';
+/// App Store'da yayımlanınca doldurulur (ör. https://apps.apple.com/app/id123…).
+const appStoreUrl = '';
 const playStoreUrl = 'https://play.google.com/store/apps/details?id=$androidPackage';
 
 /// Belgelerin ve paylaşım mesajlarının altındaki indirme bağlantısı:
