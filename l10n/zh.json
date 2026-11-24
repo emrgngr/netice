@@ -1958,5 +1958,8 @@
 "İnternet bağlantısı yok. Soru üretmek için internete bağlanın.": "没有网络连接。请联网后再出题。",
 "İnternet gerekir · bu ay kalan: {0} / {1} soru": "需要联网 · 本月剩余：{0} / {1} 道题",
 "İnternet gerekir · deneme hakkı: {0} / {1} soru": "需要联网 · 试用剩余：{0} / {1} 道题",
-"Şık sayısı": "选项数量"
+"Şık sayısı": "选项数量",
+"Sorular 20'şer hazırlanıyor; hazır olanlar hemen aşağıya eklenir. Çok sayıda soru birkaç dakika sürebilir, ekrandan çıkmayın.": "题目每次生成 20 道，完成的会立即显示在下方。题目较多时可能需要几分钟，请不要离开此页面。",
+"Sorular hazırlanıyor… {0} / {1}": "正在生成题目… {0} / {1}",
+"ya da sayıyı kendiniz girin (en fazla {0})": "或自行输入数量（最多 {0}）"
 }

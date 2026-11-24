@@ -880,5 +880,8 @@
  "İnternet bağlantısı yok. Soru üretmek için internete bağlanın.": "Keine Internetverbindung. Verbinden Sie sich mit dem Internet, um Fragen zu erstellen.",
  "İnternet gerekir · bu ay kalan: {0} / {1} soru": "Internet erforderlich · diesen Monat übrig: {0} / {1} Fragen",
  "İnternet gerekir · deneme hakkı: {0} / {1} soru": "Internet erforderlich · Test: {0} / {1} Fragen übrig",
- "Şık sayısı": "Anzahl der Antwortoptionen"
+ "Şık sayısı": "Anzahl der Antwortoptionen",
+ "Sorular 20'şer hazırlanıyor; hazır olanlar hemen aşağıya eklenir. Çok sayıda soru birkaç dakika sürebilir, ekrandan çıkmayın.": "Die Fragen werden in 20er-Schritten erstellt; fertige erscheinen sofort unten. Viele Fragen können einige Minuten dauern, bleiben Sie auf diesem Bildschirm.",
+ "Sorular hazırlanıyor… {0} / {1}": "Fragen werden vorbereitet… {0} / {1}",
+ "ya da sayıyı kendiniz girin (en fazla {0})": "oder Anzahl selbst eingeben (höchstens {0})"
 }

@@ -1958,5 +1958,8 @@
 "İnternet bağlantısı yok. Soru üretmek için internete bağlanın.": "İnternet bağlantısı yoxdur. Sual yaratmaq üçün internetə qoşulun.",
 "İnternet gerekir · bu ay kalan: {0} / {1} soru": "İnternet tələb olunur · bu ay qalan: {0} / {1} sual",
 "İnternet gerekir · deneme hakkı: {0} / {1} soru": "İnternet tələb olunur · sınaq haqqı: {0} / {1} sual",
-"Şık sayısı": "Variant sayı"
+"Şık sayısı": "Variant sayı",
+"Sorular 20'şer hazırlanıyor; hazır olanlar hemen aşağıya eklenir. Çok sayıda soru birkaç dakika sürebilir, ekrandan çıkmayın.": "Suallar 20-20 hazırlanır; hazır olanlar dərhal aşağıya əlavə edilir. Çox sual bir neçə dəqiqə çəkə bilər, ekrandan çıxmayın.",
+"Sorular hazırlanıyor… {0} / {1}": "Suallar hazırlanır… {0} / {1}",
+"ya da sayıyı kendiniz girin (en fazla {0})": "və ya sayı özünüz daxil edin (ən çox {0})"
 }
