@@ -1,0 +1,97 @@
+{
+ "_not": "ses: 'elevenlabs' olan sahneler tool/magaza/seslendir.py ile üretilir (<kare>.mp3).",
+ "sahneler": [
+  {
+   "kare": "kare_00",
+   "ses": "elevenlabs",
+   "metin": "Netice ile optik formları, telefonunuzla saniyeler içinde okuyun. Kayıt gerekmez."
+  },
+  {
+   "kare": "kare_01",
+   "ses": "elevenlabs",
+   "hedef": [
+    1293,
+    393,
+    1639,
+    464
+   ],
+   "metin": "Okut düğmesine dokunun ve kamerayı forma tutun. Netice kâğıdı kendiliğinden bulur, okur ve puanlar."
+  },
+  {
+   "kare": "kare_02",
+   "ses": "elevenlabs",
+   "hedef": [
+    1274,
+    254,
+    1656,
+    446
+   ],
+   "metin": "Sınıf ortalaması, puan dağılımı ve sıralama, anında hazır."
+  },
+  {
+   "kare": "kare_03",
+   "ses": "elevenlabs",
+   "hedef": [
+    1264,
+    416,
+    1668,
+    565
+   ],
+   "metin": "Kütüphanede kendi soru bankanızı kurun. Sorular, konu özetleri ve hap bilgiler tek yerde."
+  },
+  {
+   "kare": "kare_04",
+   "ses": "elevenlabs",
+   "hedef": [
+    1286,
+    347,
+    1632,
+    450
+   ],
+   "metin": "Bankadan soru seçin, sınav kitapçığınızı hazırlayın. A'dan H'ye kitapçık türleri, karışık şıklar, PDF ya da Word."
+  },
+  {
+   "kare": "kare_05",
+   "ses": "elevenlabs",
+   "hedef": [
+    1293,
+    596,
+    1554,
+    706
+   ],
+   "metin": "Konu ve kazanım analizinin ardından, her öğrenciye kendi eksiklerine göre bir tekrar testi hazırlayın."
+  },
+  {
+   "kare": "kare_06",
+   "ses": "elevenlabs",
+   "hedef": [
+    1269,
+    197,
+    1663,
+    471
+   ],
+   "metin": "Bütün sınıfın karnelerini, hazır mesajla, velilere sırayla gönderin."
+  },
+  {
+   "kare": "kare_07",
+   "ses": "elevenlabs",
+   "hedef": [
+    1269,
+    340,
+    1663,
+    490
+   ],
+   "metin": "Aynı Wi-Fi ağındaki öğretmenler, ortak sınavın sonuçlarını internetsiz ve dosyasız, tek cihazda toplar."
+  },
+  {
+   "kare": "kare_08",
+   "ses": "elevenlabs",
+   "metin": "Kendi optik formunuzu yazdırın. Dört küçük formlu kısa quiz kâğıdıyla kâğıttan da tasarruf edin."
+  },
+  {
+   "kare": "kare_99",
+   "ses": "elevenlabs",
+   "metin": "Kayıt gerekmez, internetsiz çalışır, verileriniz cihazınızda kalır. Netice'yi hemen Google Play'den indirin."
+  }
+ ]
+}

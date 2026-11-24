@@ -321,7 +321,7 @@ class _ProScreenState extends State<ProScreen> {
             }),
             const SizedBox(height: 6),
             Text(
-              tr('{0} alınır. Sınav dönemi paketi ve ek soru paketi tek seferliktir ve yenilenmez. Yıllık abonelik, dönem bitmeden en az 24 saat önce iptal edilmezse aynı süre ve fiyatla kendiliğinden yenilenir. {1} bölümünden istediğiniz zaman iptal edebilirsiniz; iptal edilen abonelik dönem sonuna kadar geçerlidir. Pro\'ya geçmek verilerinizin yerini değiştirmez: her şey yine bu cihazda kalır.', [Platform.isIOS ? tr('Ödeme Apple Kimliğinizden') : tr('Ödeme Google Play hesabınızdan'), Platform.isIOS ? tr('Ayarlar > Apple Kimliği > Abonelikler') : tr('Google Play > Abonelikler')]),
+              tr('{0} alınır. Sınav dönemi paketi ve ek soru paketi tek seferliktir ve yenilenmez. Yıllık abonelik, dönem bitmeden en az 24 saat önce iptal edilmezse aynı süre ve fiyatla kendiliğinden yenilenir. {1} bölümünden istediğiniz zaman iptal edebilirsiniz; iptal edilen abonelik dönem sonuna kadar geçerlidir. Pro\'ya geçmek verilerinizin yerini değiştirmez: her şey yine bu cihazda kalır.', [Platform.isIOS || Platform.isMacOS ? tr('Ödeme Apple Kimliğinizden') : tr('Ödeme Google Play hesabınızdan'), Platform.isIOS || Platform.isMacOS ? tr('Ayarlar > Apple Kimliği > Abonelikler') : tr('Google Play > Abonelikler')]),
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.white.withValues(alpha: 0.45), fontSize: 11.5, height: 1.45),
             ),
@@ -513,7 +513,7 @@ class _ActiveCard extends StatelessWidget {
           OutlinedButton(
             style: OutlinedButton.styleFrom(foregroundColor: Colors.white, side: const BorderSide(color: Colors.white38)),
             onPressed: () => launchUrl(
-                Uri.parse(Platform.isIOS
+                Uri.parse(Platform.isIOS || Platform.isMacOS
                     ? 'https://apps.apple.com/account/subscriptions'
                     : 'https://play.google.com/store/account/subscriptions?package=$androidPackage'),
                 mode: LaunchMode.externalApplication),

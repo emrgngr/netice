@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../core/analysis.dart';
 import '../core/models.dart';
+import '../core/store.dart';
 import '../core/progress.dart';
 import '../main.dart';
 import 'compare_screen.dart';
@@ -325,20 +326,30 @@ class _DashboardState extends State<_Dashboard> {
                   Text(greeting, style: t.textTheme.bodyMedium?.copyWith(color: t.colorScheme.onSurface.withValues(alpha: 0.6))),
                   Text(tr('Pano'), style: t.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800, letterSpacing: -0.5)),
                 ]),
-                const Spacer(),
-                const LiveClock(),
-                const SizedBox(width: 8),
-                const _ThemeToggle(),
-                IconButton(tooltip: tr('Yardım ve SSS'), onPressed: openHelp, icon: const Icon(Icons.help_outline_rounded)),
-                IconButton(tooltip: tr('Ayarlar'), onPressed: openSettings, icon: const Icon(Icons.settings_outlined)),
-                const SizedBox(width: 8),
-                OutlinedButton.icon(
-                  onPressed: () => _startScan(context),
-                  icon: const Icon(Icons.upload_file),
-                  label: Text(tr('PDF / tarama yükle')),
+                const SizedBox(width: 16),
+                // Dar pencerelerde ve uzun çevirilerde düğmeler alt satıra iner.
+                Expanded(
+                  child: Wrap(
+                    alignment: WrapAlignment.end,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      const LiveClock(),
+                      Row(mainAxisSize: MainAxisSize.min, children: [
+                        const _ThemeToggle(),
+                        IconButton(tooltip: tr('Yardım ve SSS'), onPressed: openHelp, icon: const Icon(Icons.help_outline_rounded)),
+                        IconButton(tooltip: tr('Ayarlar'), onPressed: openSettings, icon: const Icon(Icons.settings_outlined)),
+                      ]),
+                      OutlinedButton.icon(
+                        onPressed: () => _startScan(context),
+                        icon: const Icon(Icons.upload_file),
+                        label: Text(tr('PDF / tarama yükle')),
+                      ),
+                      FilledButton.icon(onPressed: newExam, icon: const Icon(Icons.add), label: Text(tr('Yeni sınav'))),
+                    ],
+                  ),
                 ),
-                const SizedBox(width: 10),
-                FilledButton.icon(onPressed: newExam, icon: const Icon(Icons.add), label: Text(tr('Yeni sınav'))),
               ]),
             ),
           )
@@ -347,7 +358,7 @@ class _DashboardState extends State<_Dashboard> {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
             sliver: SliverToBoxAdapter(child: hero),
           ),
-        if (store.hasDemo)
+        if (store.hasDemo && AppStore.showDemoNotice)
           SliverPadding(
             padding: EdgeInsets.fromLTRB(wide ? 28 : 16, 12, wide ? 28 : 16, 0),
             sliver: const SliverToBoxAdapter(child: DemoDataCard()),

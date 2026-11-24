@@ -8,6 +8,7 @@ import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
 import '../bank/ai_questions.dart';
 import 'campaigns.dart';
 import 'price_increase.dart';
+import 'legal.dart';
 import 'referral.dart';
 import 'store.dart';
 import '../l10n/l10n.dart';
@@ -146,9 +147,9 @@ class ProService {
   /// Arkadaşın davet kodu girilmiş mi (yıllık abonelikte %15 indirim)?
   bool get inviteApplied => _store?.appliedInvite != null && _store?.hasSubscription != true;
 
-  /// Abonelik yalnızca mağaza olan platformlarda satılır. Bilgisayar
-  /// sürümünde Pro özellikleri şimdilik açıktır.
-  static bool get storeSupported => Platform.isAndroid || Platform.isIOS;
+  /// Abonelik mağazası olan platformlar (Mac App Store dahil). Windows'ta
+  /// Pro, sitemizden satılan lisans koduyla açılır.
+  static bool get storeSupported => Platform.isAndroid || Platform.isIOS || Platform.isMacOS;
 
   AppStore? _store;
   StreamSubscription<List<PurchaseDetails>>? _sub;
@@ -253,7 +254,9 @@ class ProService {
 
   /// Satın almayı başlatır. Sonuç [events] ve mağaza durumuyla gelir.
   Future<String?> buy(ProPlan plan) async {
-    if (!storeSupported) return tr('Abonelik telefondaki Google Play üzerinden alınır.');
+    if (!storeSupported) {
+      return tr('Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.', [contactEmail]);
+    }
     final d = plan.details;
     if (d == null) {
       return tr('Abonelik henüz mağazada açılmadı. Uygulama Google Play\'de yayımlanınca satın alınabilecek.');
