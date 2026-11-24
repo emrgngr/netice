@@ -1389,5 +1389,18 @@
  "İlkokul öğrencileri optik form doldurabilir mi?": "小学生でもマークシートに記入できますか？",
  "İri yazı, renkli soru numaraları, A–B–C şıkları ve çocuklara uygun yönerge gelir.": "大きな文字、カラフルな問題番号、A–B–Cの選択肢、子ども向けの説明になります。",
  "İsimli cevap kartlarını sınav ekranındaki \"Form yazdır\" ile basabilirsiniz. Çocuk sınavlarının karnesi de yıldızlı, sade bir tasarımla çıkar.": "テスト画面の「シートを印刷」で名前入りの解答カードを印刷できます。子ども向けテストの通知表も星を使ったシンプルなデザインになります。",
- "Kurumunuzun resmi başlığı ve imza alanı": "所属機関の正式なレターヘッドと署名欄"
+ "Kurumunuzun resmi başlığı ve imza alanı": "所属機関の正式なレターヘッドと署名欄",
+ "Kütüphaneniz bu cihazda {0} yer kaplıyor.": "ライブラリはこの端末で {0} を使用しています。",
+ "Sabit bir sınır yoktur; sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar.": "決まった上限はなく、端末の空き容量が上限になります。文字だけの問題は約1 KB、画像付きの問題は100〜300 KBです。",
+ "Kütüphanenin depolama alanı ne kadar?": "ライブラリの保存容量はどれくらいですか？",
+ "Sabit bir sınır yoktur; her şey cihazınızda saklanır ve sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar; 1.000 görselli soru yaklaşık 150–300 MB eder. Kütüphanenin şu an ne kadar yer kapladığını Kütüphane > Analiz sekmesinin en altında görürsünüz.": "決まった上限はありません。すべて端末内に保存されるため、端末の空き容量が上限です。文字だけの問題は約1 KB、画像付きの問題は100〜300 KBで、画像付き1,000問で約150〜300 MBです。現在の使用量は「ライブラリ > 分析」の一番下で確認できます。",
+ "\"Bu okumayı sil\" yalnızca bu kâğıdı siler. Öğrenci kaydı kalır, kâğıdı yeniden okutabilirsiniz.": "「この読み取りを削除」はこの答案だけを削除します。生徒の記録は残り、答案は読み取り直せます。",
+ "Ana sayfayı aşağı kaydırın ve \"Son sınavlar\" bölümündeki \"Seç ve sil\"e dokunun. Bir sınav kartına uzun basarak da seçmeye başlayabilirsiniz.": "ホーム画面を下にスクロールし、「最近のテスト」の「選択して削除」をタップします。テストのカードを長押しして選択を始めることもできます。",
+ "Bir kâğıdı silin veya yeniden okutun": "答案を削除する・読み取り直す",
+ "Silmek istediğiniz sınavlara dokunun ya da \"Tümünü seç\"i kullanın.": "削除したいテストをタップするか、「すべて選択」を使います。",
+ "Sonuçlar listesinde öğrenciye dokunun.": "結果一覧で生徒をタップします。",
+ "Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.": "ごみ箱をタップして確定します。生徒とクラスは削除されません。",
+ "Silme ve düzeltme": "削除と修正",
+ "Sınavları seçip silin": "テストを選んで削除",
+ "Yanlışlıkla silerseniz altta beliren \"Geri al\" düğmesine 6 saniye içinde dokunun.": "うっかり削除したら、6秒以内に下の「元に戻す」をタップします。"
 }

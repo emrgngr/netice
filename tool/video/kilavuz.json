@@ -38,6 +38,12 @@
    "k_yz_soru",
    "k_cocuk"
   ],
+  "fix": [
+   "k_sec_sil",
+   "k_secildi",
+   "k_kontrol",
+   "k_okuma_sil"
+  ],
   "data": [
    "12_ayarlar",
    "k_yedek"

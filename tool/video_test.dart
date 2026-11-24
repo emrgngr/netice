@@ -370,6 +370,26 @@ void main() {
     await scene('k_not_sistemi', const GradeScaleScreen(),
         () => [text(tr('Hazır sistemler')), text(tr('Kendim yazacağım')), text(tr('Düzeyler'))],
         then: () => reveal(text(tr('Kendim yazacağım'))));
+    // Silme ve düzeltme (bölüm videosu "fix").
+    Future<void> toSelect() async {
+      for (var i = 0; i < 8 && find.text(tr('Seç ve sil')).evaluate().isEmpty; i++) {
+        await tester.drag(find.byType(CustomScrollView).first, const Offset(0, -250));
+        await settle();
+      }
+      await reveal(find.text(tr('Seç ve sil')));
+    }
+    await scene('k_sec_sil', const HomeScreen(), () => [text(tr('Seç ve sil'))], then: toSelect);
+    await scene('k_secildi', const HomeScreen(),
+        () => [find.byIcon(Icons.check_rounded), text(tr('Tümünü seç')), tip(tr('Seçilenleri sil'))], then: () async {
+      await toSelect();
+      await tester.tap(find.text(tr('Seç ve sil')).first);
+      await settle();
+      await tester.tap(find.text(tr('Fizik Quiz 1 (örnek)')).first);
+    });
+    await scene('k_okuma_sil', const ExamScreen(examId: 'demo_exam'), () => [text(tr('Bu okumayı sil'))], then: () async {
+      await reveal(find.byType(ListTile).at(2));
+      await tester.tap(find.byType(ListTile).at(2));
+    });
     // Netice Pro (bölüm videosu "pro"): kampanyasız bir gün, deneme bitmiş.
     Campaign.debugNow = DateTime(2026, 10, 15);
     AppStore.proFreeOnThisPlatform = false;

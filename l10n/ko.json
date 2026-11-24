@@ -2395,5 +2395,18 @@
 "İsimli cevap kartlarını sınav ekranındaki \"Form yazdır\" ile basabilirsiniz. Çocuk sınavlarının karnesi de yıldızlı, sade bir tasarımla çıkar.": "시험 화면의 \"답안지 인쇄\"로 이름이 들어간 답안 카드를 인쇄할 수 있습니다. 어린이 시험의 성적표도 별이 들어간 간단한 디자인으로 나옵니다.",
 "Kurumunuzun resmi başlığı ve imza alanı": "기관의 공식 머리말과 서명란",
 "Reklamsız kullanım": "광고 없음",
-"Hiçbir sayfada reklam gösterilmez": "어떤 페이지에도 광고가 나오지 않습니다"
+"Hiçbir sayfada reklam gösterilmez": "어떤 페이지에도 광고가 나오지 않습니다",
+"Kütüphaneniz bu cihazda {0} yer kaplıyor.": "라이브러리가 이 기기에서 {0}를 사용하고 있습니다.",
+"Sabit bir sınır yoktur; sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar.": "정해진 한도는 없으며 기기의 남은 저장 공간이 한도입니다. 글자만 있는 문항은 약 1 KB, 그림이 있는 문항은 100–300 KB입니다.",
+"Kütüphanenin depolama alanı ne kadar?": "라이브러리 저장 공간은 얼마나 되나요?",
+"Sabit bir sınır yoktur; her şey cihazınızda saklanır ve sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar; 1.000 görselli soru yaklaşık 150–300 MB eder. Kütüphanenin şu an ne kadar yer kapladığını Kütüphane > Analiz sekmesinin en altında görürsünüz.": "정해진 한도는 없습니다. 모든 내용이 기기에 저장되므로 기기의 남은 공간이 한도입니다. 글자만 있는 문항은 약 1 KB, 그림이 있는 문항은 100–300 KB이며, 그림 문항 1,000개는 약 150–300 MB입니다. 지금 사용 중인 용량은 라이브러리 > 분석 화면 맨 아래에서 볼 수 있습니다.",
+"\"Bu okumayı sil\" yalnızca bu kâğıdı siler. Öğrenci kaydı kalır, kâğıdı yeniden okutabilirsiniz.": "\"이 스캔 삭제\"는 이 답안지만 지웁니다. 학생 기록은 남아 있고 답안지를 다시 스캔할 수 있습니다.",
+"Ana sayfayı aşağı kaydırın ve \"Son sınavlar\" bölümündeki \"Seç ve sil\"e dokunun. Bir sınav kartına uzun basarak da seçmeye başlayabilirsiniz.": "홈 화면을 아래로 내려 \"최근 시험\"의 \"선택해서 삭제\"를 누르세요. 시험 카드를 길게 눌러 선택을 시작할 수도 있습니다.",
+"Bir kâğıdı silin veya yeniden okutun": "답안지 삭제 또는 다시 스캔",
+"Silmek istediğiniz sınavlara dokunun ya da \"Tümünü seç\"i kullanın.": "삭제할 시험을 누르거나 \"모두 선택\"을 사용하세요.",
+"Sonuçlar listesinde öğrenciye dokunun.": "결과 목록에서 학생을 누르세요.",
+"Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.": "휴지통을 누르고 확인하세요. 학생과 반은 삭제되지 않습니다.",
+"Silme ve düzeltme": "삭제와 수정",
+"Sınavları seçip silin": "시험을 골라 삭제",
+"Yanlışlıkla silerseniz altta beliren \"Geri al\" düğmesine 6 saniye içinde dokunun.": "실수로 지웠다면 아래에 나오는 \"실행 취소\"를 6초 안에 누르세요."
 }

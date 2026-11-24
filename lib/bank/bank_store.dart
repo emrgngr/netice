@@ -42,6 +42,21 @@ class BankStore extends ChangeNotifier {
   File? get _file => _dir == null ? null : File('${_dir!.path}${Platform.pathSeparator}banka.json');
   Directory? get _imageDir => _dir == null ? null : Directory('${_dir!.path}${Platform.pathSeparator}gorseller');
 
+  /// Kütüphanenin (sorular, notlar, kitapçıklar ve görseller) cihazda kapladığı yer, bayt.
+  Future<int> diskUsage() async {
+    final d = _dir;
+    if (d == null || !await d.exists()) return 0;
+    var total = 0;
+    await for (final e in d.list(recursive: true, followLinks: false)) {
+      if (e is File) {
+        try {
+          total += await e.length();
+        } catch (_) {}
+      }
+    }
+    return total;
+  }
+
   /// [dir]: uygulama verisinin klasörü (verilmezse uygulama destek klasörü).
   Future<void> load({Directory? dir}) async {
     final base = dir ?? await getApplicationSupportDirectory();

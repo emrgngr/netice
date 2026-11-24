@@ -7,7 +7,8 @@
   "report": "Resultados e informes",
   "data": "Tus datos",
   "library": "Banco de preguntas y cuadernillos",
-  "pro": "Netice Pro"
+  "pro": "Netice Pro",
+  "fix": "Borrar y corregir"
  },
  "k_sinav_ayar": "En Ajustes del examen, fija la puntuación máxima, la nota de aprobado y si las incorrectas restan. Aquí también añades tipos de cuadernillo y preguntas escritas.",
  "k_sablon": "Si usas la hoja de una editorial o de otra empresa, crea una plantilla una sola vez en Ajustes, apartado Otras hojas.",
@@ -27,5 +28,8 @@
  "k_pro_alt": "Cuando se acabe tu cupo mensual, puedes comprar un paquete extra de preguntas que no caduca. Si cinco o más docentes del mismo centro compran juntos, el paquete para centros les da descuento.",
  "k_okul": "En la pantalla del paquete para centros, escribe el número de docentes, mira el precio con descuento y toca Solicitar presupuesto para tu centro. Cuando se aprueba, tu centro recibe un código institucional.",
  "k_sinif_analiz": "Si hiciste el mismo examen en varias clases, el Análisis por clase de la pantalla de inicio las muestra una al lado de la otra. Aquí tienes lo más destacado, la diferencia con la media general y el porcentaje de aciertos de cada pregunta; con el botón de arriba a la derecha obtienes un informe PDF.",
- "k_genel_istatistik": "Las Estadísticas generales muestran juntos los resultados de todas las clases y de todos los alumnos que hicieron un examen. Filtra por periodo y clase, y comparte el informe en PDF."
+ "k_genel_istatistik": "Las Estadísticas generales muestran juntos los resultados de todas las clases y de todos los alumnos que hicieron un examen. Filtra por periodo y clase, y comparte el informe en PDF.",
+ "k_sec_sil": "Para eliminar un examen, desplázate hacia abajo en la pantalla de inicio y toca Seleccionar y eliminar en Exámenes recientes. También puedes empezar manteniendo pulsada una tarjeta de examen.",
+ "k_secildi": "Toca los exámenes que quieras eliminar o usa Seleccionar todo; después toca la papelera y confirma. Tus alumnos no se eliminan. Si borras algo por error, toca Deshacer abajo.",
+ "k_okuma_sil": "Para eliminar una sola hoja, toca al alumno en la lista de Resultados y elige Eliminar esta lectura. El registro del alumno se mantiene y puedes volver a leer la hoja."
 }

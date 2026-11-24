@@ -7,7 +7,8 @@
   "report": "Ergebnisse und Berichte",
   "data": "Ihre Daten",
   "library": "Fragenbank und Aufgabenhefte",
-  "pro": "Netice Pro"
+  "pro": "Netice Pro",
+  "fix": "Löschen und Korrigieren"
  },
  "k_sinav_ayar": "In den Prüfungseinstellungen legen Sie die volle Punktzahl, die Bestehensgrenze und den Abzug für falsche Antworten fest. Hier fügen Sie auch Hefttypen und schriftliche Fragen hinzu.",
  "k_sablon": "Wenn Sie den Bogen eines Verlags oder einer anderen Firma verwenden, legen Sie dafür einmal eine Vorlage unter Andere Bögen in den Einstellungen an.",
@@ -27,5 +28,8 @@
  "k_pro_alt": "Ist Ihr Monatskontingent aufgebraucht, kaufen Sie ein Zusatzpaket, das nicht verfällt. Kaufen fünf oder mehr Lehrkräfte derselben Schule gemeinsam, gibt es mit dem Schulpaket Rabatt.",
  "k_okul": "Geben Sie im Schulpaket die Zahl der Lehrkräfte ein, sehen Sie den reduzierten Preis und tippen Sie auf Angebot für Ihre Schule anfordern. Nach der Freigabe erhält Ihre Schule einen Einrichtungscode.",
  "k_sinif_analiz": "Wenn Sie dieselbe Prüfung in mehreren Klassen geschrieben haben, zeigt die Klassenanalyse auf dem Startbildschirm die Klassen nebeneinander. Hier sehen Sie das Wichtigste, den Abstand zum Gesamtdurchschnitt und die Lösungsquote je Frage; mit der Schaltfläche oben rechts erhalten Sie einen PDF-Bericht.",
- "k_genel_istatistik": "Die Gesamtstatistik zeigt die Ergebnisse aller Klassen und aller geprüften Schüler zusammen. Grenzen Sie nach Zeitraum und Klasse ein und teilen Sie den Bericht als PDF."
+ "k_genel_istatistik": "Die Gesamtstatistik zeigt die Ergebnisse aller Klassen und aller geprüften Schüler zusammen. Grenzen Sie nach Zeitraum und Klasse ein und teilen Sie den Bericht als PDF.",
+ "k_sec_sil": "Um eine Prüfung zu löschen, scrollen Sie auf dem Startbildschirm nach unten und tippen Sie bei Letzte Prüfungen auf Auswählen und löschen. Sie können auch mit langem Drücken auf eine Prüfungskarte beginnen.",
+ "k_secildi": "Tippen Sie auf die Prüfungen, die Sie löschen möchten, oder auf Alle auswählen, dann auf den Papierkorb, und bestätigen Sie. Ihre Schüler bleiben erhalten. Haben Sie versehentlich gelöscht, tippen Sie unten auf Rückgängig.",
+ "k_okuma_sil": "Um einen einzelnen Bogen zu löschen, tippen Sie in der Ergebnisliste auf den Schüler und wählen Sie Diesen Scan löschen. Der Schülereintrag bleibt, und Sie können den Bogen erneut scannen."
 }

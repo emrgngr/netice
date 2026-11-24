@@ -7,7 +7,8 @@
   "report": "Results and reports",
   "data": "Your data",
   "library": "Question bank and booklets",
-  "pro": "Netice Pro"
+  "pro": "Netice Pro",
+  "fix": "Deleting and fixing"
  },
  "k_sinav_ayar": "In Exam settings, set the full score, the passing score and whether wrong answers deduct. You can also add booklet types and written questions here.",
  "k_sablon": "If you use a publisher's or another company's form, create a template for it once under Other forms in Settings.",
@@ -27,5 +28,8 @@
  "k_pro_alt": "When your monthly allowance runs out, you can buy an extra question pack that never expires. If five or more teachers from the same school buy together, the school package gives them a discount.",
  "k_okul": "On the school package screen, enter the number of teachers, see the discounted price and tap Request a quote for your school. Once approved, your school receives an institution code.",
  "k_sinif_analiz": "If you gave the same exam in several classes, Class-by-class analysis on the home screen puts them side by side. Highlights, the difference from the overall average and question-by-question correct rates are here; get a PDF report with the button at the top right.",
- "k_genel_istatistik": "General statistics shows the results of all classes and every student who took an exam together. Narrow it down by period and class, and share the report as a PDF."
+ "k_genel_istatistik": "General statistics shows the results of all classes and every student who took an exam together. Narrow it down by period and class, and share the report as a PDF.",
+ "k_sec_sil": "To delete an exam, scroll down the home screen and tap Select and delete in the Recent exams section. You can also start selecting by long-pressing an exam card.",
+ "k_secildi": "Tap the exams you want to delete, or use Select all, then tap the trash can and confirm. Your students are not deleted. If you delete something by mistake, tap Undo at the bottom.",
+ "k_okuma_sil": "To delete a single sheet, tap the student in the Results list and choose Delete this scan. The student record stays, and you can scan the sheet again."
 }
