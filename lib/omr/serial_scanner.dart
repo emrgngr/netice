@@ -10,7 +10,15 @@ class SerialScanner {
   /// Kabul için gereken ardışık aynı okuma sayısı.
   final int requiredMatches;
 
-  SerialScanner({this.requiredMatches = 2});
+  /// Bu kadar ardışık karede form görünmezse son kabul edilen kâğıt
+  /// unutulur; aynı cevaplı bir sonraki kâğıt da kabul edilir. 0 = hiç
+  /// unutma. İsimsiz çocuk kartlarında (aynı cevaplı tam puanlı kâğıtlar
+  /// art arda gelebilir) kullanılır.
+  final int releaseAfter;
+
+  SerialScanner({this.requiredMatches = 2, this.releaseAfter = 0});
+
+  int _gone = 0;
 
   String? _candidate;
   int _matches = 0;
@@ -20,7 +28,7 @@ class SerialScanner {
   bool formVisible = false;
 
   static String signature(OmrResult r) =>
-      '${r.studentNumber ?? '?'}|${r.questions.map((q) => '${q.answer.state.index}${q.answer.marked.join()}').join(',')}';
+      '${r.studentNumber ?? r.code?.studentNumber ?? '?'}|${r.questions.map((q) => '${q.answer.state.index}${q.answer.marked.join()}').join(',')}';
 
   /// Bir karenin sonucunu verir; kabul edilen yeni bir kâğıt varsa döndürür.
   OmrResult? feed(OmrResult? r) {
@@ -28,8 +36,10 @@ class SerialScanner {
       formVisible = false;
       _candidate = null;
       _matches = 0;
+      if (releaseAfter > 0 && ++_gone >= releaseAfter) _lastAccepted = null;
       return null;
     }
+    _gone = 0;
     formVisible = true;
     final sig = signature(r);
     if (sig == _lastAccepted) return null; // aynı kâğıt hâlâ çerçevede

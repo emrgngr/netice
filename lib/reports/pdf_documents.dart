@@ -19,6 +19,7 @@ import '../omr/form_code.dart';
 import '../omr/form_layout.dart';
 import '../l10n/l10n.dart';
 import 'brand_footer.dart';
+import 'kid_pdf.dart';
 
 const _ink = PdfColor.fromInt(0xFF0F1B3D);
 const _emerald = PdfColor.fromInt(0xFF10B981);
@@ -121,6 +122,8 @@ Future<Uint8List> buildFormsPdf(Exam exam, List<Student> students,
 /// sınavıyla (makine kodu) basılır. Kitapçıklar her şubede A'dan başlar.
 Future<Uint8List> buildClassFormsPdf(List<(Exam, List<Student>)> groups,
     {int blankCopies = 1, SchoolInfo school = const SchoolInfo(), bool alternateBooklets = false}) async {
+  // Çocuk (ilkokul) sınavları: köşedeki kutunun isimli kartları (A4'e 4 kart).
+  if (groups.every((g) => g.$1.kidForm)) return buildKidCardsPdf(groups, blankCopies: blankCopies, school: school);
   final fonts = await _Fonts.load();
   final first = groups.first.$1;
   final doc = pw.Document(theme: fonts.theme, title: tr('{0} · optik form', [first.name]), author: tr('Netice'));

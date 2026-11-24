@@ -309,7 +309,10 @@ class OmrReader {
   static bool _inside(GrayImage im, Pt p) => p.x >= 0 && p.y >= 0 && p.x < im.width - 0.5 && p.y < im.height - 0.5;
 
   /// Bir sorunun doluluk değerlerinden kararı verir.
-  Answer classify(FillValues fills) {
+  Answer classify(FillValues fills) => classifyFills(fills, thresholds);
+
+  /// [classify]'ın okuyucudan bağımsız hâli (başka form düzenleri için).
+  static Answer classifyFills(FillValues fills, OmrThresholds thresholds) {
     final filled = <int>{};
     final faint = <int>{};
     for (var i = 0; i < fills.length; i++) {
@@ -343,6 +346,16 @@ class OmrReader {
   }
 
   static List<Pt> _findMarkers(GrayImage image, {required bool adaptive}) {
+    final candidates = markerCandidates(image, adaptive: adaptive);
+    final w = image.width, h = image.height;
+    const f = 1;
+    return _pickCorners(image, candidates, w, h, f);
+  }
+
+  /// Görüntüdeki kare biçimli koyu lekeler (köşe işareti adayları).
+  /// [maxSideFraction]: bir adayın kenarı, görüntünün kısa kenarının en çok
+  /// bu kadarı olabilir (yakından çekilen küçük cevap kutusunda daha büyük).
+  static List<MarkerBlob> markerCandidates(GrayImage image, {required bool adaptive, double maxSideFraction = 0.12}) {
     // Hız için küçült.
     const target = 900;
     final f = math.max(1, (math.max(image.width, image.height) / target).ceil());
@@ -391,9 +404,9 @@ class OmrReader {
     }
 
     final labels = Int32List(w * h);
-    final candidates = <_Blob>[];
+    final candidates = <MarkerBlob>[];
     final minSide = math.min(w, h) * 0.02;
-    final maxSide = math.min(w, h) * 0.12;
+    final maxSide = math.min(w, h) * maxSideFraction;
     var next = 1;
     final stack = <int>[];
     for (var start = 0; start < dark.length; start++) {
@@ -431,9 +444,12 @@ class OmrReader {
       if (aspect < 0.6 || aspect > 1.67) continue;
       // Döndürülmüş kare için doluluk oranı en az ~0.5'tir.
       if (area / (bw * bh) < 0.5) continue;
-      candidates.add(_Blob(Pt(sx / area * f + f / 2, sy / area * f + f / 2), area));
+      candidates.add(MarkerBlob(Pt(sx / area * f + f / 2, sy / area * f + f / 2), area * f * f, (bw + bh) / 2 * f));
     }
+    return candidates;
+  }
 
+  static List<Pt> _pickCorners(GrayImage image, List<MarkerBlob> candidates, int w, int h, int f) {
     if (candidates.length < 4) {
       throw const OmrException(
           'Kâğıdın dört köşesindeki siyah kareler bulunamadı. Kâğıdın tamamı görünecek şekilde biraz uzaklaştırın.');
@@ -450,7 +466,7 @@ class OmrReader {
     final big = candidates.where((c) => c.area >= maxArea * 0.35).toList();
     final chosen = <Pt>[];
     for (final corner in corners) {
-      _Blob? best;
+      MarkerBlob? best;
       var bestD = double.infinity;
       for (final c in big) {
         final d = (c.center.x - corner.x).abs() + (c.center.y - corner.y).abs();
@@ -545,8 +561,10 @@ class OmrReader {
   }
 }
 
-class _Blob {
+/// Köşe işareti adayı: merkez (piksel), alan (piksel²) ve ortalama kenar (piksel).
+class MarkerBlob {
   final Pt center;
   final int area;
-  _Blob(this.center, this.area);
+  final double side;
+  MarkerBlob(this.center, this.area, this.side);
 }

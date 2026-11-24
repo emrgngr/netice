@@ -1070,7 +1070,8 @@ ReadSpec specFor(AppStore store, Exam exam) => ReadSpec(
       choices: exam.choiceCount,
       booklets: exam.bookletCount,
       digits: exam.numberDigits,
-      template: store.templateById(exam.templateId),
+      template: exam.kidForm ? null : store.templateById(exam.templateId),
+      kids: exam.kidForm,
     );
 
 /// Sınavın A4 formu ya da (kâğıt kısa quiz formuysa) çeyrek A4 formu yerleşimi.
@@ -1081,7 +1082,7 @@ FormLayout layoutFor(Exam exam, {bool mini = false}) => mini && exam.questionCou
 
 /// Sınav çeyrek A4 kısa quiz formuyla basılabilir mi?
 bool miniFormAllowed(Exam exam) =>
-    exam.templateId == null && !exam.hasBooklets && exam.questionCount <= MiniFormLayout.maxQuestionsFor(exam.numberDigits);
+    !exam.kidForm && exam.templateId == null && !exam.hasBooklets && exam.questionCount <= MiniFormLayout.maxQuestionsFor(exam.numberDigits);
 
 /// Seçili sınav için okuma motoru oluşturur.
 OmrReader readerFor(Exam exam) => OmrReader(

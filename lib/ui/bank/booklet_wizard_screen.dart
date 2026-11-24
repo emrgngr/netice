@@ -10,6 +10,8 @@ import '../../core/models.dart';
 import '../../core/pro.dart';
 import '../../l10n/l10n.dart';
 import '../../main.dart';
+import '../../omr/form_code.dart';
+import '../../omr/kid_layout.dart';
 import '../../reports/booklet_pdf.dart';
 import '../../reports/booklet_docx.dart';
 import '../common_exam_ui.dart' show saveOrShareBytes;
@@ -124,8 +126,11 @@ class _BookletWizardScreenState extends State<BookletWizardScreen> {
     final qs = _questions;
     final plan = BookletPlan.build(qs, o);
     final store = StoreScope.of(context);
+    // Çocuk şablonunda sınav önceden oluşturulduysa (tek sınıf) cevap kutusuna sınavın kodu basılır.
+    final kidExams = o.kids ? store.exams.where((e) => e.kidForm && _examIds.contains(e.id)).toList() : const <Exam>[];
     return buildBookletPdf(
       plan,
+      examCode: kidExams.length == 1 ? FormCode.examCodeOf(kidExams.first.id) : null,
       school: store.reportSchool,
       image: bank.imageBytes,
       parts: BookletPdfParts(variants: _previewVariants, answerKey: o.answerKeyPage, solutions: o.solutionsBooklet, tips: o.tipsAppendix),
@@ -275,7 +280,11 @@ class _BookletWizardScreenState extends State<BookletWizardScreen> {
     _examIds = [..._examIds, ...ids];
     _save(quiet: true);
     if (!mounted) return;
-    toast(context, tr('Sınav oluşturuldu. Optik formları "Form yazdır" ile basabilirsiniz.'));
+    toast(
+        context,
+        plan.kidBox
+            ? tr('Sınav oluşturuldu. Cevaplar kitapçığın köşesindeki kutudan okunur; isimli cevap kartlarını "Form yazdır" ile basabilirsiniz.')
+            : tr('Sınav oluşturuldu. Optik formları "Form yazdır" ile basabilirsiniz.'));
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => ExamScreen(examId: ids.first)));
   }
 
@@ -494,9 +503,55 @@ class _BookletWizardScreenState extends State<BookletWizardScreen> {
 
   // ———————————————————————————— 2. Görünüm
 
+  /// Şablon değişince yazı boyutu, kitapçık sayısı ve (değiştirilmediyse) yönerge uyarlanır.
+  void _setStyle(BookletStyle s) {
+    if (s == _o.style) return;
+    final kids = s == BookletStyle.kids;
+    final kidText = _kidInstructions();
+    final classicText = BookletOptions.defaultInstructions().replaceAll('{0}', '${_o.durationMinutes}');
+    final cur = _instructions.text.trim();
+    if (kids && (cur.isEmpty || cur == classicText)) _instructions.text = kidText;
+    if (!kids && cur == kidText) _instructions.text = classicText;
+    _setO(_o.copyWith(
+      style: s,
+      fontSize: kids ? 14 : 10.5,
+      bookletCount: kids ? 1 : _o.bookletCount,
+      compactChoices: kids ? true : _o.compactChoices,
+    ));
+  }
+
+  static String _kidInstructions() =>
+      tr('Soruları dikkatlice oku. Her sorunun yalnız bir doğru cevabı var. Cevabını köşedeki kutuda, doğru harfin dairesini tamamen boyayarak işaretle.');
+
   Widget _layoutStep(ThemeData t) {
     final store = StoreScope.of(context);
+    final kids = _o.kids;
+    final testCount = _questions.where((q) => q.type.optical).length;
     return _page([
+      _section(Icons.palette_outlined, tr('Şablon'), [
+        Row(children: [
+          for (final s in BookletStyle.values) ...[
+            if (s != BookletStyle.values.first) const SizedBox(width: 10),
+            Expanded(
+              child: _StyleCard(
+                style: s,
+                selected: _o.style == s,
+                onTap: () => _setStyle(s),
+              ),
+            ),
+          ],
+        ]),
+        if (kids) ...[
+          const SizedBox(height: 10),
+          Text(
+            testCount > KidLayout.maxQuestions
+                ? tr('Köşedeki cevap kutusu en çok {0} soru alır. Bu kitapçıkta {1} test sorusu var; cevaplar standart Netice optik formuyla okunur.',
+                    [KidLayout.maxQuestions, testCount])
+                : tr('Cevaplar ilk sayfanın köşesindeki küçük kutudan telefonla okunur. İsimli cevap kartlarını sınav ekranındaki "Form yazdır" ile basabilirsiniz.'),
+            style: t.textTheme.bodySmall,
+          ),
+        ],
+      ]),
       _section(Icons.title_rounded, tr('Başlık'), [
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
@@ -585,9 +640,9 @@ class _BookletWizardScreenState extends State<BookletWizardScreen> {
           Text(tr('Yazı boyutu'), style: const TextStyle(fontWeight: FontWeight.w600)),
           Expanded(
             child: Slider(
-              value: _o.fontSize.clamp(8, 14),
-              min: 8,
-              max: 14,
+              value: kids ? _o.fontSize.clamp(12, 18) : _o.fontSize.clamp(8, 14),
+              min: kids ? 12 : 8,
+              max: kids ? 18 : 14,
               divisions: 12,
               label: fmt1(_o.fontSize),
               onChanged: (v) => _setO(_o.copyWith(fontSize: v)),
@@ -620,6 +675,11 @@ class _BookletWizardScreenState extends State<BookletWizardScreen> {
     final n = qs.length;
     final per = n == 0 ? 0.0 : (double.tryParse(_total.text.replaceAll(',', '.')) ?? 100) / n;
     return _page([
+      if (_o.kids)
+        _section(Icons.auto_stories_outlined, tr('Kitapçık türleri'), [
+          Text(tr('Çocuk şablonunda tek kitapçık basılır; cevap kutusunda kitapçık seçimi yoktur.'), style: t.textTheme.bodySmall),
+        ])
+      else
       _section(Icons.auto_stories_outlined, tr('Kitapçık türleri'), [
         Text(tr('Kitapçık sayısı'), style: const TextStyle(fontWeight: FontWeight.w600)),
         const SizedBox(height: 8),
@@ -1057,4 +1117,91 @@ class _AutoPickSheetState extends State<AutoPickSheet> {
           ),
         ),
       ]);
+}
+
+/// Şablon seçim kartı: küçük bir sayfa çizimi, adı ve kısa açıklaması.
+class _StyleCard extends StatelessWidget {
+  final BookletStyle style;
+  final bool selected;
+  final VoidCallback onTap;
+  const _StyleCard({required this.style, required this.selected, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context);
+    final kids = style == BookletStyle.kids;
+    final border = selected ? t.colorScheme.primary : t.dividerColor;
+    return Material(
+      color: selected ? t.colorScheme.primary.withValues(alpha: 0.06) : Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14), side: BorderSide(color: border, width: selected ? 2 : 1)),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            AspectRatio(aspectRatio: 1.5, child: CustomPaint(painter: _MiniPagePainter(kids))),
+            const SizedBox(height: 8),
+            Text(style.label, style: const TextStyle(fontWeight: FontWeight.w800)),
+            const SizedBox(height: 2),
+            Text(
+              kids
+                  ? tr('İri yazı, renkli numaralar, A–B–C şıkları, köşede cevap kutusu')
+                  : tr('Resmi başlık, iki sütun, A–E şıkları, ayrı optik form'),
+              style: t.textTheme.bodySmall,
+            ),
+          ]),
+        ),
+      ),
+    );
+  }
+}
+
+class _MiniPagePainter extends CustomPainter {
+  final bool kids;
+  _MiniPagePainter(this.kids);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width, h = size.height;
+    final page = RRect.fromRectAndRadius(Offset.zero & size, const Radius.circular(8));
+    canvas.drawRRect(page, Paint()..color = Colors.white);
+    canvas.drawRRect(page, Paint()
+      ..color = const Color(0xFFDDE2EC)
+      ..style = PaintingStyle.stroke);
+    final line = Paint()..color = const Color(0xFFCBD3E3);
+    if (!kids) {
+      canvas.drawRect(Rect.fromLTWH(w * 0.25, h * 0.08, w * 0.5, h * 0.06), Paint()..color = const Color(0xFF0F1B3D));
+      for (var c = 0; c < 2; c++) {
+        for (var i = 0; i < 5; i++) {
+          canvas.drawRect(Rect.fromLTWH(w * (0.08 + c * 0.46), h * (0.26 + i * 0.14), w * 0.38, h * 0.035), line);
+        }
+      }
+      return;
+    }
+    final band = RRect.fromRectAndRadius(Rect.fromLTWH(w * 0.05, h * 0.06, w * 0.9, h * 0.16), const Radius.circular(6));
+    canvas.drawRRect(
+        band,
+        Paint()
+          ..shader = const LinearGradient(colors: [Color(0xFFFFE7A8), Color(0xFFFFD1DC), Color(0xFFCDEAFE)])
+              .createShader(band.outerRect));
+    canvas.drawCircle(Offset(w * 0.13, h * 0.14), h * 0.05, Paint()..color = const Color(0xFFF6B632));
+    const colors = [Color(0xFFFF8A5B), Color(0xFF4CB6E8), Color(0xFF7CC25A), Color(0xFFB38AE6)];
+    for (var i = 0; i < 4; i++) {
+      final x = w * (0.08 + (i ~/ 2) * 0.46), y = h * (0.34 + (i % 2) * 0.3);
+      canvas.drawCircle(Offset(x + h * 0.035, y + h * 0.02), h * 0.04, Paint()..color = colors[i]);
+      canvas.drawRect(Rect.fromLTWH(x + h * 0.1, y, w * 0.28, h * 0.04), line);
+      canvas.drawRect(Rect.fromLTWH(x + h * 0.1, y + h * 0.08, w * 0.18, h * 0.03), line);
+    }
+    final box = Rect.fromLTWH(w * 0.74, h * 0.66, w * 0.2, h * 0.28);
+    canvas.drawRect(box, Paint()
+      ..color = const Color(0xFFC9D3EA)
+      ..style = PaintingStyle.stroke);
+    for (final o in [box.topLeft, box.topRight, box.bottomLeft, box.bottomRight]) {
+      canvas.drawRect(Rect.fromCenter(center: o, width: h * 0.04, height: h * 0.04), Paint()..color = Colors.black);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_MiniPagePainter old) => old.kids != kids;
 }

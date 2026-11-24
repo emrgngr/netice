@@ -172,7 +172,7 @@ class Exam {
   final String className;
   final DateTime date;
 
-  /// 4 veya 5.
+  /// 4 veya 5 (çocuk formunda 2–5).
   final int choiceCount;
   final List<Question> questions;
   final ScoringRule rule;
@@ -210,6 +210,10 @@ class Exam {
   /// Formdaki öğrenci numarası hane sayısı (6 ya da 10). Eski sınavlar 6.
   final int numberDigits;
 
+  /// Çocuk (ilkokul) kitapçığının köşesindeki küçük cevap kutusuyla okunur.
+  /// Bu sınavlarda şık sayısı 2–5 olabilir (genellikle 3: A, B, C).
+  final bool kidForm;
+
   const Exam({
     required this.id,
     required this.name,
@@ -225,6 +229,7 @@ class Exam {
     this.templateId,
     this.commonId,
     this.numberDigits = 10,
+    this.kidForm = false,
   });
 
   bool get isCommon => commonId != null;
@@ -378,6 +383,7 @@ class Exam {
     String? id,
     String? commonId,
     int? numberDigits,
+    bool? kidForm,
   }) =>
       Exam(
         id: id ?? this.id,
@@ -394,6 +400,7 @@ class Exam {
         templateId: clearTemplate ? null : (templateId ?? this.templateId),
         commonId: commonId ?? this.commonId,
         numberDigits: numberDigits ?? this.numberDigits,
+        kidForm: kidForm ?? this.kidForm,
       );
 
   Map<String, dynamic> toJson() => {
@@ -415,6 +422,7 @@ class Exam {
         if (templateId != null) 'templateId': templateId,
         if (commonId != null) 'commonId': commonId,
         'numberDigits': numberDigits,
+        if (kidForm) 'kidForm': true,
         if (openQuestions.isNotEmpty) 'openQuestions': openQuestions.map((q) => q.toJson()).toList(),
       };
 
@@ -443,6 +451,7 @@ class Exam {
         commonId: j['commonId'] as String?,
         // Alan yoksa eski sürümde basılmış 6 haneli formdur.
         numberDigits: j['numberDigits'] == 10 ? 10 : 6,
+        kidForm: j['kidForm'] == true,
         openQuestions: [
           for (final e in (j['openQuestions'] as List?) ?? const []) OpenQuestion.fromJson(e as Map<String, dynamic>)
         ],
