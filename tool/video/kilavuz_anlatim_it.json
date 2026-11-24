@@ -6,7 +6,8 @@
   "scan": "Correggere i fogli",
   "report": "Risultati e report",
   "data": "I tuoi dati",
-  "library": "Banca domande e fascicoli"
+  "library": "Banca domande e fascicoli",
+  "pro": "Netice Pro"
  },
  "k_sinav_ayar": "Nelle impostazioni della verifica scegli il punteggio massimo, la soglia di sufficienza e se le risposte errate tolgono punti. Qui aggiungi anche i tipi di fascicolo e le domande scritte.",
  "k_sablon": "Se usi il foglio di un editore o di un'altra azienda, crea una volta un modello in Impostazioni, alla voce Altri fogli.",
@@ -18,5 +19,11 @@
  "k_notlar": "Conserva riassunti e pillole nella scheda Note. Le pillole sugli argomenti deboli finiscono da sole nella pagella dello studente.",
  "k_sihirbaz": "Apri la procedura con Nuovo fascicolo. Scegli le domande dalla banca, oppure indica numero e difficoltà e lascia scegliere Netice.",
  "k_kitapcik_turu": "Crea fascicoli dalla A alla H e mescola domande e opzioni. Con Crea verifica è tutto pronto per la scansione.",
- "k_banka_analiz": "La scheda Analisi mostra il bilanciamento della difficoltà e la copertura degli argomenti. Con le verifiche scansionate misura anche la difficoltà reale."
+ "k_banka_analiz": "La scheda Analisi mostra il bilanciamento della difficoltà e la copertura degli argomenti. Con le verifiche scansionate misura anche la difficoltà reale.",
+ "k_yz_soru": "Apri una nota e tocca Genera domande da questa nota. Scegli numero, tipo e difficoltà; l'IA propone domande, risposte corrette e brevi soluzioni. Controllale e aggiungi alla banca quelle che ti piacciono.",
+ "k_cocuk": "Per la primaria, scegli il modello Bambini nel passaggio Aspetto della procedura del fascicolo. Caratteri grandi e numeri colorati; le risposte si segnano nel riquadro nell'angolo della prima pagina e si leggono con il telefono.",
+ "k_not_sistemi": "In Impostazioni, schermata Sistema di valutazione, scegli il sistema del tuo paese o scrivi tu i livelli. Pagelle e report seguono quel sistema.",
+ "k_pro": "La schermata Netice Pro nel profilo mostra i piani. Pro include cinquanta domande IA al mese, Pro più IA trecento. Il pacchetto periodo esami dura tre mesi e non si rinnova.",
+ "k_pro_alt": "Quando la quota mensile finisce, puoi acquistare un pacchetto di domande extra che non scade. Se cinque o più docenti della stessa scuola acquistano insieme, il pacchetto scuola dà loro uno sconto.",
+ "k_okul": "Nella schermata del pacchetto scuola inserisci il numero di docenti, guarda il prezzo scontato e tocca Richiedi un preventivo per la tua scuola. Una volta approvato, la scuola riceve un codice d'istituto."
 }

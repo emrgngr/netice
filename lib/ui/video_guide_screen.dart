@@ -18,10 +18,10 @@ class VideoGuide {
   static const baseUrl = 'https://github.com/emrgngr/netice/releases/download/rehber-videolari';
 
   /// Videosu hazır olan diller.
-  static const languages = ['tr', 'en', 'de', 'fr', 'ru', 'az', 'es', 'it', 'ar', 'zh', 'ja'];
+  static const languages = ['tr', 'en', 'de', 'fr', 'ru', 'az', 'es', 'it', 'ar', 'zh', 'ja', 'pt', 'hi', 'id', 'ko'];
 
   /// Kılavuzun bölüm videoları (GuideSection.icon ile aynı adlar).
-  static const sections = ['start', 'exam', 'print', 'scan', 'report', 'library', 'data'];
+  static const sections = ['start', 'exam', 'print', 'scan', 'report', 'library', 'data', 'pro'];
 
   /// [section] verilmezse tüm uygulamayı anlatan rehber videosu.
   static String urlFor(String lang, [String? section]) =>

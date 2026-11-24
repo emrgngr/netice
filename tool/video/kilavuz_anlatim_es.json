@@ -6,7 +6,8 @@
   "scan": "Corregir hojas",
   "report": "Resultados e informes",
   "data": "Tus datos",
-  "library": "Banco de preguntas y cuadernillos"
+  "library": "Banco de preguntas y cuadernillos",
+  "pro": "Netice Pro"
  },
  "k_sinav_ayar": "En Ajustes del examen, fija la puntuación máxima, la nota de aprobado y si las incorrectas restan. Aquí también añades tipos de cuadernillo y preguntas escritas.",
  "k_sablon": "Si usas la hoja de una editorial o de otra empresa, crea una plantilla una sola vez en Ajustes, apartado Otras hojas.",
@@ -18,5 +19,11 @@
  "k_notlar": "Guarde sus resúmenes y datos clave en la pestaña Notas. Los datos clave de los temas flojos se añaden solos al boletín del alumno.",
  "k_sihirbaz": "Abra el asistente con Nuevo cuadernillo. Elija preguntas del banco, o indique el número y la mezcla de dificultad y deje que Netice elija.",
  "k_kitapcik_turu": "Cree modelos de la A a la H y mezcle preguntas y opciones. Con Crear examen queda listo para escanear.",
- "k_banka_analiz": "La pestaña Análisis muestra el equilibrio de dificultad y la cobertura de temas. Con cada examen escaneado mide también la dificultad real."
+ "k_banka_analiz": "La pestaña Análisis muestra el equilibrio de dificultad y la cobertura de temas. Con cada examen escaneado mide también la dificultad real.",
+ "k_yz_soru": "Abre una nota y toca Generar preguntas de esta nota. Elige el número, el tipo y la dificultad; la IA propone preguntas, respuestas correctas y soluciones breves. Revísalas y añade al banco las que te gusten.",
+ "k_cocuk": "Para primaria, elige la plantilla Infantil en el paso Apariencia del asistente de cuadernillos. Tendrás letra grande y números de colores; las respuestas se marcan en la casilla de la esquina de la primera página y se leen con el móvil.",
+ "k_not_sistemi": "En Ajustes, pantalla Sistema de calificación, elige el sistema de tu país o escribe tú los niveles. Boletines e informes siguen ese sistema.",
+ "k_pro": "La pantalla Netice Pro de tu perfil muestra los planes. Pro incluye cincuenta preguntas de IA al mes y Pro más IA, trescientas. El pase de época de exámenes dura tres meses y no se renueva.",
+ "k_pro_alt": "Cuando se acabe tu cupo mensual, puedes comprar un paquete extra de preguntas que no caduca. Si cinco o más docentes del mismo centro compran juntos, el paquete para centros les da descuento.",
+ "k_okul": "En la pantalla del paquete para centros, escribe el número de docentes, mira el precio con descuento y toca Solicitar presupuesto para tu centro. Cuando se aprueba, tu centro recibe un código institucional."
 }

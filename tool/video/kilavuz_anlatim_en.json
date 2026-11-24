@@ -6,7 +6,8 @@
   "scan": "Scanning sheets",
   "report": "Results and reports",
   "data": "Your data",
-  "library": "Question bank and booklets"
+  "library": "Question bank and booklets",
+  "pro": "Netice Pro"
  },
  "k_sinav_ayar": "In Exam settings, set the full score, the passing score and whether wrong answers deduct. You can also add booklet types and written questions here.",
  "k_sablon": "If you use a publisher's or another company's form, create a template for it once under Other forms in Settings.",
@@ -18,5 +19,11 @@
  "k_notlar": "Keep your topic summaries and quick tips in the Notes tab. Quick tips for weak topics are added to student report cards automatically.",
  "k_sihirbaz": "Open the wizard with New booklet. Pick questions from the bank, or give the number of questions and the difficulty mix and let Netice choose.",
  "k_kitapcik_turu": "Create booklet versions from A to H and shuffle questions and options. Create exam sets up an exam ready for scanning.",
- "k_banka_analiz": "The Analysis tab shows your bank's difficulty balance and topic coverage. As exams are scanned, it measures each question's real difficulty too."
+ "k_banka_analiz": "The Analysis tab shows your bank's difficulty balance and topic coverage. As exams are scanned, it measures each question's real difficulty too.",
+ "k_yz_soru": "Open a note and tap Generate questions from this note. Choose the number, type and difficulty; AI suggests questions, correct answers and short solutions. Check them and add the ones you like to the bank.",
+ "k_cocuk": "For primary school, choose the Children template in the Appearance step of the booklet wizard. You get large text and colourful numbers; answers are marked in the box in the corner of the first page and read with the phone.",
+ "k_not_sistemi": "On the Grading system screen in Settings, choose your country's system or type the levels yourself. Report cards and reports follow that system.",
+ "k_pro": "The Netice Pro screen in Profile shows the plans. Pro includes fifty AI questions a month, Pro plus AI three hundred. The exam season pass lasts three months and does not renew.",
+ "k_pro_alt": "When your monthly allowance runs out, you can buy an extra question pack that never expires. If five or more teachers from the same school buy together, the school package gives them a discount.",
+ "k_okul": "On the school package screen, enter the number of teachers, see the discounted price and tap Request a quote for your school. Once approved, your school receives an institution code."
 }

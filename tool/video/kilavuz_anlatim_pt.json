@@ -1,0 +1,29 @@
+{
+ "_baslik": {
+  "start": "Primeiros passos",
+  "exam": "Preparar a prova",
+  "print": "Imprimir formulários",
+  "scan": "Ler as folhas",
+  "report": "Resultados e relatórios",
+  "data": "Seus dados",
+  "library": "Banco de questões e cadernos",
+  "pro": "Netice Pro"
+ },
+ "k_sinav_ayar": "Nas configurações da prova, defina a nota máxima, a nota de aprovação e o desconto por erro. Também adicione aqui os tipos de caderno e as questões dissertativas.",
+ "k_sablon": "Se for usar o formulário de uma editora ou de outra empresa, crie um modelo uma única vez na seção Outros formulários, em Configurações.",
+ "k_kontrol": "Toque em uma folha lida. Marcações duvidosas aparecem com um aviso amarelo; toque para corrigir.",
+ "k_donem": "O relatório do período junta as provas que você escolher e prepara as notas do período e os boletins por objetivo de aprendizagem.",
+ "k_yedek": "O Netice funciona sem internet e guarda seus dados apenas no seu aparelho. Ao trocar de aparelho, use Salvar backup em arquivo.",
+ "k_soru_kes": "Escolha o PDF ou a foto de uma página de livro ou simulado. Desenhe um retângulo em volta da questão, marque a resposta certa e adicione ao banco.",
+ "k_soru_yaz": "Você também pode escrever a questão. Escolha o tipo, adicione uma imagem e toque na letra da alternativa correta.",
+ "k_notlar": "Na aba Anotações, guarde seus resumos e dicas rápidas. As dicas dos temas fracos entram automaticamente no boletim do aluno.",
+ "k_sihirbaz": "Abra o assistente com Novo caderno. Escolha as questões do banco ou informe a quantidade e a distribuição de dificuldade e deixe o Netice escolher.",
+ "k_kitapcik_turu": "Crie cadernos do tipo A até H e embaralhe questões e alternativas. Com Criar prova, sua prova fica pronta para a leitura óptica.",
+ "k_banka_analiz": "A aba Análise mostra o equilíbrio de dificuldade e a cobertura de temas do seu banco. À medida que as provas são lidas, ela mede também a dificuldade real das questões.",
+ "k_yz_soru": "Abra uma anotação e toque em Gerar questões a partir desta anotação. Escolha a quantidade, o tipo e a dificuldade; a inteligência artificial sugere questões, respostas corretas e resoluções curtas. Revise e adicione ao banco as que gostar.",
+ "k_cocuk": "Para o ensino fundamental, escolha o modelo infantil na etapa Aparência do assistente de cadernos. Vêm letras grandes e números coloridos; as respostas são marcadas na caixinha do canto da primeira página e lidas pelo celular.",
+ "k_not_sistemi": "Na tela Sistema de notas, em Configurações, escolha o sistema de notas do seu país ou escreva você mesmo os níveis. Boletins e relatórios seguem esse sistema.",
+ "k_pro": "Na tela Netice Pro, em Perfil, você vê os planos. O Pro tem cinquenta questões de inteligência artificial por mês, e o Pro mais Inteligência Artificial tem trezentas. O pacote de período de provas dura três meses e não se renova sozinho.",
+ "k_pro_alt": "Quando acabar sua cota mensal, você pode comprar um pacote extra de questões, que não expira. Se cinco ou mais professores da mesma escola comprarem juntos, ganham desconto com o pacote escolar.",
+ "k_okul": "Na tela do pacote escolar, informe o número de professores, veja o preço com desconto e toque em Pedir orçamento para sua escola. Após a aprovação, sua escola recebe um código de instituição."
+}

@@ -6,7 +6,8 @@
   "scan": "Vərəq oxutma",
   "report": "Nəticələr və hesabatlar",
   "data": "Məlumatlarınız",
-  "library": "Sual bankı və kitabça"
+  "library": "Sual bankı və kitabça",
+  "pro": "Netice Pro"
  },
  "k_sinav_ayar": "İmtahan ayarlarında tam balı, keçid balını və səhvlərin düzü aparmasını təyin edin. Variant növlərini və yazılı sualları da buradan əlavə edin.",
  "k_sablon": "Nəşriyyatın və ya başqa şirkətin vərəqindən istifadə edirsinizsə, Ayarlardakı Digər vərəqlər bölməsində bir dəfə şablon yaradın.",
@@ -18,5 +19,11 @@
  "k_notlar": "Qeydlər bölməsində mövzu xülasələrinizi və qısa bilgilərinizi saxlayın. Zəif mövzuların qısa bilgiləri şagird hesabatına avtomatik əlavə olunur.",
  "k_sihirbaz": "Yeni kitabça ilə sehrbazı açın. Sualları bankdan seçin, ya da sual sayını və çətinlik bölgüsünü verib Netice-yə seçdirin.",
  "k_kitapcik_turu": "A-dan H-yə qədər kitabça növü yaradın, sualları və variantları qarışdırın. İmtahan yarat ilə oxumağa hazır imtahanınız qurulur.",
- "k_banka_analiz": "Təhlil bölməsi bankınızın çətinlik balansını və mövzu əhatəsini göstərir. İmtahanlar oxunduqca sualların real çətinliyini də ölçür."
+ "k_banka_analiz": "Təhlil bölməsi bankınızın çətinlik balansını və mövzu əhatəsini göstərir. İmtahanlar oxunduqca sualların real çətinliyini də ölçür.",
+ "k_yz_soru": "Bir qeydi açıb Bu qeyddən sual yarat düyməsinə toxunun. Sual sayını, növünü və çətinliyi seçin; süni intellekt suallar, düzgün cavablar və qısa həllər təklif edir. Yoxlayıb bəyəndiklərinizi banka əlavə edin.",
+ "k_cocuk": "İbtidai sinif üçün kitabça sehrbazının Görünüş addımında Uşaq şablonunu seçin. İri yazı və rəngli nömrələr gəlir; cavablar ilk səhifənin küncündəki qutuda işarələnir və telefonla oxunur.",
+ "k_not_sistemi": "Ayarlardakı Qiymətləndirmə sistemi ekranında ölkənizin sistemini seçin və ya səviyyələri özünüz yazın. Karnelər və hesabatlar bu sistemə görə hazırlanır.",
+ "k_pro": "Profildəki Netice Pro ekranında planları görürsünüz. Pro-da ayda əlli, Pro üstəgəl Süni intellekt-də ayda üç yüz sual var. İmtahan dövrü paketi üç aylıqdır və avtomatik yenilənmir.",
+ "k_pro_alt": "Aylıq limitiniz bitəndə müddəti bitməyən əlavə sual paketi ala bilərsiniz. Eyni məktəbdən beş və daha çox müəllim birlikdə alsa, məktəb paketi ilə endirim qazanır.",
+ "k_okul": "Məktəb paketi ekranında müəllim sayını daxil edin, endirimli qiyməti görün və Məktəbiniz üçün təklif istəyin düyməsinə toxunun. Təsdiqlənəndə məktəbinizə qurum kodu verilir."
 }
