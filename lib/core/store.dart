@@ -242,6 +242,7 @@ class AppStore extends ChangeNotifier {
         'proConfirmedAt': proConfirmedAt?.toIso8601String(),
         if (termPassUntil != null) 'termPassUntil': termPassUntil!.toIso8601String(),
         if (license != null) 'license': license!.code,
+        if (parentSent.isNotEmpty) 'parentSent': {for (final e in parentSent.entries) e.key: e.value.toList()},
       };
 
   void _apply(Map<String, dynamic> j) {
@@ -280,6 +281,13 @@ class AppStore extends ChangeNotifier {
     proConfirmedAt = DateTime.tryParse('${j['proConfirmedAt'] ?? ''}') ?? proConfirmedAt;
     termPassUntil = DateTime.tryParse('${j['termPassUntil'] ?? ''}') ?? termPassUntil;
     if (j['license'] is String) _pendingLicense = j['license'] as String;
+    parentSent
+      ..clear()
+      ..addAll({
+        if (j['parentSent'] is Map)
+          for (final e in (j['parentSent'] as Map).entries)
+            if (e.value is List) '${e.key}': {for (final v in e.value as List) '$v'},
+      });
     promoHiddenUntil = DateTime.tryParse('${j['promoHiddenUntil'] ?? ''}') ?? promoHiddenUntil;
     ratePrompted = j['ratePrompted'] as bool? ?? ratePrompted;
     splashSound = j['splashSound'] as bool? ?? splashSound;
@@ -292,6 +300,18 @@ class AppStore extends ChangeNotifier {
       lastCloudBackup = DateTime.tryParse(j['lastCloudBackup'] as String? ?? '');
       cloudAuto = j['cloudAuto'] as bool? ?? true;
     }
+  }
+
+  /// Velilere toplu gönderimde karnesi gönderilenler: sınav → öğrenciler.
+  final Map<String, Set<String>> parentSent = {};
+
+  bool parentSentFor(String examId, String studentId) => parentSent[examId]?.contains(studentId) ?? false;
+
+  void markParentSent(String examId, String studentId, {bool sent = true}) {
+    final set = parentSent.putIfAbsent(examId, () => <String>{});
+    if (sent ? !set.add(studentId) : !set.remove(studentId)) return;
+    if (set.isEmpty) parentSent.remove(examId);
+    _changed();
   }
 
   /// Gece/gündüz görünümünü değiştirir ('system', 'light', 'dark').
@@ -497,6 +517,11 @@ class AppStore extends ChangeNotifier {
   int addStudents(List<Student> list) {
     final existing = {for (final s in students) '${s.className}|${s.number}'};
     final names = {for (final s in students) '${s.className}|${s.fullName.toLowerCase()}'};
+    // Listede kayıtlı öğrencinin veli telefonu geldiyse güncelle.
+    for (final s in list.where((s) => s.parentPhone.isNotEmpty && s.number.isNotEmpty)) {
+      final i = students.indexWhere((x) => x.className == s.className && x.number == s.number);
+      if (i >= 0 && students[i].parentPhone != s.parentPhone) students[i] = students[i].copyWith(parentPhone: s.parentPhone);
+    }
     students.addAll(list.where((s) => s.number.isEmpty
         ? !names.contains('${s.className}|${s.fullName.toLowerCase()}')
         : !existing.contains('${s.className}|${s.number}')));
@@ -542,7 +567,7 @@ class AppStore extends ChangeNotifier {
         n++;
       }
       set.add(n);
-      students[i] = Student(id: s.id, firstName: s.firstName, lastName: s.lastName, number: '$n', className: s.className);
+      students[i] = s.copyWith(number: '$n');
       count++;
     }
     return count;
@@ -686,6 +711,7 @@ class AppStore extends ChangeNotifier {
       booklet: booklet,
       openScores: openScores,
       readNumber: studentId == null ? (r.numberPattern ?? r.studentNumber) : null,
+      mini: r.mini,
     );
     sheets.add(sheet);
     _changed();
@@ -1032,6 +1058,16 @@ ReadSpec specFor(AppStore store, Exam exam) => ReadSpec(
       digits: exam.numberDigits,
       template: store.templateById(exam.templateId),
     );
+
+/// Sınavın A4 formu ya da (kâğıt kısa quiz formuysa) çeyrek A4 formu yerleşimi.
+FormLayout layoutFor(Exam exam, {bool mini = false}) => mini && exam.questionCount <= MiniFormLayout.maxQuestionsFor(exam.numberDigits)
+    ? MiniFormLayout(questionCount: exam.questionCount, choiceCount: exam.choiceCount, digits: exam.numberDigits)
+    : FormLayout(
+        questionCount: exam.questionCount, choiceCount: exam.choiceCount, booklets: exam.bookletCount, digits: exam.numberDigits);
+
+/// Sınav çeyrek A4 kısa quiz formuyla basılabilir mi?
+bool miniFormAllowed(Exam exam) =>
+    exam.templateId == null && !exam.hasBooklets && exam.questionCount <= MiniFormLayout.maxQuestionsFor(exam.numberDigits);
 
 /// Seçili sınav için okuma motoru oluşturur.
 OmrReader readerFor(Exam exam) => OmrReader(

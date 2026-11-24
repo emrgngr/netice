@@ -130,3 +130,60 @@ class TermReport {
     return TermReport(className, term, te, rows);
   }
 }
+
+/// Kazanım takip çizelgesi: dönem boyunca her kazanımın sınavlardaki sınıf
+/// başarısı ve her öğrencinin dönem içindeki birikimli başarısı.
+class OutcomeTrack {
+  /// Kazanımlar, ilk sorulduğu sınav sırasıyla.
+  final List<String> codes;
+
+  /// [codes][i] kazanımının sınav sınav sınıf başarısı (0..1; sorulmadıysa null).
+  final List<List<double?>> byExam;
+
+  /// Öğrenci → kazanım → dönem başarısı (0..1); hiç sorulmadıysa yok.
+  final Map<String, Map<String, double>> byStudent;
+
+  const OutcomeTrack(this.codes, this.byExam, this.byStudent);
+
+  /// Kazanıldı sayılan başarı (ve üstü).
+  static const mastered = 0.70;
+
+  /// Kısmen kazanıldı alt sınırı.
+  static const partial = 0.50;
+
+  /// Kazanımın dönem ortalaması (sorulduğu sınavların ortalaması).
+  double? termRate(int i) {
+    final xs = byExam[i].whereType<double>().toList();
+    return xs.isEmpty ? null : xs.reduce((a, b) => a + b) / xs.length;
+  }
+
+  /// İlk ve son soruluşu arasındaki değişim (puan, −100..100); tek sınavdaysa null.
+  double? trend(int i) {
+    final xs = byExam[i].whereType<double>().toList();
+    return xs.length < 2 ? null : (xs.last - xs.first) * 100;
+  }
+
+  /// Öğrencinin kazandığı kazanım sayısı / ölçülen kazanım sayısı.
+  (int, int) masteredOf(String studentId) {
+    final m = byStudent[studentId] ?? const {};
+    return (m.values.where((v) => v >= mastered).length, m.length);
+  }
+
+  static OutcomeTrack build(TermReport t) {
+    final codes = <String>[];
+    for (final e in t.exams) {
+      for (final o in e.report.outcomes) {
+        if (!codes.contains(o.code)) codes.add(o.code);
+      }
+    }
+    final byExam = [
+      for (final c in codes)
+        [for (final e in t.exams) e.report.outcomes.where((o) => o.code == c).firstOrNull?.rate],
+    ];
+    final byStudent = <String, Map<String, double>>{
+      for (final r in t.rows)
+        if (r.outcomes.isNotEmpty) r.student.id: {for (final e in r.outcomes.entries) e.key: e.value.$1},
+    };
+    return OutcomeTrack(codes, byExam, byStudent);
+  }
+}

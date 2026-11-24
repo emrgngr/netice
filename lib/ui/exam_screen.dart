@@ -24,6 +24,8 @@ import 'open_scores_screen.dart';
 import 'report_preview_screen.dart';
 import 'student_detail_screen.dart';
 import 'pro_screen.dart';
+import 'personal_review_ui.dart';
+import 'parent_send_screen.dart';
 import '../core/pro.dart';
 import 'sheet_image_screen.dart';
 import 'theme.dart';
@@ -32,6 +34,7 @@ import 'illustrations.dart';
 import 'charts.dart';
 import '../l10n/l10n.dart';
 import '../core/ads.dart';
+import '../omr/form_layout.dart' show MiniFormLayout;
 import 'ad_slot.dart';
 import '../bank/bank_analysis.dart';
 import '../bank/bank_store.dart';
@@ -132,6 +135,19 @@ class ExamScreen extends StatelessWidget {
                     onTap: () => setSheet(() => picked = 'blank'),
                   ),
                   ListTile(
+                    enabled: miniFormAllowed(exam),
+                    leading: const Icon(Icons.grid_view_rounded),
+                    title: Text(tr('Kısa quiz formu (4\'ü bir A4\'te)')),
+                    subtitle: Text(miniFormAllowed(exam)
+                        ? (cls.isNotEmpty
+                            ? tr('Çeyrek A4, QR kodlu · {0} öğrenciye isimli basılır, kesip dağıtın', [cls.length])
+                            : tr('Çeyrek A4, QR kodlu · {0} adet boş form, kesip dağıtın', [copies < 4 ? 4 : copies]))
+                        : tr('En fazla {0} soruluk, tek kitapçıklı Netice formlu sınavlarda', [MiniFormLayout.maxQuestionsFor(exam.numberDigits)])),
+                    selected: picked == 'mini',
+                    trailing: Icon(picked == 'mini' ? Icons.radio_button_checked : Icons.radio_button_unchecked),
+                    onTap: () => setSheet(() => picked = 'mini'),
+                  ),
+                  ListTile(
                     leading: const Icon(Icons.key_outlined),
                     title: Text(tr('Cevap anahtarı')),
                     subtitle: Text(tr('Doğru şıklar karartılmış form ve anahtar listesi')),
@@ -186,6 +202,13 @@ class ExamScreen extends StatelessWidget {
             title: tr('Boş optik form ({0} adet)', [copies]),
             fileName: '${name}_bos_form_$copies.pdf',
             build: () => buildFormsPdf(exam, const [], blankCopies: copies, school: store.reportSchool),
+          );
+        case 'mini':
+          await ReportPreviewScreen.open(
+            context,
+            title: tr('Kısa quiz formu'),
+            fileName: '${name}_kisa_quiz_formu.pdf',
+            build: () => buildMiniFormsPdf(exam, cls, blankCopies: copies < 4 ? 4 : copies, school: store.reportSchool),
           );
         case 'key':
           await ReportPreviewScreen.open(
@@ -280,6 +303,8 @@ class ExamScreen extends StatelessWidget {
       _Action(Icons.table_view_outlined, tr('Excel'), excel),
       _Action(Icons.school_outlined, tr('e-Okul listesi'), eokul),
       _Action(Icons.label_outline, tr('Sonuç etiketi'), labels),
+      _Action(Icons.assignment_ind_outlined, tr('Kişiye özel tekrar testi'), () => openPersonalReview(context, exam)),
+      _Action(Icons.forward_to_inbox_rounded, tr('Velilere toplu gönder'), () => openBulkParentSend(context, exam)),
       _Action(Icons.hub_outlined, exam.isCommon ? tr('Ortak sınav') : tr('Ortak sınav yap'), () => openCommonExamMenu(context, exam)),
     ];
 
@@ -578,6 +603,18 @@ void showSheetDetail(BuildContext context, Exam exam, Result r) {
                 },
                 icon: const Icon(Icons.badge_outlined, size: 18),
                 label: Text(tr('Karneyi önizle')),
+              ),
+            ),
+          if (st != null && r.outcomes.any((o) => o == Outcome.wrong || o == Outcome.blank))
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  openPersonalReview(context, exam, onlyStudentId: st.id);
+                },
+                icon: const Icon(Icons.assignment_ind_outlined, size: 18),
+                label: Text(tr('Kişiye özel tekrar testi')),
               ),
             ),
           if (st != null)
@@ -1300,14 +1337,15 @@ Future<void> openCardsPreview(BuildContext context, Exam exam, {String? studentI
 
 /// Tek öğrencinin karnesini PDF olarak oluşturup telefonun paylaşım
 /// menüsünü açar (WhatsApp, e-posta, Drive…). Hazır bir veli mesajı eklenir.
-Future<void> shareStudentCard(BuildContext context, Exam exam, String studentId) async {
-  if (!await requirePro(context, ProFeature.parentShare) || !context.mounted) return;
+/// Paylaşım menüsü açıldıysa true döner.
+Future<bool> shareStudentCard(BuildContext context, Exam exam, String studentId, {bool askPro = true}) async {
+  if (askPro && (!await requirePro(context, ProFeature.parentShare) || !context.mounted)) return false;
   final store = StoreScope.of(context);
   final messenger = ScaffoldMessenger.maybeOf(context);
   final st = store.studentById[studentId];
   final results = store.resultsOf(exam);
   final r = results.where((x) => x.sheet.studentId == studentId).firstOrNull;
-  if (st == null || r == null) return;
+  if (st == null || r == null) return false;
   try {
     final bytes = await buildStudentCardsPdf(
         exam: exam,
@@ -1318,17 +1356,30 @@ Future<void> shareStudentCard(BuildContext context, Exam exam, String studentId)
         notes: developmentNotes(store, [studentId]),
         studyTopics: BankAnalysis.studyTopics(exam, results, BankStore.instance, only: [studentId]));
     final rep = ExamReport.build(exam, results);
-    final school = store.school.name.trim();
-    final body = tr('Sayın Velimiz,\n\n{0} adlı öğrencimizin "{1}" ({2}) sınav karnesi ektedir.\nPuanı: {3} / {4} · Sınıf ortalaması: {5}\n\nSaygılarımızla,\n{6}{7}{8}', [st.fullName, exam.name, dmy(exam.date), fmt1(r.score), fmt1(exam.rule.maxScore), fmt1(rep.stats.mean), store.school.teacher.trim().isEmpty ? tr('Ders öğretmeni') : store.school.teacher.trim(), school.isEmpty ? '' : '\n$school', downloadSignature]);
     await Printing.sharePdf(
       bytes: bytes,
       filename: '${_safe(st.fullName)}_${_safe(exam.name)}_karne.pdf',
       subject: tr('{0} – {1} sınav karnesi', [st.fullName, exam.name]),
-      body: body,
+      body: parentMessage(store, exam, st, r, rep.stats.mean),
     );
+    return true;
   } catch (e) {
     messenger?.showSnackBar(SnackBar(content: Text(tr('Karne paylaşılamadı: {0}', [e]))));
+    return false;
   }
+}
+
+/// Veliye gidecek hazır mesaj. [withSummary] ise karne eki olmadan da
+/// anlaşılsın diye zayıf konular da yazılır (WhatsApp'ta yalnız mesaj).
+String parentMessage(AppStore store, Exam exam, Student st, Result r, double classMean, {bool withSummary = false}) {
+  final school = store.school.name.trim();
+  final teacher = store.school.teacher.trim().isEmpty ? tr('Ders öğretmeni') : store.school.teacher.trim();
+  if (!withSummary) {
+    return tr('Sayın Velimiz,\n\n{0} adlı öğrencimizin "{1}" ({2}) sınav karnesi ektedir.\nPuanı: {3} / {4} · Sınıf ortalaması: {5}\n\nSaygılarımızla,\n{6}{7}{8}', [st.fullName, exam.name, dmy(exam.date), fmt1(r.score), fmt1(exam.rule.maxScore), fmt1(classMean), teacher, school.isEmpty ? '' : '\n$school', downloadSignature]);
+  }
+  final weak = BankAnalysis.studyTopics(exam, [r], BankStore.instance, only: [st.id])[st.id] ?? const [];
+  final topics = weak.isEmpty ? '' : tr('\nÇalışması gereken konular: {0}', [weak.map((w) => w.$1).join(', ')]);
+  return tr('Sayın Velimiz,\n\n{0} adlı öğrencimizin "{1}" ({2}) sınav sonucu:\nPuanı: {3} / {4} · Doğru {5}, yanlış {6}, boş {7} · Sınıf ortalaması: {8}{9}\n\nSaygılarımızla,\n{10}{11}', [st.fullName, exam.name, dmy(exam.date), fmt1(r.score), fmt1(exam.rule.maxScore), r.correct, r.wrong, r.blank, fmt1(classMean), topics, teacher, school.isEmpty ? '' : '\n$school']);
 }
 
 /// Tek okunan kâğıdı onay alarak siler; öğrenci bilgileri kalır. Geri alınabilir.

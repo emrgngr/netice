@@ -11,6 +11,8 @@ import '../../core/pro.dart';
 import '../../l10n/l10n.dart';
 import '../../main.dart';
 import '../../reports/booklet_pdf.dart';
+import '../../reports/booklet_docx.dart';
+import '../common_exam_ui.dart' show saveOrShareBytes;
 import '../exam_screen.dart';
 import '../pro_screen.dart';
 import '../theme.dart';
@@ -129,6 +131,22 @@ class _BookletWizardScreenState extends State<BookletWizardScreen> {
       parts: BookletPdfParts(variants: _previewVariants, answerKey: o.answerKeyPage, solutions: o.solutionsBooklet, tips: o.tipsAppendix),
       tips: o.tipsAppendix ? _tipsFor(qs) : const [],
     );
+  }
+
+  /// Kitapçığı düzenlenebilir Word belgesi olarak kaydeder / paylaşır.
+  Future<void> _word() async {
+    if (!await requirePro(context, ProFeature.wordExport) || !mounted) return;
+    final o = _collect();
+    final plan = BookletPlan.build(_questions, o);
+    final store = StoreScope.of(context);
+    final bytes = buildBookletDocx(plan,
+        school: store.reportSchool, image: bank.imageBytes, variants: _previewVariants, answerKey: o.answerKeyPage);
+    if (!mounted) return;
+    await saveOrShareBytes(context,
+        fileName: '${safeFileName(_displayName)}.docx',
+        bytes: bytes,
+        mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        message: tr('"{0}" kitapçığı (Word)', [_displayName]));
   }
 
   Future<void> _pick() async {
@@ -326,6 +344,14 @@ class _BookletWizardScreenState extends State<BookletWizardScreen> {
             child: Row(children: [
               if (_step > 0) OutlinedButton.icon(onPressed: () => setState(() => _step--), icon: const Icon(Icons.arrow_back_rounded), label: Text(tr('Geri'))),
               const Spacer(),
+              if (_step == 3) ...[
+                OutlinedButton.icon(
+                  onPressed: _ids.isEmpty ? null : _word,
+                  icon: const Icon(Icons.description_outlined),
+                  label: Text(tr('Word')),
+                ),
+                const SizedBox(width: 8),
+              ],
               if (_step < 3)
                 FilledButton.icon(
                   onPressed: _ids.isEmpty ? null : () => setState(() => _step++),

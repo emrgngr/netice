@@ -2077,3 +2077,382 @@ Future<Uint8List> buildTermCardsPdf(TermReport t, {SchoolInfo school = const Sch
   }
   return doc.save();
 }
+
+// ---------------------------------------------------------------------------
+// Çeyrek A4 kısa quiz formu
+
+/// Bir A4 sayfaya dört kısa quiz formu (çeyrek A4 / A6) basar. Kesik çizgiden
+/// kesilip dağıtılır. [students] boşsa [blankCopies] adet boş form üretilir
+/// (dördün katına tamamlanır).
+Future<Uint8List> buildMiniFormsPdf(Exam exam, List<Student> students,
+    {int blankCopies = 4, SchoolInfo school = const SchoolInfo()}) async {
+  final fonts = await _Fonts.load();
+  final layout = MiniFormLayout(questionCount: exam.questionCount, choiceCount: exam.choiceCount, digits: exam.numberDigits);
+  final doc = pw.Document(theme: fonts.theme, title: tr('{0} · kısa quiz formu', [exam.name]), author: tr('Netice'));
+  final slips = students.isEmpty
+      ? List<Student?>.filled(((math.max(1, blankCopies) + 3) ~/ 4) * 4, null)
+      : students.cast<Student?>();
+  for (var p = 0; p < slips.length; p += 4) {
+    final page = slips.sublist(p, math.min(p + 4, slips.length));
+    doc.addPage(pw.Page(
+      textDirection: _dir,
+      pageFormat: PdfPageFormat.a4,
+      margin: pw.EdgeInsets.zero,
+      build: (ctx) => pw.CustomPaint(
+        size: PdfPoint(PdfPageFormat.a4.width, PdfPageFormat.a4.height),
+        painter: (canvas, size) {
+          for (var i = 0; i < page.length; i++) {
+            _paintMiniForm(canvas, size, layout, exam, page[i], (String t, {bool bold = false}) => fonts.pick(ctx, t, bold: bold),
+                ox: (i % 2) * FormLayout.pageWidth / 2, oy: (i ~/ 2) * FormLayout.pageHeight / 2, school: school);
+          }
+          // Kesim çizgileri.
+          const mm = PdfPageFormat.mm;
+          canvas.setStrokeColor(_gray);
+          canvas.setLineWidth(0.5);
+          canvas.setLineDashPattern([3, 3]);
+          canvas.drawLine(105 * mm, 0, 105 * mm, size.y);
+          canvas.drawLine(0, size.y - 148.5 * mm, size.x, size.y - 148.5 * mm);
+          canvas.strokePath();
+          canvas.setLineDashPattern();
+        },
+      ),
+    ));
+  }
+  return doc.save();
+}
+
+/// Kısa formun QR koduna yazılan bilgi (telefon kamerasıyla okunduğunda
+/// kâğıdın hangi quize ve öğrenciye ait olduğunu gösterir).
+String miniFormQrText(Exam exam, Student? s) => [
+      'NETICE QUIZ',
+      exam.name.length > 40 ? exam.name.substring(0, 40) : exam.name,
+      '${exam.className} · ${_date(exam.date)}',
+      if (s != null) '${s.fullName} · ${s.number}',
+      tr('Sınav kodu: {0}', [FormCode.examCodeOf(exam.id)]),
+    ].join('\n');
+
+/// Tek kısa formu, A4 sayfanın ([ox], [oy]) mm'den başlayan çeyreğine çizer.
+/// Form birimleri [MiniFormLayout.printScale] ile küçültülür.
+void _paintMiniForm(PdfGraphics g, PdfPoint size, MiniFormLayout layout, Exam exam, Student? s, _FontPicker fonts,
+    {required double ox, required double oy, SchoolInfo school = const SchoolInfo()}) {
+  const mm = PdfPageFormat.mm;
+  const k = MiniFormLayout.printScale;
+  double x(double u) => (ox + u * k) * mm;
+  double y(double u) => size.y - (oy + u * k) * mm;
+
+  double width(String t, double pt, {bool bold = false}) {
+    final (font, shaped) = fonts(t, bold: bold);
+    return font.stringMetrics(shaped).width * pt / mm / k; // form birimiyle
+  }
+
+  double fitPt(String t, double pt, double maxW, {bool bold = false}) {
+    while (pt > 3.6 && width(t, pt, bold: bold) > maxW) {
+      pt -= 0.2;
+    }
+    return pt;
+  }
+
+  void text(String t, double px, double py, double pt,
+      {bool bold = false, PdfColor color = _ink, bool right = false, bool center = false}) {
+    final (font, shaped) = fonts(t, bold: bold);
+    final w = width(t, pt, bold: bold);
+    final left = right ? px - w : (center ? px - w / 2 : px);
+    g.setFillColor(color);
+    g.drawString(font, pt, shaped, x(left), y(py));
+  }
+
+  void box(double x0, double y0, double x1, double y1,
+      {PdfColor? stroke = _frame, PdfColor? fill, double radius = 2.4, double line = 0.45}) {
+    final w = (x1 - x0) * k * mm, h = (y1 - y0) * k * mm, r = radius * k * mm;
+    if (fill != null) {
+      g.setFillColor(fill);
+      g.drawRRect(x(x0), y(y1), w, h, r, r);
+      g.fillPath();
+    }
+    if (stroke != null) {
+      g.setStrokeColor(stroke);
+      g.setLineWidth(line);
+      g.drawRRect(x(x0), y(y1), w, h, r, r);
+      g.strokePath();
+    }
+  }
+
+  void bubble(Pt p, String label) {
+    final r = layout.bubbleR * k * mm;
+    g.setStrokeColor(PdfColors.grey600);
+    g.setLineWidth(0.6);
+    g.drawEllipse(x(p.x), y(p.y), r, r);
+    g.strokePath();
+    g.setFillColor(PdfColors.grey700);
+    final (font, shaped) = fonts(label, bold: true);
+    const pt = 5.2;
+    final w = font.stringMetrics(shaped).width * pt;
+    g.drawString(font, pt, shaped, x(p.x) - w / 2, y(p.y) - 1.85);
+  }
+
+  // ---- Köşe kareleri ----
+  g.setFillColor(PdfColors.black);
+  for (final o in FormLayout.markerOrigins) {
+    g.drawRect(x(o.x), y(o.y + FormLayout.markerSize), FormLayout.markerSize * k * mm, FormLayout.markerSize * k * mm);
+  }
+  g.fillPath();
+
+  // ---- Makine kodu ----
+  final bits = FormCode(examCode: FormCode.examCodeOf(exam.id), studentNumber: int.tryParse(s?.number ?? '')).encode();
+  g.setFillColor(PdfColors.black);
+  for (var i = 0; i < bits.length; i++) {
+    if (!bits[i]) continue;
+    final c = FormCode.cell(i);
+    const h = FormCode.cellSize / 2;
+    g.drawRect(x(c.x - h), y(c.y + h), FormCode.cellSize * k * mm, FormCode.cellSize * k * mm);
+  }
+  g.fillPath();
+
+  // ---- Üst satır ----
+  g.setFillColor(_emerald);
+  g.drawEllipse(x(26), y(15.2), 1.0 * mm, 1.0 * mm);
+  g.fillPath();
+  text(tr('Netice'), 29.5, 17.2, 6.4, bold: true);
+  final kind = tr('KISA QUIZ');
+  text(kind, 186, 17.2, 6.4, bold: true, right: true, color: _emerald);
+  final info = tr('{0} soru · {1} şık', [exam.questionCount, exam.choiceCount]);
+  text(info, 186 - width(kind, 6.4, bold: true) - 4, 17.2, 5, right: true, color: _label);
+
+  // ---- QR ----
+  const qx = 24.0, qy = 24.0, qs = 38.0;
+  final qr = pw.Barcode.qrCode(errorCorrectLevel: pw.BarcodeQRCorrectionLevel.medium);
+  g.setFillColor(PdfColors.black);
+  for (final e in qr.make(miniFormQrText(exam, s), width: qs, height: qs)) {
+    if (e is pw.BarcodeBar && e.black) {
+      g.drawRect(x(qx + e.left), y(qy + e.top + e.height), e.width * k * mm, e.height * k * mm);
+    }
+  }
+  g.fillPath();
+
+  // ---- Bilgi alanları ----
+  const ix = 68.0, ir = 186.0;
+  final name = exam.name;
+  text(name, ix, 29.5, fitPt(name, 8, ir - ix, bold: true), bold: true);
+  final sub = [exam.className, _date(exam.date), if (school.name.trim().isNotEmpty) school.name.trim()].join(' · ');
+  text(sub, ix, 36, fitPt(sub, 5.2, ir - ix), color: _label);
+  box(ix, 40, ir, 55);
+  text(tr('ADI SOYADI'), ix + 2.5, 45, 4.4, bold: true, color: _label);
+  if (s != null) text(s.fullName, ix + 2.5, 52.5, fitPt(s.fullName, 7.6, ir - ix - 5, bold: true), bold: true);
+  final hint = tr('Daireyi tamamen karartın. Kenardaki karelere yazmayın.');
+  text(hint, ix, 61.5, fitPt(hint, 4.6, ir - ix), color: _label);
+
+  // ---- Öğrenci numarası ----
+  final first = layout.studentBubble(0, 0);
+  final last = layout.studentBubble(layout.digits - 1, 9);
+  final half = layout.numberPitchY / 2;
+  box(28, first.y - half - 7.5, ir, last.y + half + 1.5, radius: 3);
+  text(tr('ÖĞRENCİ NUMARASI'), 32, first.y - half - 2, 4.6, bold: true, color: _label);
+  final hint2 = tr('her satıra bir hane');
+  text(hint2, ir - 3, first.y - half - 2, 4.2, color: _label, right: true);
+  final number = s?.number.padLeft(layout.digits, '0');
+  for (var d = 0; d < layout.digits; d++) {
+    final p = layout.studentBubble(d, 0);
+    text('${d + 1}', 34, p.y + 1.5, 4.4, color: _gray, right: true);
+    box(37, p.y - half + 1.2, 51, p.y + half - 1.2, radius: 1, stroke: PdfColors.grey500);
+    if (number != null && number.length == layout.digits) text(number[d], 44, p.y + 2.6, 7, bold: true, center: true);
+    for (var v = 0; v < 10; v++) {
+      bubble(layout.studentBubble(d, v), '$v');
+    }
+  }
+
+  // ---- Cevaplar ----
+  final rows = layout.rowsPerColumn;
+  for (var col = 0; col < layout.columnCount; col++) {
+    final firstQ = col * rows;
+    final n = math.min(rows, layout.questionCount - firstQ);
+    final a0 = layout.answerBubble(firstQ, 0);
+    final aN = layout.answerBubble(firstQ, layout.choiceCount - 1);
+    final x0 = col == 0 ? 28.0 : a0.x - 14.5, x1 = col == 0 ? aN.x + 5.5 : ir;
+    final y0 = a0.y - 13, y1 = a0.y + (n - 1) * layout.answerRowPitch + 7;
+    for (var gr = 1; gr * 5 < n; gr += 2) {
+      final top = a0.y + gr * 5 * layout.answerRowPitch - layout.answerRowPitch / 2;
+      final bottom = math.min(top + 5 * layout.answerRowPitch, y1 - 0.6);
+      box(x0 + 0.6, top, x1 - 0.6, bottom, stroke: null, fill: _tint, radius: 1);
+    }
+    box(x0, y0, x1, y1, radius: 3);
+    for (var c = 0; c < layout.choiceCount; c++) {
+      text(_letter(c), layout.answerBubble(firstQ, c).x, y0 + 6.5, 5.4, bold: true, center: true);
+    }
+    for (var r = 0; r < n; r++) {
+      final q = firstQ + r;
+      final l = layout.questionLabel(q);
+      text('${q + 1}', l.x + 4, l.y + 2.2, 6.2, bold: true, right: true);
+      for (var c = 0; c < layout.choiceCount; c++) {
+        bubble(layout.answerBubble(q, c), _letter(c));
+      }
+    }
+  }
+
+  // ---- Alt bilgi (alt köşe kareleri arasında) ----
+  final foot = tr('Netice ile hazırlandı · sınav kodu {0} · %100 ölçekle yazdırın', [FormCode.examCodeOf(exam.id)]);
+  text(foot, 105, 284, fitPt(foot, 4.4, 160), color: _muted, center: true);
+}
+
+// ---------------------------------------------------------------------------
+// Kazanım takip çizelgesi
+
+/// Dönem boyu kazanım takip çizelgesi: kazanım × sınav sınıf başarısı
+/// (renkli), eğilim ve öğrenci × kazanım dönem başarısı.
+Future<Uint8List> buildOutcomeTrackingPdf(TermReport t, {SchoolInfo school = const SchoolInfo()}) async {
+  final fonts = await _Fonts.load(school.fontFamily);
+  final k = _termKit(t, school, tr('Kazanım Takip Çizelgesi'));
+  final doc = pw.Document(theme: fonts.theme, title: tr('Kazanım takip çizelgesi'), author: tr('Netice'));
+  final track = OutcomeTrack.build(t);
+  const fill = {0: PdfColor.fromInt(0xFFD1FAE5), 1: PdfColor.fromInt(0xFFFEF3C7), 2: PdfColor.fromInt(0xFFFEE2E2)};
+  int band(double v) => v >= OutcomeTrack.mastered ? 0 : (v >= OutcomeTrack.partial ? 1 : 2);
+  final head = pw.TextStyle(fontSize: 7.5, fontWeight: pw.FontWeight.bold, color: PdfColors.white);
+  const cellStyle = pw.TextStyle(fontSize: 7.5);
+  pw.Widget cell(String s, {PdfColor? bg, bool left = false, pw.TextStyle? style}) => pw.Container(
+        color: bg,
+        alignment: left ? pw.Alignment.centerLeft : pw.Alignment.center,
+        padding: const pw.EdgeInsets.symmetric(horizontal: 3, vertical: 3),
+        child: pw.Text(s, style: style ?? cellStyle, maxLines: 2),
+      );
+  pw.Widget rateCell(double? v) => v == null ? cell('–', style: const pw.TextStyle(fontSize: 7.5, color: _gray)) : cell(_pct(v), bg: fill[band(v)]);
+
+  pw.Widget legend() => pw.Row(children: [
+        for (final (i, label) in [
+          (0, tr('Kazanıldı (%{0} ve üstü)', [(OutcomeTrack.mastered * 100).round()])),
+          (1, tr('Kısmen (%{0}–%{1})', [(OutcomeTrack.partial * 100).round(), (OutcomeTrack.mastered * 100).round() - 1])),
+          (2, tr('Kazanılmadı (%{0} altı)', [(OutcomeTrack.partial * 100).round()])),
+        ]) ...[
+          pw.Container(width: 9, height: 9, color: fill[i]),
+          pw.SizedBox(width: 3),
+          pw.Text(label, style: const pw.TextStyle(fontSize: 7.5)),
+          pw.SizedBox(width: 12),
+        ],
+        pw.Text(tr('–: o sınavda sorulmadı'), style: const pw.TextStyle(fontSize: 7.5, color: _muted)),
+      ]);
+
+  final content = <pw.Widget>[
+    k.title(tr('Kazanım takip çizelgesi'),
+        tr('{0} · {1} · kazanımlar sınav sınav sınıfın doğru oranıyla izlenir', [t.term.label, t.className])),
+  ];
+  if (track.codes.isEmpty) {
+    content.add(pw.Padding(
+      padding: const pw.EdgeInsets.only(top: 20),
+      child: pw.Text(
+          tr('Seçilen sınavlarda kazanım bilgisi yok. Sınav ayarlarında sorulara kazanım (konu) yazın ya da sınavı soru bankasından oluşturun.'),
+          style: const pw.TextStyle(fontSize: 10)),
+    ));
+  } else {
+    final mastered = [for (var i = 0; i < track.codes.length; i++) track.termRate(i)].whereType<double>();
+    content.addAll([
+      k.grid([
+        k.statBox(tr('Kazanım'), '${track.codes.length}'),
+        k.statBox(tr('Kazanılan'), '${mastered.where((v) => v >= OutcomeTrack.mastered).length}', color: _emerald),
+        k.statBox(tr('Kısmen'), '${mastered.where((v) => v >= OutcomeTrack.partial && v < OutcomeTrack.mastered).length}', color: _amber),
+        k.statBox(tr('Kazanılmayan'), '${mastered.where((v) => v < OutcomeTrack.partial).length}', color: _coral),
+      ]),
+      pw.SizedBox(height: 4),
+      legend(),
+      pw.SizedBox(height: 6),
+      pw.Table(
+        border: pw.TableBorder.all(color: _line, width: 0.5),
+        columnWidths: {
+          0: const pw.FixedColumnWidth(22),
+          1: const pw.FlexColumnWidth(5),
+          for (var j = 0; j < t.exams.length; j++) j + 2: const pw.FlexColumnWidth(1.25),
+          t.exams.length + 2: const pw.FlexColumnWidth(1.3),
+          t.exams.length + 3: const pw.FlexColumnWidth(1.2),
+        },
+        children: [
+          pw.TableRow(decoration: const pw.BoxDecoration(color: _ink), repeat: true, children: [
+            cell('#', style: head),
+            cell(tr('Kazanım'), style: head, left: true),
+            for (var j = 0; j < t.exams.length; j++) cell('${j + 1}. ${_short(t.exams[j].exam.name, 10)}\n${_date(t.exams[j].exam.date)}', style: head),
+            cell(tr('Dönem'), style: head),
+            cell(tr('Eğilim'), style: head),
+          ]),
+          for (var i = 0; i < track.codes.length; i++)
+            pw.TableRow(children: [
+              cell('K${i + 1}'),
+              cell(track.codes[i], left: true),
+              for (final v in track.byExam[i]) rateCell(v),
+              rateCell(track.termRate(i)),
+              () {
+                final d = track.trend(i);
+                if (d == null) return cell('–', style: const pw.TextStyle(fontSize: 7.5, color: _gray));
+                final up = d >= 5, down = d <= -5;
+                return cell('${up ? '↑' : (down ? '↓' : '→')} ${d >= 0 ? '+' : ''}${d.round()}',
+                    style: pw.TextStyle(fontSize: 7.5, fontWeight: pw.FontWeight.bold, color: up ? _emerald : (down ? _coral : _muted)));
+              }(),
+            ]),
+        ],
+      ),
+      pw.Padding(
+        padding: const pw.EdgeInsets.only(top: 4),
+        child: pw.Text(tr('Eğilim: kazanımın ilk ve son sorulduğu sınav arasındaki fark (yüzde puan).'),
+            style: const pw.TextStyle(fontSize: 7, color: _muted)),
+      ),
+    ]);
+  }
+  doc.addPage(pw.MultiPage(
+    textDirection: _dir,
+    pageFormat: PdfPageFormat.a4.landscape,
+    margin: const pw.EdgeInsets.fromLTRB(30, 26, 30, 26),
+    header: k.header,
+    footer: k.footer,
+    build: (ctx) => content,
+  ));
+
+  // Öğrenci × kazanım: sayfaya en fazla 14 kazanım sütunu.
+  final students = t.rows.where((r) => track.byStudent.containsKey(r.student.id)).toList();
+  if (track.codes.isNotEmpty && students.isNotEmpty) {
+    const per = 14;
+    for (var start = 0; start < track.codes.length; start += per) {
+      final idx = [for (var i = start; i < math.min(start + per, track.codes.length); i++) i];
+      doc.addPage(pw.MultiPage(
+        textDirection: _dir,
+        pageFormat: PdfPageFormat.a4.landscape,
+        margin: const pw.EdgeInsets.fromLTRB(30, 26, 30, 26),
+        header: k.header,
+        footer: k.footer,
+        build: (ctx) => [
+          k.title(tr('Öğrenci kazanım çizelgesi'),
+              tr('Her öğrencinin dönem boyunca kazanımlardaki doğru oranı · K{0}–K{1}', [idx.first + 1, idx.last + 1])),
+          legend(),
+          pw.SizedBox(height: 6),
+          pw.Table(
+            border: pw.TableBorder.all(color: _line, width: 0.5),
+            columnWidths: {
+              0: const pw.FixedColumnWidth(34),
+              1: const pw.FlexColumnWidth(4),
+              for (var j = 0; j < idx.length; j++) j + 2: const pw.FlexColumnWidth(1),
+              idx.length + 2: const pw.FlexColumnWidth(1.4),
+            },
+            children: [
+              pw.TableRow(decoration: const pw.BoxDecoration(color: _ink), repeat: true, children: [
+                cell(tr('No'), style: head),
+                cell(tr('Ad Soyad'), style: head, left: true),
+                for (final i in idx) cell('K${i + 1}', style: head),
+                cell(tr('Kazanılan'), style: head),
+              ]),
+              for (final r in students)
+                pw.TableRow(children: [
+                  cell(r.student.number),
+                  cell(r.student.fullName, left: true),
+                  for (final i in idx) rateCell(track.byStudent[r.student.id]![track.codes[i]]),
+                  () {
+                    final (m, n) = track.masteredOf(r.student.id);
+                    return cell('$m / $n', style: pw.TextStyle(fontSize: 7.5, fontWeight: pw.FontWeight.bold));
+                  }(),
+                ]),
+            ],
+          ),
+          pw.SizedBox(height: 8),
+          pw.Wrap(spacing: 10, runSpacing: 2, children: [
+            for (final i in idx)
+              pw.Text('K${i + 1}: ${_short(track.codes[i], 60)}', style: const pw.TextStyle(fontSize: 7, color: _muted)),
+          ]),
+        ],
+      ));
+    }
+  }
+  return doc.save();
+}

@@ -122,6 +122,9 @@ class OmrResult {
   /// Öğrencinin işaretlediği kitapçık (0 = A, 1 = B, 2 = C…); işaret yoksa null.
   final int? booklet;
 
+  /// Çeyrek A4 kısa quiz formundan mı okundu?
+  final bool mini;
+
   const OmrResult({
     required this.questions,
     required this.studentNumber,
@@ -129,6 +132,7 @@ class OmrResult {
     this.code,
     this.booklet,
     this.numberPattern,
+    this.mini = false,
   });
 
   List<Answer> get answers => questions.map((q) => q.answer).toList();
@@ -155,8 +159,29 @@ class OmrReader {
 
   OmrReader(this.layout, {this.thresholds = const OmrThresholds()});
 
-  OmrResult read(GrayImage image) {
-    final markers = _orient(image, findMarkers(image));
+  OmrResult read(GrayImage image) => readAt(image, _orient(image, findMarkers(image)));
+
+  /// Birden çok yerleşim (A4 formu ve kısa quiz formu) olabiliyorsa kâğıdın
+  /// hangisi olduğunu daire çemberlerinin yerinden anlar ve onunla okur.
+  static OmrResult readAny(GrayImage image, List<FormLayout> layouts, {OmrThresholds thresholds = const OmrThresholds()}) {
+    final found = findMarkers(image);
+    OmrReader? best;
+    List<Pt>? bestMarkers;
+    var bestScore = double.negativeInfinity;
+    for (final l in layouts) {
+      final r = OmrReader(l, thresholds: thresholds);
+      final (m, score) = r._orientScored(image, found);
+      if (score > bestScore) {
+        bestScore = score;
+        best = r;
+        bestMarkers = m;
+      }
+    }
+    return best!.readAt(image, bestMarkers!);
+  }
+
+  /// Köşe işaretleri bulunmuş ve yönü düzeltilmiş kâğıdı okur.
+  OmrResult readAt(GrayImage image, List<Pt> markers) {
     final hom = Homography.fromPoints(FormLayout.markerCenters, markers);
 
     // Siyah referansı: köşe işaretlerinin iç kısmı.
@@ -170,7 +195,7 @@ class OmrReader {
     double fillAt(Pt formPt) {
       final c = hom.map(formPt);
       final scale = hom.scaleAt(formPt);
-      final r = FormLayout.bubbleRadius * scale;
+      final r = layout.bubbleR * scale;
       final white = localWhite(image, c, r * 1.8);
       final mean = meanInDisk(image, c, r * 0.62);
       final range = white - black;
@@ -234,13 +259,16 @@ class OmrReader {
       markers: markers,
       code: FormCode.decode(bits),
       booklet: booklet,
+      mini: layout.mini,
     );
   }
 
   /// Kâğıt yan ya da ters çekildiyse köşe sırasını düzeltir: dört olası
   /// yönün her birinde basılı daire çemberlerinin gerçekten beklenen yerde
   /// olup olmadığına bakılır ve en tutarlı yön seçilir.
-  List<Pt> _orient(GrayImage image, List<Pt> m) {
+  List<Pt> _orient(GrayImage image, List<Pt> m) => _orientScored(image, m).$1;
+
+  (List<Pt>, double) _orientScored(GrayImage image, List<Pt> m) {
     var best = m;
     var bestScore = double.negativeInfinity;
     for (var k = 0; k < 4; k++) {
@@ -252,7 +280,7 @@ class OmrReader {
         best = cand;
       }
     }
-    return best;
+    return (best, bestScore);
   }
 
   /// Daire çemberi üzerindeki noktalar, daireler arasındaki boşluktan ne kadar koyu?
@@ -266,7 +294,7 @@ class OmrReader {
     for (final c in pts) {
       for (var a = 0; a < 12; a++) {
         final ang = a * math.pi / 6;
-        final r = FormLayout.bubbleRadius;
+        final r = layout.bubbleR;
         final pr = hom.map(Pt(c.x + r * math.cos(ang), c.y + r * math.sin(ang)));
         final pg = hom.map(Pt(c.x + r * 1.33 * math.cos(ang), c.y + r * 1.33 * math.sin(ang)));
         if (!_inside(image, pr) || !_inside(image, pg)) return double.negativeInfinity;

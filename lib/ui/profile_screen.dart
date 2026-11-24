@@ -5,6 +5,7 @@ import '../main.dart';
 import 'account_card.dart';
 import 'admin_panel_screen.dart';
 import 'common_exam_ui.dart';
+import 'lan_sync_screen.dart';
 import 'license_screen.dart';
 import 'pro_screen.dart';
 import 'school_screen.dart';
@@ -139,6 +140,15 @@ class ProfileScreen extends StatelessWidget {
               subtitle: Text(tr('Başka öğretmenden gelen sınav veya sonuç dosyası')),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => importNeticeFile(context),
+            ),
+            const Divider(height: 1),
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              leading: const IconBadge(Icons.wifi_rounded),
+              title: Text(tr('Wi-Fi ile ortak sınav al'), style: const TextStyle(fontWeight: FontWeight.w700)),
+              subtitle: Text(tr('Aynı ağdaki öğretmenden, internetsiz ve dosyasız')),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => openLanSync(context),
             ),
           ]),
         ),

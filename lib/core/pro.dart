@@ -20,6 +20,11 @@ enum ProFeature {
   adminPanel('Kurum yönetici paneli', 'Tüm şubeler, sınavlar ve risk altındaki öğrenciler tek ekranda'),
   bookletVariants('A–H kitapçık türleri', 'Soruları ve şıkları karıştırılmış sekize kadar kitapçık, hap bilgi eki'),
   studyTips('Zayıf konu föyü', 'Zayıf konuların hap bilgileri karnede ve çalışma föyünde'),
+  personalReview('Kişiye özel tekrar testi', 'Her öğrenciye kendi yanlışlarının benzer soruları, soru bankasından'),
+  outcomeTracking('Kazanım takip çizelgesi', 'Dönem boyunca her kazanımın sınıf ve öğrenci bazında gelişimi'),
+  wordExport('Word\'e aktarma', 'Kitapçığı düzenlenebilir Word (.docx) belgesi olarak kaydedin'),
+  lanSync('Wi-Fi ile eşitleme', 'Aynı ağdaki öğretmenlerle internetsiz, dosyasız sonuç toplama'),
+  bulkParent('Velilere toplu gönderim', 'Bütün sınıfın karnelerini sırayla, hazır mesajla gönderin'),
   noAds('Reklamsız kullanım', 'Hiçbir sayfada reklam gösterilmez');
 
   final String _title;
