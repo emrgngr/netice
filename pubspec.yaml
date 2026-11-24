@@ -82,6 +82,8 @@ flutter:
   assets:
     - assets/fonts/
     - assets/icon/
+    - assets/brand/
+    - assets/badges/
     - assets/pdf_fonts/
     - assets/sounds/
     - promo/oneriler.json

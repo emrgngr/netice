@@ -921,5 +921,7 @@
  "geri kalan": "Rest",
  "Örnek: \"% 85\" yazılan düzey, tam puanın %85 ve üzerini alanlara verilir. 20 veya 10 üzerinden puan için Sınav ayarlarında \"Tam puan\" değerini değiştirin.": "Beispiel: Die Stufe mit „% 85“ erhalten alle mit mindestens 85 % der vollen Punktzahl. Für Punkte von 20 oder 10 in den Prüfungseinstellungen die „Volle Punktzahl“ ändern.",
  "Özel not sistemi": "Eigenes Notensystem",
- "Öğrencinin puanı, tam puanın yüzdesine göre bu düzeylere yerleşir. Raporlar, karneler ve düzey dağılımı bu sistemi kullanır.": "Die Punktzahl eines Schülers wird nach ihrem Anteil an der vollen Punktzahl diesen Stufen zugeordnet. Berichte, Zeugnisse und Notenverteilung verwenden dieses System."
+ "Öğrencinin puanı, tam puanın yüzdesine göre bu düzeylere yerleşir. Raporlar, karneler ve düzey dağılımı bu sistemi kullanır.": "Die Punktzahl eines Schülers wird nach ihrem Anteil an der vollen Punktzahl diesen Stufen zugeordnet. Berichte, Zeugnisse und Notenverteilung verwenden dieses System.",
+ "Ücretsiz indirin": "Kostenlos herunterladen",
+ "Optik kâğıtları telefonla okutun, sonuç ve karne saniyeler içinde.": "Antwortbögen mit dem Handy auswerten, Ergebnisse und Zeugnisse in Sekunden."
 }

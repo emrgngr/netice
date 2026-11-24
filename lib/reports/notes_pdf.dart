@@ -10,6 +10,7 @@ import 'package:pdf/widgets.dart' as pw;
 import '../bank/bank_models.dart';
 import '../core/models.dart';
 import '../l10n/l10n.dart';
+import 'brand_footer.dart';
 import 'pdf_documents.dart' show pdfTheme;
 
 const _ink = PdfColor.fromInt(0xFF0F1B3D);
@@ -92,10 +93,14 @@ Future<Uint8List> buildNotesPdf({
             padding: const pw.EdgeInsets.only(bottom: 8),
             child: pw.Text(title, style: const pw.TextStyle(fontSize: 8, color: _muted)),
           ),
-    footer: (c) => pw.Row(children: [
-      pw.Text(school.name.trim(), style: const pw.TextStyle(fontSize: 7.5, color: _muted)),
-      pw.Spacer(),
-      pw.Text('${c.pageNumber} / ${c.pagesCount}', style: const pw.TextStyle(fontSize: 7.5, color: _muted)),
+    footer: (c) => pw.Column(children: [
+      pw.Row(children: [
+        pw.Text(school.name.trim(), style: const pw.TextStyle(fontSize: 7.5, color: _muted)),
+        pw.Spacer(),
+        pw.Text('${c.pageNumber} / ${c.pagesCount}', style: const pw.TextStyle(fontSize: 7.5, color: _muted)),
+      ]),
+      pw.SizedBox(height: 3),
+      brandStrip(),
     ]),
     build: (c) => [
       pw.Container(
