@@ -21,7 +21,7 @@ import 'bank_models.dart';
 import 'bank_store.dart';
 
 /// Sunucu adresi. Derlemede `--dart-define=SORU_SERVIS_URL=…` ile değiştirilebilir.
-const aiServiceUrl = String.fromEnvironment('SORU_SERVIS_URL', defaultValue: '');
+const aiServiceUrl = String.fromEnvironment('SORU_SERVIS_URL', defaultValue: 'https://netice-soru.bilgi-7ff.workers.dev');
 const _appKey = 'netice-app-1';
 
 /// Sunucuya bir istekte sorulan en fazla soru. Daha fazlası istenirse
