@@ -22,7 +22,10 @@
    "08_sonuclar",
    "09_analiz",
    "10_ogrenci",
-   "k_donem"
+   "k_donem",
+   "k_sinif_analiz",
+   "k_genel_istatistik",
+   "k_not_sistemi"
   ],
   "library": [
    "12_kutuphane",
@@ -31,11 +34,18 @@
    "k_notlar",
    "k_sihirbaz",
    "k_kitapcik_turu",
-   "k_banka_analiz"
+   "k_banka_analiz",
+   "k_yz_soru",
+   "k_cocuk"
   ],
   "data": [
    "12_ayarlar",
    "k_yedek"
+  ],
+  "pro": [
+   "k_pro",
+   "k_pro_alt",
+   "k_okul"
   ]
  },
  "kareler": {

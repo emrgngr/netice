@@ -116,9 +116,12 @@ class Campaign {
     ),
   ];
 
+  /// Görüntü üretimi ve testler için sabit tarih (kampanyasız ekran).
+  static DateTime? debugNow;
+
   /// Bugün geçerli kampanya (yoksa null).
   static Campaign? current([DateTime? now]) {
-    final t = now ?? DateTime.now();
+    final t = now ?? debugNow ?? DateTime.now();
     for (final c in all) {
       if (c.activeOn(t)) return c;
     }

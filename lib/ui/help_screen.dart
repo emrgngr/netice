@@ -31,6 +31,7 @@ class _HelpScreenState extends State<HelpScreen> {
         'report' => Icons.insights_rounded,
         'library' => Icons.local_library_outlined,
         'data' => Icons.shield_outlined,
+        'pro' => Icons.workspace_premium_outlined,
         _ => Icons.help_outline,
       };
 

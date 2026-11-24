@@ -71,7 +71,11 @@ _noto = {
     'ru': ('NotoSans-Regular', 'NotoSans-Bold'),
     'zh': ('NotoSansSC-Regular', 'NotoSansSC-Regular'),
     'ja': ('NotoSansJP-Regular', 'NotoSansJP-Regular'),
+    'ko': ('NotoSansKR-Regular', 'NotoSansKR-Regular'),
+    'hi': ('NotoSansDevanagari-Regular', 'NotoSansDevanagari-Regular'),
 }.get(DIL)
+# Devanagari harf birleştirmesi (uharfbuzz gerekir: pip install uharfbuzz).
+SHAPE = DIL == 'hi'
 for ad, dosya in [('J', '400Regular'), ('J5', '500Medium'), ('J6', '600SemiBold'), ('J7', '700Bold'), ('J8', '800ExtraBold')]:
     if _noto:
         yol = os.path.join(KOK, 'assets', 'pdf_fonts', (_noto[0] if ad in ('J', 'J5') else _noto[1]) + '.ttf')
@@ -85,11 +89,11 @@ M = 40  # kenar boşluğu
 SW, SH = 360.0, 760.0  # ekran görüntüsünün mantıksal boyutu
 hedefler = json.load(open(os.path.join(KARE, 'hedefler.json'), encoding='utf-8'))
 
-st_giris = ParagraphStyle('giris', fontName='J', fontSize=10.5, leading=15, textColor=MUTED)
-st_adim_b = ParagraphStyle('ab', fontName='J7', fontSize=10.5, leading=13.5, textColor=INK)
-st_adim = ParagraphStyle('a', fontName='J', fontSize=9.2, leading=12.8, textColor=MUTED)
-st_ipucu = ParagraphStyle('ip', fontName='J', fontSize=9.4, leading=13.2, textColor=INK)
-st_kapak = ParagraphStyle('k', fontName='J', fontSize=12, leading=18, textColor=HexColor('#C9D2EA'))
+st_giris = ParagraphStyle('giris', fontName='J', fontSize=10.5, leading=15, textColor=MUTED, shaping=int(SHAPE))
+st_adim_b = ParagraphStyle('ab', fontName='J7', fontSize=10.5, leading=13.5, textColor=INK, shaping=int(SHAPE))
+st_adim = ParagraphStyle('a', fontName='J', fontSize=9.2, leading=12.8, textColor=MUTED, shaping=int(SHAPE))
+st_ipucu = ParagraphStyle('ip', fontName='J', fontSize=9.4, leading=13.2, textColor=INK, shaping=int(SHAPE))
+st_kapak = ParagraphStyle('k', fontName='J', fontSize=12, leading=18, textColor=HexColor('#C9D2EA'), shaping=int(SHAPE))
 
 
 if CJK:
@@ -137,6 +141,9 @@ def para_h(text, style, width):
 def yaz(c, x, y, s, sag=False, orta=False):
     """Tek satır yazı (Arapçada şekillendirilmiş)."""
     s = gorsel(s)
+    if SHAPE:
+        from reportlab.pdfbase.ttfonts import shapeStr
+        s = shapeStr(s, c._fontname, c._fontsize, force=True)
     if orta:
         c.drawCentredString(x, y, s)
     elif sag:

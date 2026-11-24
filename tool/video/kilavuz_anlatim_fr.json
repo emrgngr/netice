@@ -6,7 +6,8 @@
   "scan": "Corriger les feuilles",
   "report": "Résultats et rapports",
   "data": "Vos données",
-  "library": "Banque de questions et sujets"
+  "library": "Banque de questions et sujets",
+  "pro": "Netice Pro"
  },
  "k_sinav_ayar": "Dans les réglages de l'évaluation, fixez la note maximale, le seuil de réussite et la pénalité des réponses fausses. Vous y ajoutez aussi les types de sujet et les questions écrites.",
  "k_sablon": "Si vous utilisez la grille d'un éditeur ou d'une autre société, créez-en une fois un modèle dans Réglages, rubrique Autres grilles.",
@@ -18,5 +19,13 @@
  "k_notlar": "Gardez vos résumés et essentiels dans l'onglet Notes. Les essentiels des thèmes faibles s'ajoutent automatiquement au bulletin.",
  "k_sihirbaz": "Ouvrez l'assistant avec Nouveau livret. Choisissez les questions dans la banque, ou indiquez le nombre et la difficulté et laissez Netice choisir.",
  "k_kitapcik_turu": "Créez des livrets de A à H et mélangez questions et réponses. Créer l'examen le prépare pour la lecture optique.",
- "k_banka_analiz": "L'onglet Analyse montre l'équilibre de difficulté et la couverture des thèmes. Au fil des examens, il mesure aussi la difficulté réelle."
+ "k_banka_analiz": "L'onglet Analyse montre l'équilibre de difficulté et la couverture des thèmes. Au fil des examens, il mesure aussi la difficulté réelle.",
+ "k_yz_soru": "Ouvrez une note et touchez Générer des questions à partir de cette note. Choisissez le nombre, le type et la difficulté ; l'IA propose des questions, les bonnes réponses et de courtes corrections. Vérifiez-les et ajoutez à la banque celles qui vous plaisent.",
+ "k_cocuk": "Pour le primaire, choisissez le modèle Enfants à l'étape Apparence de l'assistant de livret. Grands caractères et numéros en couleur ; les réponses se cochent dans le cadre au coin de la première page et se lisent avec le téléphone.",
+ "k_not_sistemi": "Dans Réglages, écran Système de notation, choisissez le système de votre pays ou saisissez vous-même les niveaux. Bulletins et rapports suivent ce système.",
+ "k_pro": "L'écran Netice Pro, dans Profil, présente les formules. Pro comprend cinquante questions IA par mois, Pro plus IA trois cents. Le pass période d'examens dure trois mois et ne se renouvelle pas.",
+ "k_pro_alt": "Quand votre quota mensuel est épuisé, achetez un pack de questions supplémentaire qui n'expire pas. Si cinq enseignants ou plus d'une même école achètent ensemble, l'offre école leur donne une réduction.",
+ "k_okul": "Sur l'écran de l'offre école, saisissez le nombre d'enseignants, voyez le prix réduit et touchez Demander un devis pour votre école. Une fois accepté, votre école reçoit un code d'établissement.",
+ "k_sinif_analiz": "Si vous avez donné la même épreuve dans plusieurs classes, l'Analyse classe par classe de l'écran d'accueil les montre côte à côte. Vous y trouvez les points forts, l'écart à la moyenne générale et le taux de bonnes réponses par question ; le bouton en haut à droite donne un rapport PDF.",
+ "k_genel_istatistik": "Les Statistiques générales montrent ensemble les résultats de toutes les classes et de tous les élèves ayant passé une épreuve. Affinez par période et par classe, et partagez le rapport en PDF."
 }

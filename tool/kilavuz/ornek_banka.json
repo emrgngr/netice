@@ -263,5 +263,101 @@
    ["tip", 2, "الحفظ", "الطاقة لا تفنى ولا تستحدث من العدم، بل تتحول من شكل إلى آخر."]
   ],
   "kitapcik": ["الصف التاسع فيزياء الاختبار الأول", "الفصل الأول اختبار الفيزياء"]
+ },
+ "pt": {
+  "ders": "Física", "sinif": "1º ano",
+  "konular": ["Movimento", "Força", "Energia", "Calor e temperatura"],
+  "sorular": [
+   [0, 0, "Um carro com velocidade constante percorre 120 km em 2 horas. Qual é a sua velocidade em km/h?", ["40", "50", "60", "80"], 2, "v = x / t = 120 / 2 = 60 km/h"],
+   [0, 1, "Um corpo parte do repouso com aceleração de 2 m/s². Qual é a sua velocidade em m/s após 5 segundos?", ["5", "8", "10", "12"], 2, ""],
+   [1, 0, "Em que sentido atua a força resultante sobre o corpo da figura?", ["Direita", "Esquerda", "Para cima", "Para baixo"], 0, ""],
+   [1, 1, "Uma força resultante de 20 N atua sobre um corpo de 4 kg. Qual é a sua aceleração em m/s²?", ["2", "4", "5", "8"], 2, "a = F / m = 20 / 4 = 5 m/s²"],
+   [1, 2, "Um corpo é puxado plano inclinado acima com velocidade constante. Qual é a força resultante sobre ele em N?", ["0", "mg", "mg·senα", "mg·cosα"], 0, ""],
+   [2, 0, "Que tipo de energia tem um corpo a uma altura h do solo?", ["Cinética", "Potencial gravitacional", "Potencial elástica", "Térmica"], 1, ""],
+   [2, 1, "Um corpo de 2 kg se move a 3 m/s. Qual é a sua energia cinética em J?", ["3", "6", "9", "18"], 2, ""],
+   [2, 2, "Um corpo é solto num ambiente sem atrito. O que acontece com a sua energia mecânica?", ["Aumenta", "Diminui", "Se conserva", "Sobe e depois cai"], 2, ""],
+   [3, 0, "Qual destas é uma unidade de temperatura?", ["Joule", "Caloria", "Kelvin", "Watt"], 2, ""],
+   [3, 2, "Dois corpos à mesma temperatura se tocam. O que acontece?", ["Não há troca de calor", "O maior cede calor", "O menor cede calor", "Nenhuma das anteriores"], 0, ""]
+  ],
+  "acik": ["Explique a conservação da energia com um exemplo do dia a dia.", "Pêndulo: a energia potencial e a cinética se transformam uma na outra"],
+  "notlar": [
+   ["tip", 0, "Fórmula da velocidade", "v = x / t. Use unidades compatíveis: km e horas, ou m e segundos."],
+   ["tip", 1, "Segunda lei de Newton", "F(resultante) = m · a. Se a resultante é zero, o corpo fica em repouso ou em movimento uniforme."],
+   ["summary", 2, "Energia e suas formas", "Energia cinética: Ec = ½ m v²\nEnergia potencial: Ep = m g h\nSem atrito a energia mecânica se conserva; com atrito, parte vira calor."],
+   ["tip", 2, "Conservação", "A energia não se cria nem se destrói; apenas muda de forma."]
+  ],
+  "kitapcik": ["Física 1º ano · Prova 1", "1º bimestre · Física · Prova 1"]
+ },
+ "hi": {
+  "ders": "भौतिकी", "sinif": "कक्षा 9",
+  "konular": ["गति", "बल", "ऊर्जा", "ऊष्मा और तापमान"],
+  "sorular": [
+   [0, 0, "एकसमान चाल से चलती कार 2 घंटे में 120 km जाती है। उसकी चाल km/h में कितनी है?", ["40", "50", "60", "80"], 2, "v = s / t = 120 / 2 = 60 km/h"],
+   [0, 1, "विराम से चलकर कोई वस्तु 2 m/s² त्वरण से चलती है। 5 सेकंड बाद उसकी चाल m/s में कितनी होगी?", ["5", "8", "10", "12"], 2, ""],
+   [1, 0, "चित्र में वस्तु पर कुल बल किस दिशा में लगता है?", ["दाएँ", "बाएँ", "ऊपर", "नीचे"], 0, ""],
+   [1, 1, "4 kg की वस्तु पर 20 N का कुल बल लगता है। उसका त्वरण m/s² में कितना है?", ["2", "4", "5", "8"], 2, "a = F / m = 20 / 4 = 5 m/s²"],
+   [1, 2, "किसी वस्तु को नत तल पर एकसमान चाल से ऊपर खींचा जाता है। उस पर कुल बल N में कितना है?", ["0", "mg", "mg·sinα", "mg·cosα"], 0, ""],
+   [2, 0, "ज़मीन से h ऊँचाई पर रखी वस्तु में कौन-सी ऊर्जा होती है?", ["गतिज", "गुरुत्वीय स्थितिज", "प्रत्यास्थ स्थितिज", "ऊष्मा"], 1, ""],
+   [2, 1, "2 kg की वस्तु 3 m/s से चल रही है। उसकी गतिज ऊर्जा J में कितनी है?", ["3", "6", "9", "18"], 2, ""],
+   [2, 2, "घर्षण-रहित स्थान पर वस्तु छोड़ी जाती है। उसकी यांत्रिक ऊर्जा का क्या होता है?", ["बढ़ती है", "घटती है", "संरक्षित रहती है", "पहले बढ़ती फिर घटती है"], 2, ""],
+   [3, 0, "इनमें से तापमान की इकाई कौन-सी है?", ["जूल", "कैलोरी", "केल्विन", "वाट"], 2, ""],
+   [3, 2, "समान तापमान वाली दो वस्तुएँ छूती हैं। क्या होता है?", ["ऊष्मा का लेन-देन नहीं होता", "बड़ी वस्तु ऊष्मा देती है", "छोटी वस्तु ऊष्मा देती है", "इनमें से कोई नहीं"], 0, ""]
+  ],
+  "acik": ["रोज़मर्रा के एक उदाहरण से ऊर्जा संरक्षण समझाइए।", "लोलक: स्थितिज और गतिज ऊर्जा एक-दूसरे में बदलती हैं"],
+  "notlar": [
+   ["tip", 0, "चाल का सूत्र", "v = s / t. इकाइयाँ मिलाकर लें: km और घंटे, या m और सेकंड।"],
+   ["tip", 1, "न्यूटन का दूसरा नियम", "F(कुल) = m · a. कुल बल शून्य हो तो वस्तु विराम में रहती है या एकसमान गति करती है।"],
+   ["summary", 2, "ऊर्जा और उसके रूप", "गतिज ऊर्जा: Ek = ½ m v²\nस्थितिज ऊर्जा: Ep = m g h\nघर्षण न हो तो यांत्रिक ऊर्जा संरक्षित रहती है; घर्षण हो तो कुछ ऊष्मा में बदलती है।"],
+   ["tip", 2, "संरक्षण", "ऊर्जा न बनाई जा सकती है न नष्ट की जा सकती है; वह सिर्फ़ रूप बदलती है।"]
+  ],
+  "kitapcik": ["कक्षा 9 भौतिकी · परीक्षा 1", "टर्म 1 · भौतिकी · परीक्षा 1"]
+ },
+ "id": {
+  "ders": "Fisika", "sinif": "Kelas 10",
+  "konular": ["Gerak", "Gaya", "Energi", "Kalor dan suhu"],
+  "sorular": [
+   [0, 0, "Sebuah mobil dengan kecepatan tetap menempuh 120 km dalam 2 jam. Berapa kecepatannya dalam km/jam?", ["40", "50", "60", "80"], 2, "v = s / t = 120 / 2 = 60 km/jam"],
+   [0, 1, "Sebuah benda mulai dari diam dengan percepatan 2 m/s². Berapa kecepatannya dalam m/s setelah 5 detik?", ["5", "8", "10", "12"], 2, ""],
+   [1, 0, "Ke arah mana gaya total pada benda di gambar bekerja?", ["Kanan", "Kiri", "Atas", "Bawah"], 0, ""],
+   [1, 1, "Gaya total 20 N bekerja pada benda 4 kg. Berapa percepatannya dalam m/s²?", ["2", "4", "5", "8"], 2, "a = F / m = 20 / 4 = 5 m/s²"],
+   [1, 2, "Sebuah benda ditarik ke atas bidang miring dengan kecepatan tetap. Berapa gaya total padanya dalam N?", ["0", "mg", "mg·sinα", "mg·cosα"], 0, ""],
+   [2, 0, "Energi apa yang dimiliki benda pada ketinggian h dari tanah?", ["Kinetik", "Potensial gravitasi", "Potensial pegas", "Kalor"], 1, ""],
+   [2, 1, "Benda 2 kg bergerak dengan kecepatan 3 m/s. Berapa energi kinetiknya dalam J?", ["3", "6", "9", "18"], 2, ""],
+   [2, 2, "Sebuah benda dilepas di lingkungan tanpa gesekan. Apa yang terjadi pada energi mekaniknya?", ["Bertambah", "Berkurang", "Tetap (kekal)", "Naik lalu turun"], 2, ""],
+   [3, 0, "Manakah satuan suhu?", ["Joule", "Kalori", "Kelvin", "Watt"], 2, ""],
+   [3, 2, "Dua benda bersuhu sama bersentuhan. Apa yang terjadi?", ["Tidak ada perpindahan kalor", "Yang besar melepas kalor", "Yang kecil melepas kalor", "Tidak ada yang benar"], 0, ""]
+  ],
+  "acik": ["Jelaskan hukum kekekalan energi dengan contoh sehari-hari.", "Bandul: energi potensial dan kinetik saling berubah"],
+  "notlar": [
+   ["tip", 0, "Rumus kecepatan", "v = s / t. Gunakan satuan yang sesuai: km dan jam, atau m dan detik."],
+   ["tip", 1, "Hukum II Newton", "F(total) = m · a. Jika gaya total nol, benda diam atau bergerak lurus beraturan."],
+   ["summary", 2, "Energi dan bentuknya", "Energi kinetik: Ek = ½ m v²\nEnergi potensial: Ep = m g h\nTanpa gesekan energi mekanik kekal; dengan gesekan sebagian berubah menjadi kalor."],
+   ["tip", 2, "Kekekalan", "Energi tidak dapat diciptakan atau dimusnahkan; hanya berubah bentuk."]
+  ],
+  "kitapcik": ["Fisika Kelas 10 · Ulangan 1", "Semester 1 · Fisika · Ulangan 1"]
+ },
+ "ko": {
+  "ders": "물리", "sinif": "고1",
+  "konular": ["운동", "힘", "에너지", "열과 온도"],
+  "sorular": [
+   [0, 0, "일정한 속력으로 달리는 자동차가 2시간 동안 120 km를 갔다. 속력은 몇 km/h인가?", ["40", "50", "60", "80"], 2, "v = s / t = 120 / 2 = 60 km/h"],
+   [0, 1, "정지해 있던 물체가 2 m/s²로 가속한다. 5초 뒤 속력은 몇 m/s인가?", ["5", "8", "10", "12"], 2, ""],
+   [1, 0, "그림의 물체에 작용하는 알짜힘의 방향은?", ["오른쪽", "왼쪽", "위", "아래"], 0, ""],
+   [1, 1, "질량 4 kg인 물체에 알짜힘 20 N이 작용한다. 가속도는 몇 m/s²인가?", ["2", "4", "5", "8"], 2, "a = F / m = 20 / 4 = 5 m/s²"],
+   [1, 2, "물체를 빗면 위로 일정한 속력으로 끌어 올린다. 물체에 작용하는 알짜힘은 몇 N인가?", ["0", "mg", "mg·sinα", "mg·cosα"], 0, ""],
+   [2, 0, "지면에서 높이 h에 있는 물체가 가진 에너지는?", ["운동 에너지", "중력 퍼텐셜 에너지", "탄성 퍼텐셜 에너지", "열에너지"], 1, ""],
+   [2, 1, "질량 2 kg인 물체가 3 m/s로 움직인다. 운동 에너지는 몇 J인가?", ["3", "6", "9", "18"], 2, ""],
+   [2, 2, "마찰이 없는 곳에서 물체를 놓았다. 역학적 에너지는 어떻게 되는가?", ["증가한다", "감소한다", "보존된다", "늘었다가 줄어든다"], 2, ""],
+   [3, 0, "다음 중 온도의 단위는?", ["줄", "칼로리", "켈빈", "와트"], 2, ""],
+   [3, 2, "온도가 같은 두 물체가 닿아 있다. 어떻게 되는가?", ["열이 이동하지 않는다", "큰 물체가 열을 준다", "작은 물체가 열을 준다", "답 없음"], 0, ""]
+  ],
+  "acik": ["에너지 보존을 일상의 예로 설명하시오.", "진자: 퍼텐셜 에너지와 운동 에너지가 서로 바뀐다"],
+  "notlar": [
+   ["tip", 0, "속력 공식", "v = s / t. 단위를 맞추세요: km와 시간, 또는 m와 초."],
+   ["tip", 1, "뉴턴 운동 제2법칙", "F(알짜힘) = m · a. 알짜힘이 0이면 정지하거나 등속 운동한다."],
+   ["summary", 2, "에너지와 그 형태", "운동 에너지: Ek = ½ m v²\n퍼텐셜 에너지: Ep = m g h\n마찰이 없으면 역학적 에너지는 보존되고, 마찰이 있으면 일부가 열로 바뀐다."],
+   ["tip", 2, "보존", "에너지는 새로 생기거나 없어지지 않고 형태만 바뀐다."]
+  ],
+  "kitapcik": ["고1 물리 1차 평가", "1학기 · 물리 · 1차 평가"]
  }
 }

@@ -1,0 +1,31 @@
+{
+ "_baslik": {
+  "start": "Memulai",
+  "exam": "Menyiapkan ujian",
+  "print": "Mencetak formulir",
+  "scan": "Memindai lembar jawaban",
+  "report": "Hasil dan laporan",
+  "data": "Data Anda",
+  "library": "Bank soal dan buklet",
+  "pro": "Netice Pro"
+ },
+ "k_sinav_ayar": "Di Pengaturan ujian, tentukan nilai maksimum, nilai kelulusan, dan pengurangan untuk jawaban salah. Tambahkan juga jenis buklet dan soal uraian di sini.",
+ "k_sablon": "Jika memakai formulir dari penerbit atau perusahaan lain, buat templatnya sekali saja di bagian Formulir lain pada Pengaturan.",
+ "k_kontrol": "Ketuk lembar yang sudah dibaca. Tanda yang meragukan ditampilkan dengan peringatan kuning; ketuk untuk memperbaikinya.",
+ "k_donem": "Laporan semester menggabungkan ujian yang Anda pilih untuk menyiapkan nilai semester dan rapor capaian pembelajaran.",
+ "k_yedek": "Netice bekerja tanpa internet dan menyimpan data hanya di perangkat Anda. Saat berganti perangkat, gunakan Simpan cadangan ke file.",
+ "k_soru_kes": "Pilih PDF atau foto halaman buku atau try out. Gambar persegi di sekitar soal, tandai jawaban yang benar, lalu tambahkan ke bank.",
+ "k_soru_yaz": "Anda juga bisa menulis soal sendiri. Pilih jenis soal, tambahkan gambar, dan ketuk huruf pilihan yang benar.",
+ "k_notlar": "Di tab Catatan, simpan ringkasan materi dan poin penting Anda. Poin penting dari topik yang lemah otomatis masuk ke rapor siswa.",
+ "k_sihirbaz": "Buka panduan dengan Buklet baru. Pilih soal dari bank, atau tentukan jumlah soal dan sebaran tingkat kesulitan lalu biarkan Netice memilihkan.",
+ "k_kitapcik_turu": "Buat jenis buklet A sampai H dan acak soal serta pilihan jawabannya. Dengan Buat ujian, ujian Anda siap dibaca secara optik.",
+ "k_banka_analiz": "Tab Analisis menunjukkan keseimbangan tingkat kesulitan dan cakupan topik bank Anda. Seiring ujian dipindai, tab ini juga mengukur kesulitan nyata setiap soal.",
+ "k_yz_soru": "Buka sebuah catatan dan ketuk Buat soal dari catatan ini. Pilih jumlah, jenis, dan tingkat kesulitan; kecerdasan buatan menyarankan soal, jawaban benar, dan pembahasan singkat. Periksa lalu tambahkan yang Anda suka ke bank.",
+ "k_cocuk": "Untuk sekolah dasar, pilih templat anak pada langkah Tampilan di panduan buklet. Tulisan besar dan nomor berwarna disiapkan; jawaban ditandai di kotak kecil di sudut halaman pertama dan dibaca dengan ponsel.",
+ "k_not_sistemi": "Di layar Sistem penilaian pada Pengaturan, pilih sistem penilaian negara Anda atau tulis sendiri tingkatannya. Rapor dan laporan disiapkan sesuai sistem ini.",
+ "k_pro": "Di layar Netice Pro pada Profil, Anda melihat paket-paketnya. Pro memberi lima puluh soal kecerdasan buatan per bulan, dan Pro plus AI memberi tiga ratus. Paket musim ujian berlaku tiga bulan dan tidak diperpanjang otomatis.",
+ "k_pro_alt": "Jika kuota bulanan habis, Anda bisa membeli paket soal tambahan yang tidak kedaluwarsa. Jika lima guru atau lebih dari sekolah yang sama membeli bersama, mereka mendapat diskon paket sekolah.",
+ "k_okul": "Di layar paket sekolah, masukkan jumlah guru, lihat harga diskonnya, lalu ketuk Minta penawaran untuk sekolah Anda. Setelah disetujui, sekolah Anda menerima kode lembaga.",
+ "k_sinif_analiz": "Jika Anda memberi ujian yang sama di beberapa kelas, Analisis per kelas di beranda menampilkannya berdampingan. Di sini ada sorotan, selisih dari rata-rata keseluruhan, dan persentase jawaban benar tiap soal; tombol di kanan atas menghasilkan laporan PDF.",
+ "k_genel_istatistik": "Statistik umum menampilkan hasil semua kelas dan semua siswa yang mengikuti ujian sekaligus. Saring menurut periode dan kelas, lalu bagikan laporannya dalam PDF."
+}
