@@ -13,6 +13,7 @@ import '../pro_screen.dart';
 import '../theme.dart';
 import '../widgets.dart';
 import 'bank_widgets.dart';
+import 'booklet_wizard_screen.dart';
 import 'note_screens.dart';
 import 'question_editor_screen.dart';
 
@@ -224,6 +225,7 @@ class _AiQuestionsScreenState extends State<AiQuestionsScreen> {
     final note = _note = bank.noteById(widget.noteId) ?? _note;
     final paid = AiUsage.paid(store);
     final selected = _drafts.where((d) => d.selected && !d.added).length;
+    final added = [for (final d in _drafts) if (d.added && bank.questionById(d.q.id) != null) d.q.id];
     if (note == null) return const Scaffold();
 
     return PopScope(
@@ -248,17 +250,24 @@ class _AiQuestionsScreenState extends State<AiQuestionsScreen> {
       },
       child: Scaffold(
         appBar: AppBar(title: Text(tr('Nottan soru üret'))),
-        bottomNavigationBar: selected == 0
+        bottomNavigationBar: selected == 0 && added.isEmpty
             ? null
             : SafeArea(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-                  child: FilledButton.icon(
-                    style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(50)),
-                    onPressed: _addSelected,
-                    icon: const Icon(Icons.library_add_check_rounded),
-                    label: Text(tr('Seçilen {0} soruyu bankaya ekle', [selected])),
-                  ),
+                  child: selected > 0
+                      ? FilledButton.icon(
+                          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(50)),
+                          onPressed: _addSelected,
+                          icon: const Icon(Icons.library_add_check_rounded),
+                          label: Text(tr('Seçilen {0} soruyu bankaya ekle', [selected])),
+                        )
+                      : FilledButton.tonalIcon(
+                          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(50)),
+                          onPressed: () => BookletWizardScreen.open(context, questionIds: added),
+                          icon: const Icon(Icons.menu_book_rounded),
+                          label: Text(tr('{0} soruyla kitapçık ve cevap anahtarı oluştur', [added.length])),
+                        ),
                 ),
               ),
         body: Center(

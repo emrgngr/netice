@@ -88,12 +88,38 @@ void main() {
     expect(q.subject, 'Biyoloji');
     expect(q.topic, 'Hücre zarı');
     expect(q.type, QuestionType.multiple);
-    expect(q.correct, {0});
+    expect(q.choices[q.correct.single], 'abcde'[0], reason: 'şık yeri değişse de doğru cevap aynı');
     expect(q.difficulty, Difficulty.easy);
     expect(q.tags, containsAll(['tekrar', 'yapay zekâ']));
     expect(q.source, 'Madde geçişleri');
     expect(q.complete, isTrue);
     expect(r.questions[1].difficulty, Difficulty.hard);
+  });
+
+  test('doğru şıklar harflere eşit dağıtılır', () {
+    final t = DateTime(2026);
+    final qs = [
+      for (var i = 0; i < 20; i++)
+        BankQuestion(id: 'q$i', text: 'S$i', choices: ['d$i', 'y1', 'y2', 'y3', 'y4'], correct: {0}, created: t, updated: t),
+    ];
+    final b = balanceAnswers(qs, seed: 7);
+    final counts = List.filled(5, 0);
+    for (var i = 0; i < b.length; i++) {
+      final c = b[i].correct.single;
+      counts[c]++;
+      expect(b[i].choices[c], 'd$i', reason: 'doğru şık metni korunur');
+    }
+    expect(counts, [4, 4, 4, 4, 4]);
+  });
+
+  test('alt konu kazanım olarak yazılır', () {
+    final r = parseAiResponse({
+      'questions': [
+        {'text': 'S', 'topic': 'Osmoz', 'choices': ['a', 'b', 'c', 'd'], 'correct': 1},
+      ],
+    }, note(), store);
+    expect(r.questions.single.topic, 'Hücre zarı');
+    expect(r.questions.single.outcome, 'Osmoz');
   });
 
   test('istek gövdesi notu ve seçenekleri taşır', () {

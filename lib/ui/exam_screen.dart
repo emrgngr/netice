@@ -6,6 +6,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:printing/printing.dart';
 
 import '../core/analysis.dart';
+import '../core/common_exam.dart';
 import '../core/insights.dart';
 import '../core/progress.dart';
 import '../core/store.dart';
@@ -66,10 +67,17 @@ class ExamScreen extends StatelessWidget {
         );
         if (go != true || !context.mounted) return;
       }
-      final cls = store.studentsOf(exam.className);
+      // Öğrencisi olan şubeler; bu sınavın şubesi her zaman başta.
+      final allClasses = [
+        exam.className,
+        for (final c in store.classNames)
+          if (c != exam.className && store.studentsOf(c).isNotEmpty) c,
+      ];
+      final chosen = <String>{exam.className};
+      List<Student> studentsIn(Set<String> set) => [for (final c in allClasses) if (set.contains(c)) ...store.studentsOf(c)];
       var copies = 10;
       var alternate = true;
-      var picked = cls.isNotEmpty ? 'named' : 'blank';
+      var picked = allClasses.any((c) => store.studentsOf(c).isNotEmpty) ? 'named' : 'blank';
       final choice = await showModalBottomSheet<String>(
         context: context,
         showDragHandle: true,
@@ -85,20 +93,50 @@ class ExamScreen extends StatelessWidget {
                     title: Text(tr('Optik form yazdır'), style: TextStyle(fontWeight: FontWeight.w800)),
                     subtitle: Text(tr('A4, %100 ölçekle yazdırın. Önce önizleme açılır.')),
                   ),
-                  ListTile(
-                    enabled: cls.isNotEmpty,
-                    leading: const Icon(Icons.badge_outlined),
-                    title: Text(tr('İsimli öğrenci formları')),
-                    subtitle: Text(
-                      cls.isEmpty
-                          ? tr('Bu sınıfta kayıtlı öğrenci yok')
-                          : tr('{0} öğrenci · ad, sınıf ve numara basılı gelir', [cls.length]),
+                  Builder(builder: (_) {
+                    final cls = studentsIn(chosen);
+                    return ListTile(
+                      enabled: allClasses.length > 1 || cls.isNotEmpty,
+                      leading: const Icon(Icons.badge_outlined),
+                      title: Text(tr('İsimli öğrenci formları')),
+                      subtitle: Text(
+                        cls.isEmpty
+                            ? tr('Seçilen sınıflarda kayıtlı öğrenci yok')
+                            : chosen.length > 1
+                                ? tr('{0} sınıf · {1} öğrenci · ad, sınıf ve numara basılı gelir', [chosen.length, cls.length])
+                                : tr('{0} öğrenci · ad, sınıf ve numara basılı gelir', [cls.length]),
+                      ),
+                      selected: picked == 'named',
+                      trailing: Icon(picked == 'named' ? Icons.radio_button_checked : Icons.radio_button_unchecked),
+                      onTap: () => setSheet(() => picked = 'named'),
+                    );
+                  }),
+                  if (allClasses.length > 1)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(72, 0, 16, 6),
+                      child: Wrap(spacing: 6, runSpacing: 4, children: [
+                        FilterChip(
+                          label: Text(tr('Tüm sınıflar')),
+                          selected: chosen.length == allClasses.length,
+                          onSelected: (v) => setSheet(() {
+                            chosen
+                              ..clear()
+                              ..addAll(v ? allClasses : [exam.className]);
+                            picked = 'named';
+                          }),
+                        ),
+                        for (final c in allClasses)
+                          FilterChip(
+                            label: Text(c),
+                            selected: chosen.contains(c),
+                            onSelected: (v) => setSheet(() {
+                              v ? chosen.add(c) : chosen.remove(c);
+                              picked = 'named';
+                            }),
+                          ),
+                      ]),
                     ),
-                    selected: picked == 'named',
-                    trailing: Icon(picked == 'named' ? Icons.radio_button_checked : Icons.radio_button_unchecked),
-                    onTap: () => setSheet(() => picked = 'named'),
-                  ),
-                  if (exam.hasBooklets && cls.isNotEmpty)
+                  if (exam.hasBooklets && studentsIn(chosen).isNotEmpty)
                     SwitchListTile(
                       contentPadding: const EdgeInsets.only(left: 72, right: 16),
                       value: alternate,
@@ -174,11 +212,17 @@ class ExamScreen extends StatelessWidget {
       final name = _safe(exam.name);
       switch (choice) {
         case 'named':
+          final classes = [for (final c in allClasses) if (chosen.contains(c) && store.studentsOf(c).isNotEmpty) c];
+          if (classes.isEmpty) return toast(context, tr('Seçilen sınıflarda kayıtlı öğrenci yok'));
+          final created = classes.where((c) => c != exam.className && !store.exams.any((e) => e.isCommon && e.commonId == exam.commonId && e.className == c)).length;
+          // Her şubenin formu o şubenin sınavıyla basılır; yoksa ortak sınav olarak açılır.
+          final groups = [for (final c in classes) (examForClass(store, exam, c), store.studentsOf(c))];
+          if (created > 0) toast(context, tr('{0} sınıf için aynı sınav açıldı. Sonuçlar ortak raporda birleşir.', [created]));
           await ReportPreviewScreen.open(
             context,
             title: tr('Öğrenci formları'),
             fileName: '${name}_optik_form.pdf',
-            build: () => buildFormsPdf(exam, cls, school: store.reportSchool, alternateBooklets: alternate),
+            build: () => buildClassFormsPdf(groups, school: store.reportSchool, alternateBooklets: alternate),
           );
         case 'blank':
           await ReportPreviewScreen.open(
