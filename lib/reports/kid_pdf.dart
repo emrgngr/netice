@@ -59,8 +59,9 @@ Future<pw.ThemeData> kidPdfTheme([String family = 'netice']) async {
   }
 }
 
-/// Gülen yıldız (başlık rozeti).
-pw.Widget kidStar(double size) => pw.CustomPaint(
+/// Gülen yıldız (başlık rozeti). [filled] false ise yüzsüz, soluk yıldız
+/// (karnelerde kazanılmamış yıldız).
+pw.Widget kidStar(double size, {bool filled = true}) => pw.CustomPaint(
       size: PdfPoint(size, size),
       painter: (canvas, s) {
         final w = s.x, h = s.y;
@@ -72,8 +73,8 @@ pw.Widget kidStar(double size) => pw.CustomPaint(
           pts.add(PdfPoint(w / 2 + r * math.cos(a), h * 0.47 + r * math.sin(a)));
         }
         canvas
-          ..setFillColor(const PdfColor.fromInt(0xFFF6B632))
-          ..setStrokeColor(const PdfColor.fromInt(0xFFE39A10))
+          ..setFillColor(filled ? const PdfColor.fromInt(0xFFF6B632) : const PdfColor.fromInt(0xFFEEF1F7))
+          ..setStrokeColor(filled ? const PdfColor.fromInt(0xFFE39A10) : kidLine)
           ..setLineWidth(w * 0.03)
           ..setLineJoin(PdfLineJoin.round)
           ..moveTo(pts.first.x, pts.first.y);
@@ -82,7 +83,9 @@ pw.Widget kidStar(double size) => pw.CustomPaint(
         }
         canvas
           ..closePath()
-          ..fillAndStrokePath()
+          ..fillAndStrokePath();
+        if (!filled) return;
+        canvas
           ..setFillColor(kidInk)
           ..drawEllipse(w * 0.40, h * 0.50, w * 0.035, w * 0.035)
           ..drawEllipse(w * 0.60, h * 0.50, w * 0.035, w * 0.035)

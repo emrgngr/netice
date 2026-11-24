@@ -20,6 +20,7 @@ import '../omr/form_layout.dart';
 import '../l10n/l10n.dart';
 import 'brand_footer.dart';
 import 'kid_pdf.dart';
+import 'kid_reports_pdf.dart';
 
 const _ink = PdfColor.fromInt(0xFF0F1B3D);
 const _emerald = PdfColor.fromInt(0xFF10B981);
@@ -917,7 +918,14 @@ Future<Uint8List> buildResultsPdf({
   required List<Result> results,
   required Map<String, Student> students,
   SchoolInfo school = const SchoolInfo(),
+
+  /// Çocuk sınavlarında sınıfın gelişim grafiği: aynı sınıfın sınavları
+  /// eskiden yeniye (ad, ortalama yüzde).
+  List<(String, double)> classHistory = const [],
 }) async {
+  if (exam.kidStyle) {
+    return buildKidResultsPdf(exam: exam, results: results, students: students, school: school, classHistory: classHistory);
+  }
   final fonts = await _Fonts.load(school.fontFamily);
   final r = ExamReport.build(exam, results);
   final s = r.stats;
@@ -1344,7 +1352,21 @@ Future<Uint8List> buildStudentCardsPdf({
 
   /// Öğrenci kimliği → çalışması gereken konular (konu, başarı, hap bilgiler).
   Map<String, List<(String, double, List<String>)>> studyTopics = const {},
+
+  /// Çocuk sınavlarında gelişim grafiği için öğrencinin tüm sınavları.
+  Map<String, List<HistoryEntry>> history = const {},
 }) async {
+  if (exam.kidStyle) {
+    return buildKidStudentCardsPdf(
+        exam: exam,
+        results: results,
+        students: students,
+        school: school,
+        onlyStudentId: onlyStudentId,
+        notes: notes,
+        studyTopics: studyTopics,
+        history: history);
+  }
   final fonts = await _Fonts.load(school.fontFamily);
   final r = ExamReport.build(exam, results);
   final k = _Kit(exam, school, docTitle: tr('Öğrenci Sınav Karnesi'), letterheadEveryPage: true);
