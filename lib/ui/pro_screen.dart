@@ -5,12 +5,15 @@ import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../bank/ai_questions.dart';
+import '../core/campaigns.dart';
 import '../core/legal.dart';
 import '../core/pro.dart';
 import '../core/referral.dart';
 import '../main.dart';
 import 'invite_screen.dart';
 import 'license_screen.dart';
+import 'school_offer_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
 import '../l10n/l10n.dart';
@@ -84,22 +87,30 @@ class ProScreen extends StatefulWidget {
 }
 
 class _ProScreenState extends State<ProScreen> {
-  List<ProPlan> _plans = ProService.instance.inviteApplied
-      ? ProService.plansFor(DateTime.now(), invite: true)
-      : ProService.fallbackPlans;
-  String _selected = proYearlyId;
+  final Campaign? _campaign = ProService.campaign;
+  late List<ProPlan> _plans =
+      ProService.plansFor(DateTime.now(), invite: ProService.instance.inviteApplied, campaign: _campaign);
+  late String _selected = _campaign?.highlightTermPass == true ? proTermPassId : proYearlyId;
+  ProPlan _pack = ProService.aiPackFallback();
   bool _busy = false;
+  bool _packBusy = false;
   StreamSubscription<String>? _sub;
 
   @override
   void initState() {
     super.initState();
     _loadPlans();
+    AiUsage.instance.load().then((_) {
+      if (mounted) setState(() {});
+    });
     _sub = ProService.instance.events.listen((m) {
       if (!mounted) return;
-      setState(() => _busy = false);
+      setState(() {
+        _busy = false;
+        _packBusy = false;
+      });
       toast(context, m);
-      if (StoreScope.of(context).isPro) Navigator.of(context).maybePop();
+      if (StoreScope.of(context).isPro && widget.feature != ProFeature.aiQuestions) Navigator.of(context).maybePop();
     });
   }
 
@@ -107,12 +118,23 @@ class _ProScreenState extends State<ProScreen> {
     ProService.instance.plans().then((p) {
       if (mounted) setState(() => _plans = p);
     });
+    ProService.instance.aiPack().then((p) {
+      if (mounted) setState(() => _pack = p);
+    });
+  }
+
+  Future<void> _buyPack() async {
+    setState(() => _packBusy = true);
+    final err = await ProService.instance.buy(_pack);
+    if (!mounted) return;
+    setState(() => _packBusy = false);
+    if (err != null) toast(context, err);
   }
 
   Future<void> _openInvite() async {
     await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const InviteScreen()));
     if (!mounted) return;
-    setState(() => _plans = ProService.fallbackPlans);
+    setState(() => _plans = ProService.plansFor(DateTime.now(), invite: ProService.instance.inviteApplied, campaign: _campaign));
     _loadPlans();
   }
 
@@ -207,14 +229,32 @@ class _ProScreenState extends State<ProScreen> {
                       textAlign: TextAlign.center,
                       style: const TextStyle(color: Color(0xFF7BE0B4), fontWeight: FontWeight.w600, fontSize: 13)),
                 ),
-              if (ProService.instance.inviteApplied)
+              if (_campaign != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: _CampaignBanner(_campaign),
+                ),
+              if (_campaign != null && _campaign.hasDiscount && Platform.isIOS)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(foregroundColor: Colors.white, side: const BorderSide(color: Colors.white38)),
+                    onPressed: () async {
+                      await Clipboard.setData(ClipboardData(text: _campaign.appStoreOfferCode));
+                      await ProService.instance.redeemOfferCodeOnAppStore();
+                    },
+                    icon: const Icon(Icons.local_offer_outlined),
+                    label: Text(tr('İndirimi App Store\'da kullan (kod: {0})', [_campaign.appStoreOfferCode])),
+                  ),
+                ),
+              if (ProService.instance.inviteApplied && !(_campaign?.hasDiscount ?? false))
                 Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: Text(tr('Davet kodu uygulandı: {0} · yıllık abonelik ilk yıl %15 indirimli', [store.appliedInvite!]),
                       textAlign: TextAlign.center,
                       style: const TextStyle(color: Color(0xFF7BE0B4), fontWeight: FontWeight.w700, fontSize: 13)),
                 ),
-              if (ProService.instance.inviteApplied && Platform.isIOS)
+              if (ProService.instance.inviteApplied && Platform.isIOS && !(_campaign?.hasDiscount ?? false))
                 Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: OutlinedButton.icon(
@@ -231,9 +271,10 @@ class _ProScreenState extends State<ProScreen> {
                 _PlanTile(
                   plan: p,
                   selected: p.id == _selected,
-                  best: p.id == proYearlyId,
+                  best: p.id == (_campaign?.highlightTermPass == true ? proTermPassId : proYearlyId),
                   onTap: () => setState(() => _selected = p.id),
                 ),
+              const _PriceLock(),
               const SizedBox(height: 14),
               SizedBox(
                 height: 58,
@@ -256,7 +297,9 @@ class _ProScreenState extends State<ProScreen> {
                 child: Text(tr('Satın alımları geri yükle'), style: TextStyle(color: Colors.white70)),
               ),
             ],
-            const SizedBox(height: 4),
+            const SizedBox(height: 14),
+            _AiPackCard(plan: _pack, busy: _packBusy, onBuy: _buyPack),
+            const SizedBox(height: 14),
             if (store.thanksCode == null) ...[
               _InviteCta(
                 title: tr('Arkadaşını davet et'),
@@ -267,6 +310,8 @@ class _ProScreenState extends State<ProScreen> {
               ),
               const SizedBox(height: 10),
             ],
+            _SchoolPackCta(onTap: () => SchoolOfferScreen.open(context)),
+            const SizedBox(height: 10),
             _InstitutionCta(onTap: () async {
               await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LicenseScreen()));
               if (context.mounted && StoreScope.of(context).isPro && widget.feature != null) Navigator.of(context).maybePop();
@@ -274,7 +319,7 @@ class _ProScreenState extends State<ProScreen> {
             }),
             const SizedBox(height: 6),
             Text(
-              tr('{0} alınır. Sınav dönemi paketi tek seferliktir ve yenilenmez. Yıllık abonelik, dönem bitmeden en az 24 saat önce iptal edilmezse aynı süre ve fiyatla kendiliğinden yenilenir. {1} bölümünden istediğiniz zaman iptal edebilirsiniz; iptal edilen abonelik dönem sonuna kadar geçerlidir. Pro\'ya geçmek verilerinizin yerini değiştirmez: her şey yine bu cihazda kalır.', [Platform.isIOS ? tr('Ödeme Apple Kimliğinizden') : tr('Ödeme Google Play hesabınızdan'), Platform.isIOS ? tr('Ayarlar > Apple Kimliği > Abonelikler') : tr('Google Play > Abonelikler')]),
+              tr('{0} alınır. Sınav dönemi paketi ve ek soru paketi tek seferliktir ve yenilenmez. Yıllık abonelik, dönem bitmeden en az 24 saat önce iptal edilmezse aynı süre ve fiyatla kendiliğinden yenilenir. {1} bölümünden istediğiniz zaman iptal edebilirsiniz; iptal edilen abonelik dönem sonuna kadar geçerlidir. Pro\'ya geçmek verilerinizin yerini değiştirmez: her şey yine bu cihazda kalır.', [Platform.isIOS ? tr('Ödeme Apple Kimliğinizden') : tr('Ödeme Google Play hesabınızdan'), Platform.isIOS ? tr('Ayarlar > Apple Kimliği > Abonelikler') : tr('Google Play > Abonelikler')]),
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.white.withValues(alpha: 0.45), fontSize: 11.5, height: 1.45),
             ),
@@ -426,7 +471,16 @@ class _ActiveCard extends StatelessWidget {
         child: Column(children: [
           const Icon(Icons.verified_rounded, color: NColors.emerald, size: 36),
           const SizedBox(height: 8),
-          Text(tr('Netice Pro etkin{0}', [product == proYearlyId ? tr(' · Yıllık') : product == proMonthlyId ? tr(' · Aylık') : '']),
+          Text(
+              tr('Netice Pro etkin{0}', [
+                product == proAiYearlyId
+                    ? tr(' · Pro + Yapay Zekâ')
+                    : product == proYearlyId
+                        ? tr(' · Yıllık')
+                        : product == proMonthlyId
+                            ? tr(' · Aylık')
+                            : ''
+              ]),
               style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 16)),
           const SizedBox(height: 10),
           OutlinedButton(
@@ -543,6 +597,134 @@ class _ProBackdrop extends StatelessWidget {
             radius: 1.2,
             colors: [Color(0xFF1B2D63), Color(0xFF070D22)],
           ),
+        ),
+      );
+}
+
+/// Kampanya şeridi: başlık, açıklama ve kalan gün.
+class _CampaignBanner extends StatelessWidget {
+  final Campaign c;
+  const _CampaignBanner(this.c);
+
+  @override
+  Widget build(BuildContext context) {
+    final left = c.daysLeft(DateTime.now());
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(colors: [const Color(0xFFE9C46A).withValues(alpha: 0.22), const Color(0xFF7BE0B4).withValues(alpha: 0.12)]),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE9C46A).withValues(alpha: 0.7)),
+      ),
+      child: Row(children: [
+        const Icon(Icons.celebration_rounded, color: Color(0xFFE9C46A)),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(c.title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 14.5)),
+            Text(c.detail, style: TextStyle(color: Colors.white.withValues(alpha: 0.75), fontSize: 12.5)),
+            const SizedBox(height: 2),
+            Text(left <= 1 ? tr('Bugün son gün') : tr('Son {0} gün', [left]),
+                style: const TextStyle(color: Color(0xFFE9C46A), fontWeight: FontWeight.w700, fontSize: 12)),
+          ]),
+        ),
+      ]),
+    );
+  }
+}
+
+/// İlk yıl fiyat güvencesi notu.
+class _PriceLock extends StatelessWidget {
+  const _PriceLock();
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.only(top: 2),
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          const Icon(Icons.lock_clock_outlined, color: Color(0xFF7BE0B4), size: 18),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              tr('Fiyat güvencesi: abone olduğunuz fiyat, aboneliğiniz sürdükçe değişmez. Yeni abonelerin fiyatı her yıl artar.'),
+              style: const TextStyle(color: Color(0xFF7BE0B4), fontSize: 12.5, fontWeight: FontWeight.w600, height: 1.35),
+            ),
+          ),
+        ]),
+      );
+}
+
+/// Ek soru paketi: aylık hak bitince kullanılan, süresi dolmayan soru hakkı.
+class _AiPackCard extends StatelessWidget {
+  final ProPlan plan;
+  final bool busy;
+  final VoidCallback onBuy;
+  const _AiPackCard({required this.plan, required this.busy, required this.onBuy});
+
+  @override
+  Widget build(BuildContext context) {
+    final credits = AiUsage.instance.credits;
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFB79CFF).withValues(alpha: 0.55)),
+        color: const Color(0xFFB79CFF).withValues(alpha: 0.07),
+      ),
+      child: Row(children: [
+        const Icon(Icons.auto_awesome_rounded, color: Color(0xFFB79CFF)),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(tr('Ek soru paketi · {0} soru', [aiPackSize]),
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 14.5)),
+            Text(tr('Aylık yapay zekâ hakkınız bitince kullanılır, süresi dolmaz.'),
+                style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 12.5)),
+            if (credits > 0)
+              Text(tr('Kalan ek hak: {0} soru', [credits]),
+                  style: const TextStyle(color: Color(0xFFB79CFF), fontWeight: FontWeight.w700, fontSize: 12)),
+          ]),
+        ),
+        const SizedBox(width: 8),
+        FilledButton(
+          style: FilledButton.styleFrom(backgroundColor: const Color(0xFF7C5CE0), foregroundColor: Colors.white),
+          onPressed: busy ? null : onBuy,
+          child: busy
+              ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2.2, color: Colors.white))
+              : Text(plan.price),
+        ),
+      ]),
+    );
+  }
+}
+
+/// Okul / zümre paketi çağrısı.
+class _SchoolPackCta extends StatelessWidget {
+  final VoidCallback onTap;
+  const _SchoolPackCta({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) => InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: const Color(0xFF7BE0B4).withValues(alpha: 0.5)),
+            color: const Color(0xFF7BE0B4).withValues(alpha: 0.06),
+          ),
+          child: Row(children: [
+            const Icon(Icons.groups_rounded, color: Color(0xFF7BE0B4)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(tr('Okul / zümre paketi'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 14.5)),
+                Text(tr('5 ve daha fazla öğretmene %45\'e varan indirim. Okulunuza teklif isteyin.'),
+                    style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 12.5)),
+              ]),
+            ),
+            const Icon(Icons.chevron_right, color: Colors.white54),
+          ]),
         ),
       );
 }

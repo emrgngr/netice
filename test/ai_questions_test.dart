@@ -61,17 +61,17 @@ void main() {
 
   test('deneme ve aylık kota', () {
     final nov = DateTime(2026, 11, 10);
-    expect(usage.remaining(false, nov), AiUsage.trialLimit);
-    usage.record(15, false, nov);
-    expect(usage.remaining(false, nov), 5);
-    expect(usage.remaining(true, nov), AiUsage.monthlyLimit - 15);
-    usage.record(100, true, nov);
-    expect(usage.remaining(true, nov), AiUsage.monthlyLimit - 115);
+    expect(usage.remaining(AiTier.trial, nov), AiUsage.trialLimit);
+    usage.record(15, AiTier.trial, nov);
+    expect(usage.remaining(AiTier.trial, nov), 5);
+    expect(usage.remaining(AiTier.ai, nov), AiUsage.aiMonthlyLimit - 15);
+    usage.record(100, AiTier.ai, nov);
+    expect(usage.remaining(AiTier.ai, nov), AiUsage.aiMonthlyLimit - 115);
     expect(usage.trialUsed, 15, reason: 'Pro kullanımı deneme hakkından düşmez');
     // Ay değişince aylık sayaç sıfırlanır, deneme hakkı sıfırlanmaz.
     final dec = DateTime(2026, 12, 1);
-    expect(usage.remaining(true, dec), AiUsage.monthlyLimit);
-    expect(usage.remaining(false, dec), 5);
+    expect(usage.remaining(AiTier.ai, dec), AiUsage.aiMonthlyLimit);
+    expect(usage.remaining(AiTier.trial, dec), 5);
   });
 
   test('yanıt bankaya uygun taslak sorulara çevrilir', () {
@@ -158,24 +158,24 @@ void main() {
       return http.Response.bytes(utf8.encode(jsonEncode(okBody(5))), 200);
     });
     final r = await generateAiQuestions(note(), const AiOptions(count: 5),
-        store: store, usage: usage, paid: false, client: client, url: 'https://ornek.workers.dev/');
+        store: store, usage: usage, tier: AiTier.trial, client: client, url: 'https://ornek.workers.dev/');
     expect(r.questions, hasLength(5));
     expect(sent.url.toString(), 'https://ornek.workers.dev/uret');
     expect(sent.headers['x-netice-device'], usage.device);
     expect(sent.headers['x-netice-app'], isNotEmpty);
     expect(usage.trialUsed, 5);
-    expect(usage.remaining(false), AiUsage.trialLimit - 5);
+    expect(usage.remaining(AiTier.trial), AiUsage.trialLimit - 5);
   });
 
   test('kota dolunca sunucuya gidilmez', () async {
-    usage.record(AiUsage.trialLimit, false);
+    usage.record(AiUsage.trialLimit, AiTier.trial);
     var called = false;
     final client = MockClient((_) async {
       called = true;
       return http.Response('{}', 200);
     });
     await expectLater(
-      generateAiQuestions(note(), const AiOptions(count: 5), store: store, usage: usage, paid: false, client: client, url: 'https://x.dev'),
+      generateAiQuestions(note(), const AiOptions(count: 5), store: store, usage: usage, tier: AiTier.trial, client: client, url: 'https://x.dev'),
       throwsA(isA<AiException>().having((e) => e.quota, 'quota', isTrue)),
     );
     expect(called, isFalse);
@@ -184,19 +184,19 @@ void main() {
   test('sunucu hataları anlaşılır mesaja çevrilir', () async {
     final client = MockClient((_) async => http.Response.bytes(utf8.encode(jsonEncode({'error': 'quota', 'used': 300})), 429));
     await expectLater(
-      generateAiQuestions(note(), const AiOptions(count: 5), store: store, usage: usage, paid: true, client: client, url: 'https://x.dev'),
+      generateAiQuestions(note(), const AiOptions(count: 5), store: store, usage: usage, tier: AiTier.ai, client: client, url: 'https://x.dev'),
       throwsA(isA<AiException>().having((e) => e.quota, 'quota', isTrue)),
     );
-    expect(usage.remaining(true), 0, reason: 'sunucunun bildirdiği kullanım cihaza yazılır');
+    expect(usage.remaining(AiTier.ai), 0, reason: 'sunucunun bildirdiği kullanım cihaza yazılır');
   });
 
   test('kısa not ve adres yoksa hata', () async {
     await expectLater(
-      generateAiQuestions(note(body: 'kısa'), const AiOptions(), store: store, usage: usage, paid: true, url: 'https://x.dev'),
+      generateAiQuestions(note(body: 'kısa'), const AiOptions(), store: store, usage: usage, tier: AiTier.ai, url: 'https://x.dev'),
       throwsA(isA<AiException>()),
     );
     await expectLater(
-      generateAiQuestions(note(), const AiOptions(), store: store, usage: usage, paid: true, url: ''),
+      generateAiQuestions(note(), const AiOptions(), store: store, usage: usage, tier: AiTier.ai, url: ''),
       throwsA(isA<AiException>()),
     );
   });

@@ -3,7 +3,7 @@
 
 `.github/workflows/fiyat-artisi.yml` her yıl 19 Kasım'da bu betiği çalıştırır.
 
-* Google Play: netice_pro_yillik aboneliğinin ve netice_donem_3ay (3 aylık
+* Google Play: netice_pro_yillik ve netice_pro_yz_yillik aboneliklerinin ve netice_donem_3ay (3 aylık
   sınav dönemi paketi, tek seferlik ürün) her bölgedeki fiyatı %30
   artırılır (Android Publisher API). Eski aylık abonelik artık satılmıyor.
 * App Store: Türkiye fiyatı %30 artırılır, diğer ülkeler Apple'ın eşdeğer
@@ -41,7 +41,7 @@ import requests
 
 PACKAGE = "com.netice.netice"
 BUNDLE_ID = "com.netice.netice"
-PRODUCTS = ["netice_pro_yillik"]
+PRODUCTS = ["netice_pro_yillik", "netice_pro_yz_yillik"]
 ONE_TIME_PRODUCTS = ["netice_donem_3ay"]  # tek seferlik (yenilenmeyen) ürünler
 BASE_DATE = dt.date(2026, 11, 19)  # lib/core/price_increase.dart ile aynı
 INCREASE = Decimal("1.30")

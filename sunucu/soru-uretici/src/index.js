@@ -63,7 +63,7 @@ export default {
       all: `g:${day}`,
     };
     const limits = {
-      device: Number(env.MONTHLY_DEVICE_LIMIT) || 300,
+      device: Number(env.MONTHLY_DEVICE_LIMIT) || 600,
       ip: Number(env.DAILY_IP_LIMIT) || 200,
       all: Number(env.DAILY_LIMIT) || 5000,
     };
