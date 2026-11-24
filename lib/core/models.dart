@@ -198,6 +198,13 @@ class Exam {
   /// Bu sınavlarda şık sayısı 2–5 olabilir (genellikle 3: A, B, C).
   final bool kidForm;
 
+  /// Raporlar (karne, sınıf raporu) çocuk şablonuyla hazırlanır. Çocuk
+  /// kitapçığından oluşan sınavlarda açıktır; ayarlardan da açılabilir.
+  final bool kidReports;
+
+  /// Çocuk görünümlü raporlar kullanılsın mı?
+  bool get kidStyle => kidForm || kidReports;
+
   const Exam({
     required this.id,
     required this.name,
@@ -214,6 +221,7 @@ class Exam {
     this.commonId,
     this.numberDigits = 10,
     this.kidForm = false,
+    this.kidReports = false,
   });
 
   bool get isCommon => commonId != null;
@@ -368,6 +376,7 @@ class Exam {
     String? commonId,
     int? numberDigits,
     bool? kidForm,
+    bool? kidReports,
   }) =>
       Exam(
         id: id ?? this.id,
@@ -385,6 +394,7 @@ class Exam {
         commonId: commonId ?? this.commonId,
         numberDigits: numberDigits ?? this.numberDigits,
         kidForm: kidForm ?? this.kidForm,
+        kidReports: kidReports ?? this.kidReports,
       );
 
   Map<String, dynamic> toJson() => {
@@ -407,6 +417,7 @@ class Exam {
         if (commonId != null) 'commonId': commonId,
         'numberDigits': numberDigits,
         if (kidForm) 'kidForm': true,
+        if (kidReports) 'kidReports': true,
         if (openQuestions.isNotEmpty) 'openQuestions': openQuestions.map((q) => q.toJson()).toList(),
       };
 
@@ -436,6 +447,7 @@ class Exam {
         // Alan yoksa eski sürümde basılmış 6 haneli formdur.
         numberDigits: j['numberDigits'] == 10 ? 10 : 6,
         kidForm: j['kidForm'] == true,
+        kidReports: j['kidReports'] == true,
         openQuestions: [
           for (final e in (j['openQuestions'] as List?) ?? const []) OpenQuestion.fromJson(e as Map<String, dynamic>)
         ],

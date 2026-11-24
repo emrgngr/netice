@@ -1,5 +1,5 @@
 // Çocuk (ilkokul) şablonu önizlemesi: flutter test tool/kid_preview_test.dart
-// Çıktılar: build/kid/kitapcik.pdf, build/kid/kartlar.pdf
+// Çıktılar: build/kid/kitapcik.pdf, kartlar.pdf, karne.pdf, sinif_raporu.pdf
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -8,6 +8,10 @@ import 'package:image/image.dart' as img;
 import 'package:netice/bank/bank_models.dart';
 import 'package:netice/bank/booklet_builder.dart';
 import 'package:netice/core/models.dart';
+import 'package:netice/core/progress.dart';
+import 'package:netice/core/report.dart';
+import 'package:netice/core/scoring.dart';
+import 'package:netice/reports/pdf_documents.dart';
 import 'package:netice/l10n/l10n.dart';
 import 'package:netice/reports/booklet_pdf.dart';
 import 'package:netice/reports/kid_pdf.dart';
@@ -111,6 +115,61 @@ void main() {
       Directory('build/kid').createSync(recursive: true);
       File('build/kid/kitapcik.pdf').writeAsBytesSync(pdf);
       File('build/kid/kartlar.pdf').writeAsBytesSync(cards);
+
+      // Raporlar: 12 öğrencilik bir sınıf, önceki 3 sınav ve bu sınav.
+      const names = [
+        ('Elif', 'Yıldız'), ('Can', 'Demir'), ('Zeynep', 'Kaya'), ('Mert', 'Şahin'), ('Ayşe', 'Çelik'), ('Emir', 'Arslan'),
+        ('Defne', 'Koç'), ('Yusuf', 'Aydın'), ('Ela', 'Öztürk'), ('Kerem', 'Kılıç'), ('Nehir', 'Polat'), ('Ali', 'Erdem'),
+      ];
+      final students = [
+        for (var i = 0; i < names.length; i++)
+          Student(id: 's$i', firstName: names[i].$1, lastName: names[i].$2, number: '${10 + i}', className: '3-A'),
+      ];
+      final byId = {for (final s in students) s.id: s};
+      const topics = ['Yaşam döngüsü', 'Bitkiler', 'Hayvanlar'];
+      Exam withTopics(Exam e) => e.copyWith(questions: [
+            for (final q in e.questions) q.copyWith(outcomeCode: topics[(q.no - 1) % 3]),
+          ]);
+      List<Result> resultsFor(Exam e, double skill, int seed) => Scorer.scoreAll(e, [
+            for (var i = 0; i < students.length; i++)
+              Sheet(examId: e.id, studentId: students[i].id, answers: [
+                for (var q = 0; q < e.questionCount; q++)
+                  if ((i * 7 + q * 3 + seed) % 11 == 0)
+                    const Answer.blank()
+                  else if (((i * 5 + q * 13 + seed * 3) % 100) < (skill + (i % 4) * 8 - (q % 5) * 6))
+                    Answer.choice(e.questions[q].correct.first)
+                  else
+                    Answer.choice((e.questions[q].correct.first + 1) % e.choiceCount),
+              ]),
+          ]);
+      final cur = withTopics(exam.copyWith(date: DateTime(2026, 11, 24)));
+      final past = [
+        for (final (i, (name, skill)) in [('Mevsimler', 45.0), ('Duyu organları', 58.0), ('Maddeyi tanıyalım', 66.0)].indexed)
+          (withTopics(exam.copyWith(id: 'p$i', name: name, date: DateTime(2026, 9 + i, 20))), skill),
+      ];
+      final curResults = resultsFor(cur, 74, 1);
+      final history = <String, List<HistoryEntry>>{for (final s in students) s.id: []};
+      final classHistory = <(String, double)>[];
+      for (final (e, rs) in [for (final (e, skill) in past) (e, resultsFor(e, skill, e.date.month)), (cur, curResults)]) {
+        final rep = ExamReport.build(e, rs);
+        classHistory.add((e.name, rep.stats.mean / e.rule.maxScore * 100));
+        for (final st in rep.standings) {
+          history[st.result.sheet.studentId]!.add(HistoryEntry(e, st, rep.stats.mean, rs.length, const []));
+        }
+      }
+      final karne = await buildStudentCardsPdf(
+          exam: cur,
+          results: curResults,
+          students: byId,
+          onlyStudentId: 's0',
+          notes: const {'s0': ['Son üç sınavda düzenli olarak yükseldi.', 'Bitkiler konusunda sınıfın üzerinde.']},
+          studyTopics: const {
+            's0': [('Hayvanlar', 0.5, ['Kurbağa yumurtadan çıkar, iribaş olur, sonra kurbağaya dönüşür.'])]
+          },
+          history: history);
+      final sinif = await buildResultsPdf(exam: cur, results: curResults, students: byId, classHistory: classHistory);
+      File('build/kid/karne.pdf').writeAsBytesSync(karne);
+      File('build/kid/sinif_raporu.pdf').writeAsBytesSync(sinif);
     });
   });
 }
