@@ -1961,5 +1961,22 @@
 "Şık sayısı": "Количество вариантов",
 "Sorular 20'şer hazırlanıyor; hazır olanlar hemen aşağıya eklenir. Çok sayıda soru birkaç dakika sürebilir, ekrandan çıkmayın.": "Вопросы готовятся по 20; готовые сразу появляются ниже. Большое число вопросов может занять несколько минут, не уходите с этого экрана.",
 "Sorular hazırlanıyor… {0} / {1}": "Вопросы готовятся… {0} / {1}",
-"ya da sayıyı kendiniz girin (en fazla {0})": "или введите число сами (не больше {0})"
+"ya da sayıyı kendiniz girin (en fazla {0})": "или введите число сами (не больше {0})",
+"\"{0} kit. no\" sütunu aynı sorunun o kitapçıktaki numarasını gösterir.": "Столбец «№ в {0}» показывает номер того же вопроса в этом варианте.",
+"Adet": "Кол-во",
+"Alt konu / kazanım": "Подтема / результат",
+"CEVAP ANAHTARI · {0} KİTAPÇIĞI": "КЛЮЧ ОТВЕТОВ · ВАРИАНТ {0}",
+"Dayanak / kısa açıklama": "Основание / краткое пояснение",
+"Puan = doğru sayısı × {0}": "Балл = число верных × {0}",
+"Soruların konulara göre dağılımı": "Распределение вопросов по темам",
+"{0} (her biri {1} puan)": "{0} (по {1} балла)",
+"{0} kit. no": "№ в {0}",
+"{0} soruyla kitapçık ve cevap anahtarı oluştur": "Создать вариант и ключ ответов из {0} вопросов",
+"{0} · toplam {1} puan": "{0} · всего {1} баллов",
+"ÖĞRETMEN NÜSHASIDIR — ÖĞRENCİLERE DAĞITILMAZ": "ЭКЗЕМПЛЯР УЧИТЕЛЯ — УЧЕНИКАМ НЕ РАЗДАЁТСЯ",
+"Şık dağılımı": "Распределение ответов",
+"Seçilen sınıflarda kayıtlı öğrenci yok": "В выбранных классах нет учеников",
+"{0} sınıf için aynı sınav açıldı. Sonuçlar ortak raporda birleşir.": "Тот же экзамен открыт для классов: {0}. Результаты объединяются в общем отчёте.",
+"{0} sınıf · {1} öğrenci · ad, sınıf ve numara basılı gelir": "Классов: {0} · учеников: {1} · имя, класс и номер печатаются",
+"Alt konu": "Подтема"
 }
