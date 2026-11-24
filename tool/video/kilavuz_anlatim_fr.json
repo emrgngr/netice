@@ -5,11 +5,18 @@
   "print": "Imprimer les grilles",
   "scan": "Corriger les feuilles",
   "report": "Résultats et rapports",
-  "data": "Vos données"
+  "data": "Vos données",
+  "library": "Banque de questions et sujets"
  },
  "k_sinav_ayar": "Dans les réglages de l'évaluation, fixez la note maximale, le seuil de réussite et la pénalité des réponses fausses. Vous y ajoutez aussi les types de sujet et les questions écrites.",
  "k_sablon": "Si vous utilisez la grille d'un éditeur ou d'une autre société, créez-en une fois un modèle dans Réglages, rubrique Autres grilles.",
  "k_kontrol": "Touchez une feuille corrigée. Les marques douteuses sont signalées en jaune, et vous les corrigez d'un simple toucher.",
  "k_donem": "Le bilan de la période réunit les évaluations choisies en notes de période et en bulletins par objectifs.",
- "k_yedek": "Netice fonctionne hors ligne et garde vos données uniquement sur votre appareil. Pour changer d'appareil, utilisez Enregistrer la sauvegarde dans un fichier."
+ "k_yedek": "Netice fonctionne hors ligne et garde vos données uniquement sur votre appareil. Pour changer d'appareil, utilisez Enregistrer la sauvegarde dans un fichier.",
+ "k_soru_kes": "Choisissez le PDF ou la photo d'une page de manuel ou d'annales. Tracez un rectangle autour de la question, cochez la bonne réponse et ajoutez-la.",
+ "k_soru_yaz": "Vous pouvez aussi écrire vos questions. Choisissez le type, ajoutez une image et touchez la lettre de la bonne réponse.",
+ "k_notlar": "Gardez vos résumés et essentiels dans l'onglet Notes. Les essentiels des thèmes faibles s'ajoutent automatiquement au bulletin.",
+ "k_sihirbaz": "Ouvrez l'assistant avec Nouveau livret. Choisissez les questions dans la banque, ou indiquez le nombre et la difficulté et laissez Netice choisir.",
+ "k_kitapcik_turu": "Créez des livrets de A à H et mélangez questions et réponses. Créer l'examen le prépare pour la lecture optique.",
+ "k_banka_analiz": "L'onglet Analyse montre l'équilibre de difficulté et la couverture des thèmes. Au fil des examens, il mesure aussi la difficulté réelle."
 }

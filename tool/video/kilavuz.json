@@ -24,6 +24,15 @@
    "10_ogrenci",
    "k_donem"
   ],
+  "library": [
+   "12_kutuphane",
+   "k_soru_kes",
+   "k_soru_yaz",
+   "k_notlar",
+   "k_sihirbaz",
+   "k_kitapcik_turu",
+   "k_banka_analiz"
+  ],
   "data": [
    "12_ayarlar",
    "k_yedek"
