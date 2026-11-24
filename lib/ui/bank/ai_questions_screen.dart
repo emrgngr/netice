@@ -135,15 +135,12 @@ class _AiQuestionsScreenState extends State<AiQuestionsScreen> {
     final note = _note;
     if (note == null || _busy) return;
     final store = StoreScope.of(context);
-    final paid = AiUsage.paid(store);
-    final left = _usage.remaining(paid);
+    final tier = AiUsage.tierOf(store);
+    final left = _usage.remaining(tier);
     if (left <= 0) {
-      if (!paid) {
-        toast(context, tr('Deneme hakkınız doldu. Netice Pro ile her ay {0} soru üretebilirsiniz.', [AiUsage.monthlyLimit]));
-        await _openPro();
-      } else {
-        toast(context, tr('Bu ayki soru üretme hakkınız doldu. Gelecek ay yenilenir.'));
-      }
+      // Pro ekranında ek soru paketi ve Pro + Yapay Zekâ seçenekleri var.
+      toast(context, quotaMessage(tier));
+      await _openPro();
       return;
     }
     if (!_usage.consent) {
@@ -168,7 +165,7 @@ class _AiQuestionsScreenState extends State<AiQuestionsScreen> {
           AiOptions(count: n, choices: _choices, difficulty: _difficulty, types: _types, kids: _kids),
           store: bank,
           usage: _usage,
-          paid: paid,
+          tier: tier,
           alsoAvoid: made,
         );
         if (!mounted) return;
@@ -187,7 +184,7 @@ class _AiQuestionsScreenState extends State<AiQuestionsScreen> {
     } on AiException catch (e) {
       if (!mounted) return;
       setState(() => _error = e.message);
-      if (e.quota && !paid) await _openPro();
+      if (e.quota) await _openPro();
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -233,7 +230,8 @@ class _AiQuestionsScreenState extends State<AiQuestionsScreen> {
     final t = Theme.of(context);
     final store = StoreScope.of(context);
     final note = _note = bank.noteById(widget.noteId) ?? _note;
-    final paid = AiUsage.paid(store);
+    final tier = AiUsage.tierOf(store);
+    final paid = tier != AiTier.trial;
     final selected = _drafts.where((d) => d.selected && !d.added).length;
     final added = [for (final d in _drafts) if (d.added && bank.questionById(d.q.id) != null) d.q.id];
     if (note == null) return const Scaffold();
@@ -390,9 +388,10 @@ class _AiQuestionsScreenState extends State<AiQuestionsScreen> {
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
-                          paid
-                              ? tr('İnternet gerekir · bu ay kalan: {0} / {1} soru', [_usage.remaining(true), AiUsage.monthlyLimit])
-                              : tr('İnternet gerekir · deneme hakkı: {0} / {1} soru', [_usage.remaining(false), AiUsage.trialLimit]),
+                          (paid
+                                  ? tr('İnternet gerekir · bu ay kalan: {0} / {1} soru', [_usage.planRemaining(tier), AiUsage.limitOf(tier)])
+                                  : tr('İnternet gerekir · deneme hakkı: {0} / {1} soru', [_usage.planRemaining(tier), AiUsage.trialLimit])) +
+                              (_usage.credits > 0 ? tr(' · ek paket: {0} soru', [_usage.credits]) : ''),
                           style: TextStyle(fontSize: 12.5, color: t.colorScheme.onSurface.withValues(alpha: 0.6)),
                         ),
                       ),

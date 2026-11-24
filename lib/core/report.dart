@@ -70,6 +70,24 @@ class Level {
     ],
     'zh': [Level('优秀', 5, 90), Level('良好', 4, 80), Level('中等', 3, 70), Level('及格', 2, 60), Level('不及格', 1, 0)],
     'ja': [Level('5', 5, 90), Level('4', 4, 75), Level('3', 3, 60), Level('2', 2, 40), Level('1', 1, 0)],
+    'pt': [
+      Level('Excelente', 5, 90),
+      Level('Muito bom', 4, 75),
+      Level('Bom', 3, 60),
+      Level('Regular', 2, 50),
+      Level('Insuficiente', 1, 0),
+    ],
+    // Hindistan: CBSE harf notları birleştirilerek 5 düzey; geçme sınırı %33.
+    'hi': [Level('A (उत्कृष्ट)', 5, 81), Level('B (बहुत अच्छा)', 4, 61), Level('C (अच्छा)', 3, 41), Level('D (उत्तीर्ण)', 2, 33), Level('E (अनुत्तीर्ण)', 1, 0)],
+    'id': [
+      Level('A (Sangat Baik)', 5, 90),
+      Level('B (Baik)', 4, 80),
+      Level('C (Cukup)', 3, 70),
+      Level('D (Kurang)', 2, 60),
+      Level('E (Sangat Kurang)', 1, 0),
+    ],
+    // Kore: lise başarı düzeyi (성취도) A–E.
+    'ko': [Level('A', 5, 90), Level('B', 4, 80), Level('C', 3, 70), Level('D', 2, 60), Level('E', 1, 0)],
   };
 
   static Level of(double pct) => all.firstWhere((l) => pct >= l.minPct);
