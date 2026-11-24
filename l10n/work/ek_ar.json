@@ -947,5 +947,10 @@
  "Optik kâğıtları telefonla okutun, sonuç ve karne saniyeler içinde.": "صحّح أوراق الإجابة بالهاتف، النتائج والشهادات في ثوانٍ.",
  "Belgeden yazı okunamadı. Eski .doc dosyalarını Word'de .docx olarak kaydedip deneyin.": "تعذرت قراءة النص. احفظ ملفات ‎.doc القديمة في Word بصيغة ‎.docx وحاول مجددا.",
  "PDF / Word / Excel'den": "من PDF / Word / Excel",
- "Tüm sınıfları tek Excel dosyasında (.xlsx, eski .xls, .ods veya CSV) aktarabilirsiniz: okul no, ad, soyad ve sınıf sütunları otomatik tanınır, öğrenciler sınıflarına kendiliğinden ayrılır. Öğrencinin geçmişini görmek için üstüne, düzenlemek için kalem simgesine dokunun.": "يمكنك استيراد كل الصفوف بملف Excel واحد (.xlsx أو .xls القديم أو .ods أو CSV): تُتعرّف أعمدة رقم الطالب والاسم واللقب والصف تلقائيًا ويُوزَّع الطلاب على صفوفهم. المس طالبًا لرؤية سجله، أو رمز القلم للتعديل."
+ "Tüm sınıfları tek Excel dosyasında (.xlsx, eski .xls, .ods veya CSV) aktarabilirsiniz: okul no, ad, soyad ve sınıf sütunları otomatik tanınır, öğrenciler sınıflarına kendiliğinden ayrılır. Öğrencinin geçmişini görmek için üstüne, düzenlemek için kalem simgesine dokunun.": "يمكنك استيراد كل الصفوف بملف Excel واحد (.xlsx أو .xls القديم أو .ods أو CSV): تُتعرّف أعمدة رقم الطالب والاسم واللقب والصف تلقائيًا ويُوزَّع الطلاب على صفوفهم. المس طالبًا لرؤية سجله، أو رمز القلم للتعديل.",
+ "Brezilya": "البرازيل",
+ "Hindistan": "الهند",
+ "Endonezya": "إندونيسيا",
+ "Güney Kore": "كوريا الجنوبية",
+ "Arapça, Çince, Japonca, Korece ve Hintçe harfler her yazı tipinde uygun Noto yazı tipiyle basılır.": "تُطبع الحروف العربية والصينية واليابانية والكورية والهندية بخط Noto المناسب في كل نوع خط."
 }

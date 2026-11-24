@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 """l10n/work parçalarını denetler: JSON, yer tutucu, eksik sıra."""
 import glob, json, re, sys
-src = json.load(open('l10n/work/_kaynak_v1.json', encoding='utf-8'))
+src1 = json.load(open('l10n/work/_kaynak_v1.json', encoding='utf-8'))
+src2 = json.load(open('l10n/work/_kaynak_v2.json', encoding='utf-8'))
 ok = True
 for p in sorted(glob.glob('l10n/work/*.json')):
+    if '/ek_' in p or '/_kaynak' in p:
+        continue
+    src = src2 if '_v2_' in p else src1
     try:
         d = json.load(open(p, encoding='utf-8'))
     except Exception as e:

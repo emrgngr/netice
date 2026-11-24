@@ -947,5 +947,10 @@
  "Optik kâğıtları telefonla okutun, sonuç ve karne saniyeler içinde.": "Проверяйте бланки ответов телефоном, результаты и отчёты за секунды.",
  "Belgeden yazı okunamadı. Eski .doc dosyalarını Word'de .docx olarak kaydedip deneyin.": "Не удалось прочитать текст. Сохраните старые файлы .doc в Word как .docx и повторите.",
  "PDF / Word / Excel'den": "Из PDF / Word / Excel",
- "Tüm sınıfları tek Excel dosyasında (.xlsx, eski .xls, .ods veya CSV) aktarabilirsiniz: okul no, ad, soyad ve sınıf sütunları otomatik tanınır, öğrenciler sınıflarına kendiliğinden ayrılır. Öğrencinin geçmişini görmek için üstüne, düzenlemek için kalem simgesine dokunun.": "Все классы можно импортировать одним файлом Excel (.xlsx, старый .xls, .ods или CSV): столбцы с номером, именем, фамилией и классом распознаются автоматически, ученики распределяются по классам. Коснитесь ученика, чтобы увидеть историю, или карандаша, чтобы изменить."
+ "Tüm sınıfları tek Excel dosyasında (.xlsx, eski .xls, .ods veya CSV) aktarabilirsiniz: okul no, ad, soyad ve sınıf sütunları otomatik tanınır, öğrenciler sınıflarına kendiliğinden ayrılır. Öğrencinin geçmişini görmek için üstüne, düzenlemek için kalem simgesine dokunun.": "Все классы можно импортировать одним файлом Excel (.xlsx, старый .xls, .ods или CSV): столбцы с номером, именем, фамилией и классом распознаются автоматически, ученики распределяются по классам. Коснитесь ученика, чтобы увидеть историю, или карандаша, чтобы изменить.",
+ "Brezilya": "Бразилия",
+ "Hindistan": "Индия",
+ "Endonezya": "Индонезия",
+ "Güney Kore": "Южная Корея",
+ "Arapça, Çince, Japonca, Korece ve Hintçe harfler her yazı tipinde uygun Noto yazı tipiyle basılır.": "Арабские, китайские, японские, корейские символы и хинди печатаются подходящим шрифтом Noto в любом начертании."
 }

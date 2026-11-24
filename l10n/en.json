@@ -2025,5 +2025,10 @@
 "Optik kâğıtları telefonla okutun, sonuç ve karne saniyeler içinde.": "Scan answer sheets with your phone, results and report cards in seconds.",
 "Belgeden yazı okunamadı. Eski .doc dosyalarını Word'de .docx olarak kaydedip deneyin.": "Could not read text from the document. Save old .doc files as .docx in Word and try again.",
 "PDF / Word / Excel'den": "From PDF / Word / Excel",
-"Tüm sınıfları tek Excel dosyasında (.xlsx, eski .xls, .ods veya CSV) aktarabilirsiniz: okul no, ad, soyad ve sınıf sütunları otomatik tanınır, öğrenciler sınıflarına kendiliğinden ayrılır. Öğrencinin geçmişini görmek için üstüne, düzenlemek için kalem simgesine dokunun.": "You can import all classes in a single Excel file (.xlsx, old .xls, .ods or CSV): student number, first name, last name and class columns are recognised automatically, and students are sorted into their classes. Tap a student to see their history, or the pencil icon to edit."
+"Tüm sınıfları tek Excel dosyasında (.xlsx, eski .xls, .ods veya CSV) aktarabilirsiniz: okul no, ad, soyad ve sınıf sütunları otomatik tanınır, öğrenciler sınıflarına kendiliğinden ayrılır. Öğrencinin geçmişini görmek için üstüne, düzenlemek için kalem simgesine dokunun.": "You can import all classes in a single Excel file (.xlsx, old .xls, .ods or CSV): student number, first name, last name and class columns are recognised automatically, and students are sorted into their classes. Tap a student to see their history, or the pencil icon to edit.",
+"Brezilya": "Brazil",
+"Hindistan": "India",
+"Endonezya": "Indonesia",
+"Güney Kore": "South Korea",
+"Arapça, Çince, Japonca, Korece ve Hintçe harfler her yazı tipinde uygun Noto yazı tipiyle basılır.": "Arabic, Chinese, Japanese, Korean and Hindi characters are printed with a matching Noto font in every typeface."
 }

@@ -947,5 +947,10 @@
  "Optik kâğıtları telefonla okutun, sonuç ve karne saniyeler içinde.": "Cavab vərəqlərini telefonla oxudun, nəticələr və karnelər saniyələr içində.",
  "Belgeden yazı okunamadı. Eski .doc dosyalarını Word'de .docx olarak kaydedip deneyin.": "Sənəddən mətn oxunmadı. Köhnə .doc fayllarını Word-də .docx kimi saxlayıb yenidən cəhd edin.",
  "PDF / Word / Excel'den": "PDF / Word / Excel-dən",
- "Tüm sınıfları tek Excel dosyasında (.xlsx, eski .xls, .ods veya CSV) aktarabilirsiniz: okul no, ad, soyad ve sınıf sütunları otomatik tanınır, öğrenciler sınıflarına kendiliğinden ayrılır. Öğrencinin geçmişini görmek için üstüne, düzenlemek için kalem simgesine dokunun.": "Bütün sinifləri tək Excel faylı (.xlsx, köhnə .xls, .ods və ya CSV) ilə köçürə bilərsiniz: şagird nömrəsi, ad, soyad və sinif sütunları avtomatik tanınır, şagirdlər siniflərinə ayrılır. Tarixçəni görmək üçün şagirdə, redaktə üçün qələm simgəsinə toxunun."
+ "Tüm sınıfları tek Excel dosyasında (.xlsx, eski .xls, .ods veya CSV) aktarabilirsiniz: okul no, ad, soyad ve sınıf sütunları otomatik tanınır, öğrenciler sınıflarına kendiliğinden ayrılır. Öğrencinin geçmişini görmek için üstüne, düzenlemek için kalem simgesine dokunun.": "Bütün sinifləri tək Excel faylı (.xlsx, köhnə .xls, .ods və ya CSV) ilə köçürə bilərsiniz: şagird nömrəsi, ad, soyad və sinif sütunları avtomatik tanınır, şagirdlər siniflərinə ayrılır. Tarixçəni görmək üçün şagirdə, redaktə üçün qələm simgəsinə toxunun.",
+ "Brezilya": "Braziliya",
+ "Hindistan": "Hindistan",
+ "Endonezya": "İndoneziya",
+ "Güney Kore": "Cənubi Koreya",
+ "Arapça, Çince, Japonca, Korece ve Hintçe harfler her yazı tipinde uygun Noto yazı tipiyle basılır.": "Ərəb, Çin, Yapon, Koreya və Hind hərfləri hər şriftdə uyğun Noto şrifti ilə çap olunur."
 }

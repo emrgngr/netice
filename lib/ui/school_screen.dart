@@ -535,9 +535,9 @@ class _SchoolScreenState extends State<SchoolScreen> {
                 label: Text(tr('Altı çizili'), style: const TextStyle(decoration: TextDecoration.underline)),
                 onSelected: (v) => setState(() => _hUnder = v)),
           ]),
-          if (L10n.rtl || L10n.code == 'zh' || L10n.code == 'ja') ...[
+          if (L10n.rtl || const ['zh', 'ja', 'ko', 'hi'].contains(L10n.code)) ...[
             const SizedBox(height: 8),
-            Text(tr('Arapça, Çince ve Japonca harfler her yazı tipinde uygun Noto yazı tipiyle basılır.'),
+            Text(tr('Arapça, Çince, Japonca, Korece ve Hintçe harfler her yazı tipinde uygun Noto yazı tipiyle basılır.'),
                 style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))),
           ],
         ]),
