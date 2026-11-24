@@ -455,5 +455,9 @@
  "İsimli cevap kartlarını sınav ekranındaki \"Form yazdır\" ile basabilirsiniz. Çocuk sınavlarının karnesi de yıldızlı, sade bir tasarımla çıkar.": "Você pode imprimir cartões de resposta com nome em \"Imprimir formulários\" na tela da prova. Os boletins das provas infantis também saem num design simples com estrelas.",
  "Kurumunuzun resmi başlığı ve imza alanı": "O cabeçalho oficial da sua instituição e campos de assinatura",
  "Reklamsız kullanım": "Sem anúncios",
- "Hiçbir sayfada reklam gösterilmez": "Nenhum anúncio em nenhuma página"
+ "Hiçbir sayfada reklam gösterilmez": "Nenhum anúncio em nenhuma página",
+ "Kütüphaneniz bu cihazda {0} yer kaplıyor.": "Sua biblioteca ocupa {0} neste aparelho.",
+ "Sabit bir sınır yoktur; sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar.": "Não há limite fixo; quem define é o espaço livre do aparelho. Uma questão só de texto ocupa cerca de 1 KB, uma com imagem 100–300 KB.",
+ "Kütüphanenin depolama alanı ne kadar?": "Quanto espaço de armazenamento a biblioteca tem?",
+ "Sabit bir sınır yoktur; her şey cihazınızda saklanır ve sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar; 1.000 görselli soru yaklaşık 150–300 MB eder. Kütüphanenin şu an ne kadar yer kapladığını Kütüphane > Analiz sekmesinin en altında görürsünüz.": "Não há limite fixo: tudo fica salvo no seu aparelho, então o limite é o espaço livre dele. Uma questão só de texto ocupa cerca de 1 KB, uma com imagem 100–300 KB; 1.000 questões com imagem dão cerca de 150–300 MB. Veja quanto a biblioteca ocupa agora no fim de Biblioteca > Análise."
 }

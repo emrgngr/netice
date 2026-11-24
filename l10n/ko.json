@@ -2395,5 +2395,9 @@
 "İsimli cevap kartlarını sınav ekranındaki \"Form yazdır\" ile basabilirsiniz. Çocuk sınavlarının karnesi de yıldızlı, sade bir tasarımla çıkar.": "시험 화면의 \"답안지 인쇄\"로 이름이 들어간 답안 카드를 인쇄할 수 있습니다. 어린이 시험의 성적표도 별이 들어간 간단한 디자인으로 나옵니다.",
 "Kurumunuzun resmi başlığı ve imza alanı": "기관의 공식 머리말과 서명란",
 "Reklamsız kullanım": "광고 없음",
-"Hiçbir sayfada reklam gösterilmez": "어떤 페이지에도 광고가 나오지 않습니다"
+"Hiçbir sayfada reklam gösterilmez": "어떤 페이지에도 광고가 나오지 않습니다",
+"Kütüphaneniz bu cihazda {0} yer kaplıyor.": "라이브러리가 이 기기에서 {0}를 사용하고 있습니다.",
+"Sabit bir sınır yoktur; sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar.": "정해진 한도는 없으며 기기의 남은 저장 공간이 한도입니다. 글자만 있는 문항은 약 1 KB, 그림이 있는 문항은 100–300 KB입니다.",
+"Kütüphanenin depolama alanı ne kadar?": "라이브러리 저장 공간은 얼마나 되나요?",
+"Sabit bir sınır yoktur; her şey cihazınızda saklanır ve sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar; 1.000 görselli soru yaklaşık 150–300 MB eder. Kütüphanenin şu an ne kadar yer kapladığını Kütüphane > Analiz sekmesinin en altında görürsünüz.": "정해진 한도는 없습니다. 모든 내용이 기기에 저장되므로 기기의 남은 공간이 한도입니다. 글자만 있는 문항은 약 1 KB, 그림이 있는 문항은 100–300 KB이며, 그림 문항 1,000개는 약 150–300 MB입니다. 지금 사용 중인 용량은 라이브러리 > 분석 화면 맨 아래에서 볼 수 있습니다."
 }

@@ -41,6 +41,9 @@ void main() {
     expect(c.questions.single.imageId, img);
     expect(c.imageBytes(img), isNotNull);
     expect(c.notesFor('kuvvet').single.body, 'F = m·a');
+    // Kütüphane dipnotu: kapladığı yer en az görsel + banka dosyası kadar.
+    expect(await c.diskUsage(), greaterThan(5));
+    expect(await BankStore.forTest().diskUsage(), 0);
     final pack = c.exportPack();
     final d = BankStore.forTest();
     await d.load(dir: await Directory.systemTemp.createTemp('bank2'));

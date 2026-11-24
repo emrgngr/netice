@@ -205,7 +205,42 @@ class BankAnalysisView extends StatelessWidget {
             const SizedBox(height: 10),
           ],
         ], color: NColors.ink),
+      const _StorageNote(),
     ]);
+  }
+}
+
+/// Dipnot: kütüphanenin cihazda kapladığı yer ve kabaca ne kadar yer tuttuğu.
+class _StorageNote extends StatelessWidget {
+  const _StorageNote();
+
+  static String _size(int bytes) {
+    if (bytes < 1024 * 1024) return '${(bytes / 1024).ceil()} KB';
+    return '${fmt1(bytes / (1024 * 1024))} MB';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final muted = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.55);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 18, 8, 0),
+      child: FutureBuilder<int>(
+        future: BankStore.instance.diskUsage(),
+        builder: (context, snap) => Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Icon(Icons.sd_storage_outlined, size: 16, color: muted),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              [
+                if (snap.hasData) tr('Kütüphaneniz bu cihazda {0} yer kaplıyor.', [_size(snap.data!)]),
+                tr('Sabit bir sınır yoktur; sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar.'),
+              ].join(' '),
+              style: TextStyle(color: muted, fontSize: 12, height: 1.35),
+            ),
+          ),
+        ]),
+      ),
+    );
   }
 }
 

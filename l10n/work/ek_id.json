@@ -455,5 +455,9 @@
  "İsimli cevap kartlarını sınav ekranındaki \"Form yazdır\" ile basabilirsiniz. Çocuk sınavlarının karnesi de yıldızlı, sade bir tasarımla çıkar.": "Anda dapat mencetak kartu jawaban bernama dengan \"Cetak formulir\" di layar ujian. Rapor ujian anak juga tampil dengan desain sederhana berbintang.",
  "Kurumunuzun resmi başlığı ve imza alanı": "Kop resmi lembaga Anda dan kolom tanda tangan",
  "Reklamsız kullanım": "Tanpa iklan",
- "Hiçbir sayfada reklam gösterilmez": "Tidak ada iklan di halaman mana pun"
+ "Hiçbir sayfada reklam gösterilmez": "Tidak ada iklan di halaman mana pun",
+ "Kütüphaneniz bu cihazda {0} yer kaplıyor.": "Pustaka Anda memakai {0} di perangkat ini.",
+ "Sabit bir sınır yoktur; sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar.": "Tidak ada batas tetap; batasnya adalah ruang kosong di perangkat Anda. Soal berisi teks saja sekitar 1 KB, soal bergambar 100–300 KB.",
+ "Kütüphanenin depolama alanı ne kadar?": "Berapa kapasitas penyimpanan pustaka?",
+ "Sabit bir sınır yoktur; her şey cihazınızda saklanır ve sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar; 1.000 görselli soru yaklaşık 150–300 MB eder. Kütüphanenin şu an ne kadar yer kapladığını Kütüphane > Analiz sekmesinin en altında görürsünüz.": "Tidak ada batas tetap; semuanya disimpan di perangkat Anda, jadi batasnya adalah ruang kosong perangkat. Soal berisi teks saja sekitar 1 KB, soal bergambar 100–300 KB; 1.000 soal bergambar sekitar 150–300 MB. Ruang yang dipakai pustaka saat ini terlihat di bagian paling bawah Pustaka > Analisis."
 }
