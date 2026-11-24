@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'analysis.dart';
+import 'grade_scale.dart';
 import 'models.dart';
 import 'scoring.dart';
 import '../l10n/l10n.dart';
@@ -16,7 +17,16 @@ class Level {
 
   /// Seçili dile göre ülkede yaygın kullanılan not ölçeği (5 basamak,
   /// yüksekten düşüğe). Türkçe adlar çeviriden, diğerleri doğrudan gelir.
-  static List<Level> get all => _scales[L10n.code] ?? _scales['tr']!;
+  /// Öğretmenin seçtiği ya da yazdığı not sistemi (Ayarlar > Not sistemi);
+  /// boşsa uygulama dilinin sistemi kullanılır.
+  static List<Level>? custom;
+
+  static List<Level> get all => custom ?? languageDefault;
+
+  static List<Level> get languageDefault => _scales[L10n.code] ?? _scales['tr']!;
+
+  static void useScale(GradeScale? s) =>
+      custom = s == null ? null : [for (var i = 0; i < s.bands.length; i++) Level(s.bands[i].label, s.bands.length - i, s.bands[i].minPct)];
 
   static const _scales = {
     'tr': [Level('Pekiyi', 5, 85), Level('İyi', 4, 70), Level('Orta', 3, 60), Level('Geçer', 2, 50), Level('Geçmez', 1, 0)],

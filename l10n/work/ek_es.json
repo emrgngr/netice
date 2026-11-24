@@ -904,5 +904,22 @@
  "Beklenen cevap": "Respuesta esperada",
  "Klasik sorular · cevap anahtarı": "Preguntas abiertas · clave de respuestas",
  "Soru sayısı seçilen türlere yaklaşık eşit bölünür.": "El número de preguntas se reparte de forma aproximadamente igual entre los tipos elegidos.",
- "Soru türleri": "Tipos de pregunta"
+ "Soru türleri": "Tipos de pregunta",
+ "Değiştirmek için bir hazır sistem ya da \"Kendim yazacağım\" seçin.": "Para cambiarlo, elige un sistema predefinido o «Lo escribiré yo».",
+ "Düzey / not": "Nivel / nota",
+ "Düzey ekle": "Añadir nivel",
+ "En az %": "Mín. %",
+ "En az {0} düzey olmalı.": "Debe haber al menos {0} niveles.",
+ "Hazır sistemler": "Sistemas predefinidos",
+ "Her düzeye bir ad yazın.": "Escribe un nombre para cada nivel.",
+ "Kendim yazacağım": "Lo escribiré yo",
+ "Not sistemi": "Sistema de calificación",
+ "Not sistemi kaydedildi.": "Sistema de calificación guardado.",
+ "Sınırlar yukarıdan aşağıya küçülmeli ve 0 ile 100 arasında olmalı.": "Los límites deben disminuir de arriba abajo y estar entre 0 y 100.",
+ "Uygulama dilinin sistemi": "Sistema del idioma de la app",
+ "Uygulama dilinin sistemi: {0}": "Sistema del idioma de la app: {0}",
+ "geri kalan": "resto",
+ "Örnek: \"% 85\" yazılan düzey, tam puanın %85 ve üzerini alanlara verilir. 20 veya 10 üzerinden puan için Sınav ayarlarında \"Tam puan\" değerini değiştirin.": "Ejemplo: el nivel con «% 85» se da a quien obtiene el 85 % de la puntuación total o más. Para notas sobre 20 o 10, cambia «Puntuación máxima» en los ajustes del examen.",
+ "Özel not sistemi": "Sistema de calificación propio",
+ "Öğrencinin puanı, tam puanın yüzdesine göre bu düzeylere yerleşir. Raporlar, karneler ve düzey dağılımı bu sistemi kullanır.": "La puntuación del estudiante se ubica en estos niveles según su porcentaje sobre la puntuación total. Los informes, boletines y la distribución por niveles usan este sistema."
 }
