@@ -2467,5 +2467,9 @@
 "İlkokul öğrencileri optik form doldurabilir mi?": "Les élèves de primaire peuvent-ils remplir des grilles de réponses ?",
 "İri yazı, renkli soru numaraları, A–B–C şıkları ve çocuklara uygun yönerge gelir.": "Grands caractères, numéros de questions en couleur, choix A–B–C et consignes adaptées aux enfants.",
 "İsimli cevap kartlarını sınav ekranındaki \"Form yazdır\" ile basabilirsiniz. Çocuk sınavlarının karnesi de yıldızlı, sade bir tasarımla çıkar.": "Vous pouvez imprimer des cartes-réponses nominatives avec « Imprimer les grilles » sur l'écran de l'évaluation. Les bulletins des évaluations pour enfants ont aussi une présentation simple avec des étoiles.",
-"Kurumunuzun resmi başlığı ve imza alanı": "En-tête officiel de votre établissement et zones de signature"
+"Kurumunuzun resmi başlığı ve imza alanı": "En-tête officiel de votre établissement et zones de signature",
+"Kütüphaneniz bu cihazda {0} yer kaplıyor.": "Votre bibliothèque occupe {0} sur cet appareil.",
+"Sabit bir sınır yoktur; sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar.": "Il n'y a pas de limite fixe : c'est l'espace libre de votre appareil qui la fixe. Une question texte occupe environ 1 Ko, une question avec image 100 à 300 Ko.",
+"Kütüphanenin depolama alanı ne kadar?": "Quel est l'espace de stockage de la bibliothèque ?",
+"Sabit bir sınır yoktur; her şey cihazınızda saklanır ve sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar; 1.000 görselli soru yaklaşık 150–300 MB eder. Kütüphanenin şu an ne kadar yer kapladığını Kütüphane > Analiz sekmesinin en altında görürsünüz.": "Il n'y a pas de limite fixe : tout est enregistré sur votre appareil, la limite est donc son espace libre. Une question texte occupe environ 1 Ko, une question avec image 100 à 300 Ko ; 1 000 questions avec image font environ 150 à 300 Mo. L'espace occupé actuellement s'affiche tout en bas de Bibliothèque > Analyse."
 }

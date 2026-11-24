@@ -2467,5 +2467,9 @@
 "İlkokul öğrencileri optik form doldurabilir mi?": "Gli alunni della primaria possono compilare i fogli risposte?",
 "İri yazı, renkli soru numaraları, A–B–C şıkları ve çocuklara uygun yönerge gelir.": "Caratteri grandi, numeri delle domande colorati, opzioni A–B–C e istruzioni adatte ai bambini.",
 "İsimli cevap kartlarını sınav ekranındaki \"Form yazdır\" ile basabilirsiniz. Çocuk sınavlarının karnesi de yıldızlı, sade bir tasarımla çıkar.": "Puoi stampare schede risposte con il nome con «Stampa fogli» nella schermata della verifica. Anche le pagelle delle verifiche per bambini escono con un design semplice con le stelle.",
-"Kurumunuzun resmi başlığı ve imza alanı": "L'intestazione ufficiale della tua istituzione e i campi firma"
+"Kurumunuzun resmi başlığı ve imza alanı": "L'intestazione ufficiale della tua istituzione e i campi firma",
+"Kütüphaneniz bu cihazda {0} yer kaplıyor.": "La tua libreria occupa {0} su questo dispositivo.",
+"Sabit bir sınır yoktur; sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar.": "Non c'è un limite fisso: lo stabilisce lo spazio libero del dispositivo. Una domanda solo testo occupa circa 1 KB, una con immagine 100–300 KB.",
+"Kütüphanenin depolama alanı ne kadar?": "Quanto spazio ha la libreria?",
+"Sabit bir sınır yoktur; her şey cihazınızda saklanır ve sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar; 1.000 görselli soru yaklaşık 150–300 MB eder. Kütüphanenin şu an ne kadar yer kapladığını Kütüphane > Analiz sekmesinin en altında görürsünüz.": "Non c'è un limite fisso: tutto è salvato sul tuo dispositivo, quindi il limite è lo spazio libero. Una domanda solo testo occupa circa 1 KB, una con immagine 100–300 KB; 1.000 domande con immagine occupano circa 150–300 MB. Quanto occupa ora la libreria lo vedi in fondo a Libreria > Analisi."
 }

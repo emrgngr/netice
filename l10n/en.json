@@ -2467,5 +2467,9 @@
 "İlkokul öğrencileri optik form doldurabilir mi?": "Can primary-school pupils fill in answer sheets?",
 "İri yazı, renkli soru numaraları, A–B–C şıkları ve çocuklara uygun yönerge gelir.": "You get large text, colourful question numbers, A–B–C options and child-friendly instructions.",
 "İsimli cevap kartlarını sınav ekranındaki \"Form yazdır\" ile basabilirsiniz. Çocuk sınavlarının karnesi de yıldızlı, sade bir tasarımla çıkar.": "You can print named answer cards with \"Print forms\" on the exam screen. Report cards for children's exams also come in a simple design with stars.",
-"Kurumunuzun resmi başlığı ve imza alanı": "Your institution's official letterhead and signature fields"
+"Kurumunuzun resmi başlığı ve imza alanı": "Your institution's official letterhead and signature fields",
+"Kütüphaneniz bu cihazda {0} yer kaplıyor.": "Your library takes up {0} on this device.",
+"Sabit bir sınır yoktur; sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar.": "There is no fixed limit; the free space on your device sets it. A text-only question takes about 1 KB, a question with an image 100–300 KB.",
+"Kütüphanenin depolama alanı ne kadar?": "How much storage does the library have?",
+"Sabit bir sınır yoktur; her şey cihazınızda saklanır ve sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar; 1.000 görselli soru yaklaşık 150–300 MB eder. Kütüphanenin şu an ne kadar yer kapladığını Kütüphane > Analiz sekmesinin en altında görürsünüz.": "There is no fixed limit; everything is stored on your device, so the free space on your device sets the limit. A text-only question takes about 1 KB, a question with an image 100–300 KB; 1,000 questions with images come to about 150–300 MB. You can see how much space the library uses right now at the bottom of Library > Analysis."
 }

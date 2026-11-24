@@ -1389,5 +1389,9 @@
  "İlkokul öğrencileri optik form doldurabilir mi?": "Могут ли ученики начальной школы заполнять бланки ответов?",
  "İri yazı, renkli soru numaraları, A–B–C şıkları ve çocuklara uygun yönerge gelir.": "Крупный шрифт, цветные номера вопросов, варианты A–B–C и понятные детям инструкции.",
  "İsimli cevap kartlarını sınav ekranındaki \"Form yazdır\" ile basabilirsiniz. Çocuk sınavlarının karnesi de yıldızlı, sade bir tasarımla çıkar.": "Именные карточки ответов печатаются через «Печать бланков» на экране работы. Табели детских работ тоже выходят в простом оформлении со звёздами.",
- "Kurumunuzun resmi başlığı ve imza alanı": "Официальный бланк вашего учреждения и поля для подписи"
+ "Kurumunuzun resmi başlığı ve imza alanı": "Официальный бланк вашего учреждения и поля для подписи",
+ "Kütüphaneniz bu cihazda {0} yer kaplıyor.": "Ваша библиотека занимает на этом устройстве {0}.",
+ "Sabit bir sınır yoktur; sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar.": "Жёсткого ограничения нет: всё зависит от свободного места на устройстве. Вопрос только с текстом занимает около 1 КБ, вопрос с картинкой — 100–300 КБ.",
+ "Kütüphanenin depolama alanı ne kadar?": "Сколько места есть у библиотеки?",
+ "Sabit bir sınır yoktur; her şey cihazınızda saklanır ve sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar; 1.000 görselli soru yaklaşık 150–300 MB eder. Kütüphanenin şu an ne kadar yer kapladığını Kütüphane > Analiz sekmesinin en altında görürsünüz.": "Жёсткого ограничения нет: всё хранится на вашем устройстве, поэтому предел — свободное место на нём. Вопрос только с текстом занимает около 1 КБ, вопрос с картинкой — 100–300 КБ; 1000 вопросов с картинками — примерно 150–300 МБ. Сколько места библиотека занимает сейчас, видно в самом низу раздела Библиотека > Анализ."
 }

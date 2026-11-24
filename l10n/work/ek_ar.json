@@ -1389,5 +1389,9 @@
  "İlkokul öğrencileri optik form doldurabilir mi?": "هل يستطيع تلاميذ المرحلة الابتدائية تعبئة أوراق الإجابة؟",
  "İri yazı, renkli soru numaraları, A–B–C şıkları ve çocuklara uygun yönerge gelir.": "خط كبير وأرقام أسئلة ملونة وخيارات A–B–C وتعليمات مناسبة للأطفال.",
  "İsimli cevap kartlarını sınav ekranındaki \"Form yazdır\" ile basabilirsiniz. Çocuk sınavlarının karnesi de yıldızlı, sade bir tasarımla çıkar.": "يمكنك طباعة بطاقات إجابة بأسماء الطلاب عبر \"طباعة الأوراق\" في شاشة الاختبار. وتصدر شهادات اختبارات الأطفال أيضا بتصميم بسيط بالنجوم.",
- "Kurumunuzun resmi başlığı ve imza alanı": "الترويسة الرسمية لمؤسستك وحقول التوقيع"
+ "Kurumunuzun resmi başlığı ve imza alanı": "الترويسة الرسمية لمؤسستك وحقول التوقيع",
+ "Kütüphaneniz bu cihazda {0} yer kaplıyor.": "تشغل مكتبتك {0} على هذا الجهاز.",
+ "Sabit bir sınır yoktur; sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar.": "لا يوجد حد ثابت، فالحد هو المساحة الفارغة في جهازك. يشغل السؤال النصي نحو 1 KB، والسؤال الذي يحتوي على صورة من 100 إلى 300 KB.",
+ "Kütüphanenin depolama alanı ne kadar?": "ما مساحة التخزين المتاحة للمكتبة؟",
+ "Sabit bir sınır yoktur; her şey cihazınızda saklanır ve sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar; 1.000 görselli soru yaklaşık 150–300 MB eder. Kütüphanenin şu an ne kadar yer kapladığını Kütüphane > Analiz sekmesinin en altında görürsünüz.": "لا يوجد حد ثابت، فكل شيء محفوظ على جهازك والحد هو المساحة الفارغة فيه. يشغل السؤال النصي نحو 1 KB، والسؤال الذي يحتوي على صورة من 100 إلى 300 KB، و1000 سؤال بالصور تشغل نحو 150 إلى 300 MB. يمكنك رؤية المساحة التي تشغلها المكتبة الآن في أسفل المكتبة > التحليل."
 }

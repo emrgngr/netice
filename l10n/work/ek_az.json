@@ -1389,5 +1389,9 @@
  "İlkokul öğrencileri optik form doldurabilir mi?": "İbtidai sinif şagirdləri optik vərəq doldura bilərmi?",
  "İri yazı, renkli soru numaraları, A–B–C şıkları ve çocuklara uygun yönerge gelir.": "İri yazı, rəngli sual nömrələri, A–B–C variantları və uşaqlara uyğun təlimat gəlir.",
  "İsimli cevap kartlarını sınav ekranındaki \"Form yazdır\" ile basabilirsiniz. Çocuk sınavlarının karnesi de yıldızlı, sade bir tasarımla çıkar.": "Adlı cavab kartlarını imtahan ekranındakı \"Vərəq çap et\" ilə çap edə bilərsiniz. Uşaq imtahanlarının karnesi də ulduzlu, sadə dizaynla çıxır.",
- "Kurumunuzun resmi başlığı ve imza alanı": "Qurumunuzun rəsmi başlığı və imza sahəsi"
+ "Kurumunuzun resmi başlığı ve imza alanı": "Qurumunuzun rəsmi başlığı və imza sahəsi",
+ "Kütüphaneniz bu cihazda {0} yer kaplıyor.": "Kitabxananız bu cihazda {0} yer tutur.",
+ "Sabit bir sınır yoktur; sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar.": "Sabit bir limit yoxdur; limiti cihazınızdakı boş yer müəyyən edir. Yalnız mətndən ibarət sual təxminən 1 KB, şəkilli sual 100–300 KB tutur.",
+ "Kütüphanenin depolama alanı ne kadar?": "Kitabxananın yaddaş sahəsi nə qədərdir?",
+ "Sabit bir sınır yoktur; her şey cihazınızda saklanır ve sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar; 1.000 görselli soru yaklaşık 150–300 MB eder. Kütüphanenin şu an ne kadar yer kapladığını Kütüphane > Analiz sekmesinin en altında görürsünüz.": "Sabit bir limit yoxdur; hər şey cihazınızda saxlanılır və limiti cihazınızdakı boş yer müəyyən edir. Yalnız mətndən ibarət sual təxminən 1 KB, şəkilli sual 100–300 KB tutur; 1.000 şəkilli sual təxminən 150–300 MB edir. Kitabxananın hazırda nə qədər yer tutduğunu Kitabxana > Təhlil bölməsinin ən altında görürsünüz."
 }

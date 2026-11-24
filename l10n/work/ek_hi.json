@@ -455,5 +455,9 @@
  "İsimli cevap kartlarını sınav ekranındaki \"Form yazdır\" ile basabilirsiniz. Çocuk sınavlarının karnesi de yıldızlı, sade bir tasarımla çıkar.": "परीक्षा स्क्रीन पर \"फ़ॉर्म प्रिंट करें\" से नाम वाले उत्तर कार्ड प्रिंट कर सकते हैं। बच्चों की परीक्षाओं के रिपोर्ट कार्ड भी तारों वाले सरल डिज़ाइन में आते हैं।",
  "Kurumunuzun resmi başlığı ve imza alanı": "आपकी संस्था का आधिकारिक शीर्षक और हस्ताक्षर स्थान",
  "Reklamsız kullanım": "विज्ञापन-मुक्त",
- "Hiçbir sayfada reklam gösterilmez": "किसी भी पेज पर विज्ञापन नहीं दिखते"
+ "Hiçbir sayfada reklam gösterilmez": "किसी भी पेज पर विज्ञापन नहीं दिखते",
+ "Kütüphaneniz bu cihazda {0} yer kaplıyor.": "आपकी लाइब्रेरी इस डिवाइस पर {0} जगह ले रही है।",
+ "Sabit bir sınır yoktur; sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar.": "कोई तय सीमा नहीं है; सीमा आपके डिवाइस की खाली जगह से तय होती है। सिर्फ़ लिखित प्रश्न लगभग 1 KB और चित्र वाला प्रश्न 100–300 KB लेता है।",
+ "Kütüphanenin depolama alanı ne kadar?": "लाइब्रेरी में कितनी स्टोरेज है?",
+ "Sabit bir sınır yoktur; her şey cihazınızda saklanır ve sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar; 1.000 görselli soru yaklaşık 150–300 MB eder. Kütüphanenin şu an ne kadar yer kapladığını Kütüphane > Analiz sekmesinin en altında görürsünüz.": "कोई तय सीमा नहीं है; सब कुछ आपके डिवाइस पर सहेजा जाता है, इसलिए सीमा डिवाइस की खाली जगह है। सिर्फ़ लिखित प्रश्न लगभग 1 KB और चित्र वाला प्रश्न 100–300 KB लेता है; चित्र वाले 1,000 प्रश्न लगभग 150–300 MB होते हैं। लाइब्रेरी अभी कितनी जगह ले रही है, यह लाइब्रेरी > विश्लेषण के सबसे नीचे दिखता है।"
 }
