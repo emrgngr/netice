@@ -56,7 +56,7 @@ class StatCard extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: t.textTheme.bodySmall?.copyWith(
-                      color: accent ?? t.colorScheme.onSurface.withValues(alpha: 0.55))),
+                      color: accent == null ? t.colorScheme.onSurface.withValues(alpha: 0.6) : NColors.on(context, accent!))),
             ],
           ],
         ),
@@ -202,9 +202,12 @@ class GlowButton extends StatelessWidget {
   const GlowButton({super.key, required this.label, required this.icon, required this.onPressed, this.height = 64});
 
   @override
-  Widget build(BuildContext context) => DecoratedBox(
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final fg = NColors.buttonFg(dark);
+    return DecoratedBox(
         decoration: BoxDecoration(
-          gradient: emeraldGradient,
+          gradient: dark ? nightEmeraldGradient : emeraldGradient,
           borderRadius: BorderRadius.circular(18),
           boxShadow: [BoxShadow(color: NColors.emerald.withValues(alpha: 0.45), blurRadius: 22, offset: const Offset(0, 8))],
         ),
@@ -216,14 +219,15 @@ class GlowButton extends StatelessWidget {
             child: SizedBox(
               height: height,
               child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                Icon(icon, color: NColors.ink, size: 26),
+                Icon(icon, color: fg, size: 26),
                 const SizedBox(width: 10),
-                Text(label, style: const TextStyle(color: NColors.ink, fontSize: 19, fontWeight: FontWeight.w800, letterSpacing: 0.2)),
+                Text(label, style: TextStyle(color: fg, fontSize: 19, fontWeight: FontWeight.w800, letterSpacing: 0.2)),
               ]),
             ),
           ),
         ),
       );
+  }
 }
 
 /// Ortalama puanı gösteren halka.
@@ -289,12 +293,16 @@ class IconBadge extends StatelessWidget {
   const IconBadge(this.icon, {super.key, this.color = NColors.emerald, this.size = 36});
 
   @override
-  Widget build(BuildContext context) => Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(color: color.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(size * 0.32)),
-        child: Icon(icon, size: size * 0.55, color: color),
-      );
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final fg = NColors.readable(color, dark: dark);
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(color: fg.withValues(alpha: dark ? 0.18 : 0.14), borderRadius: BorderRadius.circular(size * 0.32)),
+      child: Icon(icon, size: size * 0.55, color: fg),
+    );
+  }
 }
 
 /// Ekranların arka planı: içeriğin arkasında, iki köşede çok yumuşak renk

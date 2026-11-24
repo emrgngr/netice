@@ -517,7 +517,7 @@ class _InfoCard extends StatelessWidget {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(color: color.withValues(alpha: 0.09), borderRadius: BorderRadius.circular(14)),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(icon, color: color, size: 20),
+          Icon(icon, color: NColors.on(context, color), size: 20),
           const SizedBox(width: 10),
           Expanded(child: Text(text, style: const TextStyle(height: 1.4))),
         ]),

@@ -39,14 +39,14 @@ class Pill extends StatelessWidget {
     final dark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(color: color.withValues(alpha: dark ? 0.22 : 0.13), borderRadius: BorderRadius.circular(20)),
+      decoration: BoxDecoration(color: (dark ? NColors.readable(color, dark: true) : color).withValues(alpha: dark ? 0.2 : 0.13), borderRadius: BorderRadius.circular(20)),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
-        if (icon != null) ...[Icon(icon, size: 12, color: dark ? color.withValues(alpha: 0.95) : _deep(color)), const SizedBox(width: 4)],
+        if (icon != null) ...[Icon(icon, size: 12, color: dark ? NColors.readable(color, dark: true) : _deep(color)), const SizedBox(width: 4)],
         Flexible(
           child: Text(text,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: dark ? color.withValues(alpha: 0.95) : _deep(color))),
+              style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: dark ? NColors.readable(color, dark: true) : _deep(color))),
         ),
       ]),
     );

@@ -261,7 +261,7 @@ class _ItemMapPainter extends CustomPainter {
     }
     for (final it in items) {
       final c = pos(it.$2, it.$3.clamp(-0.15, 1.0));
-      final color = it.$3 < 0.2 ? NColors.coral : (it.$3 >= 0.4 ? NColors.emerald : NColors.ink.withValues(alpha: 0.85));
+      final color = it.$3 < 0.2 ? NColors.coral : (it.$3 >= 0.4 ? NColors.emerald : NColors.navy(ink.computeLuminance() > 0.4).withValues(alpha: 0.85));
       final isSel = it.$1 == sel;
       canvas.drawCircle(c, isSel ? 11 : 8, Paint()..color = color.withValues(alpha: isSel ? 1 : 0.85));
       _text(canvas, '${it.$1}', c - Offset(it.$1 >= 10 ? 5.5 : 3, 5.5), 8.5, color: Colors.white, bold: true);
@@ -352,7 +352,11 @@ class _BoxPainter extends CustomPainter {
     canvas.drawLine(Offset(x(mn), cy - 8), Offset(x(mn), cy + 8), w);
     canvas.drawLine(Offset(x(mx), cy - 8), Offset(x(mx), cy + 8), w);
     final box = RRect.fromRectAndRadius(Rect.fromLTRB(x(q1), cy - 16, x(q3), cy + 16), const Radius.circular(6));
-    canvas.drawRRect(box, Paint()..shader = inkGradient.createShader(box.outerRect));
+    canvas.drawRRect(
+        box,
+        ink.computeLuminance() > 0.4
+            ? (Paint()..color = NColors.nightNavy)
+            : (Paint()..shader = inkGradient.createShader(box.outerRect)));
     canvas.drawLine(Offset(x(md), cy - 16), Offset(x(md), cy + 16), Paint()
       ..color = NColors.emerald
       ..strokeWidth = 3);
