@@ -57,12 +57,19 @@ void main() {
       q(3, Difficulty.hard, 'Sürtünmeli bir yüzeyde kayan cisim duruyor. Bu olayla ilgili hangisi doğrudur?',
           ['Mekanik enerji korunur', 'Kinetik enerjinin bir kısmı ısıya dönüşür', 'Toplam enerji azalır', 'Potansiyel enerji artar', 'Enerji yok olur'], 1,
           'Sürtünme mekanik enerjinin bir kısmını ısıya dönüştürür; toplam enerji korunur.'),
+      q(4, Difficulty.easy, 'Bir cismin hızı iki katına çıkarsa kinetik enerjisi de iki katına çıkar.', const [], 1,
+              'Ek = ½ · m · v²: hız 2 katına çıkınca enerji 4 katına çıkar.')
+          .copyWith(type: QuestionType.trueFalse),
+      q(5, Difficulty.medium, 'Cismin yüksekliğinden dolayı sahip olduğu enerjiye _____ enerjisi denir.', const [], 0, '')
+          .copyWith(type: QuestionType.fill, correct: const {}, answerText: 'çekim potansiyel'),
+      q(6, Difficulty.hard, 'Serbest düşen bir cisimde enerji dönüşümünü açıklayınız.', const [], 0, '')
+          .copyWith(type: QuestionType.open, correct: const {}, answerText: 'Cisim düşerken potansiyel enerjisi azalır, kinetik enerjisi artar; sürtünme yoksa toplam mekanik enerji sabit kalır.'),
     ];
 
     const phone = Size(390, 844);
     await shot(tester, _themed(const NoteViewScreen(noteId: 'n3'), store), phone, 'yz_1_not_ekrani');
     await shot(tester, _themed(const AiQuestionsScreen(noteId: 'n3'), store), phone, 'yz_2_secenekler');
-    await shot(tester, _themed(AiQuestionsScreen(noteId: 'n3', initialDrafts: drafts), store), const Size(390, 1500), 'yz_3_oneriler');
+    await shot(tester, _themed(AiQuestionsScreen(noteId: 'n3', initialDrafts: drafts), store), const Size(390, 2600), 'yz_3_oneriler');
     await shot(tester, _themed(const AiQuestionsScreen(noteId: 'n3'), store), phone, 'yz_4_elle_sayi', then: () async {
       await tester.enterText(find.byType(TextField).first, '60');
       await tester.pump();

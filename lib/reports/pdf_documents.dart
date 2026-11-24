@@ -18,6 +18,7 @@ import '../core/legal.dart';
 import '../omr/form_code.dart';
 import '../omr/form_layout.dart';
 import '../l10n/l10n.dart';
+import 'brand_footer.dart';
 
 const _ink = PdfColor.fromInt(0xFF0F1B3D);
 const _emerald = PdfColor.fromInt(0xFF10B981);
@@ -27,7 +28,13 @@ const _amber = PdfColor.fromInt(0xFFF2B33D);
 const _gray = PdfColor.fromInt(0xFF9AA0AE);
 const _ivory = PdfColor.fromInt(0xFFF6F3EC);
 const _line = PdfColor.fromInt(0xFFE2DDD1);
-const _levelColors = [_emerald, PdfColor.fromInt(0xFF34D399), _amber, PdfColor.fromInt(0xFFF59E0B), _coral];
+const _levelPalette = [_emerald, PdfColor.fromInt(0xFF34D399), _amber, PdfColor.fromInt(0xFFF59E0B), _coral];
+
+/// Düzey sayısı not sistemine göre değişir; renkler yeşilden kırmızıya yayılır.
+PdfColor _levelColor(int i) {
+  final n = Level.all.length;
+  return _levelPalette[n <= 1 ? 0 : (i * (_levelPalette.length - 1) / (n - 1)).round()];
+}
 
 class _Fonts {
   final pw.Font regular;
@@ -48,6 +55,7 @@ class _Fonts {
 
   /// [family]: netice, times ya da arial (Kurum bilgileri > Yazı stili).
   static Future<_Fonts> load([String family = 'netice']) async {
+    await BrandAssets.load();
     final key = '${L10n.code}/$family';
     if (_cache[key] != null) return _cache[key]!;
     Future<pw.Font> f(String path) async => pw.Font.ttf(await rootBundle.load(path));
@@ -739,12 +747,12 @@ class _Kit {
     pw.Row(
       mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
       children: [
-        pw.Text(tr('Netice ile hazırlandı'), style: const pw.TextStyle(color: _emerald, fontSize: 8)),
         pw.Text(tr('Rapor tarihi: {0}', [created]), style: const pw.TextStyle(color: _muted, fontSize: 8)),
         pw.Text(tr('Sayfa {0} / {1}', [ctx.pageNumber, ctx.pagesCount]), style: const pw.TextStyle(color: _muted, fontSize: 8)),
       ],
     ),
-    downloadNote(),
+    pw.SizedBox(height: 3),
+    brandStrip(),
   ]);
 
   pw.Widget title(String t, [String? sub]) => pw.Padding(
@@ -1014,7 +1022,7 @@ Future<Uint8List> buildResultsPdf({
           return pw.Row(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
             pw.Expanded(
                 child: _pieBox(tr('Başarı düzeyleri'), [
-              for (var i = 0; i < Level.all.length; i++) (Level.all[i].name, r.levelCounts[i].toDouble(), _levelColors[i]),
+              for (var i = 0; i < Level.all.length; i++) (Level.all[i].name, r.levelCounts[i].toDouble(), _levelColor(i)),
             ])),
             pw.SizedBox(width: 6),
             pw.Expanded(
@@ -1124,7 +1132,7 @@ Future<Uint8List> buildResultsPdf({
                               style: const pw.TextStyle(fontSize: 7.5),
                             ),
                           ),
-                          pw.Expanded(child: k.hbar(s.count == 0 ? 0 : r.levelCounts[i] / s.count, _levelColors[i])),
+                          pw.Expanded(child: k.hbar(s.count == 0 ? 0 : r.levelCounts[i] / s.count, _levelColor(i))),
                           pw.SizedBox(
                             width: 24,
                             child: pw.Text(
@@ -1868,21 +1876,6 @@ pw.Widget _pieBox(String title, List<(String, double, PdfColor)> data, {bool don
 }
 
 /// Paylaşılan her belgenin altındaki uygulama ve indirme bilgisi.
-pw.Widget downloadNote() => pw.Padding(
-      padding: const pw.EdgeInsets.only(top: 3),
-      child: pw.UrlLink(
-        destination: downloadUrl,
-        child: pw.RichText(
-          textAlign: pw.TextAlign.center,
-          text: pw.TextSpan(style: const pw.TextStyle(fontSize: 7, color: _muted), children: [
-            pw.TextSpan(text: tr('Netice'), style: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: _ink)),
-            pw.TextSpan(text: tr(' · Optik kâğıtları telefonla okutun, sonuç ve karne saniyeler içinde · Ücretsiz indirin: ')),
-            pw.TextSpan(text: downloadLabel, style: const pw.TextStyle(color: _emerald, decoration: pw.TextDecoration.underline)),
-          ]),
-        ),
-      ),
-    );
-
 // Sağdan sola metin düzenleyicisi "…" karakterinde hata veriyor; Arapçada üç nokta kullanılır.
 String _short(String s, [int n = 14]) => s.length <= n ? s : '${s.substring(0, n - 1)}${L10n.rtl ? '...' : '…'}';
 

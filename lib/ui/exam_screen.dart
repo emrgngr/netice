@@ -1168,7 +1168,13 @@ class _ChartsPanel extends StatefulWidget {
 class _ChartsPanelState extends State<_ChartsPanel> {
   int _tab = 0;
   static List<String> get _tabs => [tr('Düzeyler'), tr('Cevaplar'), tr('Geçme'), tr('Güçlük')];
-  static const _levelColors = [NColors.emerald, Color(0xFF34D399), NColors.amber, Color(0xFFF59E0B), NColors.coral];
+  static const _levelPalette = [NColors.emerald, Color(0xFF34D399), NColors.amber, Color(0xFFF59E0B), NColors.coral];
+
+  /// Düzey sayısı not sistemine göre değişir; renkler yeşilden kırmızıya yayılır.
+  static Color _levelColor(int i) {
+    final n = Level.all.length;
+    return _levelPalette[n <= 1 ? 0 : (i * (_levelPalette.length - 1) / (n - 1)).round()];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1181,7 +1187,7 @@ class _ChartsPanelState extends State<_ChartsPanel> {
     final chart = switch (_tab) {
       0 => DonutChart(key: const ValueKey(0), pie: true, centerLabel: tr('öğrenci'), unit: tr(' kişi'), slices: [
           for (var i = 0; i < Level.all.length; i++)
-            Slice(Level.all[i].name, rep.levelCounts[i].toDouble(), _levelColors[i],
+            Slice(Level.all[i].name, rep.levelCounts[i].toDouble(), _levelColor(i),
                 detail: tr('{0}: tam puanın %{1} ve üzeri', [Level.all[i].name, Level.all[i].minPct.round()])),
         ]),
       1 => DonutChart(key: const ValueKey(1), centerLabel: 'cevap', slices: [
