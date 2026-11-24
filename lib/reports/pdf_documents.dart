@@ -10,6 +10,7 @@ import 'package:pdf/widgets.dart' as pw;
 
 import '../core/models.dart';
 import '../core/insights.dart';
+import '../core/overview.dart';
 import '../core/progress.dart';
 import '../core/report.dart';
 import '../core/scoring.dart';
@@ -2105,5 +2106,129 @@ Future<Uint8List> buildTermCardsPdf(TermReport t, {SchoolInfo school = const Sch
       ]),
     ));
   }
+  return doc.save();
+}
+
+
+/// Genel istatistik raporu: tüm sınıflar ve sınava giren tüm öğrenciler.
+Future<Uint8List> buildOverviewPdf(Overview ov, {SchoolInfo school = const SchoolInfo(), String filter = ''}) async {
+  final fonts = await _Fonts.load(school.fontFamily);
+  final k = _Kit(ov.exams.first, school,
+      headerInfo: tr('Genel istatistik · {0}', [filter]),
+      docTitle: tr('Genel İstatistik Raporu'),
+      classLine: SchoolInfo.upper(ov.classes.map((c) => c.name).join(', ')));
+  final doc = pw.Document(theme: fonts.theme, title: tr('Genel istatistik'), author: tr('Netice'));
+  String p(double v) => L10n.percent(v.round());
+  final d = ov.dist;
+  doc.addPage(pw.MultiPage(
+    textDirection: _dir,
+    pageFormat: PdfPageFormat.a4,
+    margin: const pw.EdgeInsets.fromLTRB(36, 30, 36, 30),
+    header: (ctx) => k.header(ctx),
+    footer: k.footer,
+    build: (ctx) => [
+      k.title(tr('Genel istatistik'), filter),
+      k.grid([
+        k.statBox(tr('Genel başarı'), p(d.mean), hint: tr('Medyan {0}', [p(d.median)]), color: _emerald),
+        k.statBox(tr('Sınav'), '${ov.exams.length}', hint: tr('{0} kâğıt', [ov.sheets])),
+        k.statBox(tr('Öğrenci'), '${ov.participants}',
+            hint: ov.participation == null ? null : tr('Katılım {0}', [p(ov.participation! * 100)])),
+        k.statBox(tr('Geçme oranı'), _pct(ov.passRate)),
+        k.statBox(tr('Std. sapma'), _f1(d.std)),
+        k.statBox(tr('En yüksek'), p(d.max), hint: tr('En düşük {0}', [p(d.min)])),
+        k.statBox(tr('Doğru oranı'), _pct(ov.correctRate),
+            hint: tr('Yanlış {0} · boş {1}', [_pct(ov.wrongRate), _pct(ov.blankRate)])),
+        k.statBox(tr('Sınıf'), '${ov.classes.length}',
+            hint: ov.classes.length < 2 ? null : tr('Fark {0} puan', [ov.classGap.round()])),
+      ]),
+      pw.SizedBox(height: 4),
+      for (final c in ov.comments)
+        pw.Padding(
+          padding: const pw.EdgeInsets.only(bottom: 3),
+          child: pw.Text('• $c', style: const pw.TextStyle(fontSize: 8.5)),
+        ),
+      k.title(tr('Puan dağılımı (%)')),
+      k.barChart(
+        [for (final v in ov.histogram10) v.toDouble()],
+        [for (var i = 0; i < 10; i++) '${i * 10}'],
+        valueText: (v) => '${v.round()}',
+        colors: [for (var i = 0; i < 10; i++) i >= 8 ? _emerald : i >= 5 ? _ink : i >= 3 ? _amber : _coral],
+        height: 80,
+      ),
+      k.title(tr('Sınıf sıralaması')),
+      k.table(
+        [tr('Sıra'), tr('Sınıf'), tr('Sınav'), tr('Kâğıt'), tr('Ortalama'), tr('Medyan'), tr('Std.'), tr('Başarı'), tr('Katılım'), tr('Değişim')],
+        [
+          for (final (i, c) in ov.classes.indexed)
+            [
+              '${i + 1}',
+              c.name,
+              '${c.examCount}',
+              '${c.sheets}',
+              p(c.dist.mean),
+              p(c.dist.median),
+              _f1(c.dist.std),
+              _pct(c.passRate),
+              c.participation == null ? '–' : _pct(c.participation!),
+              c.trend == null ? '–' : '${c.trend! >= 0 ? '+' : '−'}${c.trend!.abs().round()}',
+            ]
+        ],
+        leftColumn: 1,
+      ),
+      k.title(tr('Başarı düzeyleri')),
+      k.table(
+        [for (final l in Level.all) l.name],
+        [
+          [for (final n in ov.levelCounts) '$n (${ov.sheets == 0 ? '–' : _pct(n / ov.sheets)})']
+        ],
+      ),
+      if (ov.students.isNotEmpty) ...[
+        k.title(tr('En başarılı öğrenciler'), tr('İlk {0} öğrenci', [math.min(15, ov.students.length)])),
+        k.table(
+          [tr('Sıra'), tr('Öğrenci'), tr('Sınıf'), tr('Sınav'), tr('Ortalama')],
+          [
+            for (final (i, s) in ov.top.take(15).indexed)
+              ['${i + 1}', s.student.fullName, s.student.className, '${s.count}', p(s.average)]
+          ],
+          leftColumn: 1,
+          widths: {1: const pw.FlexColumnWidth(3)},
+        ),
+      ],
+      if (ov.improved.isNotEmpty) ...[
+        k.title(tr('En çok gelişenler')),
+        k.table(
+          [tr('Öğrenci'), tr('Sınıf'), tr('İlk'), tr('Son'), tr('Değişim')],
+          [
+            for (final s in ov.improved.take(10))
+              [s.student.fullName, s.student.className, p(s.first), p(s.last), '+${s.change.round()}']
+          ],
+          leftColumn: 0,
+          widths: {0: const pw.FlexColumnWidth(3)},
+        ),
+      ],
+      if (ov.outcomes.isNotEmpty) ...[
+        k.title(tr('Kazanım başarısı (%)')),
+        k.table(
+          [tr('Kazanım'), tr('Sınav'), tr('Kâğıt'), tr('Başarı')],
+          [
+            for (final o in ov.outcomes) [o.code, '${o.exams}', '${o.students}', _pct(o.rate)]
+          ],
+          leftColumn: 0,
+          widths: {0: const pw.FlexColumnWidth(4)},
+        ),
+      ],
+      k.title(tr('Sınavlar')),
+      k.table(
+        [tr('Tarih'), tr('Sınav'), tr('Sınıf'), tr('Kişi'), tr('Ortalama'), tr('Başarı')],
+        [
+          for (final x in ov.timeline)
+            [L10n.date(x.exam.date), x.exam.name, x.exam.className, '${x.n}', p(x.mean), _pct(x.passRate)]
+        ],
+        leftColumn: 1,
+        widths: {1: const pw.FlexColumnWidth(3)},
+      ),
+      k.signatures(),
+    ],
+  ));
   return doc.save();
 }

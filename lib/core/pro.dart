@@ -20,6 +20,7 @@ enum ProFeature {
   parentShare('Karneyi veliye gönder', 'WhatsApp veya e-postayla tek dokunuşla'),
   cloudBackup('Google Drive yedeği', 'Kendi hesabınıza her gün otomatik yedek'),
   advancedCharts('Gelişmiş grafikler', 'Pasta, madde haritası, puan yayılımı, kazanım radarı'),
+  detailedStats('Ayrıntılı sınıf istatistikleri', 'Sınıf sınıf yayılım ve düzeyler, gelişim çizgileri, öğrenci sıralamaları'),
   officialHeader('Resmi yazı başlığı', 'Kurumunuzun resmi başlığı ve imza alanı'),
   commonExam('Ortak sınav', 'Tüm şubeler aynı sınavı okur, sonuçlar tek raporda birleşir'),
   adminPanel('Kurum yönetici paneli', 'Tüm şubeler, sınavlar ve risk altındaki öğrenciler tek ekranda'),
