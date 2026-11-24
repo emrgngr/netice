@@ -330,5 +330,17 @@
  "İçindekiler": "المحتويات",
  "Şekil, grafik ya da tabloyu kameradan, galeriden veya dosyadan ekleyin.": "أضف شكلا أو رسما بيانيا أو جدولا من الكاميرا أو المعرض أو ملف.",
  "Şık sayısını 2 ile 5 arasında seçin. Doğru şıkkın harfine dokunun.": "اختر من 2 إلى 5 خيارات. المس حرف الخيار الصحيح.",
- "Şıklar": "الخيارات"
+ "Şıklar": "الخيارات",
+ "Aynı sınavı birden çok şubede yaptıysanız ana ekrandaki Sınıf sınıf analiz şubeleri yan yana koyar.": "إذا أجريت الاختبار نفسه في عدة صفوف، فإن تحليل الصفوف في الشاشة الرئيسية يضع الصفوف جنبا إلى جنب.",
+ "Aynı adlı sınavlar üstte hızlı seçim olarak gelir. İsterseniz sınavları tek tek işaretleyin.": "تظهر الاختبارات التي تحمل الاسم نفسه في الأعلى كاختيار سريع. ويمكنك أيضا تحديد الاختبارات واحدا واحدا.",
+ "En başarılı sınıf, genel ortalama, geçme oranı ve sınıflar arası fark bir bakışta görünür.": "أفضل صف والمعدل العام ونسبة النجاح والفرق بين الصفوف في لمحة واحدة.",
+ "Tüm sınıfların sonuçlarını bir arada görmek için bu düğmeye dokunun.": "اضغط هذا الزر لترى نتائج جميع الصفوف معا.",
+ "Karşılaştırmayı PDF olarak alın; önizlemeden paylaşabilir ya da yazdırabilirsiniz.": "احصل على المقارنة بصيغة PDF، ويمكنك مشاركتها أو طباعتها من المعاينة.",
+ "Puan yayılımı, başarı düzeyleri, en çok ayrışan sorular ve sınıf birincileri Netice Pro ile açılır.": "يفتح Netice Pro توزيع الدرجات ومستويات الإنجاز والأسئلة الأكثر تباينا وأوائل كل صف.",
+ "Genel istatistik, tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını tek ekranda toplar.": "تجمع الإحصاءات العامة نتائج جميع الصفوف وكل الطلاب الذين أدوا الاختبار في شاشة واحدة.",
+ "Tüm zamanlar, son 30 gün ya da son 90 gün arasından seçin.": "اختر كل الأوقات أو آخر 30 يوما أو آخر 90 يوما.",
+ "Hepsini birlikte görün ya da yalnız istediğiniz sınıfları seçin.": "اعرض جميع الصفوف معا أو اختر الصفوف التي تريدها فقط.",
+ "Ortalama başarı, sınav, kâğıt, öğrenci ve sınıf sayısı ile geçme oranı.": "متوسط النجاح وعدد الاختبارات والأوراق والطلاب والصفوف ونسبة النجاح.",
+ "Bütün istatistiği rapor olarak alıp paylaşın.": "احصل على الإحصاءات كلها في تقرير وشاركه.",
+ "Sınıf sıralaması ve özet tablolar herkese açıktır. Puan dağılımı, gelişim çizgileri ve öğrenci listeleri Pro ile gelir.": "ترتيب الصفوف والجداول الملخصة متاحة للجميع. أما توزيع الدرجات وخطوط التقدم وقوائم الطلاب فتأتي مع Pro."
 }

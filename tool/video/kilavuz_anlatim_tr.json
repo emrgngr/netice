@@ -25,5 +25,7 @@
  "k_not_sistemi": "Ayarlar'daki Not sistemi ekranından ülkenizin not sistemini seçin ya da düzeyleri kendiniz yazın. Karneler ve raporlar bu sisteme göre hazırlanır.",
  "k_pro": "Profil'deki Netice Pro ekranında planları görürsünüz. Pro'da ayda elli, Pro artı Yapay Zekâ'da ayda üç yüz yapay zekâ sorusu vardır. Sınav dönemi paketi üç aylıktır ve kendiliğinden yenilenmez.",
  "k_pro_alt": "Aylık soru hakkınız bitince ek soru paketi alabilirsiniz; süresi dolmaz. Aynı okuldan beş ve daha fazla öğretmen birlikte alırsa okul paketiyle indirim kazanır.",
- "k_okul": "Okul paketi ekranında öğretmen sayısını girin, indirimli fiyatı görün ve Okulunuza teklif isteyin'e dokunun. Onaylanınca okulunuza kurum kodu verilir."
+ "k_okul": "Okul paketi ekranında öğretmen sayısını girin, indirimli fiyatı görün ve Okulunuza teklif isteyin'e dokunun. Onaylanınca okulunuza kurum kodu verilir.",
+ "k_sinif_analiz": "Aynı sınavı birden çok şubede yaptıysanız ana ekrandaki Sınıf sınıf analiz şubeleri yan yana gösterir. Öne çıkanlar, genel ortalamaya göre fark ve soru soru doğru oranları burada; sağ üstteki düğmeyle PDF rapor alırsınız.",
+ "k_genel_istatistik": "Genel istatistik tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir. Dönemi ve sınıfları seçerek daraltın, raporu PDF olarak paylaşın."
 }

@@ -25,5 +25,7 @@
  "k_not_sistemi": "In Impostazioni, schermata Sistema di valutazione, scegli il sistema del tuo paese o scrivi tu i livelli. Pagelle e report seguono quel sistema.",
  "k_pro": "La schermata Netice Pro nel profilo mostra i piani. Pro include cinquanta domande IA al mese, Pro più IA trecento. Il pacchetto periodo esami dura tre mesi e non si rinnova.",
  "k_pro_alt": "Quando la quota mensile finisce, puoi acquistare un pacchetto di domande extra che non scade. Se cinque o più docenti della stessa scuola acquistano insieme, il pacchetto scuola dà loro uno sconto.",
- "k_okul": "Nella schermata del pacchetto scuola inserisci il numero di docenti, guarda il prezzo scontato e tocca Richiedi un preventivo per la tua scuola. Una volta approvato, la scuola riceve un codice d'istituto."
+ "k_okul": "Nella schermata del pacchetto scuola inserisci il numero di docenti, guarda il prezzo scontato e tocca Richiedi un preventivo per la tua scuola. Una volta approvato, la scuola riceve un codice d'istituto.",
+ "k_sinif_analiz": "Se hai dato la stessa verifica in più classi, l'Analisi per classe nella schermata iniziale le mostra una accanto all'altra. Qui trovi i punti salienti, lo scarto dalla media generale e la percentuale di risposte corrette per domanda; con il pulsante in alto a destra ottieni un report PDF.",
+ "k_genel_istatistik": "Le Statistiche generali mostrano insieme i risultati di tutte le classi e di tutti gli studenti che hanno svolto una verifica. Restringi per periodo e classe e condividi il report in PDF."
 }

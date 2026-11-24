@@ -25,5 +25,7 @@
  "k_not_sistemi": "Dans Réglages, écran Système de notation, choisissez le système de votre pays ou saisissez vous-même les niveaux. Bulletins et rapports suivent ce système.",
  "k_pro": "L'écran Netice Pro, dans Profil, présente les formules. Pro comprend cinquante questions IA par mois, Pro plus IA trois cents. Le pass période d'examens dure trois mois et ne se renouvelle pas.",
  "k_pro_alt": "Quand votre quota mensuel est épuisé, achetez un pack de questions supplémentaire qui n'expire pas. Si cinq enseignants ou plus d'une même école achètent ensemble, l'offre école leur donne une réduction.",
- "k_okul": "Sur l'écran de l'offre école, saisissez le nombre d'enseignants, voyez le prix réduit et touchez Demander un devis pour votre école. Une fois accepté, votre école reçoit un code d'établissement."
+ "k_okul": "Sur l'écran de l'offre école, saisissez le nombre d'enseignants, voyez le prix réduit et touchez Demander un devis pour votre école. Une fois accepté, votre école reçoit un code d'établissement.",
+ "k_sinif_analiz": "Si vous avez donné la même épreuve dans plusieurs classes, l'Analyse classe par classe de l'écran d'accueil les montre côte à côte. Vous y trouvez les points forts, l'écart à la moyenne générale et le taux de bonnes réponses par question ; le bouton en haut à droite donne un rapport PDF.",
+ "k_genel_istatistik": "Les Statistiques générales montrent ensemble les résultats de toutes les classes et de tous les élèves ayant passé une épreuve. Affinez par période et par classe, et partagez le rapport en PDF."
 }

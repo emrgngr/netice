@@ -25,5 +25,7 @@
  "k_not_sistemi": "Ayarlardakı Qiymətləndirmə sistemi ekranında ölkənizin sistemini seçin və ya səviyyələri özünüz yazın. Karnelər və hesabatlar bu sistemə görə hazırlanır.",
  "k_pro": "Profildəki Netice Pro ekranında planları görürsünüz. Pro-da ayda əlli, Pro üstəgəl Süni intellekt-də ayda üç yüz sual var. İmtahan dövrü paketi üç aylıqdır və avtomatik yenilənmir.",
  "k_pro_alt": "Aylıq limitiniz bitəndə müddəti bitməyən əlavə sual paketi ala bilərsiniz. Eyni məktəbdən beş və daha çox müəllim birlikdə alsa, məktəb paketi ilə endirim qazanır.",
- "k_okul": "Məktəb paketi ekranında müəllim sayını daxil edin, endirimli qiyməti görün və Məktəbiniz üçün təklif istəyin düyməsinə toxunun. Təsdiqlənəndə məktəbinizə qurum kodu verilir."
+ "k_okul": "Məktəb paketi ekranında müəllim sayını daxil edin, endirimli qiyməti görün və Məktəbiniz üçün təklif istəyin düyməsinə toxunun. Təsdiqlənəndə məktəbinizə qurum kodu verilir.",
+ "k_sinif_analiz": "Eyni imtahanı bir neçə sinifdə keçirmisinizsə, ana ekrandakı Sinif-sinif təhlil sinifləri yan-yana göstərir. Önə çıxanlar, ümumi ortadan fərq və sual-sual düzgün faizləri buradadır; yuxarı sağdakı düymə ilə PDF hesabat alırsınız.",
+ "k_genel_istatistik": "Ümumi statistika bütün siniflərin və imtahana girən bütün şagirdlərin nəticələrini birlikdə göstərir. Dövrü və sinifləri seçərək daraldın, hesabatı PDF kimi paylaşın."
 }

@@ -25,5 +25,7 @@
  "k_not_sistemi": "Na tela Sistema de notas, em Configurações, escolha o sistema de notas do seu país ou escreva você mesmo os níveis. Boletins e relatórios seguem esse sistema.",
  "k_pro": "Na tela Netice Pro, em Perfil, você vê os planos. O Pro tem cinquenta questões de inteligência artificial por mês, e o Pro mais Inteligência Artificial tem trezentas. O pacote de período de provas dura três meses e não se renova sozinho.",
  "k_pro_alt": "Quando acabar sua cota mensal, você pode comprar um pacote extra de questões, que não expira. Se cinco ou mais professores da mesma escola comprarem juntos, ganham desconto com o pacote escolar.",
- "k_okul": "Na tela do pacote escolar, informe o número de professores, veja o preço com desconto e toque em Pedir orçamento para sua escola. Após a aprovação, sua escola recebe um código de instituição."
+ "k_okul": "Na tela do pacote escolar, informe o número de professores, veja o preço com desconto e toque em Pedir orçamento para sua escola. Após a aprovação, sua escola recebe um código de instituição.",
+ "k_sinif_analiz": "Se você aplicou a mesma prova em várias turmas, a Análise por turma da tela inicial mostra as turmas lado a lado. Aqui estão os destaques, a diferença em relação à média geral e a taxa de acerto de cada questão; com o botão no canto superior direito você gera um relatório em PDF.",
+ "k_genel_istatistik": "As Estatísticas gerais mostram juntos os resultados de todas as turmas e de todos os alunos que fizeram prova. Filtre por período e turma e compartilhe o relatório em PDF."
 }

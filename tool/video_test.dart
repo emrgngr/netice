@@ -25,6 +25,8 @@ import 'package:netice/ui/bank/library_screen.dart';
 import 'package:netice/ui/bank/question_editor_screen.dart';
 import 'package:netice/ui/exam_screen.dart';
 import 'package:netice/ui/exam_settings_screen.dart';
+import 'package:netice/ui/compare_screen.dart';
+import 'package:netice/ui/general_stats_screen.dart';
 import 'package:netice/ui/grade_scale_screen.dart';
 import 'package:netice/ui/pro_screen.dart';
 import 'package:netice/ui/school_offer_screen.dart';
@@ -354,6 +356,16 @@ void main() {
       await settle();
       await tester.tap(find.text(tr('Çocuk / İlkokul')).last);
     });
+    // Sınıf sınıf analiz ve genel istatistik (bölüm videosu "report").
+    await scene('k_sinif_analiz', const CompareScreen(),
+        () => [find.byType(FilterChip), text(tr('Öne çıkanlar')), tip(tr('PDF rapor'))],
+        then: () async {
+          await reveal(find.text(tr('Öne çıkanlar')), lazy: true);
+          // Sınav seçimi de görünsün: biraz geri kaydır.
+          await tester.drag(find.byType(Scrollable).first, const Offset(0, 220));
+        });
+    await scene('k_genel_istatistik', const GeneralStatsScreen(),
+        () => [find.byType(ChoiceChip), find.textContaining(tr('GENEL BAŞARI')), tip(tr('PDF rapor'))]);
     // Not sistemi (bölüm videosu "report").
     await scene('k_not_sistemi', const GradeScaleScreen(),
         () => [text(tr('Hazır sistemler')), text(tr('Kendim yazacağım')), text(tr('Düzeyler'))],

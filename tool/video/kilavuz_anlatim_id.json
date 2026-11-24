@@ -25,5 +25,7 @@
  "k_not_sistemi": "Di layar Sistem penilaian pada Pengaturan, pilih sistem penilaian negara Anda atau tulis sendiri tingkatannya. Rapor dan laporan disiapkan sesuai sistem ini.",
  "k_pro": "Di layar Netice Pro pada Profil, Anda melihat paket-paketnya. Pro memberi lima puluh soal kecerdasan buatan per bulan, dan Pro plus AI memberi tiga ratus. Paket musim ujian berlaku tiga bulan dan tidak diperpanjang otomatis.",
  "k_pro_alt": "Jika kuota bulanan habis, Anda bisa membeli paket soal tambahan yang tidak kedaluwarsa. Jika lima guru atau lebih dari sekolah yang sama membeli bersama, mereka mendapat diskon paket sekolah.",
- "k_okul": "Di layar paket sekolah, masukkan jumlah guru, lihat harga diskonnya, lalu ketuk Minta penawaran untuk sekolah Anda. Setelah disetujui, sekolah Anda menerima kode lembaga."
+ "k_okul": "Di layar paket sekolah, masukkan jumlah guru, lihat harga diskonnya, lalu ketuk Minta penawaran untuk sekolah Anda. Setelah disetujui, sekolah Anda menerima kode lembaga.",
+ "k_sinif_analiz": "Jika Anda memberi ujian yang sama di beberapa kelas, Analisis per kelas di beranda menampilkannya berdampingan. Di sini ada sorotan, selisih dari rata-rata keseluruhan, dan persentase jawaban benar tiap soal; tombol di kanan atas menghasilkan laporan PDF.",
+ "k_genel_istatistik": "Statistik umum menampilkan hasil semua kelas dan semua siswa yang mengikuti ujian sekaligus. Saring menurut periode dan kelas, lalu bagikan laporannya dalam PDF."
 }

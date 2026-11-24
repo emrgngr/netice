@@ -330,5 +330,17 @@
  "İçindekiler": "目次",
  "Şekil, grafik ya da tabloyu kameradan, galeriden veya dosyadan ekleyin.": "図、グラフ、表をカメラ、ギャラリー、ファイルから追加します。",
  "Şık sayısını 2 ile 5 arasında seçin. Doğru şıkkın harfine dokunun.": "選択肢は2〜5個から選びます。正しい選択肢の記号をタップします。",
- "Şıklar": "選択肢"
+ "Şıklar": "選択肢",
+ "Aynı sınavı birden çok şubede yaptıysanız ana ekrandaki Sınıf sınıf analiz şubeleri yan yana koyar.": "同じテストを複数のクラスで行った場合、ホーム画面の「クラス別分析」でクラスを並べて比べられます。",
+ "Aynı adlı sınavlar üstte hızlı seçim olarak gelir. İsterseniz sınavları tek tek işaretleyin.": "同じ名前のテストは上部にクイック選択として表示されます。テストを1つずつ選ぶこともできます。",
+ "En başarılı sınıf, genel ortalama, geçme oranı ve sınıflar arası fark bir bakışta görünür.": "最も成績の良いクラス、全体平均、合格率、クラス間の差がひと目でわかります。",
+ "Tüm sınıfların sonuçlarını bir arada görmek için bu düğmeye dokunun.": "このボタンで全クラスの結果をまとめて見られます。",
+ "Karşılaştırmayı PDF olarak alın; önizlemeden paylaşabilir ya da yazdırabilirsiniz.": "比較をPDFで出力し、プレビューから共有や印刷ができます。",
+ "Puan yayılımı, başarı düzeyleri, en çok ayrışan sorular ve sınıf birincileri Netice Pro ile açılır.": "得点のばらつき、到達度、差が大きい設問、各クラスのトップはNetice Proで表示されます。",
+ "Genel istatistik, tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını tek ekranda toplar.": "全体統計は、すべてのクラスと受験したすべての生徒の結果を1つの画面にまとめます。",
+ "Tüm zamanlar, son 30 gün ya da son 90 gün arasından seçin.": "全期間、過去30日、過去90日から選べます。",
+ "Hepsini birlikte görün ya da yalnız istediğiniz sınıfları seçin.": "全クラスをまとめて見るか、見たいクラスだけを選びます。",
+ "Ortalama başarı, sınav, kâğıt, öğrenci ve sınıf sayısı ile geçme oranı.": "平均正答率、テスト数、答案数、生徒数、クラス数、合格率。",
+ "Bütün istatistiği rapor olarak alıp paylaşın.": "すべての統計をレポートとして出力し、共有できます。",
+ "Sınıf sıralaması ve özet tablolar herkese açıktır. Puan dağılımı, gelişim çizgileri ve öğrenci listeleri Pro ile gelir.": "クラス順位と集計表は誰でも無料です。得点分布、推移グラフ、生徒一覧はProで利用できます。"
 }

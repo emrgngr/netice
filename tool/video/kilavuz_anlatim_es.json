@@ -25,5 +25,7 @@
  "k_not_sistemi": "En Ajustes, pantalla Sistema de calificación, elige el sistema de tu país o escribe tú los niveles. Boletines e informes siguen ese sistema.",
  "k_pro": "La pantalla Netice Pro de tu perfil muestra los planes. Pro incluye cincuenta preguntas de IA al mes y Pro más IA, trescientas. El pase de época de exámenes dura tres meses y no se renueva.",
  "k_pro_alt": "Cuando se acabe tu cupo mensual, puedes comprar un paquete extra de preguntas que no caduca. Si cinco o más docentes del mismo centro compran juntos, el paquete para centros les da descuento.",
- "k_okul": "En la pantalla del paquete para centros, escribe el número de docentes, mira el precio con descuento y toca Solicitar presupuesto para tu centro. Cuando se aprueba, tu centro recibe un código institucional."
+ "k_okul": "En la pantalla del paquete para centros, escribe el número de docentes, mira el precio con descuento y toca Solicitar presupuesto para tu centro. Cuando se aprueba, tu centro recibe un código institucional.",
+ "k_sinif_analiz": "Si hiciste el mismo examen en varias clases, el Análisis por clase de la pantalla de inicio las muestra una al lado de la otra. Aquí tienes lo más destacado, la diferencia con la media general y el porcentaje de aciertos de cada pregunta; con el botón de arriba a la derecha obtienes un informe PDF.",
+ "k_genel_istatistik": "Las Estadísticas generales muestran juntos los resultados de todas las clases y de todos los alumnos que hicieron un examen. Filtra por periodo y clase, y comparte el informe en PDF."
 }

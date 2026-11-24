@@ -330,5 +330,17 @@
  "İçindekiler": "Содержание",
  "Şekil, grafik ya da tabloyu kameradan, galeriden veya dosyadan ekleyin.": "Добавьте рисунок, график или таблицу с камеры, из галереи или файла.",
  "Şık sayısını 2 ile 5 arasında seçin. Doğru şıkkın harfine dokunun.": "Выберите от 2 до 5 вариантов. Нажмите на букву верного.",
- "Şıklar": "Варианты ответа"
+ "Şıklar": "Варианты ответа",
+ "Aynı sınavı birden çok şubede yaptıysanız ana ekrandaki Sınıf sınıf analiz şubeleri yan yana koyar.": "Если вы проводили одну и ту же работу в нескольких классах, Анализ по классам на главном экране ставит классы рядом.",
+ "Aynı adlı sınavlar üstte hızlı seçim olarak gelir. İsterseniz sınavları tek tek işaretleyin.": "Работы с одинаковым названием показаны вверху для быстрого выбора. Можно отметить работы и по одной.",
+ "En başarılı sınıf, genel ortalama, geçme oranı ve sınıflar arası fark bir bakışta görünür.": "Лучший класс, общий средний результат, доля сдавших и разрыв между классами с первого взгляда.",
+ "Tüm sınıfların sonuçlarını bir arada görmek için bu düğmeye dokunun.": "Нажмите эту кнопку, чтобы увидеть результаты всех классов вместе.",
+ "Karşılaştırmayı PDF olarak alın; önizlemeden paylaşabilir ya da yazdırabilirsiniz.": "Получите сравнение в PDF; из предпросмотра его можно отправить или распечатать.",
+ "Puan yayılımı, başarı düzeyleri, en çok ayrışan sorular ve sınıf birincileri Netice Pro ile açılır.": "Разброс баллов, уровни успеваемости, самые различающиеся вопросы и лучшие ученики классов открываются с Netice Pro.",
+ "Genel istatistik, tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını tek ekranda toplar.": "Общая статистика собирает на одном экране результаты всех классов и всех учеников, писавших работы.",
+ "Tüm zamanlar, son 30 gün ya da son 90 gün arasından seçin.": "Выберите всё время, последние 30 или последние 90 дней.",
+ "Hepsini birlikte görün ya da yalnız istediğiniz sınıfları seçin.": "Смотрите все классы вместе или выберите только нужные.",
+ "Ortalama başarı, sınav, kâğıt, öğrenci ve sınıf sayısı ile geçme oranı.": "Средняя успеваемость, число работ, бланков, учеников и классов, а также доля сдавших.",
+ "Bütün istatistiği rapor olarak alıp paylaşın.": "Получите всю статистику в виде отчёта и поделитесь им.",
+ "Sınıf sıralaması ve özet tablolar herkese açıktır. Puan dağılımı, gelişim çizgileri ve öğrenci listeleri Pro ile gelir.": "Рейтинг классов и сводные таблицы доступны всем. Распределение баллов, линии динамики и списки учеников — с Pro."
 }

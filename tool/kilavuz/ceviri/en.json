@@ -330,5 +330,17 @@
  "İçindekiler": "Contents",
  "Şekil, grafik ya da tabloyu kameradan, galeriden veya dosyadan ekleyin.": "Add a figure, chart or table from the camera, gallery or a file.",
  "Şık sayısını 2 ile 5 arasında seçin. Doğru şıkkın harfine dokunun.": "Choose between 2 and 5 options. Tap the letter of the correct option.",
- "Şıklar": "Choices"
+ "Şıklar": "Choices",
+ "Aynı sınavı birden çok şubede yaptıysanız ana ekrandaki Sınıf sınıf analiz şubeleri yan yana koyar.": "If you gave the same exam in several classes, Class-by-class analysis on the home screen puts the classes side by side.",
+ "Aynı adlı sınavlar üstte hızlı seçim olarak gelir. İsterseniz sınavları tek tek işaretleyin.": "Exams with the same name appear at the top as a quick choice. You can also tick exams one by one.",
+ "En başarılı sınıf, genel ortalama, geçme oranı ve sınıflar arası fark bir bakışta görünür.": "The best class, overall average, pass rate and the gap between classes at a glance.",
+ "Tüm sınıfların sonuçlarını bir arada görmek için bu düğmeye dokunun.": "Tap this button to see the results of all classes together.",
+ "Karşılaştırmayı PDF olarak alın; önizlemeden paylaşabilir ya da yazdırabilirsiniz.": "Get the comparison as a PDF; share or print it from the preview.",
+ "Puan yayılımı, başarı düzeyleri, en çok ayrışan sorular ve sınıf birincileri Netice Pro ile açılır.": "Score spread, achievement levels, the most divergent questions and top students per class unlock with Netice Pro.",
+ "Genel istatistik, tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını tek ekranda toplar.": "General statistics brings together the results of all classes and every student who took an exam on one screen.",
+ "Tüm zamanlar, son 30 gün ya da son 90 gün arasından seçin.": "Choose all time, the last 30 days or the last 90 days.",
+ "Hepsini birlikte görün ya da yalnız istediğiniz sınıfları seçin.": "See all classes together or pick only the ones you want.",
+ "Ortalama başarı, sınav, kâğıt, öğrenci ve sınıf sayısı ile geçme oranı.": "Average success, number of exams, sheets, students and classes, and the pass rate.",
+ "Bütün istatistiği rapor olarak alıp paylaşın.": "Get all the statistics as a report and share it.",
+ "Sınıf sıralaması ve özet tablolar herkese açıktır. Puan dağılımı, gelişim çizgileri ve öğrenci listeleri Pro ile gelir.": "Class ranking and summary tables are free for everyone. Score distribution, progress lines and student lists come with Pro."
 }

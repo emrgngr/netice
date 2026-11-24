@@ -25,5 +25,7 @@
  "k_not_sistemi": "On the Grading system screen in Settings, choose your country's system or type the levels yourself. Report cards and reports follow that system.",
  "k_pro": "The Netice Pro screen in Profile shows the plans. Pro includes fifty AI questions a month, Pro plus AI three hundred. The exam season pass lasts three months and does not renew.",
  "k_pro_alt": "When your monthly allowance runs out, you can buy an extra question pack that never expires. If five or more teachers from the same school buy together, the school package gives them a discount.",
- "k_okul": "On the school package screen, enter the number of teachers, see the discounted price and tap Request a quote for your school. Once approved, your school receives an institution code."
+ "k_okul": "On the school package screen, enter the number of teachers, see the discounted price and tap Request a quote for your school. Once approved, your school receives an institution code.",
+ "k_sinif_analiz": "If you gave the same exam in several classes, Class-by-class analysis on the home screen puts them side by side. Highlights, the difference from the overall average and question-by-question correct rates are here; get a PDF report with the button at the top right.",
+ "k_genel_istatistik": "General statistics shows the results of all classes and every student who took an exam together. Narrow it down by period and class, and share the report as a PDF."
 }

@@ -330,5 +330,17 @@
  "İçindekiler": "Mündəricat",
  "Şekil, grafik ya da tabloyu kameradan, galeriden veya dosyadan ekleyin.": "Şəkil, qrafik və ya cədvəli kameradan, qalereyadan və ya fayldan əlavə edin.",
  "Şık sayısını 2 ile 5 arasında seçin. Doğru şıkkın harfine dokunun.": "Variant sayını 2 ilə 5 arasında seçin. Düz variantın hərfinə toxunun.",
- "Şıklar": "Variantlar"
+ "Şıklar": "Variantlar",
+ "Aynı sınavı birden çok şubede yaptıysanız ana ekrandaki Sınıf sınıf analiz şubeleri yan yana koyar.": "Eyni imtahanı bir neçə sinifdə keçirmisinizsə, ana ekrandakı Sinif-sinif təhlil sinifləri yan-yana qoyur.",
+ "Aynı adlı sınavlar üstte hızlı seçim olarak gelir. İsterseniz sınavları tek tek işaretleyin.": "Eyni adlı imtahanlar yuxarıda sürətli seçim kimi görünür. İstəsəniz imtahanları bir-bir işarələyin.",
+ "En başarılı sınıf, genel ortalama, geçme oranı ve sınıflar arası fark bir bakışta görünür.": "Ən uğurlu sinif, ümumi orta, keçid faizi və siniflər arası fərq bir baxışda görünür.",
+ "Tüm sınıfların sonuçlarını bir arada görmek için bu düğmeye dokunun.": "Bütün siniflərin nəticələrini birlikdə görmək üçün bu düyməyə toxunun.",
+ "Karşılaştırmayı PDF olarak alın; önizlemeden paylaşabilir ya da yazdırabilirsiniz.": "Müqayisəni PDF kimi alın; önizləmədən paylaşa və ya çap edə bilərsiniz.",
+ "Puan yayılımı, başarı düzeyleri, en çok ayrışan sorular ve sınıf birincileri Netice Pro ile açılır.": "Balların yayılımı, uğur səviyyələri, ən çox fərqlənən suallar və sinif birinciləri Netice Pro ilə açılır.",
+ "Genel istatistik, tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını tek ekranda toplar.": "Ümumi statistika bütün siniflərin və imtahana girən bütün şagirdlərin nəticələrini bir ekranda toplayır.",
+ "Tüm zamanlar, son 30 gün ya da son 90 gün arasından seçin.": "Bütün dövrlər, son 30 gün və ya son 90 gün arasından seçin.",
+ "Hepsini birlikte görün ya da yalnız istediğiniz sınıfları seçin.": "Hamısını birlikdə görün və ya yalnız istədiyiniz sinifləri seçin.",
+ "Ortalama başarı, sınav, kâğıt, öğrenci ve sınıf sayısı ile geçme oranı.": "Orta uğur, imtahan, vərəq, şagird və sinif sayı ilə keçid faizi.",
+ "Bütün istatistiği rapor olarak alıp paylaşın.": "Bütün statistikanı hesabat kimi alıb paylaşın.",
+ "Sınıf sıralaması ve özet tablolar herkese açıktır. Puan dağılımı, gelişim çizgileri ve öğrenci listeleri Pro ile gelir.": "Sinif sıralaması və xülasə cədvəlləri hamı üçün açıqdır. Bal paylanması, inkişaf xətləri və şagird siyahıları Pro ilə gəlir."
 }

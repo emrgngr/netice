@@ -28,6 +28,8 @@ import 'package:netice/ui/bank/library_screen.dart';
 import 'package:netice/ui/bank/note_screens.dart';
 import 'package:netice/ui/bank/question_editor_screen.dart';
 import 'package:netice/ui/exam_settings_screen.dart';
+import 'package:netice/ui/compare_screen.dart';
+import 'package:netice/ui/general_stats_screen.dart';
 import 'package:netice/ui/grade_scale_screen.dart';
 import 'package:netice/ui/help_screen.dart';
 import 'package:netice/ui/home_screen.dart';
@@ -310,6 +312,18 @@ void main() {
     await scene('17_donem', const TermScreen(), () => {
           'sec': find.byType(Checkbox).first,
           'olustur': find.byType(FilledButton).first,
+        });
+    await scene('43_sinif_analiz', const CompareScreen(), () => {
+          'sec': find.byType(FilterChip).first,
+          'one': text(tr('Öne çıkanlar')),
+          'genel': tip(tr('Genel istatistik')),
+          'pdf': tip(tr('PDF rapor')),
+        }, then: () => scrollTo(find.text(tr('Öne çıkanlar')).first, center: 300));
+    await scene('44_genel_istatistik', const GeneralStatsScreen(), () => {
+          'donem': find.byType(ChoiceChip).first,
+          'sinif': find.byType(FilterChip).first,
+          'basari': find.textContaining(tr('GENEL BAŞARI')).first,
+          'pdf': tip(tr('PDF rapor')),
         });
 
     // 7. Soru bankası ve kitapçık

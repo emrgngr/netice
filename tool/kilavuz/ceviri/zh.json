@@ -330,5 +330,17 @@
  "İçindekiler": "目录",
  "Şekil, grafik ya da tabloyu kameradan, galeriden veya dosyadan ekleyin.": "从相机、相册或文件添加图形、图表或表格。",
  "Şık sayısını 2 ile 5 arasında seçin. Doğru şıkkın harfine dokunun.": "选项数可选 2 至 5 个。点正确选项的字母。",
- "Şıklar": "选项"
+ "Şıklar": "选项",
+ "Aynı sınavı birden çok şubede yaptıysanız ana ekrandaki Sınıf sınıf analiz şubeleri yan yana koyar.": "如果同一场考试在多个班级进行，主页上的“分班分析”会把各班并排比较。",
+ "Aynı adlı sınavlar üstte hızlı seçim olarak gelir. İsterseniz sınavları tek tek işaretleyin.": "同名考试会显示在顶部，方便快速选择。也可以逐个勾选考试。",
+ "En başarılı sınıf, genel ortalama, geçme oranı ve sınıflar arası fark bir bakışta görünür.": "最佳班级、总体平均分、及格率和班级之间的差距一目了然。",
+ "Tüm sınıfların sonuçlarını bir arada görmek için bu düğmeye dokunun.": "点这个按钮可以一起查看所有班级的成绩。",
+ "Karşılaştırmayı PDF olarak alın; önizlemeden paylaşabilir ya da yazdırabilirsiniz.": "将对比结果导出为 PDF，可在预览中分享或打印。",
+ "Puan yayılımı, başarı düzeyleri, en çok ayrışan sorular ve sınıf birincileri Netice Pro ile açılır.": "分数离散度、成绩等级、差异最大的题目和各班第一名需开通 Netice Pro。",
+ "Genel istatistik, tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını tek ekranda toplar.": "总体统计把所有班级和所有参加考试的学生的成绩汇总在一个屏幕上。",
+ "Tüm zamanlar, son 30 gün ya da son 90 gün arasından seçin.": "可选择全部时间、最近 30 天或最近 90 天。",
+ "Hepsini birlikte görün ya da yalnız istediğiniz sınıfları seçin.": "可以一起查看所有班级，也可以只选择需要的班级。",
+ "Ortalama başarı, sınav, kâğıt, öğrenci ve sınıf sayısı ile geçme oranı.": "平均得分率、考试数、答题卡数、学生数、班级数和及格率。",
+ "Bütün istatistiği rapor olarak alıp paylaşın.": "将全部统计导出为报告并分享。",
+ "Sınıf sıralaması ve özet tablolar herkese açıktır. Puan dağılımı, gelişim çizgileri ve öğrenci listeleri Pro ile gelir.": "班级排名和汇总表对所有人免费。分数分布、进步曲线和学生名单需开通 Pro。"
 }

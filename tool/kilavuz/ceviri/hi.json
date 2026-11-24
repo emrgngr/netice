@@ -328,5 +328,17 @@
  "İçindekiler": "विषय-सूची",
  "Şekil, grafik ya da tabloyu kameradan, galeriden veya dosyadan ekleyin.": "कैमरा, गैलरी या फ़ाइल से चित्र, ग्राफ़ या तालिका जोड़ें।",
  "Şık sayısını 2 ile 5 arasında seçin. Doğru şıkkın harfine dokunun.": "2 से 5 विकल्प चुनें। सही विकल्प के अक्षर पर टैप करें।",
- "Şıklar": "विकल्प"
+ "Şıklar": "विकल्प",
+ "Aynı sınavı birden çok şubede yaptıysanız ana ekrandaki Sınıf sınıf analiz şubeleri yan yana koyar.": "अगर आपने एक ही परीक्षा कई कक्षाओं में ली है, तो होम स्क्रीन का कक्षा-वार विश्लेषण कक्षाओं को साथ-साथ रखता है।",
+ "Aynı adlı sınavlar üstte hızlı seçim olarak gelir. İsterseniz sınavları tek tek işaretleyin.": "एक ही नाम वाली परीक्षाएँ ऊपर तुरंत चुनने के लिए दिखती हैं। आप परीक्षाओं को एक-एक करके भी चुन सकते हैं।",
+ "En başarılı sınıf, genel ortalama, geçme oranı ve sınıflar arası fark bir bakışta görünür.": "सबसे अच्छी कक्षा, कुल औसत, उत्तीर्ण दर और कक्षाओं के बीच का अंतर एक नज़र में।",
+ "Tüm sınıfların sonuçlarını bir arada görmek için bu düğmeye dokunun.": "सभी कक्षाओं के परिणाम एक साथ देखने के लिए यह बटन दबाएँ।",
+ "Karşılaştırmayı PDF olarak alın; önizlemeden paylaşabilir ya da yazdırabilirsiniz.": "तुलना को PDF में लें; प्रीव्यू से उसे शेयर या प्रिंट कर सकते हैं।",
+ "Puan yayılımı, başarı düzeyleri, en çok ayrışan sorular ve sınıf birincileri Netice Pro ile açılır.": "अंकों का फैलाव, उपलब्धि स्तर, सबसे अधिक अंतर वाले प्रश्न और हर कक्षा के टॉपर Netice Pro से खुलते हैं।",
+ "Genel istatistik, tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını tek ekranda toplar.": "सामान्य आँकड़े सभी कक्षाओं और परीक्षा देने वाले सभी छात्रों के परिणाम एक ही स्क्रीन पर लाते हैं।",
+ "Tüm zamanlar, son 30 gün ya da son 90 gün arasından seçin.": "पूरा समय, पिछले 30 दिन या पिछले 90 दिन में से चुनें।",
+ "Hepsini birlikte görün ya da yalnız istediğiniz sınıfları seçin.": "सभी कक्षाएँ एक साथ देखें या सिर्फ़ अपनी चुनी हुई कक्षाएँ।",
+ "Ortalama başarı, sınav, kâğıt, öğrenci ve sınıf sayısı ile geçme oranı.": "औसत सफलता, परीक्षाओं, पत्रकों, छात्रों और कक्षाओं की संख्या और उत्तीर्ण दर।",
+ "Bütün istatistiği rapor olarak alıp paylaşın.": "सारे आँकड़े रिपोर्ट के रूप में लें और शेयर करें।",
+ "Sınıf sıralaması ve özet tablolar herkese açıktır. Puan dağılımı, gelişim çizgileri ve öğrenci listeleri Pro ile gelir.": "कक्षाओं की रैंकिंग और सारांश तालिकाएँ सबके लिए मुफ़्त हैं। अंकों का वितरण, प्रगति रेखाएँ और छात्र सूचियाँ Pro के साथ मिलती हैं।"
 }

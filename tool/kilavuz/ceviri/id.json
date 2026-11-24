@@ -328,5 +328,17 @@
  "İçindekiler": "Daftar isi",
  "Şekil, grafik ya da tabloyu kameradan, galeriden veya dosyadan ekleyin.": "Tambahkan gambar, grafik, atau tabel dari kamera, galeri, atau file.",
  "Şık sayısını 2 ile 5 arasında seçin. Doğru şıkkın harfine dokunun.": "Pilih 2 sampai 5 pilihan jawaban. Ketuk huruf jawaban yang benar.",
- "Şıklar": "Pilihan"
+ "Şıklar": "Pilihan",
+ "Aynı sınavı birden çok şubede yaptıysanız ana ekrandaki Sınıf sınıf analiz şubeleri yan yana koyar.": "Jika Anda memberi ujian yang sama di beberapa kelas, Analisis per kelas di beranda menyandingkan kelas-kelas itu.",
+ "Aynı adlı sınavlar üstte hızlı seçim olarak gelir. İsterseniz sınavları tek tek işaretleyin.": "Ujian dengan nama yang sama muncul di atas sebagai pilihan cepat. Anda juga bisa mencentang ujian satu per satu.",
+ "En başarılı sınıf, genel ortalama, geçme oranı ve sınıflar arası fark bir bakışta görünür.": "Kelas terbaik, rata-rata keseluruhan, tingkat kelulusan, dan selisih antarkelas dalam sekali lihat.",
+ "Tüm sınıfların sonuçlarını bir arada görmek için bu düğmeye dokunun.": "Ketuk tombol ini untuk melihat hasil semua kelas sekaligus.",
+ "Karşılaştırmayı PDF olarak alın; önizlemeden paylaşabilir ya da yazdırabilirsiniz.": "Dapatkan perbandingan dalam PDF; dari pratinjau Anda bisa membagikan atau mencetaknya.",
+ "Puan yayılımı, başarı düzeyleri, en çok ayrışan sorular ve sınıf birincileri Netice Pro ile açılır.": "Sebaran nilai, tingkat capaian, soal yang paling membedakan, dan juara tiap kelas terbuka dengan Netice Pro.",
+ "Genel istatistik, tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını tek ekranda toplar.": "Statistik umum mengumpulkan hasil semua kelas dan semua siswa yang mengikuti ujian dalam satu layar.",
+ "Tüm zamanlar, son 30 gün ya da son 90 gün arasından seçin.": "Pilih sepanjang waktu, 30 hari terakhir, atau 90 hari terakhir.",
+ "Hepsini birlikte görün ya da yalnız istediğiniz sınıfları seçin.": "Lihat semua kelas sekaligus atau pilih hanya kelas yang Anda inginkan.",
+ "Ortalama başarı, sınav, kâğıt, öğrenci ve sınıf sayısı ile geçme oranı.": "Rata-rata keberhasilan, jumlah ujian, lembar, siswa, dan kelas, serta tingkat kelulusan.",
+ "Bütün istatistiği rapor olarak alıp paylaşın.": "Dapatkan seluruh statistik sebagai laporan dan bagikan.",
+ "Sınıf sıralaması ve özet tablolar herkese açıktır. Puan dağılımı, gelişim çizgileri ve öğrenci listeleri Pro ile gelir.": "Peringkat kelas dan tabel ringkasan gratis untuk semua. Sebaran nilai, garis perkembangan, dan daftar siswa tersedia dengan Pro."
 }

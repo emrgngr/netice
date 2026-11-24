@@ -23,6 +23,8 @@
    "09_analiz",
    "10_ogrenci",
    "k_donem",
+   "k_sinif_analiz",
+   "k_genel_istatistik",
    "k_not_sistemi"
   ],
   "library": [

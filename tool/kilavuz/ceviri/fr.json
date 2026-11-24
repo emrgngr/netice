@@ -330,5 +330,17 @@
  "İçindekiler": "Sommaire",
  "Şekil, grafik ya da tabloyu kameradan, galeriden veya dosyadan ekleyin.": "Ajoutez une figure, un graphique ou un tableau depuis la caméra, la galerie ou un fichier.",
  "Şık sayısını 2 ile 5 arasında seçin. Doğru şıkkın harfine dokunun.": "Choisissez de 2 à 5 réponses. Touchez la lettre de la bonne réponse.",
- "Şıklar": "Réponses"
+ "Şıklar": "Réponses",
+ "Aynı sınavı birden çok şubede yaptıysanız ana ekrandaki Sınıf sınıf analiz şubeleri yan yana koyar.": "Si vous avez donné la même épreuve dans plusieurs classes, l'Analyse classe par classe de l'écran d'accueil les place côte à côte.",
+ "Aynı adlı sınavlar üstte hızlı seçim olarak gelir. İsterseniz sınavları tek tek işaretleyin.": "Les épreuves de même nom apparaissent en haut pour un choix rapide. Vous pouvez aussi les cocher une par une.",
+ "En başarılı sınıf, genel ortalama, geçme oranı ve sınıflar arası fark bir bakışta görünür.": "La meilleure classe, la moyenne générale, le taux de réussite et l'écart entre les classes en un coup d'œil.",
+ "Tüm sınıfların sonuçlarını bir arada görmek için bu düğmeye dokunun.": "Touchez ce bouton pour voir ensemble les résultats de toutes les classes.",
+ "Karşılaştırmayı PDF olarak alın; önizlemeden paylaşabilir ya da yazdırabilirsiniz.": "Obtenez la comparaison en PDF ; depuis l'aperçu, vous pouvez la partager ou l'imprimer.",
+ "Puan yayılımı, başarı düzeyleri, en çok ayrışan sorular ve sınıf birincileri Netice Pro ile açılır.": "La dispersion des notes, les niveaux de réussite, les questions les plus discriminantes et les premiers de chaque classe se débloquent avec Netice Pro.",
+ "Genel istatistik, tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını tek ekranda toplar.": "Les Statistiques générales réunissent sur un écran les résultats de toutes les classes et de tous les élèves ayant passé une épreuve.",
+ "Tüm zamanlar, son 30 gün ya da son 90 gün arasından seçin.": "Choisissez toute la période, les 30 derniers jours ou les 90 derniers jours.",
+ "Hepsini birlikte görün ya da yalnız istediğiniz sınıfları seçin.": "Affichez toutes les classes ensemble ou choisissez seulement celles que vous voulez.",
+ "Ortalama başarı, sınav, kâğıt, öğrenci ve sınıf sayısı ile geçme oranı.": "Réussite moyenne, nombre d'épreuves, de copies, d'élèves et de classes, et taux de réussite.",
+ "Bütün istatistiği rapor olarak alıp paylaşın.": "Obtenez toutes les statistiques sous forme de rapport et partagez-les.",
+ "Sınıf sıralaması ve özet tablolar herkese açıktır. Puan dağılımı, gelişim çizgileri ve öğrenci listeleri Pro ile gelir.": "Le classement des classes et les tableaux récapitulatifs sont gratuits. La répartition des notes, les courbes d'évolution et les listes d'élèves viennent avec Pro."
 }
