@@ -36,6 +36,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      # ElevenLabs aynı anda sınırlı istek kabul eder (fazlası 429).
+      max-parallel: 3
       matrix:
         dil: ${{ fromJson(needs.hazirlik.outputs.diller) }}
     steps:
