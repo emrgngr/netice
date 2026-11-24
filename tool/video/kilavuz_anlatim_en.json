@@ -5,11 +5,18 @@
   "print": "Printing forms",
   "scan": "Scanning sheets",
   "report": "Results and reports",
-  "data": "Your data"
+  "data": "Your data",
+  "library": "Question bank and booklets"
  },
  "k_sinav_ayar": "In Exam settings, set the full score, the passing score and whether wrong answers deduct. You can also add booklet types and written questions here.",
  "k_sablon": "If you use a publisher's or another company's form, create a template for it once under Other forms in Settings.",
  "k_kontrol": "Tap a scanned sheet. Unclear marks are shown with a yellow warning, and you can fix them with a tap.",
  "k_donem": "The term report combines the exams you choose into term grades and outcome report cards.",
- "k_yedek": "Netice works offline and keeps your data only on your device. When you change devices, use Save backup to file."
+ "k_yedek": "Netice works offline and keeps your data only on your device. When you change devices, use Save backup to file.",
+ "k_soru_kes": "Choose a PDF or photo of a book or practice test page. Draw a rectangle around the question, mark the correct answer and add it to the bank.",
+ "k_soru_yaz": "You can also write questions yourself. Choose the question type, add an image and tap the letter of the correct option.",
+ "k_notlar": "Keep your topic summaries and quick tips in the Notes tab. Quick tips for weak topics are added to student report cards automatically.",
+ "k_sihirbaz": "Open the wizard with New booklet. Pick questions from the bank, or give the number of questions and the difficulty mix and let Netice choose.",
+ "k_kitapcik_turu": "Create booklet versions from A to H and shuffle questions and options. Create exam sets up an exam ready for scanning.",
+ "k_banka_analiz": "The Analysis tab shows your bank's difficulty balance and topic coverage. As exams are scanned, it measures each question's real difficulty too."
 }

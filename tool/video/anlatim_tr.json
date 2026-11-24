@@ -11,6 +11,7 @@
  "09_analiz": "Analiz sekmesinden sınav raporunu ve öğrenci karnelerini PDF olarak alabilirsiniz.",
  "10_ogrenci": "Öğrenci sayfası gelişimi gösterir ve başarısı düşen öğrenciler için sizi uyarır.",
  "11_kurum": "Profil sekmesindeki Kurum bilgileri ekranında kurum türünüzü seçin. Resmi başlık sırasına valilik ya da üst kurumu, müdürlüğü ve kurum adını girin. Hazır örnek düğmesi POMEM, harp okulu ve üniversite gibi kurumların sırasını doldurur. Raporlarınız Resmî Yazışma Yönetmeliğine uygun başlıkla çıkar.",
+ "12_kutuphane": "Kütüphane'de kendi soru bankanızı kurun. Soruları kolay, orta ve zor diye ayırın; ders notlarınızı ve hap bilgilerinizi de burada saklayın.",
  "12_ayarlar": "Ayarlar'da uygulama dilini değiştirebilir, açılış melodisini kapatabilir ve verilerinizi yedekleyebilirsiniz.",
- "13_yardim": "Takıldığınızda Yardım sekmesindeki kılavuza ve sık sorulan sorulara bakın. İyi çalışmalar!"
+ "13_yardim": "Takıldığınızda ana sayfadaki soru işaretine dokunun; kılavuz, videolar ve sık sorulan sorular orada. İyi çalışmalar!"
 }

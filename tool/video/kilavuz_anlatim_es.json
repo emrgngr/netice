@@ -5,11 +5,18 @@
   "print": "Imprimir hojas",
   "scan": "Corregir hojas",
   "report": "Resultados e informes",
-  "data": "Tus datos"
+  "data": "Tus datos",
+  "library": "Banco de preguntas y cuadernillos"
  },
  "k_sinav_ayar": "En Ajustes del examen, fija la puntuación máxima, la nota de aprobado y si las incorrectas restan. Aquí también añades tipos de cuadernillo y preguntas escritas.",
  "k_sablon": "Si usas la hoja de una editorial o de otra empresa, crea una plantilla una sola vez en Ajustes, apartado Otras hojas.",
  "k_kontrol": "Toca una hoja corregida. Las marcas dudosas aparecen con un aviso amarillo y puedes corregirlas con un toque.",
  "k_donem": "El informe del trimestre combina los exámenes que elijas en notas del trimestre e informes por objetivos.",
- "k_yedek": "Netice funciona sin conexión y guarda tus datos solo en tu dispositivo. Al cambiar de dispositivo, usa Guardar copia en archivo."
+ "k_yedek": "Netice funciona sin conexión y guarda tus datos solo en tu dispositivo. Al cambiar de dispositivo, usa Guardar copia en archivo.",
+ "k_soru_kes": "Elija el PDF o la foto de una página de libro o simulacro. Dibuje un rectángulo alrededor de la pregunta, marque la respuesta correcta y añádala al banco.",
+ "k_soru_yaz": "También puede escribir las preguntas usted. Elija el tipo, añada una imagen y toque la letra de la opción correcta.",
+ "k_notlar": "Guarde sus resúmenes y datos clave en la pestaña Notas. Los datos clave de los temas flojos se añaden solos al boletín del alumno.",
+ "k_sihirbaz": "Abra el asistente con Nuevo cuadernillo. Elija preguntas del banco, o indique el número y la mezcla de dificultad y deje que Netice elija.",
+ "k_kitapcik_turu": "Cree modelos de la A a la H y mezcle preguntas y opciones. Con Crear examen queda listo para escanear.",
+ "k_banka_analiz": "La pestaña Análisis muestra el equilibrio de dificultad y la cobertura de temas. Con cada examen escaneado mide también la dificultad real."
 }

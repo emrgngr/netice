@@ -5,11 +5,18 @@
   "print": "Bögen drucken",
   "scan": "Bögen auswerten",
   "report": "Ergebnisse und Berichte",
-  "data": "Ihre Daten"
+  "data": "Ihre Daten",
+  "library": "Fragenbank und Aufgabenhefte"
  },
  "k_sinav_ayar": "In den Prüfungseinstellungen legen Sie die volle Punktzahl, die Bestehensgrenze und den Abzug für falsche Antworten fest. Hier fügen Sie auch Hefttypen und schriftliche Fragen hinzu.",
  "k_sablon": "Wenn Sie den Bogen eines Verlags oder einer anderen Firma verwenden, legen Sie dafür einmal eine Vorlage unter Andere Bögen in den Einstellungen an.",
  "k_kontrol": "Tippen Sie auf einen ausgewerteten Bogen. Unklare Markierungen werden gelb hervorgehoben, und Sie korrigieren sie mit einem Tippen.",
  "k_donem": "Der Halbjahresbericht fasst die gewählten Prüfungen zu Halbjahresnoten und Lernzielzeugnissen zusammen.",
- "k_yedek": "Netice arbeitet offline und speichert Ihre Daten nur auf Ihrem Gerät. Beim Gerätewechsel nutzen Sie Sicherung als Datei speichern."
+ "k_yedek": "Netice arbeitet offline und speichert Ihre Daten nur auf Ihrem Gerät. Beim Gerätewechsel nutzen Sie Sicherung als Datei speichern.",
+ "k_soru_kes": "Wählen Sie ein PDF oder Foto einer Buch- oder Testseite. Ziehen Sie ein Rechteck um die Frage, markieren Sie die richtige Antwort und fügen Sie sie hinzu.",
+ "k_soru_yaz": "Sie können Fragen auch selbst schreiben. Wählen Sie den Fragetyp, fügen Sie ein Bild ein und tippen Sie auf den Buchstaben der richtigen Antwort.",
+ "k_notlar": "Im Reiter Notizen verwalten Sie Zusammenfassungen und Merksätze. Merksätze zu schwachen Themen kommen automatisch ins Schülerzeugnis.",
+ "k_sihirbaz": "Öffnen Sie mit Neues Heft den Assistenten. Wählen Sie Fragen aus der Bank, oder geben Sie Anzahl und Schwierigkeit vor und lassen Sie Netice auswählen.",
+ "k_kitapcik_turu": "Erstellen Sie Heftvarianten von A bis H und mischen Sie Fragen und Antworten. Mit Prüfung erstellen ist alles bereit zum Scannen.",
+ "k_banka_analiz": "Der Reiter Analyse zeigt die Schwierigkeitsverteilung und die Themenabdeckung Ihrer Bank. Mit jeder Prüfung misst er auch die echte Schwierigkeit."
 }
