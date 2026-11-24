@@ -923,5 +923,8 @@
  "Özel not sistemi": "نظام تقديرات خاص",
  "Öğrencinin puanı, tam puanın yüzdesine göre bu düzeylere yerleşir. Raporlar, karneler ve düzey dağılımı bu sistemi kullanır.": "توضع درجة الطالب في هذه المستويات حسب نسبتها من الدرجة الكاملة. تستخدم التقارير والشهادات وتوزيع المستويات هذا النظام.",
  "Ücretsiz indirin": "حمله مجانا",
- "Optik kâğıtları telefonla okutun, sonuç ve karne saniyeler içinde.": "صحّح أوراق الإجابة بالهاتف، النتائج والشهادات في ثوانٍ."
+ "Optik kâğıtları telefonla okutun, sonuç ve karne saniyeler içinde.": "صحّح أوراق الإجابة بالهاتف، النتائج والشهادات في ثوانٍ.",
+ "Belgeden yazı okunamadı. Eski .doc dosyalarını Word'de .docx olarak kaydedip deneyin.": "تعذرت قراءة النص. احفظ ملفات ‎.doc القديمة في Word بصيغة ‎.docx وحاول مجددا.",
+ "PDF / Word / Excel'den": "من PDF / Word / Excel",
+ "Tüm sınıfları tek Excel dosyasında (.xlsx, eski .xls, .ods veya CSV) aktarabilirsiniz: okul no, ad, soyad ve sınıf sütunları otomatik tanınır, öğrenciler sınıflarına kendiliğinden ayrılır. Öğrencinin geçmişini görmek için üstüne, düzenlemek için kalem simgesine dokunun.": "يمكنك استيراد كل الصفوف بملف Excel واحد (.xlsx أو .xls القديم أو .ods أو CSV): تُتعرّف أعمدة رقم الطالب والاسم واللقب والصف تلقائيًا ويُوزَّع الطلاب على صفوفهم. المس طالبًا لرؤية سجله، أو رمز القلم للتعديل."
 }
