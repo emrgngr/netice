@@ -1978,5 +1978,9 @@
 "Seçilen sınıflarda kayıtlı öğrenci yok": "所选班级中没有学生",
 "{0} sınıf için aynı sınav açıldı. Sonuçlar ortak raporda birleşir.": "已为 {0} 个班级开设同一考试。结果会合并到共同报告中。",
 "{0} sınıf · {1} öğrenci · ad, sınıf ve numara basılı gelir": "{0} 个班级 · {1} 名学生 · 预印姓名、班级和学号",
-"Alt konu": "子主题"
+"Alt konu": "子主题",
+"Beklenen cevap": "参考答案",
+"Klasik sorular · cevap anahtarı": "主观题 · 答案",
+"Soru sayısı seçilen türlere yaklaşık eşit bölünür.": "题目数量会大致平均分配到所选题型。",
+"Soru türleri": "题型"
 }

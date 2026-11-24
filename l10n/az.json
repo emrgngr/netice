@@ -1978,5 +1978,9 @@
 "Seçilen sınıflarda kayıtlı öğrenci yok": "Seçilən siniflərdə qeydiyyatlı şagird yoxdur",
 "{0} sınıf için aynı sınav açıldı. Sonuçlar ortak raporda birleşir.": "{0} sinif üçün eyni imtahan açıldı. Nəticələr ümumi hesabatda birləşir.",
 "{0} sınıf · {1} öğrenci · ad, sınıf ve numara basılı gelir": "{0} sinif · {1} şagird · ad, sinif və nömrə çap olunur",
-"Alt konu": "Alt mövzu"
+"Alt konu": "Alt mövzu",
+"Beklenen cevap": "Gözlənilən cavab",
+"Klasik sorular · cevap anahtarı": "Açıq suallar · cavab açarı",
+"Soru sayısı seçilen türlere yaklaşık eşit bölünür.": "Sual sayı seçilən növlər arasında təxminən bərabər bölünür.",
+"Soru türleri": "Sual növləri"
 }

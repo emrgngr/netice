@@ -1978,5 +1978,9 @@
 "Seçilen sınıflarda kayıtlı öğrenci yok": "Aucun élève dans les classes choisies",
 "{0} sınıf için aynı sınav açıldı. Sonuçlar ortak raporda birleşir.": "Le même examen a été ouvert pour {0} classe(s). Les résultats sont réunis dans le rapport commun.",
 "{0} sınıf · {1} öğrenci · ad, sınıf ve numara basılı gelir": "{0} classes · {1} élèves · nom, classe et numéro imprimés",
-"Alt konu": "Sous-thème"
+"Alt konu": "Sous-thème",
+"Beklenen cevap": "Réponse attendue",
+"Klasik sorular · cevap anahtarı": "Questions ouvertes · corrigé",
+"Soru sayısı seçilen türlere yaklaşık eşit bölünür.": "Le nombre de questions est réparti à peu près également entre les types choisis.",
+"Soru türleri": "Types de questions"
 }
