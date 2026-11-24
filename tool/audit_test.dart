@@ -14,6 +14,7 @@ import 'package:netice/main.dart';
 import 'package:netice/ui/admin_panel_screen.dart';
 import 'package:netice/ui/compare_screen.dart';
 import 'package:netice/ui/exam_screen.dart';
+import 'package:netice/ui/general_stats_screen.dart';
 import 'package:netice/ui/exam_settings_screen.dart';
 import 'package:netice/ui/help_screen.dart';
 import 'package:netice/ui/home_screen.dart';
@@ -163,6 +164,7 @@ void main() {
     await screen('20_sablonlar', const TemplatesScreen());
     await screen('21_kurum_lisansi', const LicenseScreen());
     await screen('22_yonetici_paneli', const AdminPanelScreen());
+    await screen('23_genel_istatistik', const GeneralStatsScreen());
 
     FlutterError.onError = old;
     File('build/audit/$lang/sorunlar.txt').writeAsStringSync(problems.toSet().join('\n'));
