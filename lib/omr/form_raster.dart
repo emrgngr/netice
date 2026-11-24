@@ -41,7 +41,7 @@ class FormRaster {
     }
 
     final outline = img.ColorRgb8(120, 120, 120);
-    final r = _p(FormLayout.bubbleRadius);
+    final r = _p(layout.bubbleR);
     for (var q = 0; q < layout.questionCount; q++) {
       for (var c = 0; c < layout.choiceCount; c++) {
         final b = layout.answerBubble(q, c);

@@ -26,6 +26,10 @@ class ReadSpec {
 
   KidLayout get kidLayout =>
       KidLayout(questionCount: questions.clamp(1, KidLayout.maxQuestions), choiceCount: choices.clamp(2, 5));
+
+  /// Bu sınav çeyrek A4 kısa quiz formuyla da basılabilir mi?
+  bool get allowsMini =>
+      !kids && template == null && booklets == 1 && questions <= MiniFormLayout.maxQuestionsFor(digits);
 }
 
 /// Kâğıdı okur (Netice formu ya da şablon).
@@ -33,7 +37,9 @@ OmrResult readSheet(GrayImage g, ReadSpec s) {
   if (s.kids) return KidReader(s.kidLayout).read(g);
   final t = s.template;
   if (t == null) {
-    return OmrReader(FormLayout(questionCount: s.questions, choiceCount: s.choices, booklets: s.booklets, digits: s.digits)).read(g);
+    final a4 = FormLayout(questionCount: s.questions, choiceCount: s.choices, booklets: s.booklets, digits: s.digits);
+    if (!s.allowsMini) return OmrReader(a4).read(g);
+    return OmrReader.readAny(g, [a4, MiniFormLayout(questionCount: s.questions, choiceCount: s.choices, digits: s.digits)]);
   }
   return TemplateReader(t, questionCount: s.questions, choiceCount: s.choices).read(g);
 }

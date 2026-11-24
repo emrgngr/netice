@@ -393,6 +393,14 @@ class _FeatureRow extends StatelessWidget {
     ProFeature.officialHeader: Icons.account_balance_outlined,
     ProFeature.commonExam: Icons.hub_outlined,
     ProFeature.adminPanel: Icons.dashboard_customize_outlined,
+    ProFeature.bookletVariants: Icons.auto_stories_outlined,
+    ProFeature.studyTips: Icons.lightbulb_outline_rounded,
+    ProFeature.personalReview: Icons.assignment_ind_outlined,
+    ProFeature.outcomeTracking: Icons.grid_on_rounded,
+    ProFeature.wordExport: Icons.description_outlined,
+    ProFeature.lanSync: Icons.wifi_rounded,
+    ProFeature.bulkParent: Icons.forward_to_inbox_rounded,
+    ProFeature.aiQuestions: Icons.auto_awesome_outlined,
     ProFeature.noAds: Icons.block_rounded,
   };
 

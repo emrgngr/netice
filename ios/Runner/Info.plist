@@ -4,6 +4,8 @@
 <dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Cevap kâğıtlarını okumak için kamera kullanılır. Görüntüler cihazdan dışarı gönderilmez.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Aynı Wi-Fi ağındaki öğretmenlerle ortak sınav sonuçlarını internetsiz paylaşmak için kullanılır.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Daha önce çekilmiş cevap kâğıdı fotoğraflarını okumak için.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>

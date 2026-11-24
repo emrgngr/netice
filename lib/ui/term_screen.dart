@@ -106,6 +106,17 @@ class _TermScreenState extends State<TermScreen> {
       );
     }
 
+    Future<void> trackingPdf() async {
+      if (report == null) return toast(context, tr('Önce en az bir sınav seçin.'));
+      if (!await requirePro(context, ProFeature.outcomeTracking) || !context.mounted) return;
+      await ReportPreviewScreen.open(
+        context,
+        title: tr('Kazanım takip çizelgesi'),
+        fileName: '${base}_kazanim_takip.pdf',
+        build: () => buildOutcomeTrackingPdf(report, school: store.reportSchool),
+      );
+    }
+
     Future<void> excel() async {
       if (report == null) return toast(context, tr('Önce en az bir sınav seçin.'));
       await FilePicker.saveFile(
@@ -265,6 +276,11 @@ class _TermScreenState extends State<TermScreen> {
                       onPressed: () => cardsPdf(),
                       icon: const Icon(Icons.badge_outlined),
                       label: Text(tr('Kazanım karneleri')),
+                    ),
+                    FilledButton.tonalIcon(
+                      onPressed: trackingPdf,
+                      icon: const Icon(Icons.grid_on_rounded),
+                      label: Text(tr('Kazanım takip çizelgesi')),
                     ),
                     OutlinedButton.icon(
                       onPressed: excel,

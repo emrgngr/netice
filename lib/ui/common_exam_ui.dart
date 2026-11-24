@@ -15,6 +15,7 @@ import '../main.dart';
 import '../reports/pdf_documents.dart';
 import '../core/progress.dart';
 import 'exam_screen.dart';
+import 'lan_sync_screen.dart';
 import 'pro_screen.dart';
 import 'report_preview_screen.dart';
 import 'widgets.dart';
@@ -38,6 +39,27 @@ Future<void> shareOrSaveFile(BuildContext context,
   } else {
     final path = await FilePicker.saveFile(fileName: fileName, bytes: bytes, mimeType: 'application/json');
     if (path != null && context.mounted) toast(context, tr('Kaydedildi. Dosyayı diğer öğretmenlere gönderebilirsiniz.'));
+  }
+}
+
+/// İkili dosyayı telefonda paylaşım menüsüyle gönderir, bilgisayarda kaydettirir.
+Future<void> saveOrShareBytes(BuildContext context,
+    {required String fileName, required Uint8List bytes, required String mimeType, String message = ''}) async {
+  if (Platform.isAndroid || Platform.isIOS) {
+    final box = context.findRenderObject() as RenderBox?;
+    final origin = box == null ? null : box.localToGlobal(Offset.zero) & box.size;
+    final dir = await getTemporaryDirectory();
+    final f = File('${dir.path}${Platform.pathSeparator}$fileName');
+    await f.writeAsBytes(bytes);
+    await SharePlus.instance.share(ShareParams(
+      files: [XFile(f.path, mimeType: mimeType)],
+      text: message,
+      subject: fileName,
+      sharePositionOrigin: origin,
+    ));
+  } else {
+    final path = await FilePicker.saveFile(fileName: fileName, bytes: bytes);
+    if (path != null && context.mounted) toast(context, tr('Kaydedildi.'));
   }
 }
 
@@ -79,6 +101,12 @@ Future<void> openCommonExamMenu(BuildContext context, Exam exam) async {
             subtitle: Text(tr('Diğer şubelerden gelen sonuç dosyalarını ekleyin.')),
             onTap: () => Navigator.pop(ctx, 'import'),
           ),
+          ListTile(
+            leading: const Icon(Icons.wifi_rounded),
+            title: Text(tr('Aynı Wi-Fi\'daki öğretmenlerle eşitle')),
+            subtitle: Text(tr('Dosya göndermeden: sınavı dağıtın ya da sonuçları tek cihazda toplayın.')),
+            onTap: () => Navigator.pop(ctx, 'lan'),
+          ),
           if (group.length >= 2)
             ListTile(
               leading: const Icon(Icons.picture_as_pdf_outlined),
@@ -106,6 +134,8 @@ Future<void> openCommonExamMenu(BuildContext context, Exam exam) async {
       await importNeticeFile(context);
     case 'report':
       await openCommonReport(context, exam.commonId!);
+    case 'lan':
+      await openLanSync(context, examId: exam.id);
   }
 }
 
