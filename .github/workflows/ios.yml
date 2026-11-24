@@ -53,8 +53,28 @@ jobs:
         run: |
           mkdir -p ~/.appstoreconnect/private_keys
           KEY=~/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8
-          printf '%s\n' "$ASC_PRIVATE_KEY" > "$KEY"
+          printf '%s\n' "$ASC_PRIVATE_KEY" | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' > "$KEY"
           echo "ASC_KEY_PATH=$KEY" >> "$GITHUB_ENV"
+      - name: Anahtarı Apple ile doğrula
+        if: steps.hazir.outputs.tamam == '1'
+        run: |
+          pip3 install --quiet --break-system-packages pyjwt cryptography 2>/dev/null || pip3 install --quiet pyjwt cryptography
+          python3 - <<'PY'
+          import os, time, json, urllib.request, urllib.error, jwt
+          kid = os.environ['ASC_KEY_ID'].strip(); iss = os.environ['ASC_ISSUER_ID'].strip()
+          key = open(os.environ['ASC_KEY_PATH']).read()
+          print('Key ID uzunluğu:', len(kid), '| Issuer ID uzunluğu:', len(iss), '| Team ID uzunluğu:', len(os.environ['APPLE_TEAM_ID'].strip()))
+          print('Anahtar dosyası BEGIN/END:', 'BEGIN PRIVATE KEY' in key, 'END PRIVATE KEY' in key)
+          tok = jwt.encode({'iss': iss, 'iat': int(time.time()), 'exp': int(time.time()) + 600, 'aud': 'appstoreconnect-v1'},
+                           key, algorithm='ES256', headers={'kid': kid, 'typ': 'JWT'})
+          req = urllib.request.Request('https://api.appstoreconnect.apple.com/v1/apps?fields[apps]=bundleId', headers={'Authorization': 'Bearer ' + tok})
+          try:
+              d = json.load(urllib.request.urlopen(req))
+              print('Apple girişi tamam. Uygulamalar:', [a['attributes']['bundleId'] for a in d['data']])
+          except urllib.error.HTTPError as e:
+              print('Apple yanıtı', e.code, e.read().decode()[:500])
+              raise SystemExit(1)
+          PY
       - name: Google giriş URL şeması
         if: steps.hazir.outputs.tamam == '1'
         env:
