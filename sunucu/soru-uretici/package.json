@@ -1,0 +1,16 @@
+{
+  "name": "netice-soru-uretici",
+  "private": true,
+  "type": "module",
+  "description": "Netice: ders notundan soru üreten küçük sunucu (Cloudflare Worker). Claude API anahtarı yalnız burada durur.",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.13.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.167.0"
+  }
+}
