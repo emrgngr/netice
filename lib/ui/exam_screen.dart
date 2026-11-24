@@ -33,6 +33,9 @@ import 'charts.dart';
 import '../l10n/l10n.dart';
 import '../core/ads.dart';
 import 'ad_slot.dart';
+import '../bank/bank_analysis.dart';
+import '../bank/bank_store.dart';
+import 'bank/bank_analysis_view.dart' show WeakTopicsCard;
 
 class ExamScreen extends StatelessWidget {
   final String examId;
@@ -1003,6 +1006,7 @@ class _AnalysisTab extends StatelessWidget {
                 ]),
         ),
       ),
+      if (rep.outcomes.isNotEmpty) WeakTopicsCard(exam: exam, results: rep.results),
       if (rep.outcomes.isNotEmpty) ...[
         SectionTitle(tr('Kazanım ısı haritası')),
         Card(
@@ -1283,7 +1287,13 @@ Future<void> openCardsPreview(BuildContext context, Exam exam, {String? studentI
       students: students,
       initialStudentId: studentId,
       build: (id) => buildStudentCardsPdf(
-          exam: exam, results: results, students: byId, onlyStudentId: id, school: store.reportSchool, notes: developmentNotes(store, [id])),
+          exam: exam,
+          results: results,
+          students: byId,
+          onlyStudentId: id,
+          school: store.reportSchool,
+          notes: developmentNotes(store, [id]),
+          studyTopics: BankAnalysis.studyTopics(exam, results, BankStore.instance, only: id == null ? null : [id])),
     ),
   ));
 }
@@ -1305,7 +1315,8 @@ Future<void> shareStudentCard(BuildContext context, Exam exam, String studentId)
         students: store.studentById,
         onlyStudentId: studentId,
         school: store.reportSchool,
-        notes: developmentNotes(store, [studentId]));
+        notes: developmentNotes(store, [studentId]),
+        studyTopics: BankAnalysis.studyTopics(exam, results, BankStore.instance, only: [studentId]));
     final rep = ExamReport.build(exam, results);
     final school = store.school.name.trim();
     final body = tr('Sayın Velimiz,\n\n{0} adlı öğrencimizin "{1}" ({2}) sınav karnesi ektedir.\nPuanı: {3} / {4} · Sınıf ortalaması: {5}\n\nSaygılarımızla,\n{6}{7}{8}', [st.fullName, exam.name, dmy(exam.date), fmt1(r.score), fmt1(exam.rule.maxScore), fmt1(rep.stats.mean), store.school.teacher.trim().isEmpty ? tr('Ders öğretmeni') : store.school.teacher.trim(), school.isEmpty ? '' : '\n$school', downloadSignature]);
