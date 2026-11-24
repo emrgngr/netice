@@ -423,8 +423,7 @@ class _CropImportScreenState extends State<CropImportScreen> {
         if (_type.optical) ...[
           const SizedBox(height: 10),
           Row(children: [
-            Text(tr('Doğru cevap'), style: const TextStyle(fontWeight: FontWeight.w700)),
-            const Spacer(),
+            Expanded(child: Text(tr('Doğru cevap'), style: const TextStyle(fontWeight: FontWeight.w700))),
             if (_type == QuestionType.multiple)
               SegmentedButton<int>(
                 style: const ButtonStyle(visualDensity: VisualDensity.compact),

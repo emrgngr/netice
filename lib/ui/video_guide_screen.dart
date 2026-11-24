@@ -21,7 +21,7 @@ class VideoGuide {
   static const languages = ['tr', 'en', 'de', 'fr', 'ru', 'az', 'es', 'it', 'ar', 'zh', 'ja'];
 
   /// Kılavuzun bölüm videoları (GuideSection.icon ile aynı adlar).
-  static const sections = ['start', 'exam', 'print', 'scan', 'report', 'data'];
+  static const sections = ['start', 'exam', 'print', 'scan', 'report', 'library', 'data'];
 
   /// [section] verilmezse tüm uygulamayı anlatan rehber videosu.
   static String urlFor(String lang, [String? section]) =>

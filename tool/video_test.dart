@@ -270,7 +270,7 @@ void main() {
     await scene('k_soru_yaz', QuestionEditorScreen(question: bank.questionById('bq3')),
         () => [text(tr('Çoktan seçmeli')), text(tr('Görsel ekle')), text(tr('Şıklar'))]);
     await scene('k_notlar', const LibraryScreen(initialTab: 1),
-        () => [find.textContaining(tr('Hap bilgi')).first, fab()]);
+        () => [find.byType(ChoiceChip).at(1), fab()]);
     await scene('k_sihirbaz', BookletWizardScreen(booklet: bank.bookletById('k1')),
         () => [text(tr('Bankadan seç')), text(tr('Otomatik seç'))]);
     await scene('k_kitapcik_turu', BookletWizardScreen(booklet: bank.bookletById('k1')),
