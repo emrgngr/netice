@@ -47,8 +47,8 @@ Netice internet bağlantısı olmadan çalışır. Girdiğiniz ve okuttuğunuz t
 İsteğe bağlı Google hesabı
 Ayarlar > Hesap bölümünden dilerseniz Google hesabınızla giriş yapıp yedeğinizi kendi Google Drive alanınıza kaydedebilirsiniz. Bu özellik yalnızca siz açtığınızda internete bağlanır; yedek, Drive'ınızda yalnızca Netice'nin görebildiği gizli uygulama klasöründe tutulur ve geliştiriciye ulaşmaz. Kullanmazsanız uygulama tamamen çevrimdışı kalır.
 
-Ürün önerileri
-Ana sayfanın altında, geliştiricinin kendi mağazasından (SepetMix) kapatılabilir bir ürün öneri kartı yer alır. Reklam ağı kullanılmaz, reklam kimliği okunmaz, kullanıcı izlenmez. İnternet varsa günde en çok bir kez yalnızca herkese açık ürün listesi indirilir; bu istekte size ya da öğrencilerinize ait hiçbir bilgi bulunmaz. Bir ürüne dokunduğunuzda mağaza sayfası tarayıcınızda açılır ve o sitenin kendi kuralları geçerli olur.
+Tanıtımlar ve ürün önerileri
+Netice'de üçüncü taraf reklam ve reklam ağı yoktur. Ücretsiz sürümde bazı sayfalarda yalnızca geliştiricinin kendi uygulamalarının, web sitelerinin ve mağazasının tanıtımları (görsel veya video) ile kapatılabilir bir ürün öneri kartı gösterilir; Netice Pro'da tanıtım gösterilmez. Reklam kimliği okunmaz, kullanıcı izlenmez, tanıtımların görülmesi veya tıklanması hakkında bilgi toplanmaz. İnternet varsa tanıtım ve ürün listeleri herkese açık bir adresten indirilip cihazda saklanır; bu isteklerde size ya da öğrencilerinize ait hiçbir bilgi bulunmaz. Bir tanıtıma veya ürüne dokunduğunuzda ilgili sayfa tarayıcınızda açılır ve o sitenin kendi kuralları geçerli olur.
 
 Netice Pro aboneliği
 Okuma ve temel sonuçlar ücretsizdir. Dönem raporu, karneler, veliye gönderme, Google Drive yedeği, gelişmiş grafikler ve resmi yazı başlığı Netice Pro aboneliğiyle açılır; ilk kurulumda 14 gün ücretsiz denenebilir, kart bilgisi istenmez. Ödeme Google Play tarafından alınır; kart ve ödeme bilgileriniz geliştiriciye ulaşmaz. Abonelik dönem sonunda kendiliğinden yenilenir ve Google Play > Abonelikler bölümünden istediğiniz zaman iptal edilebilir.
