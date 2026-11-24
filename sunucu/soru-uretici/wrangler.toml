@@ -1,0 +1,22 @@
+# Netice soru üretici (Cloudflare Worker).
+# Yayın: .github/workflows/soru-sunucusu.yml (GitHub Actions) yapar.
+# Gizli değer ANTHROPIC_API_KEY, Actions tarafından "wrangler secret put" ile eklenir.
+name = "netice-soru"
+main = "src/index.js"
+compatibility_date = "2026-11-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+# Claude modeli. Maliyeti düşürmek için ör. "claude-sonnet-5-5" ya da "claude-haiku-5-5" yazılabilir.
+MODEL = "claude-opus-5-5"
+# Bir cihazın bir ayda üretebileceği en fazla soru (uygulamadaki Pro kotasıyla aynı).
+MONTHLY_DEVICE_LIMIT = "300"
+# Bir IP adresinden günde en fazla soru.
+DAILY_IP_LIMIT = "200"
+# Bütün kullanıcılar için günlük üst sınır (maliyet emniyeti).
+DAILY_LIMIT = "5000"
+
+# Kota sayaçları. Kimlik (id) yayın sırasında Actions tarafından doldurulur.
+[[kv_namespaces]]
+binding = "KOTA"
+id = "KV_ID_BURAYA"

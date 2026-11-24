@@ -32,7 +32,10 @@ String get shareText => tr('Optik kâğıtları telefonla okutup puan, analiz ve
 String _contact(String prefix) => contactEmail.isEmpty ? '' : '\n\n$prefix $contactEmail';
 
 /// Uygulama içi gizlilik politikası (mağazadaki metnin kısa hâli).
-String get privacyPolicy => tr(_privacy) + _contact(tr('İletişim:'));
+String get privacyPolicy => '${tr(_privacy)}\n\n${tr(_privacyAi)}${_contact(tr('İletişim:'))}';
+
+const _privacyAi = '''Nottan soru üretme (isteğe bağlı)
+Kütüphanede "Bu nottan soru üret" dediğinizde ve onay verdiğinizde, yalnızca o notun metni ve görselleri Netice'nin soru sunucusu üzerinden yapay zekâ hizmetine (Anthropic Claude) gönderilir. Netice notu ve üretilen soruları saklamaz; sunucuda yalnızca kota için cihaza özel rastgele bir kimlik ve aylık soru sayısı tutulur. Anthropic bu içeriği yapay zekâ eğitiminde kullanmaz. Öğrenci bilgisi içeren notları göndermeyin. Bu özelliği kullanmazsanız hiçbir içerik gönderilmez.''';
 
 const _privacy = '''Netice, öğretmenlerin optik cevap kâğıtlarını okutup sonuçları analiz etmesi için tasarlanmıştır.
 
