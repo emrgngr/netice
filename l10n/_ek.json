@@ -47,5 +47,8 @@
  "Wi-Fi ile eşitleme",
  "Aynı ağdaki öğretmenlerle internetsiz, dosyasız sonuç toplama",
  "Velilere toplu gönderim",
- "Bütün sınıfın karnelerini sırayla, hazır mesajla gönderin"
+ "Bütün sınıfın karnelerini sırayla, hazır mesajla gönderin",
+ "Nottan soru üretme",
+ "Yapay zekâ ders notunuzdan çoktan seçmeli soru önerir · ayda 300 soru",
+ "Nottan soru üretme (isteğe bağlı)\nKütüphanede \"Bu nottan soru üret\" dediğinizde ve onay verdiğinizde, yalnızca o notun metni ve görselleri Netice'nin soru sunucusu üzerinden yapay zekâ hizmetine (Anthropic Claude) gönderilir. Netice notu ve üretilen soruları saklamaz; sunucuda yalnızca kota için cihaza özel rastgele bir kimlik ve aylık soru sayısı tutulur. Anthropic bu içeriği yapay zekâ eğitiminde kullanmaz. Öğrenci bilgisi içeren notları göndermeyin. Bu özelliği kullanmazsanız hiçbir içerik gönderilmez."
 ]
