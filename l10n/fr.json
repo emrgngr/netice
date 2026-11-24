@@ -1958,5 +1958,8 @@
 "İnternet bağlantısı yok. Soru üretmek için internete bağlanın.": "Pas de connexion Internet. Connectez-vous à Internet pour générer des questions.",
 "İnternet gerekir · bu ay kalan: {0} / {1} soru": "Internet requis · restant ce mois-ci : {0} / {1} questions",
 "İnternet gerekir · deneme hakkı: {0} / {1} soru": "Internet requis · essai : {0} / {1} questions restantes",
-"Şık sayısı": "Nombre de choix"
+"Şık sayısı": "Nombre de choix",
+"Sorular 20'şer hazırlanıyor; hazır olanlar hemen aşağıya eklenir. Çok sayıda soru birkaç dakika sürebilir, ekrandan çıkmayın.": "Les questions sont préparées par lots de 20 ; celles qui sont prêtes s'affichent aussitôt ci-dessous. Beaucoup de questions peuvent prendre quelques minutes, restez sur cet écran.",
+"Sorular hazırlanıyor… {0} / {1}": "Préparation des questions… {0} / {1}",
+"ya da sayıyı kendiniz girin (en fazla {0})": "ou saisissez le nombre vous-même (jusqu'à {0})"
 }

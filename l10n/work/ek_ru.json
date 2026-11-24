@@ -880,5 +880,8 @@
  "İnternet bağlantısı yok. Soru üretmek için internete bağlanın.": "Нет подключения к интернету. Подключитесь, чтобы создать вопросы.",
  "İnternet gerekir · bu ay kalan: {0} / {1} soru": "Нужен интернет · осталось в этом месяце: {0} / {1} вопросов",
  "İnternet gerekir · deneme hakkı: {0} / {1} soru": "Нужен интернет · пробный лимит: осталось {0} / {1} вопросов",
- "Şık sayısı": "Количество вариантов"
+ "Şık sayısı": "Количество вариантов",
+ "Sorular 20'şer hazırlanıyor; hazır olanlar hemen aşağıya eklenir. Çok sayıda soru birkaç dakika sürebilir, ekrandan çıkmayın.": "Вопросы готовятся по 20; готовые сразу появляются ниже. Большое число вопросов может занять несколько минут, не уходите с этого экрана.",
+ "Sorular hazırlanıyor… {0} / {1}": "Вопросы готовятся… {0} / {1}",
+ "ya da sayıyı kendiniz girin (en fazla {0})": "или введите число сами (не больше {0})"
 }
