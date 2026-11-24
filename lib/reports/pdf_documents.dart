@@ -107,19 +107,25 @@ pw.TextDirection get _dir => L10n.rtl ? pw.TextDirection.rtl : pw.TextDirection.
 /// Sınavda birden çok kitapçık varsa ve [alternateBooklets] açıksa isimli
 /// formlar sırayla A, B, C… olarak basılır (kitapçık dairesi dolu gelir).
 Future<Uint8List> buildFormsPdf(Exam exam, List<Student> students,
+        {int blankCopies = 1, SchoolInfo school = const SchoolInfo(), bool alternateBooklets = false}) =>
+    buildClassFormsPdf([(exam, students)], blankCopies: blankCopies, school: school, alternateBooklets: alternateBooklets);
+
+/// Birden çok şubenin isimli formlarını tek PDF'te basar; her şube kendi
+/// sınavıyla (makine kodu) basılır. Kitapçıklar her şubede A'dan başlar.
+Future<Uint8List> buildClassFormsPdf(List<(Exam, List<Student>)> groups,
     {int blankCopies = 1, SchoolInfo school = const SchoolInfo(), bool alternateBooklets = false}) async {
   final fonts = await _Fonts.load();
-  final layout =
-      FormLayout(
-          questionCount: exam.questionCount, choiceCount: exam.choiceCount, booklets: exam.bookletCount, digits: exam.numberDigits);
-  final doc = pw.Document(theme: fonts.theme, title: tr('{0} · optik form', [exam.name]), author: tr('Netice'));
-  final pages = students.isEmpty
-      ? List<Student?>.filled(math.max(1, blankCopies), null)
-      : students.cast<Student?>();
-  for (var i = 0; i < pages.length; i++) {
-    final s = pages[i];
-    final booklet = exam.hasBooklets && alternateBooklets && s != null ? i % exam.bookletCount : null;
-    doc.addPage(_formPage(layout, exam, fonts, school, student: s, booklet: booklet));
+  final first = groups.first.$1;
+  final doc = pw.Document(theme: fonts.theme, title: tr('{0} · optik form', [first.name]), author: tr('Netice'));
+  for (final (exam, students) in groups) {
+    final layout = FormLayout(
+        questionCount: exam.questionCount, choiceCount: exam.choiceCount, booklets: exam.bookletCount, digits: exam.numberDigits);
+    final pages = students.isEmpty ? List<Student?>.filled(math.max(1, blankCopies), null) : students.cast<Student?>();
+    for (var i = 0; i < pages.length; i++) {
+      final s = pages[i];
+      final booklet = exam.hasBooklets && alternateBooklets && s != null ? i % exam.bookletCount : null;
+      doc.addPage(_formPage(layout, exam, fonts, school, student: s, booklet: booklet));
+    }
   }
   return doc.save();
 }

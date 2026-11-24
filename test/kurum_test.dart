@@ -151,6 +151,19 @@ void main() {
       expect(sum.byClass.map((c) => c.className), contains('10-C'));
     });
 
+    test('optik formda seçilen her şube kendi ortak sınavını alır', () {
+      final a = AppStore()..seedDemo();
+      final exam = a.examById('demo_exam')!;
+      expect(examForClass(a, exam, exam.className).id, exam.id);
+      final other = examForClass(a, exam, 'Z-9');
+      expect(other.className, 'Z-9');
+      expect(other.id, isNot(exam.id));
+      expect(other.commonId, isNotNull);
+      expect(a.examById('demo_exam')!.commonId, other.commonId, reason: 'asıl sınav da ortak olur');
+      expect(other.questions.map((q) => q.correct), exam.questions.map((q) => q.correct));
+      expect(examForClass(a, a.examById('demo_exam')!, 'Z-9').id, other.id, reason: 'ikinci kez açılmaz');
+    });
+
     test('yanlış dosya anlaşılır bir hatayla reddedilir', () {
       expect(() => importCommonResults(AppStore(), '{"app":"netice"}'), throwsFormatException);
       expect(commonFileKind('merhaba'), isNull);
