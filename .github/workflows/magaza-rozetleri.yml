@@ -1,0 +1,46 @@
+# Google Play ve App Store'un resmî "indir" rozetlerini (11 dil) indirip
+# assets/badges/ klasörüne koyar ve aynı dala gönderir. Rozetler resmî
+# kaynaklardan değiştirilmeden alınır (marka kuralları gereği yeniden çizilmez).
+name: Mağaza rozetleri
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/magaza-rozetleri.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  indir:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rozetleri indir
+        run: |
+          set -euo pipefail
+          mkdir -p assets/badges
+          # uygulama dili : Google dil kodu : Apple yerel kodu
+          for satir in tr:tr:tr-tr en:en:en-us az:az:en-us de:de:de-de ar:ar:ar-sa es:es:es-es ru:ru:ru-ru it:it:it-it fr:fr:fr-fr zh:zh-cn:zh-cn ja:ja:ja-jp; do
+            IFS=: read -r dil g a <<< "$satir"
+            if ! curl -fsSL -o "assets/badges/google_play_$dil.png" "https://play.google.com/intl/en_us/badges/static/images/badges/${g}_badge_web_generic.png"; then
+              echo "Google Play rozeti yok: $g → en"
+              curl -fsSL -o "assets/badges/google_play_$dil.png" "https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"
+            fi
+            if ! curl -fsSL -o "assets/badges/app_store_$dil.svg" "https://tools.applemarketingtools.com/api/badges/download-on-the-app-store/black/$a"; then
+              echo "App Store rozeti yok: $a → en-us"
+              curl -fsSL -o "assets/badges/app_store_$dil.svg" "https://tools.applemarketingtools.com/api/badges/download-on-the-app-store/black/en-us"
+            fi
+          done
+          file assets/badges/* | sed 's/^/  /'
+          for f in assets/badges/*.png; do file "$f" | grep -q PNG || { echo "PNG değil: $f"; exit 1; }; done
+          for f in assets/badges/*.svg; do grep -q '<svg' "$f" || { echo "SVG değil: $f"; exit 1; }; done
+      - name: Dala gönder
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/badges
+          if git diff --cached --quiet; then echo "Değişiklik yok"; exit 0; fi
+          git commit -m "Mağaza rozetleri (resmî, 11 dil)"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
