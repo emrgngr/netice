@@ -1045,5 +1045,8 @@
  "İnternet bağlantısı yok. Soru üretmek için internete bağlanın.": "No internet connection. Connect to the internet to generate questions.",
  "İnternet gerekir · bu ay kalan: {0} / {1} soru": "Internet required · left this month: {0} / {1} questions",
  "İnternet gerekir · deneme hakkı: {0} / {1} soru": "Internet required · trial: {0} / {1} questions left",
- "Şık sayısı": "Number of choices"
+ "Şık sayısı": "Number of choices",
+ "Sorular 20'şer hazırlanıyor; hazır olanlar hemen aşağıya eklenir. Çok sayıda soru birkaç dakika sürebilir, ekrandan çıkmayın.": "Questions are prepared 20 at a time; finished ones appear below right away. Many questions can take a few minutes, so stay on this screen.",
+ "Sorular hazırlanıyor… {0} / {1}": "Preparing questions… {0} / {1}",
+ "ya da sayıyı kendiniz girin (en fazla {0})": "or enter the number yourself (up to {0})"
 }

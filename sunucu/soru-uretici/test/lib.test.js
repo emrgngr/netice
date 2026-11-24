@@ -25,7 +25,7 @@ test("bilinmeyen dil Türkçeye, zorluk karışığa düşer", () => {
 
 test("çok kısa not ve hatalı adet reddedilir", () => {
   assert.throws(() => parseRequest({ count: 5, note: { text: "kısa" } }), RequestError);
-  assert.throws(() => parseRequest({ count: 50, note }), RequestError);
+  assert.throws(() => parseRequest({ count: 21, note }), RequestError);
   assert.throws(() => parseRequest({ count: 5, note: { images: [{ data: "<>" }] } }), RequestError);
 });
 

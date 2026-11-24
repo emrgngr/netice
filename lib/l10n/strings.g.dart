@@ -2065,6 +2065,9 @@ const Map<String, Map<String, String>> translations = {
     'İnternet gerekir · bu ay kalan: {0} / {1} soru': 'Internet required · left this month: {0} / {1} questions',
     'İnternet gerekir · deneme hakkı: {0} / {1} soru': 'Internet required · trial: {0} / {1} questions left',
     'Şık sayısı': 'Number of choices',
+    'Sorular 20\'şer hazırlanıyor; hazır olanlar hemen aşağıya eklenir. Çok sayıda soru birkaç dakika sürebilir, ekrandan çıkmayın.': 'Questions are prepared 20 at a time; finished ones appear below right away. Many questions can take a few minutes, so stay on this screen.',
+    'Sorular hazırlanıyor… {0} / {1}': 'Preparing questions… {0} / {1}',
+    'ya da sayıyı kendiniz girin (en fazla {0})': 'or enter the number yourself (up to {0})',
   },
   'az': {
     '\n\n— Netice ile hazırlandı. Siz de deneyin: {0}': '\n\n— Netice ilə hazırlanıb. Siz də sınayın: {0}',
@@ -4129,6 +4132,9 @@ const Map<String, Map<String, String>> translations = {
     'İnternet gerekir · bu ay kalan: {0} / {1} soru': 'İnternet tələb olunur · bu ay qalan: {0} / {1} sual',
     'İnternet gerekir · deneme hakkı: {0} / {1} soru': 'İnternet tələb olunur · sınaq haqqı: {0} / {1} sual',
     'Şık sayısı': 'Variant sayı',
+    'Sorular 20\'şer hazırlanıyor; hazır olanlar hemen aşağıya eklenir. Çok sayıda soru birkaç dakika sürebilir, ekrandan çıkmayın.': 'Suallar 20-20 hazırlanır; hazır olanlar dərhal aşağıya əlavə edilir. Çox sual bir neçə dəqiqə çəkə bilər, ekrandan çıxmayın.',
+    'Sorular hazırlanıyor… {0} / {1}': 'Suallar hazırlanır… {0} / {1}',
+    'ya da sayıyı kendiniz girin (en fazla {0})': 'və ya sayı özünüz daxil edin (ən çox {0})',
   },
   'de': {
     '\n\n— Netice ile hazırlandı. Siz de deneyin: {0}': '\n\n— Erstellt mit Netice. Probieren Sie es aus: {0}',
@@ -6193,6 +6199,9 @@ const Map<String, Map<String, String>> translations = {
     'İnternet gerekir · bu ay kalan: {0} / {1} soru': 'Internet erforderlich · diesen Monat übrig: {0} / {1} Fragen',
     'İnternet gerekir · deneme hakkı: {0} / {1} soru': 'Internet erforderlich · Test: {0} / {1} Fragen übrig',
     'Şık sayısı': 'Anzahl der Antwortoptionen',
+    'Sorular 20\'şer hazırlanıyor; hazır olanlar hemen aşağıya eklenir. Çok sayıda soru birkaç dakika sürebilir, ekrandan çıkmayın.': 'Die Fragen werden in 20er-Schritten erstellt; fertige erscheinen sofort unten. Viele Fragen können einige Minuten dauern, bleiben Sie auf diesem Bildschirm.',
+    'Sorular hazırlanıyor… {0} / {1}': 'Fragen werden vorbereitet… {0} / {1}',
+    'ya da sayıyı kendiniz girin (en fazla {0})': 'oder Anzahl selbst eingeben (höchstens {0})',
   },
   'ar': {
     '\n\n— Netice ile hazırlandı. Siz de deneyin: {0}': '\n\n— أعد باستخدام Netice. جربه أنت أيضا: {0}',
@@ -8257,6 +8266,9 @@ const Map<String, Map<String, String>> translations = {
     'İnternet gerekir · bu ay kalan: {0} / {1} soru': 'يتطلب الإنترنت · المتبقي هذا الشهر: {0} / {1} سؤال',
     'İnternet gerekir · deneme hakkı: {0} / {1} soru': 'يتطلب الإنترنت · التجربة: المتبقي {0} / {1} سؤال',
     'Şık sayısı': 'عدد الخيارات',
+    'Sorular 20\'şer hazırlanıyor; hazır olanlar hemen aşağıya eklenir. Çok sayıda soru birkaç dakika sürebilir, ekrandan çıkmayın.': 'تعد الأسئلة على دفعات من 20؛ وتظهر الجاهزة منها في الأسفل فورا. قد يستغرق عدد كبير من الأسئلة بضع دقائق، فلا تغادر هذه الشاشة.',
+    'Sorular hazırlanıyor… {0} / {1}': 'جار إعداد الأسئلة... {0} / {1}',
+    'ya da sayıyı kendiniz girin (en fazla {0})': 'أو أدخل العدد بنفسك (بحد أقصى {0})',
   },
   'es': {
     '\n\n— Netice ile hazırlandı. Siz de deneyin: {0}': '\n\n— Hecho con Netice. Pruébalo tú también: {0}',
@@ -10321,6 +10333,9 @@ const Map<String, Map<String, String>> translations = {
     'İnternet gerekir · bu ay kalan: {0} / {1} soru': 'Requiere internet · quedan este mes: {0} / {1} preguntas',
     'İnternet gerekir · deneme hakkı: {0} / {1} soru': 'Requiere internet · prueba: quedan {0} / {1} preguntas',
     'Şık sayısı': 'Número de opciones',
+    'Sorular 20\'şer hazırlanıyor; hazır olanlar hemen aşağıya eklenir. Çok sayıda soru birkaç dakika sürebilir, ekrandan çıkmayın.': 'Las preguntas se preparan de 20 en 20; las listas aparecen abajo enseguida. Muchas preguntas pueden tardar unos minutos; no salga de esta pantalla.',
+    'Sorular hazırlanıyor… {0} / {1}': 'Preparando preguntas… {0} / {1}',
+    'ya da sayıyı kendiniz girin (en fazla {0})': 'o escriba usted el número (máximo {0})',
   },
   'ru': {
     '\n\n— Netice ile hazırlandı. Siz de deneyin: {0}': '\n\n— Сделано в Netice. Попробуйте и вы: {0}',
@@ -12385,6 +12400,9 @@ const Map<String, Map<String, String>> translations = {
     'İnternet gerekir · bu ay kalan: {0} / {1} soru': 'Нужен интернет · осталось в этом месяце: {0} / {1} вопросов',
     'İnternet gerekir · deneme hakkı: {0} / {1} soru': 'Нужен интернет · пробный лимит: осталось {0} / {1} вопросов',
     'Şık sayısı': 'Количество вариантов',
+    'Sorular 20\'şer hazırlanıyor; hazır olanlar hemen aşağıya eklenir. Çok sayıda soru birkaç dakika sürebilir, ekrandan çıkmayın.': 'Вопросы готовятся по 20; готовые сразу появляются ниже. Большое число вопросов может занять несколько минут, не уходите с этого экрана.',
+    'Sorular hazırlanıyor… {0} / {1}': 'Вопросы готовятся… {0} / {1}',
+    'ya da sayıyı kendiniz girin (en fazla {0})': 'или введите число сами (не больше {0})',
   },
   'it': {
     '\n\n— Netice ile hazırlandı. Siz de deneyin: {0}': '\n\n— Creato con Netice. Provalo anche tu: {0}',
@@ -14449,6 +14467,9 @@ const Map<String, Map<String, String>> translations = {
     'İnternet gerekir · bu ay kalan: {0} / {1} soru': 'Serve internet · rimaste questo mese: {0} / {1} domande',
     'İnternet gerekir · deneme hakkı: {0} / {1} soru': 'Serve internet · prova: {0} / {1} domande rimaste',
     'Şık sayısı': 'Numero di opzioni',
+    'Sorular 20\'şer hazırlanıyor; hazır olanlar hemen aşağıya eklenir. Çok sayıda soru birkaç dakika sürebilir, ekrandan çıkmayın.': 'Le domande vengono preparate a gruppi di 20; quelle pronte compaiono subito qui sotto. Molte domande possono richiedere alcuni minuti, resta su questa schermata.',
+    'Sorular hazırlanıyor… {0} / {1}': 'Preparazione delle domande… {0} / {1}',
+    'ya da sayıyı kendiniz girin (en fazla {0})': 'oppure inserisci tu il numero (massimo {0})',
   },
   'fr': {
     '\n\n— Netice ile hazırlandı. Siz de deneyin: {0}': '\n\n— Réalisé avec Netice. Essayez-le vous aussi : {0}',
@@ -16513,6 +16534,9 @@ const Map<String, Map<String, String>> translations = {
     'İnternet gerekir · bu ay kalan: {0} / {1} soru': 'Internet requis · restant ce mois-ci : {0} / {1} questions',
     'İnternet gerekir · deneme hakkı: {0} / {1} soru': 'Internet requis · essai : {0} / {1} questions restantes',
     'Şık sayısı': 'Nombre de choix',
+    'Sorular 20\'şer hazırlanıyor; hazır olanlar hemen aşağıya eklenir. Çok sayıda soru birkaç dakika sürebilir, ekrandan çıkmayın.': 'Les questions sont préparées par lots de 20 ; celles qui sont prêtes s\'affichent aussitôt ci-dessous. Beaucoup de questions peuvent prendre quelques minutes, restez sur cet écran.',
+    'Sorular hazırlanıyor… {0} / {1}': 'Préparation des questions… {0} / {1}',
+    'ya da sayıyı kendiniz girin (en fazla {0})': 'ou saisissez le nombre vous-même (jusqu\'à {0})',
   },
   'zh': {
     '\n\n— Netice ile hazırlandı. Siz de deneyin: {0}': '\n\n— 由 Netice 制作。您也来试试：{0}',
@@ -18577,6 +18601,9 @@ const Map<String, Map<String, String>> translations = {
     'İnternet gerekir · bu ay kalan: {0} / {1} soru': '需要联网 · 本月剩余：{0} / {1} 道题',
     'İnternet gerekir · deneme hakkı: {0} / {1} soru': '需要联网 · 试用剩余：{0} / {1} 道题',
     'Şık sayısı': '选项数量',
+    'Sorular 20\'şer hazırlanıyor; hazır olanlar hemen aşağıya eklenir. Çok sayıda soru birkaç dakika sürebilir, ekrandan çıkmayın.': '题目每次生成 20 道，完成的会立即显示在下方。题目较多时可能需要几分钟，请不要离开此页面。',
+    'Sorular hazırlanıyor… {0} / {1}': '正在生成题目… {0} / {1}',
+    'ya da sayıyı kendiniz girin (en fazla {0})': '或自行输入数量（最多 {0}）',
   },
   'ja': {
     '\n\n— Netice ile hazırlandı. Siz de deneyin: {0}': '\n\n— Netice で作成しました。ぜひお試しください：{0}',
@@ -20641,5 +20668,8 @@ const Map<String, Map<String, String>> translations = {
     'İnternet gerekir · bu ay kalan: {0} / {1} soru': 'インターネットが必要 · 今月の残り：{0} / {1} 問',
     'İnternet gerekir · deneme hakkı: {0} / {1} soru': 'インターネットが必要 · お試し残り：{0} / {1} 問',
     'Şık sayısı': '選択肢の数',
+    'Sorular 20\'şer hazırlanıyor; hazır olanlar hemen aşağıya eklenir. Çok sayıda soru birkaç dakika sürebilir, ekrandan çıkmayın.': '問題は 20 問ずつ作成され、できたものからすぐ下に表示されます。問題数が多いと数分かかることがあるので、この画面のままお待ちください。',
+    'Sorular hazırlanıyor… {0} / {1}': '問題を準備しています… {0} / {1}',
+    'ya da sayıyı kendiniz girin (en fazla {0})': 'または問題数を直接入力（最大 {0}）',
   },
 };

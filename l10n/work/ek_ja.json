@@ -1045,5 +1045,8 @@
  "İnternet bağlantısı yok. Soru üretmek için internete bağlanın.": "インターネットに接続されていません。問題を作成するには接続してください。",
  "İnternet gerekir · bu ay kalan: {0} / {1} soru": "インターネットが必要 · 今月の残り：{0} / {1} 問",
  "İnternet gerekir · deneme hakkı: {0} / {1} soru": "インターネットが必要 · お試し残り：{0} / {1} 問",
- "Şık sayısı": "選択肢の数"
+ "Şık sayısı": "選択肢の数",
+ "Sorular 20'şer hazırlanıyor; hazır olanlar hemen aşağıya eklenir. Çok sayıda soru birkaç dakika sürebilir, ekrandan çıkmayın.": "問題は 20 問ずつ作成され、できたものからすぐ下に表示されます。問題数が多いと数分かかることがあるので、この画面のままお待ちください。",
+ "Sorular hazırlanıyor… {0} / {1}": "問題を準備しています… {0} / {1}",
+ "ya da sayıyı kendiniz girin (en fazla {0})": "または問題数を直接入力（最大 {0}）"
 }

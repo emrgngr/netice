@@ -2060,5 +2060,8 @@
  "İnternet bağlantısı yok. Soru üretmek için internete bağlanın.",
  "İnternet gerekir · bu ay kalan: {0} / {1} soru",
  "İnternet gerekir · deneme hakkı: {0} / {1} soru",
- "Şık sayısı"
+ "Şık sayısı",
+ "Sorular 20'şer hazırlanıyor; hazır olanlar hemen aşağıya eklenir. Çok sayıda soru birkaç dakika sürebilir, ekrandan çıkmayın.",
+ "Sorular hazırlanıyor… {0} / {1}",
+ "ya da sayıyı kendiniz girin (en fazla {0})"
 ]
