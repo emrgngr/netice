@@ -6,6 +6,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../core/doc_text.dart';
 import '../core/import_export.dart';
+import '../core/spreadsheet.dart';
 import '../core/models.dart';
 import '../main.dart';
 import 'student_detail_screen.dart';
@@ -33,7 +34,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
     final files = await FilePicker.pickFiles(
       dialogTitle: tr('Öğrenci listesi (Excel, PDF, Word veya CSV)'),
       type: FileType.custom,
-      allowedExtensions: ['xlsx', 'pdf', 'docx', 'csv', 'txt', 'xls'],
+      allowedExtensions: ['xlsx', 'xls', 'ods', 'pdf', 'docx', 'csv', 'txt'],
     );
     if (files.isEmpty || !mounted) return;
     final file = files.first;
@@ -41,14 +42,15 @@ class _StudentsScreenState extends State<StudentsScreen> {
     if (!mounted) return;
     final name = file.name.toLowerCase();
     List<Student> parsed;
-    if (name.endsWith('.xls')) {
-      return toast(context, tr('Eski .xls biçimi okunamıyor. Excel\'de "Farklı Kaydet" ile .xlsx olarak kaydedip tekrar deneyin.'));
-    } else if (name.endsWith('.xlsx')) {
+    if (name.endsWith('.xlsx') || name.endsWith('.xls') || name.endsWith('.ods')) {
       try {
-        parsed = StudentImport.parseXlsx(bytes);
+        final sheets = await compute((List<Object> a) => spreadsheetSheets(a[0] as Uint8List, a[1] as String), [bytes, name]);
+        parsed = sheets == null ? StudentImport.parse(utf8.decode(bytes, allowMalformed: true)) : StudentImport.parseSheets(sheets);
       } catch (_) {
+        if (!mounted) return;
         return toast(context, tr('Excel dosyası okunamadı. Dosyayı .xlsx veya CSV olarak yeniden kaydedin.'));
       }
+      if (!mounted) return;
     } else if (name.endsWith('.pdf') || name.endsWith('.docx')) {
       try {
         final text = await compute((List<Object> a) => documentText(a[0] as Uint8List, a[1] as String), [bytes, name]);
@@ -231,7 +233,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
           ],
         ),
         const SizedBox(height: 6),
-        Text(tr('Tüm sınıfları tek Excel dosyasında (.xlsx veya CSV) aktarabilirsiniz: okul no, ad, soyad ve sınıf sütunları otomatik tanınır, öğrenciler sınıflarına kendiliğinden ayrılır. Öğrencinin geçmişini görmek için üstüne, düzenlemek için kalem simgesine dokunun.'),
+        Text(tr('Tüm sınıfları tek Excel dosyasında (.xlsx, eski .xls, .ods veya CSV) aktarabilirsiniz: okul no, ad, soyad ve sınıf sütunları otomatik tanınır, öğrenciler sınıflarına kendiliğinden ayrılır. Öğrencinin geçmişini görmek için üstüne, düzenlemek için kalem simgesine dokunun.'),
             style: Theme.of(context).textTheme.bodySmall),
         const AdSlot.card(AdPage.classes, padding: EdgeInsets.only(top: 14)),
         const SizedBox(height: 16),

@@ -94,7 +94,7 @@ Future<KeyImport?> _fromDocument(BuildContext context, {required int choices}) a
   final files = await FilePicker.pickFiles(
     dialogTitle: tr('Cevap anahtarı belgesi'),
     type: FileType.custom,
-    allowedExtensions: ['pdf', 'docx', 'xlsx', 'txt', 'csv'],
+    allowedExtensions: ['pdf', 'docx', 'xlsx', 'xls', 'ods', 'txt', 'csv'],
   );
   if (files.isEmpty || !context.mounted) return null;
   final f = files.first;
@@ -116,7 +116,7 @@ Future<KeyImport?> _fromDocument(BuildContext context, {required int choices}) a
   }
   if (!context.mounted) return null;
   if (text.trim().isEmpty) {
-    toast(context, tr('Belgeden yazı okunamadı. Eski .doc/.xls dosyalarını .docx/.xlsx olarak kaydedip deneyin.'));
+    toast(context, tr('Belgeden yazı okunamadı. Eski .doc dosyalarını Word\'de .docx olarak kaydedip deneyin.'));
     return null;
   }
   return _check(context, parseKeyText(text, questions: 100, choices: choices));
