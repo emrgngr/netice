@@ -41,8 +41,7 @@ void main() {
     }
     final exam = store.examById('demo_exam')!;
     final names = [
-      for (final r in store.resultsOf(exam))
-        if (store.studentById[r.sheet.studentId] case final st?) st,
+      for (final r in store.resultsOf(exam)) ?store.studentById[r.sheet.studentId],
     ]..sort((a, b) => a.fullName.compareTo(b.fullName));
     for (final st in names.take(9)) {
       store.markParentSent(exam.id, st.id);
