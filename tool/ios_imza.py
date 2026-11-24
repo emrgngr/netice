@@ -67,6 +67,8 @@ def hazirla():
                                                    'bundleId': {'data': {'type': 'bundleIds', 'id': bid}},
                                                    'certificates': {'data': [{'type': 'certificates', 'id': cert['id']}]}}}})['data']
     state['profile'] = prof['id']
+    state['name'] = name
+    state['uuid'] = prof['attributes']['uuid']
     json.dump(state, open(STATE, 'w'))
     open(f'{OUT}/netice.mobileprovision', 'wb').write(base64.b64decode(prof['attributes']['profileContent']))
     with open(os.environ['GITHUB_ENV'], 'a') as f:
@@ -101,7 +103,7 @@ def runner_ayarla():
             extra = (f'\n\t\t\t\tCODE_SIGN_STYLE = Manual;'
                      f'\n\t\t\t\tDEVELOPMENT_TEAM = {os.environ["APPLE_TEAM_ID"].strip()};'
                      f'\n\t\t\t\t"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";'
-                     f'\n\t\t\t\tPROVISIONING_PROFILE_SPECIFIER = "{os.environ["PROFILE_NAME"]}";')
+                     f'\n\t\t\t\tPROVISIONING_PROFILE_SPECIFIER = "{json.load(open(STATE))["name"]}";')
             parts[i] = b.replace(f'PRODUCT_BUNDLE_IDENTIFIER = {BUNDLE};', f'PRODUCT_BUNDLE_IDENTIFIER = {BUNDLE};' + extra, 1)
             open(p, 'w').write('isa = XCBuildConfiguration;'.join(parts))
             print('Runner Release imza ayarı yazıldı')

@@ -116,7 +116,7 @@ jobs:
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KCP" "$KC" >/dev/null
           security list-keychains -d user -s "$KC" $(security list-keychains -d user | tr -d '"')
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          cp build/imza/netice.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/$PROFILE_UUID.mobileprovision
+          cp build/imza/netice.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/$(python3 -c "import json;print(json.load(open('build/imza/durum.json'))['uuid'])").mobileprovision
           security find-identity -v -p codesigning "$KC"
           python3 tool/ios_imza.py runner
       - name: Arşiv (imzalı)
