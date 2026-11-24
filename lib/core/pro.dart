@@ -20,13 +20,19 @@ enum ProFeature {
   parentShare('Karneyi veliye gönder', 'WhatsApp veya e-postayla tek dokunuşla'),
   cloudBackup('Google Drive yedeği', 'Kendi hesabınıza her gün otomatik yedek'),
   advancedCharts('Gelişmiş grafikler', 'Pasta, madde haritası, puan yayılımı, kazanım radarı'),
+  detailedStats('Ayrıntılı sınıf istatistikleri', 'Sınıf sınıf yayılım ve düzeyler, gelişim çizgileri, öğrenci sıralamaları'),
   officialHeader('Resmi yazı başlığı', 'Kurumunuzun resmi başlığı ve imza alanı'),
   commonExam('Ortak sınav', 'Tüm şubeler aynı sınavı okur, sonuçlar tek raporda birleşir'),
   adminPanel('Kurum yönetici paneli', 'Tüm şubeler, sınavlar ve risk altındaki öğrenciler tek ekranda'),
   bookletVariants('A–H kitapçık türleri', 'Soruları ve şıkları karıştırılmış sekize kadar kitapçık, hap bilgi eki'),
   studyTips('Zayıf konu föyü', 'Zayıf konuların hap bilgileri karnede ve çalışma föyünde'),
+  personalReview('Kişiye özel tekrar testi', 'Her öğrenciye kendi yanlışlarının benzer soruları, soru bankasından'),
+  outcomeTracking('Kazanım takip çizelgesi', 'Dönem boyunca her kazanımın sınıf ve öğrenci bazında gelişimi'),
+  wordExport('Word\'e aktarma', 'Kitapçığı düzenlenebilir Word (.docx) belgesi olarak kaydedin'),
+  lanSync('Wi-Fi ile eşitleme', 'Aynı ağdaki öğretmenlerle internetsiz, dosyasız sonuç toplama'),
+  bulkParent('Velilere toplu gönderim', 'Bütün sınıfın karnelerini sırayla, hazır mesajla gönderin'),
   aiQuestions('Nottan soru üretme', 'Yapay zekâ ders notunuzdan soru önerir · Pro\'da ayda 50, Pro + Yapay Zekâ\'da ayda 300 soru'),
-  noAds('Reklamsız kullanım', 'Hiçbir sayfada reklam gösterilmez');
+  noAds('Pro\'da hiç reklam yok', 'Kendi tanıtımlarımız da gösterilmez. Ücretsiz sürümde de üçüncü taraf reklam yok.');
 
   final String _title;
   final String _detail;

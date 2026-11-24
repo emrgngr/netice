@@ -80,7 +80,7 @@ class AdminPanelScreen extends StatelessWidget {
           SectionTitle(tr('Ortak sınavlar'),
               trailing: TextButton(
                 onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CompareScreen())),
-                child: Text(tr('Şube karşılaştırması')),
+                child: Text(tr('Sınıf sınıf analiz')),
               )),
           if (s.common.isEmpty)
             Card(

@@ -7,6 +7,7 @@ import '../core/models.dart';
 import '../core/progress.dart';
 import '../main.dart';
 import 'compare_screen.dart';
+import 'general_stats_screen.dart';
 import 'profile_screen.dart';
 import 'onboarding_screen.dart';
 import 'school_screen.dart';
@@ -539,10 +540,22 @@ class _Insights extends StatelessWidget {
         child: ListTile(
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           leading: const IconBadge(Icons.compare_arrows_rounded, color: NColors.emerald),
-          title: Text(tr('Şube karşılaştırması'), style: TextStyle(fontWeight: FontWeight.w700)),
-          subtitle: Text(tr('Aynı sınavı farklı şubelerde yan yana görün')),
+          title: Text(tr('Sınıf sınıf analiz'), style: TextStyle(fontWeight: FontWeight.w700)),
+          subtitle: Text(tr('Şubeleri ortalama, yayılım, düzey ve soru soru yan yana görün')),
           trailing: const Icon(Icons.chevron_right),
           onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CompareScreen())),
+        ),
+      ),
+      const SizedBox(height: 12),
+      Card(
+        clipBehavior: Clip.antiAlias,
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          leading: const IconBadge(Icons.query_stats_rounded, color: Color(0xFF6C7FD8)),
+          title: Text(tr('Genel istatistik'), style: TextStyle(fontWeight: FontWeight.w700)),
+          subtitle: Text(tr('Tüm sınıflar ve sınava giren tüm öğrenciler bir arada')),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const GeneralStatsScreen())),
         ),
       ),
       const SizedBox(height: 12),
@@ -631,6 +644,8 @@ class OfflineNotice extends StatelessWidget {
   const OfflineNotice({super.key, this.onDark = false});
 
   static String get title => tr('Çevrimdışı çalışır · Verileriniz bu cihazda');
+  static String get adsLine => tr('Üçüncü taraf reklam yok · Sizi izleyen reklam ağı yok');
+  static String get adsDetail => tr('Netice\'de üçüncü taraf reklam ve reklam ağı yoktur: reklam kimliğiniz okunmaz, hiçbir reklam şirketi sizi izlemez ve bilgileriniz kimseye satılmaz. Zaman zaman gördüğünüz tanıtımlar yalnızca Netice geliştiricisinin kendi uygulamaları, web siteleri ve ürünleri içindir. Netice Pro\'da bu tanıtımlar da gösterilmez.');
   static String get detail => tr('Netice internet olmadan çalışır. Öğrenci, sınav ve sonuç bilgileriniz yalnızca bu telefonda (veya bilgisayarda), uygulamanın kendi klasöründe saklanır; geliştiriciye ya da başka bir sunucuya gönderilmez.\n\nYalnızca sizin seçtiğiniz durumlarda veri cihazdan çıkar: bir raporu veya yedeği paylaştığınızda ya da Ayarlar > Hesap bölümünden isteğe bağlı Google Drive yedeğini açtığınızda (yedek kendi Google hesabınıza gider).\n\nUygulamayı silmeden önce yedek alın; aksi hâlde veriler telefonla birlikte silinir.');
 
   static void show(BuildContext context) => showDialog<void>(
@@ -638,7 +653,7 @@ class OfflineNotice extends StatelessWidget {
         builder: (ctx) => AlertDialog(
           icon: const Icon(Icons.phonelink_lock_rounded, color: NColors.emerald),
           title: Text(tr('Verileriniz sizde kalır')),
-          content: Text(detail),
+          content: SingleChildScrollView(child: Text('$detail\n\n$adsDetail')),
           actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: Text(tr('Anladım')))],
         ),
       );
@@ -657,7 +672,13 @@ class OfflineNotice extends StatelessWidget {
           child: Row(children: [
             Icon(Icons.wifi_off_rounded, size: 16, color: onDark ? const Color(0xFF7BE0B4) : NColors.emerald),
             const SizedBox(width: 8),
-            Expanded(child: Text(title, style: TextStyle(color: fg, fontSize: 12.5, fontWeight: FontWeight.w600))),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(title, style: TextStyle(color: fg, fontSize: 12.5, fontWeight: FontWeight.w600)),
+                const SizedBox(height: 2),
+                Text(adsLine, style: TextStyle(color: fg, fontSize: 11.5, fontWeight: FontWeight.w500)),
+              ]),
+            ),
             Icon(Icons.info_outline_rounded, size: 16, color: fg),
           ]),
         ),

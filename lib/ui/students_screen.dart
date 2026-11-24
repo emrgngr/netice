@@ -112,7 +112,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
       for (final s in parsed)
         s.className.isNotEmpty
             ? s
-            : Student(id: s.id, firstName: s.firstName, lastName: s.lastName, number: s.number, className: cls)
+            : s.copyWith(className: cls)
     ];
     final store = StoreScope.of(context);
     final before = store.students.length;
@@ -135,6 +135,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
     final last = TextEditingController(text: existing?.lastName ?? '');
     final no = TextEditingController(text: existing?.number ?? '');
     final cls = TextEditingController(text: existing?.className ?? _class ?? store.classNames.firstOrNull ?? '');
+    final phone = TextEditingController(text: existing?.parentPhone ?? '');
     final result = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -164,6 +165,13 @@ class _StudentsScreenState extends State<StudentsScreen> {
                   ]),
                 ),
               ],
+              const SizedBox(height: 10),
+              TextField(controller: phone, keyboardType: TextInputType.phone,
+                  decoration: InputDecoration(
+                      labelText: tr('Veli telefonu (isteğe bağlı)'),
+                      hintText: tr('ör. 0532 123 45 67'),
+                      helperText: tr('Karneyi WhatsApp\'tan doğrudan veliye açmak için. Yalnız bu cihazda kalır.'),
+                      helperMaxLines: 2)),
             ]),
           ),
         ),
@@ -197,6 +205,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
       lastName: last.text.trim(),
       number: number,
       className: className,
+      parentPhone: phone.text.trim(),
     );
     if (existing == null) {
       store.addStudents([st]);
