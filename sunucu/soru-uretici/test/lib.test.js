@@ -86,3 +86,14 @@ test("soru türleri: istek, istem ve temizleme", () => {
   assert.equal(out.questions[1].answer, "osmoz");
   assert.deepEqual(out.questions[2].choices, []);
 });
+
+test("çocuk (ilkokul) dili isteği istemde ek kurallar olarak yer alır", () => {
+  const req = parseRequest({ count: 5, choices: 3, audience: "kids", note: { text: "Bitkiler büyümek için su, hava ve güneş ışığına ihtiyaç duyar. Tohum toprakta çimlenir." } });
+  assert.equal(req.kids, true);
+  assert.equal(req.choices, 3);
+  const text = buildContent(req).at(-1).text;
+  assert.match(text, /primary-school children/);
+  const adult = parseRequest({ count: 5, note: { text: "Bitkiler büyümek için su, hava ve güneş ışığına ihtiyaç duyar. Tohum toprakta çimlenir." } });
+  assert.equal(adult.kids, false);
+  assert.doesNotMatch(buildContent(adult).at(-1).text, /primary-school children/);
+});
