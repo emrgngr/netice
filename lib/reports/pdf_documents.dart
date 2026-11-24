@@ -95,6 +95,9 @@ class _Fonts {
   }
 }
 
+/// Raporlarla aynı yazı tipleri (soru kitapçığı gibi başka belgeler için).
+Future<pw.ThemeData> pdfTheme([String family = 'netice']) async => (await _Fonts.load(family)).theme;
+
 pw.TextDirection get _dir => L10n.rtl ? pw.TextDirection.rtl : pw.TextDirection.ltr;
 
 /// Basılı optik formlar. Her öğrenci için adı ve numarası yazılı bir sayfa
@@ -1315,6 +1318,9 @@ Future<Uint8List> buildStudentCardsPdf({
 
   /// Öğrenci kimliği → tüm sınavlarına bakılarak yazılmış gelişim notu.
   Map<String, List<String>> notes = const {},
+
+  /// Öğrenci kimliği → çalışması gereken konular (konu, başarı, hap bilgiler).
+  Map<String, List<(String, double, List<String>)>> studyTopics = const {},
 }) async {
   final fonts = await _Fonts.load(school.fontFamily);
   final r = ExamReport.build(exam, results);
@@ -1492,6 +1498,22 @@ Future<Uint8List> buildStudentCardsPdf({
             if ((notes[res.sheet.studentId] ?? const []).isNotEmpty) ...[
               k.title(tr('Gelişim notu')),
               pw.Text(notes[res.sheet.studentId]!.take(4).join(' '), style: const pw.TextStyle(fontSize: 8.5)),
+            ],
+            if ((studyTopics[res.sheet.studentId] ?? const []).isNotEmpty) ...[
+              k.title(tr('Çalışması gereken konular')),
+              for (final (topic, rate, tips) in studyTopics[res.sheet.studentId]!.take(3))
+                pw.Padding(
+                  padding: const pw.EdgeInsets.only(bottom: 4),
+                  child: pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
+                    pw.Text('$topic  ·  ${L10n.percent((rate * 100).round())}',
+                        style: pw.TextStyle(fontSize: 8.5, fontWeight: pw.FontWeight.bold)),
+                    for (final t in tips.take(2))
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.only(left: 8, top: 1.5),
+                        child: pw.Text('• $t', style: const pw.TextStyle(fontSize: 8)),
+                      ),
+                  ]),
+                ),
             ],
             if (wrongs.isNotEmpty) ...[
               k.title(tr('Tekrar edilmesi önerilen sorular')),

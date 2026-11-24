@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
+import 'bank/bank_store.dart';
 import 'core/ad_admin.dart';
 import 'core/ads.dart';
 import 'core/cloud.dart';
@@ -16,6 +17,7 @@ void main() {
   L10n.use(null);
   runApp(NeticeApp(store: store));
   store.load().then((_) {
+    BankStore.instance.load();
     if (store.language != null) store.setLanguage(store.language);
     CloudService.instance.attach(store);
     ProService.instance.attach(store);

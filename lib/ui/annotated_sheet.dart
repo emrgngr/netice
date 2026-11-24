@@ -92,13 +92,13 @@ class SheetMarksPainter extends CustomPainter {
       }
       final outcome = result.outcomes[i];
       for (final c in marked) {
-        canvas.drawCircle(at(bubble(row, c)), r,
+        canvas.drawCircle(at(bubble(row, exam.printedChoice(booklet, i, c))), r,
             ring(q.correct.contains(c) && outcome == Outcome.correct ? NColors.emerald : NColors.coral));
       }
       if (outcome != Outcome.correct) {
         for (final c in q.correct) {
           if (marked.contains(c)) continue;
-          dashed(at(bubble(row, c)), outcome == Outcome.blank ? NColors.amber : NColors.emerald);
+          dashed(at(bubble(row, exam.printedChoice(booklet, i, c))), outcome == Outcome.blank ? NColors.amber : NColors.emerald);
         }
       }
       // Satır sonunda onay / çarpı / çizgi

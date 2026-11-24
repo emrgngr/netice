@@ -5,6 +5,8 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../bank/bank_store.dart';
+
 import '../core/legal.dart';
 import '../main.dart';
 import 'logo.dart';
@@ -157,6 +159,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _wipe() async {
     final store = StoreScope.of(context);
     var alsoBackups = false;
+    var alsoBank = false;
     final typed = TextEditingController();
     final ok = await showDialog<bool>(
       context: context,
@@ -176,6 +179,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 subtitle: Text(alsoBackups
                     ? tr('Geri dönüş olmaz.')
                     : tr('Silmeden önceki hâl otomatik yedeklerde kalır; vazgeçerseniz geri yükleyebilirsiniz.')),
+              ),
+              CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                value: alsoBank,
+                onChanged: (v) => set(() => alsoBank = v ?? false),
+                title: Text(tr('Soru bankasını ve notları da sil')),
+                subtitle: Text(tr('Kütüphanedeki sorular, notlar ve kitapçıklar. Geri dönüş olmaz.')),
               ),
               const SizedBox(height: 4),
               TextField(
@@ -201,6 +211,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     typed.dispose();
     if (ok != true || !mounted) return;
     await store.wipeAll(backups: alsoBackups);
+    if (alsoBank) await BankStore.instance.wipe();
     if (!mounted) return;
     toast(context, alsoBackups ? tr('Tüm veriler ve otomatik yedekler silindi.') : tr('Tüm veriler silindi. Önceki hâl otomatik yedeklerde duruyor.'));
     setState(() {});

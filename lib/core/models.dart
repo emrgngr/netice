@@ -70,12 +70,16 @@ class Question {
   final bool cancelled;
   final String? outcomeCode; // kazanım kodu
 
+  /// Soru bankasından geldiyse bankadaki kimliği (analizler için).
+  final String? bankId;
+
   const Question({
     required this.no,
     required this.correct,
     this.points = 1,
     this.cancelled = false,
     this.outcomeCode,
+    this.bankId,
   });
 
   Question copyWith({Set<int>? correct, double? points, bool? cancelled, String? outcomeCode}) =>
@@ -85,6 +89,7 @@ class Question {
         points: points ?? this.points,
         cancelled: cancelled ?? this.cancelled,
         outcomeCode: outcomeCode ?? this.outcomeCode,
+        bankId: bankId,
       );
 
   Map<String, dynamic> toJson() => {
@@ -93,6 +98,7 @@ class Question {
         'points': points,
         'cancelled': cancelled,
         'outcomeCode': outcomeCode,
+        if (bankId != null) 'bankId': bankId,
       };
 
   factory Question.fromJson(Map<String, dynamic> j) => Question(
@@ -101,6 +107,7 @@ class Question {
         points: (j['points'] as num).toDouble(),
         cancelled: j['cancelled'] as bool? ?? false,
         outcomeCode: j['outcomeCode'] as String?,
+        bankId: j['bankId'] as String?,
       );
 }
 
@@ -133,11 +140,14 @@ class ScoringRule {
 class OpenQuestion {
   final String label;
   final double maxPoints;
-  const OpenQuestion({required this.label, required this.maxPoints});
 
-  Map<String, dynamic> toJson() => {'label': label, 'maxPoints': maxPoints};
-  factory OpenQuestion.fromJson(Map<String, dynamic> j) =>
-      OpenQuestion(label: j['label'] as String? ?? '', maxPoints: (j['maxPoints'] as num).toDouble());
+  /// Soru bankasından geldiyse bankadaki kimliği.
+  final String? bankId;
+  const OpenQuestion({required this.label, required this.maxPoints, this.bankId});
+
+  Map<String, dynamic> toJson() => {'label': label, 'maxPoints': maxPoints, if (bankId != null) 'bankId': bankId};
+  factory OpenQuestion.fromJson(Map<String, dynamic> j) => OpenQuestion(
+      label: j['label'] as String? ?? '', maxPoints: (j['maxPoints'] as num).toDouble(), bankId: j['bankId'] as String?);
 }
 
 class Exam {
@@ -161,6 +171,11 @@ class Exam {
   /// A'daki karşılığı bilinmez) dolu olur; o kitapçığın sırası birebirdir ve
   /// kâğıtları bu anahtarla puanlanır. Boş = sıra eşlemesi kullanılır.
   final List<List<Set<int>>> bookletKeys;
+
+  /// Şıkları da karıştırılmış kitapçıklar (soru bankasından basılanlar):
+  /// [bookletChoiceOrders][k][i][c], (k+1). kitapçıkta [i]. basılı sorunun
+  /// [c]. şıkkının A'daki karşılığı. Boş liste = şıklar A ile aynı.
+  final List<List<List<int>>> bookletChoiceOrders;
 
   /// Bir sınavda en fazla kaç kitapçık türü olabilir (A–H).
   static const maxBooklets = 8;
@@ -189,6 +204,7 @@ class Exam {
     this.rule = const ScoringRule(),
     this.bookletOrders = const [],
     this.bookletKeys = const [],
+    this.bookletChoiceOrders = const [],
     this.openQuestions = const [],
     this.templateId,
     this.commonId,
@@ -241,6 +257,24 @@ class Exam {
     return b < 0 ? aIndex : b;
   }
 
+  /// [booklet] kitapçığında [printed]. sorunun şık eşlemesi (basılı → A);
+  /// şıklar karıştırılmamışsa null.
+  List<int>? _choiceMap(int booklet, int printed) {
+    if (booklet <= 0 || booklet > bookletChoiceOrders.length) return null;
+    final m = bookletChoiceOrders[booklet - 1];
+    if (printed < 0 || printed >= m.length || m[printed].isEmpty) return null;
+    return m[printed];
+  }
+
+  /// A'daki [aIndex]. sorunun A'daki [masterChoice] şıkkı [booklet]
+  /// kitapçığında hangi şık olarak basılı?
+  int printedChoice(int booklet, int aIndex, int masterChoice) {
+    final m = _choiceMap(booklet, printedIndex(booklet, aIndex));
+    if (m == null) return masterChoice;
+    final c = m.indexOf(masterChoice);
+    return c < 0 ? masterChoice : c;
+  }
+
   /// [booklet] kitapçığının cevap anahtarı (o kitapçığın sırasıyla).
   List<Question> questionsOf(int booklet) {
     if (hasOwnKey(booklet)) return [for (var i = 0; i < questions.length; i++) questionAt(booklet, i)];
@@ -250,21 +284,26 @@ class Exam {
       for (var i = 0; i < order.length; i++)
         Question(
           no: i + 1,
-          correct: questions[order[i]].correct,
+          correct: {for (final c in questions[order[i]].correct) printedChoice(booklet, order[i], c)},
           points: questions[order[i]].points,
           cancelled: questions[order[i]].cancelled,
           outcomeCode: questions[order[i]].outcomeCode,
+          bankId: questions[order[i]].bankId,
         ),
     ];
   }
 
-  /// [booklet] kitapçığının cevaplarını A sırasına çevirir.
+  /// [booklet] kitapçığının cevaplarını A sırasına (ve şıklar karıştırılmışsa
+  /// A'nın şıklarına) çevirir.
   List<Answer> toMasterOrder(int booklet, List<Answer> b) {
     if (booklet <= 0 || booklet > bookletOrders.length) return b;
     final order = bookletOrders[booklet - 1];
     final a = List<Answer>.filled(questions.length, const Answer.blank());
     for (var i = 0; i < order.length && i < b.length; i++) {
-      a[order[i]] = b[i];
+      final m = _choiceMap(booklet, i);
+      a[order[i]] = m == null
+          ? b[i]
+          : Answer(b[i].state, {for (final c in b[i].marked) c < m.length ? m[c] : c}, confirmed: b[i].confirmed);
     }
     return a;
   }
@@ -316,6 +355,7 @@ class Exam {
     DateTime? date,
     List<List<int>>? bookletOrders,
     List<List<Set<int>>>? bookletKeys,
+    List<List<List<int>>>? bookletChoiceOrders,
     List<OpenQuestion>? openQuestions,
     String? templateId,
     bool clearTemplate = false,
@@ -333,6 +373,7 @@ class Exam {
         rule: rule ?? this.rule,
         bookletOrders: bookletOrders ?? this.bookletOrders,
         bookletKeys: bookletKeys ?? this.bookletKeys,
+        bookletChoiceOrders: bookletChoiceOrders ?? this.bookletChoiceOrders,
         openQuestions: openQuestions ?? this.openQuestions,
         templateId: clearTemplate ? null : (templateId ?? this.templateId),
         commonId: commonId ?? this.commonId,
@@ -354,6 +395,7 @@ class Exam {
           'bookletKeys': [
             for (final k in bookletKeys) [for (final c in k) c.toList()]
           ],
+        if (bookletChoiceOrders.isNotEmpty) 'bookletChoiceOrders': bookletChoiceOrders,
         if (templateId != null) 'templateId': templateId,
         if (commonId != null) 'commonId': commonId,
         'numberDigits': numberDigits,
@@ -376,6 +418,10 @@ class Exam {
         bookletKeys: [
           for (final k in (j['bookletKeys'] as List?) ?? const [])
             [for (final c in k as List) (c as List).map((e) => e as int).toSet()]
+        ],
+        bookletChoiceOrders: [
+          for (final k in (j['bookletChoiceOrders'] as List?) ?? const [])
+            [for (final q in k as List) (q as List).map((e) => e as int).toList()]
         ],
         templateId: j['templateId'] as String?,
         commonId: j['commonId'] as String?,
