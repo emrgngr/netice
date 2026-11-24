@@ -900,5 +900,9 @@
  "Seçilen sınıflarda kayıtlı öğrenci yok": "В выбранных классах нет учеников",
  "{0} sınıf için aynı sınav açıldı. Sonuçlar ortak raporda birleşir.": "Тот же экзамен открыт для классов: {0}. Результаты объединяются в общем отчёте.",
  "{0} sınıf · {1} öğrenci · ad, sınıf ve numara basılı gelir": "Классов: {0} · учеников: {1} · имя, класс и номер печатаются",
- "Alt konu": "Подтема"
+ "Alt konu": "Подтема",
+ "Beklenen cevap": "Ожидаемый ответ",
+ "Klasik sorular · cevap anahtarı": "Открытые вопросы · ключ ответов",
+ "Soru sayısı seçilen türlere yaklaşık eşit bölünür.": "Количество вопросов делится примерно поровну между выбранными типами.",
+ "Soru türleri": "Типы вопросов"
 }

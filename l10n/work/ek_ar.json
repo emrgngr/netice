@@ -900,5 +900,9 @@
  "Seçilen sınıflarda kayıtlı öğrenci yok": "لا يوجد طلاب مسجلون في الصفوف المختارة",
  "{0} sınıf için aynı sınav açıldı. Sonuçlar ortak raporda birleşir.": "فتح الاختبار نفسه لـ {0} صف. تدمج النتائج في التقرير المشترك.",
  "{0} sınıf · {1} öğrenci · ad, sınıf ve numara basılı gelir": "{0} صف · {1} طالب · يطبع الاسم والصف والرقم",
- "Alt konu": "الموضوع الفرعي"
+ "Alt konu": "الموضوع الفرعي",
+ "Beklenen cevap": "الإجابة المتوقعة",
+ "Klasik sorular · cevap anahtarı": "الأسئلة المقالية · مفتاح الإجابة",
+ "Soru sayısı seçilen türlere yaklaşık eşit bölünür.": "يقسم عدد الأسئلة بالتساوي تقريبا على الأنواع المختارة.",
+ "Soru türleri": "أنواع الأسئلة"
 }

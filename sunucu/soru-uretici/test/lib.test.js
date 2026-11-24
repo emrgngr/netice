@@ -37,7 +37,7 @@ test("görsel blokları metinden önce gelir", () => {
 });
 
 test("bozuk sorular atılır, şık harfleri temizlenir", () => {
-  const req = { count: 3, choices: 4 };
+  const req = { count: 3, choices: 4, types: ["multiple"] };
   const out = cleanOutput(
     {
       note_problem: "",
@@ -58,4 +58,31 @@ test("bozuk sorular atılır, şık harfleri temizlenir", () => {
   assert.equal(out.questions[0].topic, "Hız");
   assert.equal(out.questions[1].topic, "");
   assert.equal(out.questions[1].difficulty, "medium");
+});
+
+test("soru türleri: istek, istem ve temizleme", () => {
+  const r = parseRequest({ count: 8, types: ["true_false", "x", "open", "fill"], note });
+  assert.deepEqual(r.types, ["true_false", "fill", "open"]);
+  assert.deepEqual(parseRequest({ count: 5, note }).types, ["multiple"]);
+  assert.match(buildContent(r).at(-1).text, /split about evenly/);
+
+  const out = cleanOutput(
+    {
+      note_problem: "",
+      questions: [
+        { type: "true_false", text: "Zar seçici geçirgendir.", topic: "Zar", choices: [], correct_index: 0, answer: "", difficulty: "easy", solution: "" },
+        { type: "true_false", text: "Bozuk", choices: [], correct_index: 3, answer: "", difficulty: "easy", solution: "" },
+        { type: "fill", text: "Suyun zardan geçişine _____ denir.", choices: [], correct_index: -1, answer: "osmoz", difficulty: "easy", solution: "" },
+        { type: "fill", text: "Boşluksuz cümle", choices: [], correct_index: -1, answer: "x", difficulty: "easy", solution: "" },
+        { type: "open", text: "Difüzyonu açıklayınız.", choices: [], correct_index: -1, answer: "", difficulty: "hard", solution: "" },
+        { type: "open", text: "Osmozu açıklayınız.", choices: [], correct_index: -1, answer: "Suyun yarı geçirgen zardan geçişi.", difficulty: "hard", solution: "" },
+        { type: "multiple", text: "İstenmeyen tür", choices: ["a", "b", "c", "d", "e"], correct_index: 0, answer: "", difficulty: "easy", solution: "" },
+      ],
+    },
+    r,
+  );
+  assert.deepEqual(out.questions.map((q) => q.type), ["true_false", "fill", "open"]);
+  assert.equal(out.questions[0].correct, 0);
+  assert.equal(out.questions[1].answer, "osmoz");
+  assert.deepEqual(out.questions[2].choices, []);
 });
