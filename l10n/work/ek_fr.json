@@ -926,5 +926,10 @@
  "Optik kâğıtları telefonla okutun, sonuç ve karne saniyeler içinde.": "Corrigez les grilles réponses avec votre téléphone, résultats et bulletins en quelques secondes.",
  "Belgeden yazı okunamadı. Eski .doc dosyalarını Word'de .docx olarak kaydedip deneyin.": "Texte illisible. Enregistrez les anciens fichiers .doc en .docx dans Word et réessayez.",
  "PDF / Word / Excel'den": "Depuis PDF / Word / Excel",
- "Tüm sınıfları tek Excel dosyasında (.xlsx, eski .xls, .ods veya CSV) aktarabilirsiniz: okul no, ad, soyad ve sınıf sütunları otomatik tanınır, öğrenciler sınıflarına kendiliğinden ayrılır. Öğrencinin geçmişini görmek için üstüne, düzenlemek için kalem simgesine dokunun.": "Vous pouvez importer toutes les classes avec un seul fichier Excel (.xlsx, ancien .xls, .ods ou CSV) : les colonnes numéro, prénom, nom et classe sont reconnues automatiquement et les élèves répartis dans leurs classes. Touchez un élève pour voir son historique, ou le crayon pour le modifier."
+ "Tüm sınıfları tek Excel dosyasında (.xlsx, eski .xls, .ods veya CSV) aktarabilirsiniz: okul no, ad, soyad ve sınıf sütunları otomatik tanınır, öğrenciler sınıflarına kendiliğinden ayrılır. Öğrencinin geçmişini görmek için üstüne, düzenlemek için kalem simgesine dokunun.": "Vous pouvez importer toutes les classes avec un seul fichier Excel (.xlsx, ancien .xls, .ods ou CSV) : les colonnes numéro, prénom, nom et classe sont reconnues automatiquement et les élèves répartis dans leurs classes. Touchez un élève pour voir son historique, ou le crayon pour le modifier.",
+ "Brezilya": "Brésil",
+ "Hindistan": "Inde",
+ "Endonezya": "Indonésie",
+ "Güney Kore": "Corée du Sud",
+ "Arapça, Çince, Japonca, Korece ve Hintçe harfler her yazı tipinde uygun Noto yazı tipiyle basılır.": "Les caractères arabes, chinois, japonais, coréens et hindi sont imprimés avec une police Noto adaptée, quelle que soit la police choisie."
 }

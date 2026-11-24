@@ -829,8 +829,13 @@ class SchoolInfo {
   /// Eğitim-öğretim yılı: eylülden itibaren yeni yıl başlar (Japonyada
   /// nisandan başlar ve tek yılla yazılır).
   static String academicYear(DateTime d) {
+    // Japonya ve Kore'de (nisan / mart) ve Brezilya'da (şubat) öğretim yılı
+    // tek yılla yazılır; Hindistan'da nisanda, Endonezya'da temmuzda başlar.
     if (L10n.code == 'ja') return '${d.month >= 4 ? d.year : d.year - 1}';
-    final start = d.month >= 9 ? d.year : d.year - 1;
+    if (L10n.code == 'ko') return '${d.month >= 3 ? d.year : d.year - 1}';
+    if (L10n.code == 'pt') return '${d.month >= 2 ? d.year : d.year - 1}';
+    final startMonth = switch (L10n.code) { 'hi' => 4, 'id' => 7, _ => 9 };
+    final start = d.month >= startMonth ? d.year : d.year - 1;
     return '$start-${start + 1}';
   }
 

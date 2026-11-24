@@ -22,6 +22,10 @@ class AppLanguage {
     AppLanguage('fr', 'Français', '🇫🇷'),
     AppLanguage('zh', '中文', '🇨🇳'),
     AppLanguage('ja', '日本語', '🇯🇵'),
+    AppLanguage('pt', 'Português (Brasil)', '🇧🇷'),
+    AppLanguage('hi', 'हिन्दी', '🇮🇳'),
+    AppLanguage('id', 'Bahasa Indonesia', '🇮🇩'),
+    AppLanguage('ko', '한국어', '🇰🇷'),
   ];
 
   static AppLanguage byCode(String c) => all.firstWhere((l) => l.code == c, orElse: () => all.first);
@@ -41,7 +45,10 @@ class L10n {
   static void use(String? code) {
     final c = code ?? deviceLanguage();
     _code = AppLanguage.all.any((l) => l.code == c) ? c : 'en';
-    _map = translations[_code] ?? const {};
+    // Bir metnin çevirisi henüz yoksa (yeni eklenen metinler) Türkçe yerine
+    // İngilizcesi gösterilir; yalnızca Türkçe arayüz kaynak metni kullanır.
+    final own = translations[_code] ?? const <String, String>{};
+    _map = _code == 'tr' || _code == 'en' ? own : {...?translations['en'], ...own};
   }
 
   static String deviceLanguage() {
@@ -52,7 +59,7 @@ class L10n {
   static String lookup(String source) => _map[source] ?? source;
 
   /// Ondalık ayırıcı: virgül kullanan diller ve nokta kullananlar.
-  static String get decimal => const {'en', 'zh', 'ja', 'ar'}.contains(_code) ? '.' : ',';
+  static String get decimal => const {'en', 'zh', 'ja', 'ar', 'hi', 'ko'}.contains(_code) ? '.' : ',';
 
   /// Yüzde: Türkçe ve Azericede "%20", Almanca, Fransızca, Rusça ve İspanyolcada
   /// "20 %", diğerlerinde "20%".
@@ -67,7 +74,8 @@ class L10n {
     String two(int v) => v.toString().padLeft(2, '0');
     return switch (_code) {
       'zh' || 'ja' => '${d.year}/${two(d.month)}/${two(d.day)}',
-      'en' || 'fr' || 'es' || 'it' || 'ar' => '${two(d.day)}/${two(d.month)}/${d.year}',
+      'ko' => '${d.year}. ${two(d.month)}. ${two(d.day)}.',
+      'en' || 'fr' || 'es' || 'it' || 'ar' || 'pt' || 'hi' || 'id' => '${two(d.day)}/${two(d.month)}/${d.year}',
       _ => '${two(d.day)}.${two(d.month)}.${d.year}',
     };
   }
