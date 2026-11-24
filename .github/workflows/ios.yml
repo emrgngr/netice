@@ -74,6 +74,13 @@ jobs:
           except urllib.error.HTTPError as e:
               print('Apple yanıtı', e.code, e.read().decode()[:500])
               raise SystemExit(1)
+          for path in ['/v1/certificates?limit=5', '/v1/profiles?limit=5', '/v1/bundleIds?filter[identifier]=com.netice.netice']:
+              r = urllib.request.Request('https://api.appstoreconnect.apple.com' + path, headers={'Authorization': 'Bearer ' + tok})
+              try:
+                  d = json.load(urllib.request.urlopen(r))
+                  print(path, '→ izin var,', len(d['data']), 'kayıt', [x['attributes'].get('certificateType') or x['attributes'].get('profileType') or x['attributes'].get('identifier') for x in d['data']])
+              except urllib.error.HTTPError as e:
+                  print(path, '→', e.code, e.read().decode()[:300])
           PY
       - name: Google giriş URL şeması
         if: steps.hazir.outputs.tamam == '1'
