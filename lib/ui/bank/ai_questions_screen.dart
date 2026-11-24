@@ -84,10 +84,12 @@ class _Draft {
 class _AiQuestionsScreenState extends State<AiQuestionsScreen> {
   AiUsage get _usage => AiUsage.instance;
   late BankNote? _note = bank.noteById(widget.noteId);
-  int _count = 5;
+  int _count = 20;
   late int _choices = _defaultChoices();
   AiDifficulty _difficulty = AiDifficulty.mixed;
   bool _busy = false;
+  int _done = 0;
+  int _target = 0;
   String? _error;
   String _problem = '';
   late final List<_Draft> _drafts = widget.initialDrafts.map(_Draft.new).toList();
@@ -141,21 +143,36 @@ class _AiQuestionsScreenState extends State<AiQuestionsScreen> {
     setState(() {
       _busy = true;
       _error = null;
+      _problem = '';
+      _done = 0;
+      _target = count;
     });
+    // 20'den fazlası 20'şerlik parçalarla üretilir; her parça öncekileri tekrar etmez.
+    final made = <String>[];
     try {
-      final r = await generateAiQuestions(
-        note,
-        AiOptions(count: count, choices: _choices, difficulty: _difficulty),
-        store: bank,
-        usage: _usage,
-        paid: paid,
-      );
-      if (!mounted) return;
-      setState(() {
-        _drafts.insertAll(0, r.questions.map(_Draft.new));
-        _problem = r.problem;
-        if (r.questions.isEmpty && r.problem.isEmpty) _error = tr('Bu nottan soru üretilemedi. Notun ders içeriği olduğundan emin olun.');
-      });
+      while (_done < count) {
+        final n = math.min(aiMaxPerRequest, count - _done);
+        final r = await generateAiQuestions(
+          note,
+          AiOptions(count: n, choices: _choices, difficulty: _difficulty),
+          store: bank,
+          usage: _usage,
+          paid: paid,
+          alsoAvoid: made,
+        );
+        if (!mounted) return;
+        made.addAll(r.questions.map((q) => q.text));
+        setState(() {
+          _drafts.insertAll(0, r.questions.map(_Draft.new));
+          _done += n;
+          _problem = r.problem;
+        });
+        // Not daha fazlasına yetmiyorsa durulur.
+        if (r.questions.isEmpty || r.problem.isNotEmpty) break;
+      }
+      if (made.isEmpty && _problem.isEmpty && mounted) {
+        setState(() => _error = tr('Bu nottan soru üretilemedi. Notun ders içeriği olduğundan emin olun.'));
+      }
     } on AiException catch (e) {
       if (!mounted) return;
       setState(() => _error = e.message);
@@ -257,9 +274,24 @@ class _AiQuestionsScreenState extends State<AiQuestionsScreen> {
                     Text(tr('Soru sayısı'), style: const TextStyle(fontWeight: FontWeight.w700)),
                     const SizedBox(height: 8),
                     SegmentedButton<int>(
-                      segments: [for (final n in const [3, 5, 10]) ButtonSegment(value: n, label: Text('$n'))],
-                      selected: {_count},
-                      onSelectionChanged: _busy ? null : (s) => setState(() => _count = s.first),
+                      segments: [for (final n in const [5, 10, 15, 20]) ButtonSegment(value: n, label: Text('$n'))],
+                      selected: {if (const [5, 10, 15, 20].contains(_count)) _count},
+                      emptySelectionAllowed: true,
+                      onSelectionChanged: _busy ? null : (s) => setState(() => _count = s.isEmpty ? _count : s.first),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(tr('ya da sayıyı kendiniz girin (en fazla {0})', [aiMaxTotal]),
+                        style: TextStyle(fontSize: 12.5, color: t.colorScheme.onSurface.withValues(alpha: 0.6))),
+                    const SizedBox(height: 4),
+                    IgnorePointer(
+                      ignoring: _busy,
+                      child: NumberStepper(
+                        value: _count,
+                        min: 1,
+                        max: aiMaxTotal,
+                        semanticLabel: tr('Soru sayısı'),
+                        onChanged: (v) => setState(() => _count = v),
+                      ),
                     ),
                     const SizedBox(height: 14),
                     Text(tr('Zorluk'), style: const TextStyle(fontWeight: FontWeight.w700)),
@@ -291,7 +323,7 @@ class _AiQuestionsScreenState extends State<AiQuestionsScreen> {
                           ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2.4))
                           : const Icon(Icons.auto_awesome_rounded),
                       label: Text(_busy
-                          ? tr('Sorular hazırlanıyor…')
+                          ? (_target > aiMaxPerRequest ? tr('Sorular hazırlanıyor… {0} / {1}', [_done, _target]) : tr('Sorular hazırlanıyor…'))
                           : (_drafts.isEmpty ? tr('Soruları üret') : tr('Yeni sorular üret'))),
                     ),
                     const SizedBox(height: 10),
@@ -317,7 +349,9 @@ class _AiQuestionsScreenState extends State<AiQuestionsScreen> {
                   child: _InfoCard(
                     icon: Icons.hourglass_top_rounded,
                     color: NColors.ink,
-                    text: tr('Yapay zekâ notunuzu okuyor ve soruları yazıyor. Notun uzunluğuna göre bir dakika kadar sürebilir.'),
+                    text: _target > aiMaxPerRequest
+                        ? tr('Sorular 20\'şer hazırlanıyor; hazır olanlar hemen aşağıya eklenir. Çok sayıda soru birkaç dakika sürebilir, ekrandan çıkmayın.')
+                        : tr('Yapay zekâ notunuzu okuyor ve soruları yazıyor. Notun uzunluğuna göre bir dakika kadar sürebilir.'),
                   ),
                 ),
               if (_error != null)

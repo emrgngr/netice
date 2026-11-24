@@ -24,8 +24,12 @@ import 'bank_store.dart';
 const aiServiceUrl = String.fromEnvironment('SORU_SERVIS_URL', defaultValue: '');
 const _appKey = 'netice-app-1';
 
-/// Bir seferde üretilebilecek en fazla soru.
-const aiMaxPerRequest = 10;
+/// Sunucuya bir istekte sorulan en fazla soru. Daha fazlası istenirse
+/// uygulama bunu 20'şerlik parçalara böler.
+const aiMaxPerRequest = 20;
+
+/// Kullanıcının bir seferde isteyebileceği en fazla soru.
+const aiMaxTotal = 100;
 
 enum AiDifficulty {
   mixed,
@@ -249,6 +253,7 @@ Future<AiResult> generateAiQuestions(
   required BankStore store,
   required AiUsage usage,
   required bool paid,
+  List<String> alsoAvoid = const [],
   http.Client? client,
   String? url,
 }) async {
@@ -272,10 +277,14 @@ Future<AiResult> generateAiQuestions(
   }
 
   // Bankada bu konudaki sorular tekrar edilmesin.
+  // Aynı seferde önceki parçalarda üretilenler de tekrar edilmesin.
   final avoid = [
-    for (final q in store.questions)
-      if (q.topicLabel.isNotEmpty && q.topicLabel == note.topicLabel && q.text.trim().isNotEmpty) q.text.trim(),
-  ].reversed.take(30).toList();
+    ...alsoAvoid.reversed,
+    ...[
+      for (final q in store.questions)
+        if (q.topicLabel.isNotEmpty && q.topicLabel == note.topicLabel && q.text.trim().isNotEmpty) q.text.trim(),
+    ].reversed,
+  ].take(30).toList();
 
   final c = client ?? http.Client();
   http.Response r;
@@ -290,7 +299,7 @@ Future<AiResult> generateAiQuestions(
           },
           body: jsonEncode(aiRequestBody(note, o, images: images, avoid: avoid)),
         )
-        .timeout(const Duration(seconds: 180));
+        .timeout(const Duration(seconds: 300));
   } on SocketException {
     throw AiException(tr('İnternet bağlantısı yok. Soru üretmek için internete bağlanın.'));
   } on http.ClientException {
