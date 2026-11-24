@@ -18,7 +18,7 @@ export const LANGUAGES = {
 export const DIFFICULTIES = ["mixed", "easy", "medium", "hard"];
 
 export const LIMITS = {
-  maxQuestions: 10,
+  maxQuestions: 20,
   maxTextChars: 60000,
   maxImages: 6,
   // base64 uzunluğu; ~1,5 MB görsel.
@@ -57,7 +57,7 @@ export function parseRequest(body) {
   }
 
   const count = Math.round(Number(body.count) || 5);
-  if (count < 1 || count > LIMITS.maxQuestions) throw new RequestError("bad_count", "count must be 1-10");
+  if (count < 1 || count > LIMITS.maxQuestions) throw new RequestError("bad_count", "count must be 1-20");
   const choices = Math.round(Number(body.choices) || 5);
   if (choices < 3 || choices > 5) throw new RequestError("bad_choices", "choices must be 3-5");
   const difficulty = DIFFICULTIES.includes(body.difficulty) ? body.difficulty : "mixed";

@@ -25,7 +25,7 @@ const aiServiceUrl = String.fromEnvironment('SORU_SERVIS_URL', defaultValue: '')
 const _appKey = 'netice-app-1';
 
 /// Bir seferde üretilebilecek en fazla soru.
-const aiMaxPerRequest = 10;
+const aiMaxPerRequest = 20;
 
 enum AiDifficulty {
   mixed,
@@ -290,7 +290,7 @@ Future<AiResult> generateAiQuestions(
           },
           body: jsonEncode(aiRequestBody(note, o, images: images, avoid: avoid)),
         )
-        .timeout(const Duration(seconds: 180));
+        .timeout(const Duration(seconds: 300));
   } on SocketException {
     throw AiException(tr('İnternet bağlantısı yok. Soru üretmek için internete bağlanın.'));
   } on http.ClientException {
