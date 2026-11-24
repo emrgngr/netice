@@ -1209,7 +1209,7 @@ FormLayout layoutFor(Exam exam, {bool mini = false}) => mini && exam.questionCou
 
 /// Sınav çeyrek A4 kısa quiz formuyla basılabilir mi?
 bool miniFormAllowed(Exam exam) =>
-    exam.templateId == null && !exam.hasBooklets && exam.questionCount <= MiniFormLayout.maxQuestionsFor(exam.numberDigits);
+    !exam.kidForm && exam.templateId == null && !exam.hasBooklets && exam.questionCount <= MiniFormLayout.maxQuestionsFor(exam.numberDigits);
 
 /// Seçili sınav için okuma motoru oluşturur.
 OmrReader readerFor(Exam exam) => OmrReader(

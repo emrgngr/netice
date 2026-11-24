@@ -78,7 +78,6 @@ class ExamScreen extends StatelessWidget {
       ];
       final chosen = <String>{exam.className};
       List<Student> studentsIn(Set<String> set) => [for (final c in allClasses) if (set.contains(c)) ...store.studentsOf(c)];
-      // Kısa quiz formu yalnız bu sınavın şubesine isimli basılır.
       final cls = store.studentsOf(exam.className);
       var copies = 10;
       var alternate = true;

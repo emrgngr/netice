@@ -24,11 +24,12 @@ class ReadSpec {
   const ReadSpec(
       {required this.questions, required this.choices, this.booklets = 1, this.digits = 6, this.template, this.kids = false});
 
-  /// Bu sınav çeyrek A4 kısa quiz formuyla da basılabilir mi?
-  bool get allowsMini => !kids && template == null && booklets == 1 && questions <= MiniFormLayout.maxQuestionsFor(digits);
-
   KidLayout get kidLayout =>
       KidLayout(questionCount: questions.clamp(1, KidLayout.maxQuestions), choiceCount: choices.clamp(2, 5));
+
+  /// Bu sınav çeyrek A4 kısa quiz formuyla da basılabilir mi?
+  bool get allowsMini =>
+      !kids && template == null && booklets == 1 && questions <= MiniFormLayout.maxQuestionsFor(digits);
 }
 
 /// Kâğıdı okur (Netice formu ya da şablon).
