@@ -52,9 +52,13 @@ jobs:
         if: steps.hazir.outputs.tamam == '1'
         run: |
           mkdir -p ~/.appstoreconnect/private_keys
-          KEY=~/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8
+          KEY=~/.appstoreconnect/private_keys/AuthKey_$(printf '%s' "$ASC_KEY_ID" | tr -d '[:space:]').p8
           printf '%s\n' "$ASC_PRIVATE_KEY" | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' > "$KEY"
           echo "ASC_KEY_PATH=$KEY" >> "$GITHUB_ENV"
+          # Gizli değerlerin sonunda boşluk/satır sonu kalırsa Apple 401 verir; temizlenmiş kopyalar.
+          KID=$(printf '%s' "$ASC_KEY_ID" | tr -d '[:space:]'); ISS=$(printf '%s' "$ASC_ISSUER_ID" | tr -d '[:space:]')
+          echo "::add-mask::$KID"; echo "::add-mask::$ISS"
+          echo "ASC_KID=$KID" >> "$GITHUB_ENV"; echo "ASC_ISS=$ISS" >> "$GITHUB_ENV"
       - name: Anahtarı Apple ile doğrula
         if: steps.hazir.outputs.tamam == '1'
         run: |
@@ -154,7 +158,7 @@ jobs:
         if: steps.hazir.outputs.tamam == '1' && (github.event_name == 'push' || inputs.yukle)
         run: |
           xcrun altool --upload-app --type ios -f build/ipa/*.ipa \
-            --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
+            --apiKey "$ASC_KID" --apiIssuer "$ASC_ISS"
       - name: Geçici sertifika ve profili sil
         if: always() && steps.hazir.outputs.tamam == '1'
         run: python3 tool/ios_imza.py temizle
