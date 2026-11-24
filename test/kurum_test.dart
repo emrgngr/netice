@@ -87,13 +87,14 @@ void main() {
   });
 
   group('Fiyatlar', () {
-    test('yıllık 299 TL ve 3 aylık sınav dönemi paketi; aylık abonelik satılmaz', () {
+    test('yıllık 399 TL ve 3 aylık sınav dönemi paketi; aylık abonelik satılmaz', () {
       final plans = ProService.plansFor(DateTime(2026, 11, 21));
       expect(plans.map((p) => p.id), [proYearlyId, proTermPassId]);
-      expect(plans.first.price, '299 TL / yıl');
+      expect(plans.first.price, '399 TL / yıl');
       expect(plans.last.price, '119 TL / 3 ay');
+      expect(plans.first.note, 'Ayda yaklaşık 33 TL · en avantajlı');
       // Ertesi yıl %30 artış kuralı yeni fiyatlara da uygulanır.
-      expect(ProService.plansFor(DateTime(2027, 11, 20)).first.price, '389 TL / yıl');
+      expect(ProService.plansFor(DateTime(2027, 11, 20)).first.price, '519 TL / yıl');
     });
 
     test('dönem paketi 90 gün açar; yeniden alınca süre eklenir', () async {

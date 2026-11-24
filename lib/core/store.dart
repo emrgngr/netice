@@ -12,6 +12,7 @@ import '../omr/omr_reader.dart';
 import '../omr/sheet_reader.dart';
 import '../omr/template.dart';
 import 'license.dart';
+import 'referral.dart';
 import 'models.dart';
 import 'scoring.dart';
 import '../l10n/l10n.dart';
@@ -88,6 +89,72 @@ class AppStore extends ChangeNotifier {
     _changed();
   }
 
+  /// Arkadaşını davet et: bu cihazın davet kodu (ilk istendiğinde üretilir).
+  String? inviteCode;
+
+  /// Arkadaşın davet kodu girildiyse (Pro ekranında %15 indirim gösterilir).
+  String? appliedInvite;
+
+  /// İndirimli abonelik alındıktan sonra davet edene gönderilecek teşekkür kodu.
+  String? thanksCode;
+
+  /// Kullanılmış teşekkür kodlarının arkadaş kimlikleri (her biri bir kez).
+  final List<String> redeemedThanks = [];
+
+  /// Davet ödülüyle kazanılan Pro bu tarihe kadar geçerli.
+  DateTime? bonusProUntil;
+  bool get hasBonusPro => bonusProUntil != null && DateTime.now().isBefore(bonusProUntil!);
+
+  String get myInviteCode {
+    if (inviteCode == null) {
+      inviteCode = Referral.newInviteCode();
+      _changed();
+    }
+    return inviteCode!;
+  }
+
+  /// Arkadaşın davet kodunu uygular. Hata varsa açıklamasını döndürür.
+  String? applyInvite(String raw) {
+    if (!Referral.isValidInvite(raw)) return tr('Davet kodu geçersiz. Kodu kontrol edip yeniden yazın.');
+    final code = Referral.format(raw);
+    if (code == myInviteCode) return tr('Kendi davet kodunuzu kullanamazsınız.');
+    appliedInvite = code;
+    _changed();
+    return null;
+  }
+
+  void clearInvite() {
+    appliedInvite = null;
+    _changed();
+  }
+
+  /// İndirimli yıllık abonelik alındı: davet edene teşekkür kodu üret.
+  void onInvitePurchase() {
+    final inv = appliedInvite;
+    if (inv == null || thanksCode != null) return;
+    thanksCode = Referral.thanksCode(invite: inv, friend: myInviteCode);
+    _changed();
+  }
+
+  /// Arkadaştan gelen teşekkür kodu: 1 ay ek Pro. Hata varsa açıklamasını döndürür.
+  String? redeemThanks(String raw, {DateTime? now}) {
+    final friend = Referral.verifyThanks(raw, myInvite: myInviteCode);
+    if (friend == null) return tr('Teşekkür kodu geçersiz ya da sizin davet kodunuza ait değil.');
+    if (redeemedThanks.contains(friend)) return tr('Bu teşekkür kodu daha önce kullanıldı.');
+    if (redeemedThanks.length >= Referral.maxRewards) {
+      return tr('Davet ödülü sınırına ulaştınız ({0} ay). Teşekkürler!', [Referral.maxRewards]);
+    }
+    final t = now ?? DateTime.now();
+    var from = t;
+    for (final d in [bonusProUntil, termPassUntil]) {
+      if (d != null && d.isAfter(from)) from = d;
+    }
+    bonusProUntil = from.add(Referral.rewardLength);
+    redeemedThanks.add(friend);
+    _changed();
+    return null;
+  }
+
   /// Kurum lisansı (okul, dershane, akademi…): tüm Pro özellikleri; yönetici
   /// koduyla ayrıca kurum yönetici paneli.
   InstitutionLicense? license;
@@ -110,6 +177,7 @@ class AppStore extends ChangeNotifier {
       proFreeOnThisPlatform ||
       inTrial ||
       hasTermPass ||
+      hasBonusPro ||
       hasLicense ||
       (proConfirmedAt != null && DateTime.now().difference(proConfirmedAt!) < proGrace);
 
@@ -242,6 +310,11 @@ class AppStore extends ChangeNotifier {
         'proConfirmedAt': proConfirmedAt?.toIso8601String(),
         if (termPassUntil != null) 'termPassUntil': termPassUntil!.toIso8601String(),
         if (license != null) 'license': license!.code,
+        if (inviteCode != null) 'inviteCode': inviteCode,
+        if (appliedInvite != null) 'appliedInvite': appliedInvite,
+        if (thanksCode != null) 'thanksCode': thanksCode,
+        if (redeemedThanks.isNotEmpty) 'redeemedThanks': redeemedThanks,
+        if (bonusProUntil != null) 'bonusProUntil': bonusProUntil!.toIso8601String(),
       };
 
   void _apply(Map<String, dynamic> j) {
@@ -280,6 +353,15 @@ class AppStore extends ChangeNotifier {
     proConfirmedAt = DateTime.tryParse('${j['proConfirmedAt'] ?? ''}') ?? proConfirmedAt;
     termPassUntil = DateTime.tryParse('${j['termPassUntil'] ?? ''}') ?? termPassUntil;
     if (j['license'] is String) _pendingLicense = j['license'] as String;
+    inviteCode = j['inviteCode'] as String? ?? inviteCode;
+    appliedInvite = j['appliedInvite'] as String? ?? appliedInvite;
+    thanksCode = j['thanksCode'] as String? ?? thanksCode;
+    if (j['redeemedThanks'] is List) {
+      redeemedThanks
+        ..clear()
+        ..addAll([for (final x in j['redeemedThanks'] as List) '$x']);
+    }
+    bonusProUntil = DateTime.tryParse('${j['bonusProUntil'] ?? ''}') ?? bonusProUntil;
     promoHiddenUntil = DateTime.tryParse('${j['promoHiddenUntil'] ?? ''}') ?? promoHiddenUntil;
     ratePrompted = j['ratePrompted'] as bool? ?? ratePrompted;
     splashSound = j['splashSound'] as bool? ?? splashSound;
@@ -364,6 +446,8 @@ class AppStore extends ChangeNotifier {
     final (email, name, last, auto) = (googleEmail, googleName, lastCloudBackup, cloudAuto);
     final (pp, pc, ts) = (proProduct, proConfirmedAt, trialStart);
     final (tp, lic) = (termPassUntil, license);
+    final (inv, ai, tc, bp) = (inviteCode, appliedInvite, thanksCode, bonusProUntil);
+    final rt = [...redeemedThanks];
     _apply(probe.toJsonMap());
     // Abonelik, paket ve lisans bu cihaza aittir; yedek dosyasından gelmez.
     proProduct = pp;
@@ -372,6 +456,14 @@ class AppStore extends ChangeNotifier {
     termPassUntil = tp;
     license = lic;
     _pendingLicense = null;
+    // Davet kodu ve ödülleri de bu cihaza aittir.
+    inviteCode = inv;
+    appliedInvite = ai;
+    thanksCode = tc;
+    bonusProUntil = bp;
+    redeemedThanks
+      ..clear()
+      ..addAll(rt);
     // Hesap bu cihaza aittir; yedekten gelmez.
     googleEmail = email;
     googleName = name;

@@ -2,8 +2,11 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:in_app_purchase_android/in_app_purchase_android.dart';
+import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
 
 import 'price_increase.dart';
+import 'referral.dart';
 import 'store.dart';
 import '../l10n/l10n.dart';
 
@@ -51,7 +54,19 @@ class ProPlan {
   final String price;
   final String note;
   final ProductDetails? details;
-  const ProPlan(this.id, this.title, this.price, this.note, [this.details]);
+
+  /// Davet indiriminde üstü çizili gösterilen normal fiyat.
+  final String? oldPrice;
+  const ProPlan(this.id, this.title, this.price, this.note, [this.details, this.oldPrice]);
+}
+
+/// Google Play abonelik teklifinin kimliği (temel plan için null).
+String? playOfferId(ProductDetails d) {
+  if (d is! GooglePlayProductDetails) return null;
+  final i = d.subscriptionIndex;
+  final offers = d.productDetails.subscriptionOfferDetails;
+  if (i == null || offers == null || i >= offers.length) return null;
+  return offers[i].offerId;
 }
 
 /// Satın alma ve abonelik doğrulaması. Doğrulama telefonda Google Play
@@ -65,16 +80,24 @@ class ProService {
   /// fiyatları her yıl %30 artırılarak gösterilir (bkz. price_increase.dart).
   static List<ProPlan> get fallbackPlans => plansFor(DateTime.now());
 
-  static List<ProPlan> plansFor(DateTime now) {
+  static List<ProPlan> plansFor(DateTime now, {bool invite = false}) {
     final years = priceIncreaseYears(now);
-    final yearly = tr('299 TL / yıl');
+    final yearly = tr('399 TL / yıl');
+    final yearlyNow = increasePriceText(yearly, years);
     return [
-      ProPlan(proYearlyId, tr('Yıllık'), increasePriceText(yearly, years),
-          monthlyNoteText(tr('Ayda yaklaşık 25 TL · en avantajlı'), yearly, years)),
+      if (invite)
+        ProPlan(proYearlyId, tr('Yıllık'), discountPriceText(yearlyNow, Referral.discount),
+            tr('Davet indirimi %15 · ilk yıl'), null, yearlyNow)
+      else
+        ProPlan(proYearlyId, tr('Yıllık'), yearlyNow,
+            monthlyNoteText(tr('Ayda yaklaşık 33 TL · en avantajlı'), yearly, years)),
       ProPlan(proTermPassId, tr('Sınav dönemi paketi'), increasePriceText(tr('119 TL / 3 ay'), years),
           tr('Tek seferlik ödeme · kendiliğinden yenilenmez')),
     ];
   }
+
+  /// Arkadaşın davet kodu girilmiş mi (yıllık abonelikte %15 indirim)?
+  bool get inviteApplied => _store?.appliedInvite != null && _store?.hasSubscription != true;
 
   /// Abonelik yalnızca mağaza olan platformlarda satılır. Bilgisayar
   /// sürümünde Pro özellikleri şimdilik açıktır.
@@ -102,26 +125,54 @@ class ProService {
   }
 
   Future<List<ProPlan>> plans() async {
-    if (!storeSupported) return fallbackPlans;
+    final invite = inviteApplied;
+    final fallback = plansFor(DateTime.now(), invite: invite);
+    final normal = plansFor(DateTime.now());
+    if (!storeSupported) return fallback;
     try {
       final iap = InAppPurchase.instance;
-      if (!await iap.isAvailable()) return fallbackPlans;
+      if (!await iap.isAvailable()) return fallback;
       final r = await iap.queryProductDetails(proProductIds).timeout(const Duration(seconds: 8));
-      if (r.productDetails.isEmpty) return fallbackPlans;
-      final byId = <String, ProductDetails>{};
+      if (r.productDetails.isEmpty) return fallback;
+      // Google Play her abonelik teklifini ayrı satır olarak verir: temel plan
+      // (teklifsiz) normal fiyattır, "davet-indirimi" teklifi %15 indirimlidir.
+      final base = <String, ProductDetails>{};
+      ProductDetails? inviteOffer;
       for (final d in r.productDetails) {
-        byId.putIfAbsent(d.id, () => d);
+        final offer = playOfferId(d);
+        if (offer == null) {
+          base.putIfAbsent(d.id, () => d);
+        } else if (offer == Referral.playOfferId && d.id == proYearlyId) {
+          inviteOffer = d;
+        }
       }
+      String per(String id) => id == proYearlyId ? tr('yıl') : tr('3 ay');
       return [
-        for (final f in fallbackPlans)
-          if (byId[f.id] != null)
-            ProPlan(f.id, f.title, '${byId[f.id]!.price} / ${f.id == proYearlyId ? tr('yıl') : tr('3 ay')}', f.note, byId[f.id])
+        for (final f in fallback)
+          if (f.id == proYearlyId && invite && inviteOffer != null && base[f.id] != null)
+            ProPlan(f.id, f.title, '${inviteOffer.price} / ${per(f.id)}', f.note, inviteOffer,
+                '${base[f.id]!.price} / ${per(f.id)}')
+          else if (base[f.id] != null)
+            // Teklif mağazada yoksa normal fiyat ve normal not gösterilir.
+            ProPlan(f.id, f.title, '${base[f.id]!.price} / ${per(f.id)}',
+                normal.firstWhere((n) => n.id == f.id).note, base[f.id])
           else
             f,
       ];
     } catch (_) {
-      return fallbackPlans;
+      return fallback;
     }
+  }
+
+  /// App Store'da davet indirimi teklif koduyla alınır: kod panoya
+  /// kopyalanır ve Apple'ın kod girme penceresi açılır.
+  Future<void> redeemInviteOnAppStore() async {
+    if (!Platform.isIOS) return;
+    try {
+      await InAppPurchase.instance
+          .getPlatformAddition<InAppPurchaseStoreKitPlatformAddition>()
+          .presentCodeRedemptionSheet();
+    } catch (_) {}
   }
 
   /// Satın almayı başlatır. Sonuç [events] ve mağaza durumuyla gelir.
@@ -167,6 +218,8 @@ class ProService {
         case PurchaseStatus.purchased:
         case PurchaseStatus.restored:
           _store?.confirmPro(p.productID);
+          // Davet koduyla alındıysa davet edene gönderilecek teşekkür kodu.
+          if (p.status == PurchaseStatus.purchased && p.productID == proYearlyId) _store?.onInvitePurchase();
           if (p.status == PurchaseStatus.purchased) _events.add(tr('Netice Pro etkinleştirildi. Teşekkürler!'));
         case PurchaseStatus.error:
           _events.add(tr('Satın alma tamamlanamadı.'));
