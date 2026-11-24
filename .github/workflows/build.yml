@@ -64,6 +64,39 @@ jobs:
           name: Netice-Windows-Klasor
           path: build/windows/x64/runner/Release/
 
+  macos:
+    name: Mac programı
+    needs: test
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Açılış melodisi
+        shell: bash
+        run: |
+          f=$(python3 -c "import json;print(json.load(open('tool/video/muzik.json'))['acilis'])")
+          curl -sSfL --retry 3 -o assets/sounds/acilis.mp3 "https://d8j0ntlcm91z4.cloudfront.net/user_3HBbhHFwxHnCS5yFDPNhwCMiEXw/$f" || echo 'melodi indirilemedi'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.50.0
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter build macos --release --build-number=${{ github.run_number }}
+      # Apple geliştirici imzası yok: uygulama yerel (ad-hoc) imzalı. İlk açılışta
+      # Sistem Ayarları > Gizlilik ve Güvenlik > "Yine de Aç" gerekir.
+      - name: DMG oluştur
+        run: |
+          mkdir -p build/dmg
+          cp -R build/macos/Build/Products/Release/Netice.app build/dmg/
+          ln -s /Applications build/dmg/Uygulamalar
+          codesign --force --deep --sign - build/dmg/Netice.app
+          hdiutil create -volname Netice -srcfolder build/dmg -ov -format UDZO build/Netice-Mac.dmg
+      - uses: actions/upload-artifact@v5
+        with:
+          name: Netice-Mac
+          path: build/Netice-Mac.dmg
+          compression-level: 0
+
   android:
     name: Android uygulaması (APK)
     needs: test
