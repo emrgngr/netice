@@ -337,7 +337,7 @@ void main() {
           'konu': text(tr('Ders ve konu')),
         }, then: () => scrollTo(find.text(tr('Zorluk')).first, center: 200));
     await scene('29_notlar', const LibraryScreen(initialTab: 1), () => {
-          'tur': find.textContaining(tr('Hap bilgi')).first,
+          'tur': find.byType(ChoiceChip).at(1),
           'kart': find.text((d['notlar'] as List)[2][2] as String).first,
           'foy': tip(tr('Listedekilerden çalışma föyü (PDF)')),
           'ekle': fab(),
