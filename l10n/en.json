@@ -2126,5 +2126,22 @@
 "Şık sayısı": "Number of choices",
 "Sorular 20'şer hazırlanıyor; hazır olanlar hemen aşağıya eklenir. Çok sayıda soru birkaç dakika sürebilir, ekrandan çıkmayın.": "Questions are prepared 20 at a time; finished ones appear below right away. Many questions can take a few minutes, so stay on this screen.",
 "Sorular hazırlanıyor… {0} / {1}": "Preparing questions… {0} / {1}",
-"ya da sayıyı kendiniz girin (en fazla {0})": "or enter the number yourself (up to {0})"
+"ya da sayıyı kendiniz girin (en fazla {0})": "or enter the number yourself (up to {0})",
+"\"{0} kit. no\" sütunu aynı sorunun o kitapçıktaki numarasını gösterir.": "The \"{0} bk. no\" column shows the same question's number in that booklet.",
+"Adet": "Count",
+"Alt konu / kazanım": "Sub-topic / outcome",
+"CEVAP ANAHTARI · {0} KİTAPÇIĞI": "ANSWER KEY · BOOKLET {0}",
+"Dayanak / kısa açıklama": "Basis / short explanation",
+"Puan = doğru sayısı × {0}": "Score = correct answers × {0}",
+"Soruların konulara göre dağılımı": "Questions by topic",
+"{0} (her biri {1} puan)": "{0} ({1} points each)",
+"{0} kit. no": "{0} bk. no",
+"{0} soruyla kitapçık ve cevap anahtarı oluştur": "Create a booklet and answer key with {0} questions",
+"{0} · toplam {1} puan": "{0} · {1} points in total",
+"ÖĞRETMEN NÜSHASIDIR — ÖĞRENCİLERE DAĞITILMAZ": "TEACHER'S COPY — NOT FOR DISTRIBUTION TO STUDENTS",
+"Şık dağılımı": "Answer distribution",
+"Seçilen sınıflarda kayıtlı öğrenci yok": "No students in the selected classes",
+"{0} sınıf için aynı sınav açıldı. Sonuçlar ortak raporda birleşir.": "The same exam was opened for {0} class(es). Results are merged in the common report.",
+"{0} sınıf · {1} öğrenci · ad, sınıf ve numara basılı gelir": "{0} classes · {1} students · name, class and number printed",
+"Alt konu": "Sub-topic"
 }

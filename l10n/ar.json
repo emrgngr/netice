@@ -2126,5 +2126,22 @@
 "Şık sayısı": "عدد الخيارات",
 "Sorular 20'şer hazırlanıyor; hazır olanlar hemen aşağıya eklenir. Çok sayıda soru birkaç dakika sürebilir, ekrandan çıkmayın.": "تعد الأسئلة على دفعات من 20؛ وتظهر الجاهزة منها في الأسفل فورا. قد يستغرق عدد كبير من الأسئلة بضع دقائق، فلا تغادر هذه الشاشة.",
 "Sorular hazırlanıyor… {0} / {1}": "جار إعداد الأسئلة... {0} / {1}",
-"ya da sayıyı kendiniz girin (en fazla {0})": "أو أدخل العدد بنفسك (بحد أقصى {0})"
+"ya da sayıyı kendiniz girin (en fazla {0})": "أو أدخل العدد بنفسك (بحد أقصى {0})",
+"\"{0} kit. no\" sütunu aynı sorunun o kitapçıktaki numarasını gösterir.": "يبين عمود \"رقم {0}\" رقم السؤال نفسه في ذلك الكتيب.",
+"Adet": "العدد",
+"Alt konu / kazanım": "الموضوع الفرعي / ناتج التعلم",
+"CEVAP ANAHTARI · {0} KİTAPÇIĞI": "مفتاح الإجابة · الكتيب {0}",
+"Dayanak / kısa açıklama": "المرجع / شرح مختصر",
+"Puan = doğru sayısı × {0}": "الدرجة = عدد الإجابات الصحيحة × {0}",
+"Soruların konulara göre dağılımı": "توزيع الأسئلة حسب الموضوعات",
+"{0} (her biri {1} puan)": "{0} (لكل سؤال {1} درجة)",
+"{0} kit. no": "رقم {0}",
+"{0} soruyla kitapçık ve cevap anahtarı oluştur": "إنشاء كتيب ومفتاح إجابة بـ {0} سؤالا",
+"{0} · toplam {1} puan": "{0} · المجموع {1} درجة",
+"ÖĞRETMEN NÜSHASIDIR — ÖĞRENCİLERE DAĞITILMAZ": "نسخة المعلم — لا توزع على الطلاب",
+"Şık dağılımı": "توزيع الإجابات",
+"Seçilen sınıflarda kayıtlı öğrenci yok": "لا يوجد طلاب مسجلون في الصفوف المختارة",
+"{0} sınıf için aynı sınav açıldı. Sonuçlar ortak raporda birleşir.": "فتح الاختبار نفسه لـ {0} صف. تدمج النتائج في التقرير المشترك.",
+"{0} sınıf · {1} öğrenci · ad, sınıf ve numara basılı gelir": "{0} صف · {1} طالب · يطبع الاسم والصف والرقم",
+"Alt konu": "الموضوع الفرعي"
 }

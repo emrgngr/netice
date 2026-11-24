@@ -1048,5 +1048,22 @@
  "Şık sayısı": "Anzahl der Antwortoptionen",
  "Sorular 20'şer hazırlanıyor; hazır olanlar hemen aşağıya eklenir. Çok sayıda soru birkaç dakika sürebilir, ekrandan çıkmayın.": "Die Fragen werden in 20er-Schritten erstellt; fertige erscheinen sofort unten. Viele Fragen können einige Minuten dauern, bleiben Sie auf diesem Bildschirm.",
  "Sorular hazırlanıyor… {0} / {1}": "Fragen werden vorbereitet… {0} / {1}",
- "ya da sayıyı kendiniz girin (en fazla {0})": "oder Anzahl selbst eingeben (höchstens {0})"
+ "ya da sayıyı kendiniz girin (en fazla {0})": "oder Anzahl selbst eingeben (höchstens {0})",
+ "\"{0} kit. no\" sütunu aynı sorunun o kitapçıktaki numarasını gösterir.": "Die Spalte „{0} Heft-Nr.“ zeigt die Nummer derselben Frage in diesem Heft.",
+ "Adet": "Anzahl",
+ "Alt konu / kazanım": "Unterthema / Lernziel",
+ "CEVAP ANAHTARI · {0} KİTAPÇIĞI": "LÖSUNGSSCHLÜSSEL · HEFT {0}",
+ "Dayanak / kısa açıklama": "Grundlage / kurze Erklärung",
+ "Puan = doğru sayısı × {0}": "Punkte = richtige Antworten × {0}",
+ "Soruların konulara göre dağılımı": "Fragen nach Themen",
+ "{0} (her biri {1} puan)": "{0} (je {1} Punkte)",
+ "{0} kit. no": "{0} Heft-Nr.",
+ "{0} soruyla kitapçık ve cevap anahtarı oluştur": "Heft und Lösungsschlüssel mit {0} Fragen erstellen",
+ "{0} · toplam {1} puan": "{0} · insgesamt {1} Punkte",
+ "ÖĞRETMEN NÜSHASIDIR — ÖĞRENCİLERE DAĞITILMAZ": "LEHRKRAFTEXEMPLAR — NICHT AN SCHÜLER AUSGEBEN",
+ "Şık dağılımı": "Verteilung der Antworten",
+ "Seçilen sınıflarda kayıtlı öğrenci yok": "In den gewählten Klassen sind keine Schüler eingetragen",
+ "{0} sınıf için aynı sınav açıldı. Sonuçlar ortak raporda birleşir.": "Dieselbe Prüfung wurde für {0} Klasse(n) angelegt. Die Ergebnisse werden im gemeinsamen Bericht zusammengeführt.",
+ "{0} sınıf · {1} öğrenci · ad, sınıf ve numara basılı gelir": "{0} Klassen · {1} Schüler · Name, Klasse und Nummer vorgedruckt",
+ "Alt konu": "Unterthema"
 }

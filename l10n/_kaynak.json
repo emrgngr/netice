@@ -2063,5 +2063,22 @@
  "Şık sayısı",
  "Sorular 20'şer hazırlanıyor; hazır olanlar hemen aşağıya eklenir. Çok sayıda soru birkaç dakika sürebilir, ekrandan çıkmayın.",
  "Sorular hazırlanıyor… {0} / {1}",
- "ya da sayıyı kendiniz girin (en fazla {0})"
+ "ya da sayıyı kendiniz girin (en fazla {0})",
+ "\"{0} kit. no\" sütunu aynı sorunun o kitapçıktaki numarasını gösterir.",
+ "Adet",
+ "Alt konu",
+ "Alt konu / kazanım",
+ "CEVAP ANAHTARI · {0} KİTAPÇIĞI",
+ "Dayanak / kısa açıklama",
+ "Puan = doğru sayısı × {0}",
+ "Seçilen sınıflarda kayıtlı öğrenci yok",
+ "Soruların konulara göre dağılımı",
+ "{0} (her biri {1} puan)",
+ "{0} kit. no",
+ "{0} soruyla kitapçık ve cevap anahtarı oluştur",
+ "{0} sınıf için aynı sınav açıldı. Sonuçlar ortak raporda birleşir.",
+ "{0} sınıf · {1} öğrenci · ad, sınıf ve numara basılı gelir",
+ "{0} · toplam {1} puan",
+ "ÖĞRETMEN NÜSHASIDIR — ÖĞRENCİLERE DAĞITILMAZ",
+ "Şık dağılımı"
 ]
