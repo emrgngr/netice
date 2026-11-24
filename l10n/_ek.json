@@ -49,6 +49,14 @@
  "Velilere toplu gönderim",
  "Bütün sınıfın karnelerini sırayla, hazır mesajla gönderin",
  "Nottan soru üretme",
- "Yapay zekâ ders notunuzdan çoktan seçmeli soru önerir · ayda 300 soru",
- "Nottan soru üretme (isteğe bağlı)\nKütüphanede \"Bu nottan soru üret\" dediğinizde ve onay verdiğinizde, yalnızca o notun metni ve görselleri Netice'nin soru sunucusu üzerinden yapay zekâ hizmetine (Anthropic Claude) gönderilir. Netice notu ve üretilen soruları saklamaz; sunucuda yalnızca kota için cihaza özel rastgele bir kimlik ve aylık soru sayısı tutulur. Anthropic bu içeriği yapay zekâ eğitiminde kullanmaz. Öğrenci bilgisi içeren notları göndermeyin. Bu özelliği kullanmazsanız hiçbir içerik gönderilmez."
+ "Nottan soru üretme (isteğe bağlı)\nKütüphanede \"Bu nottan soru üret\" dediğinizde ve onay verdiğinizde, yalnızca o notun metni ve görselleri Netice'nin soru sunucusu üzerinden yapay zekâ hizmetine (Anthropic Claude) gönderilir. Netice notu ve üretilen soruları saklamaz; sunucuda yalnızca kota için cihaza özel rastgele bir kimlik ve aylık soru sayısı tutulur. Anthropic bu içeriği yapay zekâ eğitiminde kullanmaz. Öğrenci bilgisi içeren notları göndermeyin. Bu özelliği kullanmazsanız hiçbir içerik gönderilmez.",
+ "Okula dönüş kampanyası",
+ "Yıllık planlarda ilk yıl %20 indirim · yeni kullanıcılara 30 gün ücretsiz deneme",
+ "Öğretmenler Günü'ne özel",
+ "Yıllık planlarda ilk yıl %25 indirim",
+ "Karne dönemi kampanyası",
+ "Yıllık planlarda ilk yıl %20 indirim",
+ "Sınav dönemi",
+ "Yalnız sınav aylarında mı lazım? 3 aylık paketle o kadar ödeyin.",
+ "Yapay zekâ ders notunuzdan soru önerir · Pro'da ayda 50, Pro + Yapay Zekâ'da ayda 300 soru"
 ]

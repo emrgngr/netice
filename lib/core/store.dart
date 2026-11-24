@@ -11,6 +11,7 @@ import '../omr/form_layout.dart';
 import '../omr/omr_reader.dart';
 import '../omr/sheet_reader.dart';
 import '../omr/template.dart';
+import 'campaigns.dart';
 import 'grade_scale.dart';
 import 'license.dart';
 import 'referral.dart';
@@ -79,7 +80,9 @@ class AppStore extends ChangeNotifier {
 
   /// İlk kurulumdan itibaren 14 gün tüm Pro özellikleri ücretsiz (kart gerekmez).
   DateTime? trialStart;
-  static const trialLength = Duration(days: 14);
+
+  /// Deneme 14 gün; okula dönüş kampanyasında kurulduysa 30 gün.
+  Duration get trialLength => Campaign.trialFor(trialStart);
   bool get inTrial => trialStart != null && DateTime.now().difference(trialStart!) < trialLength;
   int get trialDaysLeft => !inTrial ? 0 : ((trialLength - DateTime.now().difference(trialStart!)).inHours / 24).ceil();
 
@@ -189,11 +192,24 @@ class AppStore extends ChangeNotifier {
   /// Abonelik var mı (bilgisayar istisnası hariç)?
   bool get hasSubscription => proConfirmedAt != null && DateTime.now().difference(proConfirmedAt!) < proGrace;
 
+  /// Pro + Yapay Zekâ aboneliğinin son doğrulanma zamanı (ayda 300 soru).
+  DateTime? aiPlanConfirmedAt;
+  bool get hasAiPlan => aiPlanConfirmedAt != null && DateTime.now().difference(aiPlanConfirmedAt!) < proGrace;
+
   void confirmPro(String product) {
-    proProduct = product;
+    // Pro + Yapay Zekâ, sıradan Pro doğrulamasıyla ezilmesin.
+    if (product == aiYearlyProductId) {
+      aiPlanConfirmedAt = DateTime.now();
+      proProduct = product;
+    } else if (!hasAiPlan) {
+      proProduct = product;
+    }
     proConfirmedAt = DateTime.now();
     _changed();
   }
+
+  /// pro.dart'taki kimlikle aynı (döngüsel içe aktarmayı önlemek için burada).
+  static const aiYearlyProductId = 'netice_pro_yz_yillik';
 
   /// Raporlarda kullanılacak okul bilgisi: resmi başlık Pro özelliğidir.
   /// Kurum lisansında kurum adı lisanstan gelir; öğretmenler değiştiremez.
@@ -314,6 +330,7 @@ class AppStore extends ChangeNotifier {
         'proProduct': proProduct,
         'trialStart': trialStart?.toIso8601String(),
         'proConfirmedAt': proConfirmedAt?.toIso8601String(),
+        if (aiPlanConfirmedAt != null) 'aiPlanConfirmedAt': aiPlanConfirmedAt!.toIso8601String(),
         if (termPassUntil != null) 'termPassUntil': termPassUntil!.toIso8601String(),
         if (license != null) 'license': license!.code,
         if (parentSent.isNotEmpty) 'parentSent': {for (final e in parentSent.entries) e.key: e.value.toList()},
@@ -360,6 +377,7 @@ class AppStore extends ChangeNotifier {
     proProduct = j['proProduct'] as String? ?? proProduct;
     trialStart = DateTime.tryParse('${j['trialStart'] ?? ''}') ?? trialStart;
     proConfirmedAt = DateTime.tryParse('${j['proConfirmedAt'] ?? ''}') ?? proConfirmedAt;
+    aiPlanConfirmedAt = DateTime.tryParse('${j['aiPlanConfirmedAt'] ?? ''}') ?? aiPlanConfirmedAt;
     termPassUntil = DateTime.tryParse('${j['termPassUntil'] ?? ''}') ?? termPassUntil;
     if (j['license'] is String) _pendingLicense = j['license'] as String;
     parentSent
@@ -472,7 +490,7 @@ class AppStore extends ChangeNotifier {
     await _autoBackup(force: true);
     final probe = AppStore().._apply(j); // ayrıştırma hatası mevcut veriyi bozmasın
     final (email, name, last, auto) = (googleEmail, googleName, lastCloudBackup, cloudAuto);
-    final (pp, pc, ts) = (proProduct, proConfirmedAt, trialStart);
+    final (pp, pc, ts, aic) = (proProduct, proConfirmedAt, trialStart, aiPlanConfirmedAt);
     final (tp, lic) = (termPassUntil, license);
     final (inv, ai, tc, bp) = (inviteCode, appliedInvite, thanksCode, bonusProUntil);
     final rt = [...redeemedThanks];
@@ -480,6 +498,7 @@ class AppStore extends ChangeNotifier {
     // Abonelik, paket ve lisans bu cihaza aittir; yedek dosyasından gelmez.
     proProduct = pp;
     proConfirmedAt = pc;
+    aiPlanConfirmedAt = aic;
     trialStart = ts;
     termPassUntil = tp;
     license = lic;
@@ -1048,8 +1067,8 @@ class AppStore extends ChangeNotifier {
     String fit(String f, String l) => L10n.code == 'ru' && RegExp(r'[ая]$').hasMatch(f) && RegExp(r'(ов|ев|ин)$').hasMatch(l) ? '$lа' : l;
     return [
       for (var i = 0; i < count; i++)
-        // Çince ve Japoncada soyadı önce yazılır.
-        if (L10n.code == 'zh' || L10n.code == 'ja')
+        // Çince, Japonca ve Korecede soyadı önce yazılır.
+        if (L10n.code == 'zh' || L10n.code == 'ja' || L10n.code == 'ko')
           [last[(i * 5 + i ~/ last.length + shift * 3) % last.length], first[(i + shift) % first.length]]
         else
           [
@@ -1099,6 +1118,22 @@ class AppStore extends ChangeNotifier {
     'ja': (
       ['陽翔', '結衣', '蓮', '葵', '湊', '陽菜', '大翔', '凛', '悠真', '芽依', '颯太', '美咲'],
       ['佐藤', '鈴木', '高橋', '田中', '伊藤', '渡辺', '山本', '中村', '小林', '加藤', '吉田', '山田']
+    ),
+    'pt': (
+      ['Miguel', 'Helena', 'Arthur', 'Alice', 'Gael', 'Laura', 'Heitor', 'Valentina', 'Davi', 'Sophia', 'Bernardo', 'Manuela'],
+      ['Silva', 'Santos', 'Oliveira', 'Souza', 'Rodrigues', 'Ferreira', 'Alves', 'Pereira', 'Lima', 'Gomes', 'Costa', 'Ribeiro']
+    ),
+    'hi': (
+      ['आरव', 'अनन्या', 'विहान', 'दिया', 'अर्जुन', 'सान्वी', 'रोहन', 'इशिता', 'कबीर', 'मीरा', 'आदित्य', 'प्रिया'],
+      ['शर्मा', 'वर्मा', 'गुप्ता', 'सिंह', 'कुमार', 'पटेल', 'यादव', 'जोशी', 'मिश्रा', 'अग्रवाल', 'चौहान', 'त्रिपाठी']
+    ),
+    'id': (
+      ['Budi', 'Siti', 'Rizky', 'Putri', 'Fajar', 'Ayu', 'Dimas', 'Nadia', 'Bayu', 'Intan', 'Andi', 'Dewi'],
+      ['Santoso', 'Wijaya', 'Saputra', 'Lestari', 'Pratama', 'Kusuma', 'Hidayat', 'Nugroho', 'Setiawan', 'Rahayu', 'Siregar', 'Hutapea']
+    ),
+    'ko': (
+      ['민준', '서연', '도윤', '서윤', '시우', '지우', '하준', '하은', '주원', '민서', '지호', '수아'],
+      ['김', '이', '박', '최', '정', '강', '조', '윤', '장', '임', '한', '오']
     ),
   };
 

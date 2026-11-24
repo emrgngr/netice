@@ -123,3 +123,11 @@ String monthlyNoteText(String note, String yearlyText, int years) {
   final yearly = increasedAmount(y.value, years, cents: y.decimals > 0);
   return n.replace(note, yearly / 12);
 }
+
+/// Fiyat yazısındaki ilk sayıyı [factor] ile çarpar (ör. öğretmen sayısı).
+String multiplyPriceText(String text, double factor) {
+  final n = _Num.parse(text);
+  if (n == null) return text;
+  final x = n.value * factor;
+  return n.replace(text, n.decimals > 0 ? (x * 100).round() / 100 : x.roundToDouble());
+}

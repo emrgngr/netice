@@ -278,7 +278,12 @@ class ExamScreen extends StatelessWidget {
       await ReportPreviewScreen.open(context,
           title: tr('Sınav raporu'),
           fileName: '${_safe(exam.name)}_sinav_raporu.pdf',
-          build: () => buildResultsPdf(exam: exam, results: results, students: store.studentById, school: store.reportSchool));
+          build: () => buildResultsPdf(
+              exam: exam,
+              results: results,
+              students: store.studentById,
+              school: store.reportSchool,
+              classHistory: exam.kidStyle ? classHistoryOf(store, exam) : const []));
     }
 
     Future<void> studentCards() async {
@@ -455,6 +460,27 @@ Map<String, List<String>> developmentNotes(AppStore store, Iterable<String?> ids
       for (final id in ids)
         if (id != null && store.studentById[id] != null) id: studentDevelopmentNote(historyOf(store, store.studentById[id]!)),
     };
+
+/// Çocuk karnelerindeki gelişim grafiği için öğrencilerin tüm sınavları.
+Map<String, List<HistoryEntry>> developmentHistory(AppStore store, Exam exam, Iterable<String?> ids) => {
+      if (exam.kidStyle)
+        for (final id in ids)
+          if (id != null && store.studentById[id] != null)
+            id: historyOf(store, store.studentById[id]!).where((h) => !h.exam.date.isAfter(exam.date)).toList(),
+    };
+
+/// Aynı sınıfın bu sınava kadarki sınavları (ad, sınıf ortalaması yüzdesi).
+List<(String, double)> classHistoryOf(AppStore store, Exam exam) {
+  final exams = store.exams
+      .where((e) => e.className.trim() == exam.className.trim() && !e.date.isAfter(exam.date))
+      .toList()
+    ..sort((a, b) => a.date.compareTo(b.date));
+  return [
+    for (final e in exams)
+      if (store.resultsOf(e).isNotEmpty && e.rule.maxScore > 0)
+        (e.name, ExamReport.build(e, store.resultsOf(e)).stats.mean / e.rule.maxScore * 100),
+  ];
+}
 
 String _safe(String s) => s.replaceAll(RegExp(r'[^\wğüşıöçĞÜŞİÖÇ -]'), '').replaceAll(' ', '_');
 
@@ -1381,7 +1407,8 @@ Future<void> openCardsPreview(BuildContext context, Exam exam, {String? studentI
           students: byId,
           onlyStudentId: id,
           school: store.reportSchool,
-          notes: developmentNotes(store, [id]),
+          notes: developmentNotes(store, id == null ? results.map((r) => r.sheet.studentId) : [id]),
+          history: developmentHistory(store, exam, id == null ? results.map((r) => r.sheet.studentId) : [id]),
           studyTopics: BankAnalysis.studyTopics(exam, results, BankStore.instance, only: id == null ? null : [id])),
     ),
   ));
@@ -1406,6 +1433,7 @@ Future<bool> shareStudentCard(BuildContext context, Exam exam, String studentId,
         onlyStudentId: studentId,
         school: store.reportSchool,
         notes: developmentNotes(store, [studentId]),
+        history: developmentHistory(store, exam, [studentId]),
         studyTopics: BankAnalysis.studyTopics(exam, results, BankStore.instance, only: [studentId]));
     final rep = ExamReport.build(exam, results);
     await Printing.sharePdf(
