@@ -5,11 +5,18 @@
   "print": "Form yazdırma",
   "scan": "Kâğıt okutma",
   "report": "Sonuçlar ve raporlar",
-  "data": "Verileriniz"
+  "data": "Verileriniz",
+  "library": "Soru bankası ve kitapçık"
  },
  "k_sinav_ayar": "Sınav ayarlarında tam puanı, geçme puanını ve yanlış götürmeyi belirleyin. Kitapçık türlerini ve klasik soruları da buradan ekleyin.",
  "k_sablon": "Yayınevi ya da başka bir firmanın formunu kullanacaksanız Ayarlar'daki Başka firma formları bölümünden bir kez şablon oluşturun.",
  "k_kontrol": "Okunan bir kâğıda dokunun. Belirsiz işaretler sarı uyarıyla gösterilir; dokunarak düzeltebilirsiniz.",
  "k_donem": "Dönem raporu, seçtiğiniz sınavları birleştirerek dönem notlarını ve kazanım karnelerini hazırlar.",
- "k_yedek": "Netice çevrimdışı çalışır ve verilerinizi yalnızca cihazınızda tutar. Cihaz değiştirirken Yedeği dosyaya kaydet'i kullanın."
+ "k_yedek": "Netice çevrimdışı çalışır ve verilerinizi yalnızca cihazınızda tutar. Cihaz değiştirirken Yedeği dosyaya kaydet'i kullanın.",
+ "k_soru_kes": "Kitap ya da deneme sayfasının PDF'ini veya fotoğrafını seçin. Sorunun çevresine dikdörtgen çizin, doğru cevabı işaretleyip bankaya ekleyin.",
+ "k_soru_yaz": "Soruyu kendiniz de yazabilirsiniz. Soru türünü seçin, görsel ekleyin ve doğru şıkkın harfine dokunun.",
+ "k_notlar": "Notlar sekmesinde konu özetlerinizi ve hap bilgilerinizi tutun. Zayıf çıkan konuların hap bilgileri öğrenci karnesine kendiliğinden eklenir.",
+ "k_sihirbaz": "Yeni kitapçık ile sihirbazı açın. Soruları bankadan seçin ya da soru sayısını ve zorluk dağılımını verip Netice'ye seçtirin.",
+ "k_kitapcik_turu": "A'dan H'ye kadar kitapçık türü oluşturun, soruları ve şıkları karıştırın. Sınav oluştur ile optik okumaya hazır sınavınız kurulur.",
+ "k_banka_analiz": "Analiz sekmesi bankanızın zorluk dengesini ve konu kapsamını gösterir. Sınavlar okutuldukça soruların gerçek zorluğunu da ölçer."
 }

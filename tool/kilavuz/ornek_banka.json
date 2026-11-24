@@ -1,0 +1,267 @@
+{
+ "_aciklama": "Kılavuz PDF'i ve videolarındaki örnek soru bankası (dil başına). Soru: [konu sırası, zorluk 0-2, metin, şıklar, doğru şık, çözüm]. İlk görselli soru 'gorsel': true.",
+ "tr": {
+  "ders": "Fizik", "sinif": "9. sınıf",
+  "konular": ["Hareket", "Kuvvet", "Enerji", "Isı ve sıcaklık"],
+  "sorular": [
+   [0, 0, "Sabit hızla giden bir araç 2 saatte 120 km yol alıyor. Aracın hızı kaç km/sa'tir?", ["40", "50", "60", "80"], 2, "v = x / t = 120 / 2 = 60 km/sa"],
+   [0, 1, "Durgun hâlden 2 m/s² ivmeyle harekete başlayan bir cismin 5. saniye sonundaki hızı kaç m/s'dir?", ["5", "8", "10", "12"], 2, ""],
+   [1, 0, "Şekildeki cisme etki eden net kuvvetin yönü nedir?", ["Sağa", "Sola", "Yukarı", "Aşağı"], 0, ""],
+   [1, 1, "Kütlesi 4 kg olan bir cisme 20 N net kuvvet uygulanırsa ivmesi kaç m/s² olur?", ["2", "4", "5", "8"], 2, "a = F / m = 20 / 4 = 5 m/s²"],
+   [1, 2, "Eğik düzlemde sabit hızla çekilen bir cisme etki eden net kuvvet kaç N'dur?", ["0", "mg", "mg·sinα", "mg·cosα"], 0, ""],
+   [2, 0, "Yerden h yüksekliğindeki bir cismin sahip olduğu enerji türü hangisidir?", ["Kinetik", "Çekim potansiyel", "Esneklik potansiyel", "Isı"], 1, ""],
+   [2, 1, "2 kg kütleli cisim 3 m/s hızla hareket ediyor. Kinetik enerjisi kaç J'dür?", ["3", "6", "9", "18"], 2, ""],
+   [2, 2, "Sürtünmesiz ortamda serbest bırakılan bir cismin mekanik enerjisi için ne söylenebilir?", ["Artar", "Azalır", "Korunur", "Önce artar sonra azalır"], 2, ""],
+   [3, 0, "Sıcaklık birimi aşağıdakilerden hangisidir?", ["Joule", "Kalori", "Kelvin", "Watt"], 2, ""],
+   [3, 2, "Aynı sıcaklıktaki iki cisim temas ettirilirse ne olur?", ["Isı alışverişi olmaz", "Büyük olan ısı verir", "Küçük olan ısı verir", "Hiçbiri"], 0, ""]
+  ],
+  "acik": ["Enerjinin korunumu ilkesini günlük hayattan bir örnekle açıklayınız.", "Sarkaç: potansiyel ve kinetik enerji dönüşümü"],
+  "notlar": [
+   ["tip", 0, "Hız formülü", "v = x / t. Birimler uyumlu olmalı: km ve saat ya da m ve saniye."],
+   ["tip", 1, "Newton'un 2. yasası", "F(net) = m · a. Net kuvvet sıfırsa cisim ya durur ya da sabit hızla gider."],
+   ["summary", 2, "Enerji ve dönüşümleri", "Kinetik enerji: Ek = ½ m v²\nPotansiyel enerji: Ep = m g h\nSürtünmesiz ortamda mekanik enerji korunur; sürtünme varsa bir kısmı ısıya dönüşür."],
+   ["tip", 2, "Korunum", "Enerji yoktan var edilemez, vardan yok edilemez; yalnız biçim değiştirir."]
+  ],
+  "kitapcik": ["9. Sınıf Fizik 1. Yazılı", "1. Dönem 1. Fizik Yazılısı"]
+ },
+ "en": {
+  "ders": "Physics", "sinif": "Grade 9",
+  "konular": ["Motion", "Force", "Energy", "Heat and temperature"],
+  "sorular": [
+   [0, 0, "A car moving at constant speed travels 120 km in 2 hours. What is its speed in km/h?", ["40", "50", "60", "80"], 2, "v = x / t = 120 / 2 = 60 km/h"],
+   [0, 1, "An object starts from rest with an acceleration of 2 m/s². What is its speed in m/s after 5 seconds?", ["5", "8", "10", "12"], 2, ""],
+   [1, 0, "In which direction does the net force on the object in the figure act?", ["Right", "Left", "Up", "Down"], 0, ""],
+   [1, 1, "A net force of 20 N acts on a 4 kg object. What is its acceleration in m/s²?", ["2", "4", "5", "8"], 2, "a = F / m = 20 / 4 = 5 m/s²"],
+   [1, 2, "An object is pulled up an inclined plane at constant speed. What is the net force on it in N?", ["0", "mg", "mg·sinα", "mg·cosα"], 0, ""],
+   [2, 0, "What kind of energy does an object at height h above the ground have?", ["Kinetic", "Gravitational potential", "Elastic potential", "Heat"], 1, ""],
+   [2, 1, "A 2 kg object moves at 3 m/s. What is its kinetic energy in J?", ["3", "6", "9", "18"], 2, ""],
+   [2, 2, "An object is released in a frictionless setting. What happens to its mechanical energy?", ["It increases", "It decreases", "It is conserved", "It rises, then falls"], 2, ""],
+   [3, 0, "Which of these is a unit of temperature?", ["Joule", "Calorie", "Kelvin", "Watt"], 2, ""],
+   [3, 2, "Two objects at the same temperature touch. What happens?", ["No heat is exchanged", "The larger one gives heat", "The smaller one gives heat", "None of these"], 0, ""]
+  ],
+  "acik": ["Explain the conservation of energy with an example from daily life.", "Pendulum: potential and kinetic energy convert into each other"],
+  "notlar": [
+   ["tip", 0, "Speed formula", "v = x / t. Use matching units: km and hours, or m and seconds."],
+   ["tip", 1, "Newton's second law", "F(net) = m · a. If the net force is zero, the object stays at rest or moves at constant speed."],
+   ["summary", 2, "Energy and its forms", "Kinetic energy: Ek = ½ m v²\nPotential energy: Ep = m g h\nWithout friction, mechanical energy is conserved; with friction, part of it turns into heat."],
+   ["tip", 2, "Conservation", "Energy is neither created nor destroyed; it only changes form."]
+  ],
+  "kitapcik": ["Grade 9 Physics Test 1", "Term 1 · Physics Test 1"]
+ },
+ "az": {
+  "ders": "Fizika", "sinif": "9-cu sinif",
+  "konular": ["Hərəkət", "Qüvvə", "Enerji", "İstilik və temperatur"],
+  "sorular": [
+   [0, 0, "Sabit sürətlə gedən avtomobil 2 saatda 120 km yol gedir. Avtomobilin sürəti neçə km/saat-dır?", ["40", "50", "60", "80"], 2, "v = x / t = 120 / 2 = 60 km/saat"],
+   [0, 1, "Sükunətdən 2 m/s² təcillə hərəkətə başlayan cismin 5 saniyə sonra sürəti neçə m/s olar?", ["5", "8", "10", "12"], 2, ""],
+   [1, 0, "Şəkildəki cismə təsir edən əvəzləyici qüvvə hansı istiqamətdədir?", ["Sağa", "Sola", "Yuxarı", "Aşağı"], 0, ""],
+   [1, 1, "Kütləsi 4 kq olan cismə 20 N əvəzləyici qüvvə təsir edir. Təcili neçə m/s² olar?", ["2", "4", "5", "8"], 2, "a = F / m = 20 / 4 = 5 m/s²"],
+   [1, 2, "Maili müstəvidə sabit sürətlə çəkilən cismə təsir edən əvəzləyici qüvvə neçə N-dur?", ["0", "mg", "mg·sinα", "mg·cosα"], 0, ""],
+   [2, 0, "Yerdən h hündürlükdə olan cismin hansı enerjisi var?", ["Kinetik", "Qravitasiya potensial", "Elastiki potensial", "İstilik"], 1, ""],
+   [2, 1, "Kütləsi 2 kq olan cisim 3 m/s sürətlə hərəkət edir. Kinetik enerjisi neçə C-dur?", ["3", "6", "9", "18"], 2, ""],
+   [2, 2, "Sürtünməsiz mühitdə sərbəst buraxılan cismin mexaniki enerjisi necə dəyişir?", ["Artır", "Azalır", "Saxlanılır", "Əvvəl artır, sonra azalır"], 2, ""],
+   [3, 0, "Hansı temperatur vahididir?", ["Coul", "Kalori", "Kelvin", "Vatt"], 2, ""],
+   [3, 2, "Eyni temperaturlu iki cisim toxundurulsa nə baş verər?", ["İstilik mübadiləsi olmaz", "Böyük olan istilik verər", "Kiçik olan istilik verər", "Heç biri"], 0, ""]
+  ],
+  "acik": ["Enerjinin saxlanma qanununu gündəlik həyatdan bir nümunə ilə izah edin.", "Rəqqas: potensial və kinetik enerjinin bir-birinə çevrilməsi"],
+  "notlar": [
+   ["tip", 0, "Sürət düsturu", "v = x / t. Vahidlər uyğun olmalıdır: km və saat, ya da m və saniyə."],
+   ["tip", 1, "Nyutonun II qanunu", "F(əvəz) = m · a. Əvəzləyici qüvvə sıfırdırsa, cisim ya sükunətdə qalır, ya da sabit sürətlə gedir."],
+   ["summary", 2, "Enerji və çevrilmələri", "Kinetik enerji: Ek = ½ m v²\nPotensial enerji: Ep = m g h\nSürtünmə olmadıqda mexaniki enerji saxlanılır; sürtünmə varsa bir hissəsi istiliyə çevrilir."],
+   ["tip", 2, "Saxlanma", "Enerji yoxdan yaranmır, yox olmur; yalnız bir növdən digərinə keçir."]
+  ],
+  "kitapcik": ["9-cu sinif Fizika 1-ci yazı işi", "I yarımil · Fizika yazı işi"]
+ },
+ "de": {
+  "ders": "Physik", "sinif": "Klasse 9",
+  "konular": ["Bewegung", "Kraft", "Energie", "Wärme und Temperatur"],
+  "sorular": [
+   [0, 0, "Ein Auto fährt mit konstanter Geschwindigkeit in 2 Stunden 120 km. Wie groß ist seine Geschwindigkeit in km/h?", ["40", "50", "60", "80"], 2, "v = x / t = 120 / 2 = 60 km/h"],
+   [0, 1, "Ein Körper startet aus der Ruhe mit 2 m/s² Beschleunigung. Wie schnell ist er nach 5 Sekunden in m/s?", ["5", "8", "10", "12"], 2, ""],
+   [1, 0, "In welche Richtung wirkt die resultierende Kraft auf den Körper in der Abbildung?", ["Nach rechts", "Nach links", "Nach oben", "Nach unten"], 0, ""],
+   [1, 1, "Auf einen 4 kg schweren Körper wirkt eine resultierende Kraft von 20 N. Wie groß ist seine Beschleunigung in m/s²?", ["2", "4", "5", "8"], 2, "a = F / m = 20 / 4 = 5 m/s²"],
+   [1, 2, "Ein Körper wird mit konstanter Geschwindigkeit eine schiefe Ebene hinaufgezogen. Wie groß ist die resultierende Kraft in N?", ["0", "mg", "mg·sinα", "mg·cosα"], 0, ""],
+   [2, 0, "Welche Energie besitzt ein Körper in der Höhe h über dem Boden?", ["Kinetische", "Lageenergie", "Spannenergie", "Wärme"], 1, ""],
+   [2, 1, "Ein 2 kg schwerer Körper bewegt sich mit 3 m/s. Wie groß ist seine kinetische Energie in J?", ["3", "6", "9", "18"], 2, ""],
+   [2, 2, "Ein Körper wird reibungsfrei fallen gelassen. Was gilt für seine mechanische Energie?", ["Sie nimmt zu", "Sie nimmt ab", "Sie bleibt erhalten", "Erst mehr, dann weniger"], 2, ""],
+   [3, 0, "Welche ist eine Einheit der Temperatur?", ["Joule", "Kalorie", "Kelvin", "Watt"], 2, ""],
+   [3, 2, "Zwei Körper gleicher Temperatur berühren sich. Was passiert?", ["Kein Wärmeaustausch", "Der größere gibt Wärme ab", "Der kleinere gibt Wärme ab", "Nichts davon"], 0, ""]
+  ],
+  "acik": ["Erkläre den Energieerhaltungssatz an einem Beispiel aus dem Alltag.", "Pendel: Lage- und Bewegungsenergie wandeln sich ineinander um"],
+  "notlar": [
+   ["tip", 0, "Geschwindigkeit", "v = x / t. Einheiten müssen passen: km und Stunden oder m und Sekunden."],
+   ["tip", 1, "Zweites newtonsches Gesetz", "F(res) = m · a. Ist die resultierende Kraft null, ruht der Körper oder bewegt sich gleichförmig."],
+   ["summary", 2, "Energie und Energieumwandlung", "Kinetische Energie: Ek = ½ m v²\nLageenergie: Ep = m g h\nOhne Reibung bleibt die mechanische Energie erhalten; mit Reibung wird ein Teil zu Wärme."],
+   ["tip", 2, "Erhaltung", "Energie kann weder erzeugt noch vernichtet werden; sie wird nur umgewandelt."]
+  ],
+  "kitapcik": ["Klasse 9 Physik 1. Klassenarbeit", "1. Halbjahr · Physik-Klassenarbeit"]
+ },
+ "es": {
+  "ders": "Física", "sinif": "3.º ESO",
+  "konular": ["Movimiento", "Fuerza", "Energía", "Calor y temperatura"],
+  "sorular": [
+   [0, 0, "Un coche a velocidad constante recorre 120 km en 2 horas. ¿Cuál es su velocidad en km/h?", ["40", "50", "60", "80"], 2, "v = x / t = 120 / 2 = 60 km/h"],
+   [0, 1, "Un cuerpo parte del reposo con una aceleración de 2 m/s². ¿Qué velocidad tiene a los 5 segundos, en m/s?", ["5", "8", "10", "12"], 2, ""],
+   [1, 0, "¿En qué sentido actúa la fuerza neta sobre el cuerpo de la figura?", ["Derecha", "Izquierda", "Arriba", "Abajo"], 0, ""],
+   [1, 1, "Sobre un cuerpo de 4 kg actúa una fuerza neta de 20 N. ¿Cuál es su aceleración en m/s²?", ["2", "4", "5", "8"], 2, "a = F / m = 20 / 4 = 5 m/s²"],
+   [1, 2, "Un cuerpo sube por un plano inclinado a velocidad constante. ¿Cuál es la fuerza neta en N?", ["0", "mg", "mg·sinα", "mg·cosα"], 0, ""],
+   [2, 0, "¿Qué energía tiene un cuerpo situado a una altura h del suelo?", ["Cinética", "Potencial gravitatoria", "Potencial elástica", "Calor"], 1, ""],
+   [2, 1, "Un cuerpo de 2 kg se mueve a 3 m/s. ¿Cuál es su energía cinética en J?", ["3", "6", "9", "18"], 2, ""],
+   [2, 2, "Se suelta un cuerpo sin rozamiento. ¿Qué ocurre con su energía mecánica?", ["Aumenta", "Disminuye", "Se conserva", "Sube y luego baja"], 2, ""],
+   [3, 0, "¿Cuál es una unidad de temperatura?", ["Julio", "Caloría", "Kelvin", "Vatio"], 2, ""],
+   [3, 2, "Dos cuerpos a la misma temperatura se tocan. ¿Qué ocurre?", ["No hay intercambio de calor", "El mayor cede calor", "El menor cede calor", "Ninguna"], 0, ""]
+  ],
+  "acik": ["Explica la conservación de la energía con un ejemplo de la vida cotidiana.", "Péndulo: la energía potencial y la cinética se transforman entre sí"],
+  "notlar": [
+   ["tip", 0, "Fórmula de la velocidad", "v = x / t. Las unidades deben coincidir: km y horas, o m y segundos."],
+   ["tip", 1, "Segunda ley de Newton", "F(neta) = m · a. Si la fuerza neta es cero, el cuerpo está en reposo o se mueve a velocidad constante."],
+   ["summary", 2, "La energía y sus formas", "Energía cinética: Ec = ½ m v²\nEnergía potencial: Ep = m g h\nSin rozamiento la energía mecánica se conserva; con rozamiento, una parte se convierte en calor."],
+   ["tip", 2, "Conservación", "La energía no se crea ni se destruye; solo se transforma."]
+  ],
+  "kitapcik": ["3.º ESO Física · Examen 1", "1.er trimestre · Examen de Física"]
+ },
+ "ru": {
+  "ders": "Физика", "sinif": "9 класс",
+  "konular": ["Движение", "Сила", "Энергия", "Теплота и температура"],
+  "sorular": [
+   [0, 0, "Автомобиль, двигаясь равномерно, проезжает 120 км за 2 часа. Какова его скорость в км/ч?", ["40", "50", "60", "80"], 2, "v = x / t = 120 / 2 = 60 км/ч"],
+   [0, 1, "Тело начинает движение из покоя с ускорением 2 м/с². Какой будет его скорость через 5 секунд (м/с)?", ["5", "8", "10", "12"], 2, ""],
+   [1, 0, "Куда направлена равнодействующая сила, действующая на тело на рисунке?", ["Вправо", "Влево", "Вверх", "Вниз"], 0, ""],
+   [1, 1, "На тело массой 4 кг действует равнодействующая сила 20 Н. Каково его ускорение (м/с²)?", ["2", "4", "5", "8"], 2, "a = F / m = 20 / 4 = 5 м/с²"],
+   [1, 2, "Тело равномерно тянут вверх по наклонной плоскости. Чему равна равнодействующая сила (Н)?", ["0", "mg", "mg·sinα", "mg·cosα"], 0, ""],
+   [2, 0, "Какой энергией обладает тело на высоте h над землёй?", ["Кинетической", "Потенциальной (тяготения)", "Потенциальной (упругости)", "Тепловой"], 1, ""],
+   [2, 1, "Тело массой 2 кг движется со скоростью 3 м/с. Какова его кинетическая энергия (Дж)?", ["3", "6", "9", "18"], 2, ""],
+   [2, 2, "Тело отпускают без трения. Что происходит с его механической энергией?", ["Растёт", "Уменьшается", "Сохраняется", "Сначала растёт, потом падает"], 2, ""],
+   [3, 0, "Какая из единиц — единица температуры?", ["Джоуль", "Калория", "Кельвин", "Ватт"], 2, ""],
+   [3, 2, "Два тела одинаковой температуры соприкасаются. Что произойдёт?", ["Теплообмена не будет", "Большее отдаст тепло", "Меньшее отдаст тепло", "Ничего из этого"], 0, ""]
+  ],
+  "acik": ["Объясните закон сохранения энергии на примере из жизни.", "Маятник: потенциальная и кинетическая энергия переходят друг в друга"],
+  "notlar": [
+   ["tip", 0, "Формула скорости", "v = x / t. Единицы должны совпадать: км и часы или м и секунды."],
+   ["tip", 1, "Второй закон Ньютона", "F = m · a. Если равнодействующая равна нулю, тело покоится или движется равномерно."],
+   ["summary", 2, "Энергия и её превращения", "Кинетическая энергия: Ek = ½ m v²\nПотенциальная энергия: Ep = m g h\nБез трения механическая энергия сохраняется; при трении часть переходит в тепло."],
+   ["tip", 2, "Сохранение", "Энергия не возникает и не исчезает, а только переходит из одной формы в другую."]
+  ],
+  "kitapcik": ["Физика 9 класс · Контрольная 1", "1 четверть · Контрольная по физике"]
+ },
+ "it": {
+  "ders": "Fisica", "sinif": "Classe 1ª",
+  "konular": ["Moto", "Forza", "Energia", "Calore e temperatura"],
+  "sorular": [
+   [0, 0, "Un'auto a velocità costante percorre 120 km in 2 ore. Qual è la sua velocità in km/h?", ["40", "50", "60", "80"], 2, "v = x / t = 120 / 2 = 60 km/h"],
+   [0, 1, "Un corpo parte da fermo con accelerazione di 2 m/s². Che velocità ha dopo 5 secondi, in m/s?", ["5", "8", "10", "12"], 2, ""],
+   [1, 0, "In quale verso agisce la forza risultante sul corpo in figura?", ["Destra", "Sinistra", "Su", "Giù"], 0, ""],
+   [1, 1, "Su un corpo di 4 kg agisce una forza risultante di 20 N. Qual è la sua accelerazione in m/s²?", ["2", "4", "5", "8"], 2, "a = F / m = 20 / 4 = 5 m/s²"],
+   [1, 2, "Un corpo è tirato a velocità costante su un piano inclinato. Quanto vale la forza risultante in N?", ["0", "mg", "mg·sinα", "mg·cosα"], 0, ""],
+   [2, 0, "Che energia possiede un corpo ad altezza h dal suolo?", ["Cinetica", "Potenziale gravitazionale", "Potenziale elastica", "Calore"], 1, ""],
+   [2, 1, "Un corpo di 2 kg si muove a 3 m/s. Qual è la sua energia cinetica in J?", ["3", "6", "9", "18"], 2, ""],
+   [2, 2, "Un corpo viene lasciato cadere senza attrito. Cosa succede alla sua energia meccanica?", ["Aumenta", "Diminuisce", "Si conserva", "Prima sale, poi scende"], 2, ""],
+   [3, 0, "Quale è un'unità di temperatura?", ["Joule", "Caloria", "Kelvin", "Watt"], 2, ""],
+   [3, 2, "Due corpi alla stessa temperatura si toccano. Cosa succede?", ["Nessuno scambio di calore", "Il più grande cede calore", "Il più piccolo cede calore", "Nessuna"], 0, ""]
+  ],
+  "acik": ["Spiega la conservazione dell'energia con un esempio della vita quotidiana.", "Pendolo: energia potenziale e cinetica si trasformano l'una nell'altra"],
+  "notlar": [
+   ["tip", 0, "Formula della velocità", "v = x / t. Le unità devono essere coerenti: km e ore, oppure m e secondi."],
+   ["tip", 1, "Secondo principio di Newton", "F(ris) = m · a. Se la forza risultante è nulla, il corpo è fermo o si muove a velocità costante."],
+   ["summary", 2, "L'energia e le sue forme", "Energia cinetica: Ec = ½ m v²\nEnergia potenziale: Ep = m g h\nSenza attrito l'energia meccanica si conserva; con l'attrito una parte diventa calore."],
+   ["tip", 2, "Conservazione", "L'energia non si crea né si distrugge; si trasforma soltanto."]
+  ],
+  "kitapcik": ["Fisica classe 1ª · Verifica 1", "1° quadrimestre · Verifica di fisica"]
+ },
+ "fr": {
+  "ders": "Physique", "sinif": "Seconde",
+  "konular": ["Mouvement", "Force", "Énergie", "Chaleur et température"],
+  "sorular": [
+   [0, 0, "Une voiture à vitesse constante parcourt 120 km en 2 heures. Quelle est sa vitesse en km/h ?", ["40", "50", "60", "80"], 2, "v = x / t = 120 / 2 = 60 km/h"],
+   [0, 1, "Un objet part du repos avec une accélération de 2 m/s². Quelle est sa vitesse après 5 secondes, en m/s ?", ["5", "8", "10", "12"], 2, ""],
+   [1, 0, "Dans quel sens agit la force résultante sur l'objet de la figure ?", ["Vers la droite", "Vers la gauche", "Vers le haut", "Vers le bas"], 0, ""],
+   [1, 1, "Une force résultante de 20 N agit sur un objet de 4 kg. Quelle est son accélération en m/s² ?", ["2", "4", "5", "8"], 2, "a = F / m = 20 / 4 = 5 m/s²"],
+   [1, 2, "Un objet est tiré à vitesse constante sur un plan incliné. Que vaut la force résultante en N ?", ["0", "mg", "mg·sinα", "mg·cosα"], 0, ""],
+   [2, 0, "Quelle énergie possède un objet à une hauteur h du sol ?", ["Cinétique", "Potentielle de pesanteur", "Potentielle élastique", "Chaleur"], 1, ""],
+   [2, 1, "Un objet de 2 kg se déplace à 3 m/s. Quelle est son énergie cinétique en J ?", ["3", "6", "9", "18"], 2, ""],
+   [2, 2, "On lâche un objet sans frottement. Que devient son énergie mécanique ?", ["Elle augmente", "Elle diminue", "Elle se conserve", "Elle monte puis baisse"], 2, ""],
+   [3, 0, "Laquelle est une unité de température ?", ["Joule", "Calorie", "Kelvin", "Watt"], 2, ""],
+   [3, 2, "Deux objets à la même température se touchent. Que se passe-t-il ?", ["Aucun échange de chaleur", "Le plus grand cède de la chaleur", "Le plus petit cède de la chaleur", "Aucune"], 0, ""]
+  ],
+  "acik": ["Expliquez la conservation de l'énergie avec un exemple de la vie courante.", "Pendule : l'énergie potentielle et l'énergie cinétique s'échangent"],
+  "notlar": [
+   ["tip", 0, "Formule de la vitesse", "v = x / t. Les unités doivent correspondre : km et heures, ou m et secondes."],
+   ["tip", 1, "Deuxième loi de Newton", "F = m · a. Si la force résultante est nulle, l'objet reste immobile ou se déplace à vitesse constante."],
+   ["summary", 2, "L'énergie et ses formes", "Énergie cinétique : Ec = ½ m v²\nÉnergie potentielle : Ep = m g h\nSans frottement, l'énergie mécanique se conserve ; avec frottement, une partie devient chaleur."],
+   ["tip", 2, "Conservation", "Rien ne se perd, rien ne se crée : l'énergie ne fait que changer de forme."]
+  ],
+  "kitapcik": ["Seconde · Physique · Contrôle 1", "1er trimestre · Contrôle de physique"]
+ },
+ "zh": {
+  "ders": "物理", "sinif": "高一",
+  "konular": ["运动", "力", "能量", "热与温度"],
+  "sorular": [
+   [0, 0, "一辆汽车匀速行驶，2 小时行驶 120 km。它的速度是多少 km/h？", ["40", "50", "60", "80"], 2, "v = x / t = 120 / 2 = 60 km/h"],
+   [0, 1, "物体由静止开始以 2 m/s² 的加速度运动，5 秒末的速度是多少 m/s？", ["5", "8", "10", "12"], 2, ""],
+   [1, 0, "图中物体所受合力的方向是？", ["向右", "向左", "向上", "向下"], 0, ""],
+   [1, 1, "质量为 4 kg 的物体受到 20 N 的合力，加速度是多少 m/s²？", ["2", "4", "5", "8"], 2, "a = F / m = 20 / 4 = 5 m/s²"],
+   [1, 2, "物体沿斜面被匀速拉动，所受合力是多少 N？", ["0", "mg", "mg·sinα", "mg·cosα"], 0, ""],
+   [2, 0, "离地面高 h 的物体具有哪种能量？", ["动能", "重力势能", "弹性势能", "热能"], 1, ""],
+   [2, 1, "质量 2 kg 的物体以 3 m/s 运动，动能是多少 J？", ["3", "6", "9", "18"], 2, ""],
+   [2, 2, "物体在无摩擦的情况下自由下落，机械能如何变化？", ["增大", "减小", "守恒", "先增大后减小"], 2, ""],
+   [3, 0, "下列哪个是温度单位？", ["焦耳", "卡路里", "开尔文", "瓦特"], 2, ""],
+   [3, 2, "温度相同的两个物体接触，会发生什么？", ["不发生热传递", "大的放热", "小的放热", "以上都不对"], 0, ""]
+  ],
+  "acik": ["请用生活中的例子说明能量守恒定律。", "单摆：势能和动能相互转化"],
+  "notlar": [
+   ["tip", 0, "速度公式", "v = x / t。单位要统一：km 和小时，或 m 和秒。"],
+   ["tip", 1, "牛顿第二定律", "F = m · a。合力为零时，物体保持静止或匀速运动。"],
+   ["summary", 2, "能量及其转化", "动能：Ek = ½ m v²\n重力势能：Ep = m g h\n没有摩擦时机械能守恒；有摩擦时一部分转化为热。"],
+   ["tip", 2, "守恒", "能量既不会凭空产生，也不会凭空消失，只会转化形式。"]
+  ],
+  "kitapcik": ["高一物理 第一次测验", "第一学期 物理测验"]
+ },
+ "ja": {
+  "ders": "物理", "sinif": "高校1年",
+  "konular": ["運動", "力", "エネルギー", "熱と温度"],
+  "sorular": [
+   [0, 0, "一定の速さで走る車が 2 時間で 120 km 進んだ。車の速さは何 km/h か。", ["40", "50", "60", "80"], 2, "v = x / t = 120 / 2 = 60 km/h"],
+   [0, 1, "静止していた物体が 2 m/s² の加速度で動き出した。5 秒後の速さは何 m/s か。", ["5", "8", "10", "12"], 2, ""],
+   [1, 0, "図の物体にはたらく合力の向きはどれか。", ["右", "左", "上", "下"], 0, ""],
+   [1, 1, "質量 4 kg の物体に 20 N の合力がはたらく。加速度は何 m/s² か。", ["2", "4", "5", "8"], 2, "a = F / m = 20 / 4 = 5 m/s²"],
+   [1, 2, "斜面上を一定の速さで引き上げられる物体にはたらく合力は何 N か。", ["0", "mg", "mg·sinα", "mg·cosα"], 0, ""],
+   [2, 0, "地面から高さ h にある物体がもつエネルギーはどれか。", ["運動エネルギー", "重力による位置エネルギー", "弾性エネルギー", "熱"], 1, ""],
+   [2, 1, "質量 2 kg の物体が 3 m/s で動いている。運動エネルギーは何 J か。", ["3", "6", "9", "18"], 2, ""],
+   [2, 2, "摩擦のない状態で物体を落とすと、力学的エネルギーはどうなるか。", ["増える", "減る", "保存される", "増えてから減る"], 2, ""],
+   [3, 0, "温度の単位はどれか。", ["ジュール", "カロリー", "ケルビン", "ワット"], 2, ""],
+   [3, 2, "同じ温度の二つの物体を接触させるとどうなるか。", ["熱の移動は起こらない", "大きい方が熱を出す", "小さい方が熱を出す", "どれでもない"], 0, ""]
+  ],
+  "acik": ["エネルギー保存の法則を身近な例で説明しなさい。", "振り子：位置エネルギーと運動エネルギーが入れかわる"],
+  "notlar": [
+   ["tip", 0, "速さの式", "v = x / t。単位をそろえる：km と時間、または m と秒。"],
+   ["tip", 1, "運動の第2法則", "F = m · a。合力が 0 なら、物体は静止し続けるか等速で動く。"],
+   ["summary", 2, "エネルギーとその変換", "運動エネルギー：K = ½ m v²\n位置エネルギー：U = m g h\n摩擦がなければ力学的エネルギーは保存される。摩擦があると一部が熱になる。"],
+   ["tip", 2, "保存", "エネルギーは生まれも消えもせず、形を変えるだけ。"]
+  ],
+  "kitapcik": ["高校1年 物理 小テスト1", "1学期 物理テスト"]
+ },
+ "ar": {
+  "ders": "الفيزياء", "sinif": "الصف التاسع",
+  "konular": ["الحركة", "القوة", "الطاقة", "الحرارة ودرجة الحرارة"],
+  "sorular": [
+   [0, 0, "سيارة تسير بسرعة ثابتة قطعت 120 km في ساعتين. ما سرعتها بوحدة km/h؟", ["40", "50", "60", "80"], 2, "v = x / t = 120 / 2 = 60 km/h"],
+   [0, 1, "جسم بدأ الحركة من السكون بتسارع 2 m/s². ما سرعته بعد 5 ثوان بوحدة m/s؟", ["5", "8", "10", "12"], 2, ""],
+   [1, 0, "ما اتجاه القوة المحصلة المؤثرة في الجسم في الشكل؟", ["إلى اليمين", "إلى اليسار", "إلى الأعلى", "إلى الأسفل"], 0, ""],
+   [1, 1, "تؤثر قوة محصلة 20 N في جسم كتلته 4 kg. ما تسارعه بوحدة m/s²؟", ["2", "4", "5", "8"], 2, "a = F / m = 20 / 4 = 5 m/s²"],
+   [1, 2, "يسحب جسم على مستوى مائل بسرعة ثابتة. ما القوة المحصلة المؤثرة فيه بوحدة N؟", ["0", "mg", "mg·sinα", "mg·cosα"], 0, ""],
+   [2, 0, "ما نوع الطاقة التي يملكها جسم على ارتفاع h من الأرض؟", ["حركية", "وضع جاذبية", "وضع مرونية", "حرارة"], 1, ""],
+   [2, 1, "جسم كتلته 2 kg يتحرك بسرعة 3 m/s. ما طاقته الحركية بوحدة J؟", ["3", "6", "9", "18"], 2, ""],
+   [2, 2, "ترك جسم يسقط دون احتكاك. ماذا يحدث لطاقته الميكانيكية؟", ["تزداد", "تنقص", "تبقى محفوظة", "تزداد ثم تنقص"], 2, ""],
+   [3, 0, "أي مما يلي وحدة لدرجة الحرارة؟", ["جول", "سعر", "كلفن", "واط"], 2, ""],
+   [3, 2, "تلامس جسمان لهما درجة الحرارة نفسها. ماذا يحدث؟", ["لا يحدث تبادل حراري", "الأكبر يعطي حرارة", "الأصغر يعطي حرارة", "لا شيء مما سبق"], 0, ""]
+  ],
+  "acik": ["اشرح مبدأ حفظ الطاقة بمثال من الحياة اليومية.", "البندول: تتحول طاقة الوضع والطاقة الحركية إحداهما إلى الأخرى"],
+  "notlar": [
+   ["tip", 0, "قانون السرعة", "v = x / t. يجب أن تتوافق الوحدات: km مع الساعة أو m مع الثانية."],
+   ["tip", 1, "قانون نيوتن الثاني", "F = m · a. إذا كانت القوة المحصلة صفرا يبقى الجسم ساكنا أو يتحرك بسرعة ثابتة."],
+   ["summary", 2, "الطاقة وتحولاتها", "الطاقة الحركية: Ek = 1/2 m v²\nطاقة الوضع: Ep = m g h\nدون احتكاك تبقى الطاقة الميكانيكية محفوظة، ومع الاحتكاك يتحول جزء منها إلى حرارة."],
+   ["tip", 2, "الحفظ", "الطاقة لا تفنى ولا تستحدث من العدم، بل تتحول من شكل إلى آخر."]
+  ],
+  "kitapcik": ["الصف التاسع فيزياء الاختبار الأول", "الفصل الأول اختبار الفيزياء"]
+ }
+}
