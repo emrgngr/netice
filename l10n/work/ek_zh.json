@@ -1036,5 +1036,8 @@
 "Özel not sistemi": "自定义评分制度",
 "Öğrencinin puanı, tam puanın yüzdesine göre bu düzeylere yerleşir. Raporlar, karneler ve düzey dağılımı bu sistemi kullanır.": "学生的分数按占满分的百分比归入这些等级。报告、成绩单和等级分布都使用此制度。",
 "Ücretsiz indirin": "免费下载",
-"Optik kâğıtları telefonla okutun, sonuç ve karne saniyeler içinde.": "用手机批改答题卡，几秒出成绩和成绩单。"
+"Optik kâğıtları telefonla okutun, sonuç ve karne saniyeler içinde.": "用手机批改答题卡，几秒出成绩和成绩单。",
+"Belgeden yazı okunamadı. Eski .doc dosyalarını Word'de .docx olarak kaydedip deneyin.": "无法读取文档文字。请在 Word 中将旧的 .doc 文件另存为 .docx 后重试。",
+"PDF / Word / Excel'den": "从 PDF / Word / Excel",
+"Tüm sınıfları tek Excel dosyasında (.xlsx, eski .xls, .ods veya CSV) aktarabilirsiniz: okul no, ad, soyad ve sınıf sütunları otomatik tanınır, öğrenciler sınıflarına kendiliğinden ayrılır. Öğrencinin geçmişini görmek için üstüne, düzenlemek için kalem simgesine dokunun.": "可以用一个 Excel 文件（.xlsx、旧版 .xls、.ods 或 CSV）导入所有班级：学号、名、姓、班级列会被自动识别，学生会自动分到各自班级。点学生查看历史，点铅笔图标进行编辑。"
 }

@@ -2114,5 +2114,8 @@
 "Özel not sistemi": "Custom grading system",
 "Öğrencinin puanı, tam puanın yüzdesine göre bu düzeylere yerleşir. Raporlar, karneler ve düzey dağılımı bu sistemi kullanır.": "A student's score is placed in these levels by its percentage of full marks. Reports, report cards and level distribution use this system.",
 "Ücretsiz indirin": "Download free",
-"Optik kâğıtları telefonla okutun, sonuç ve karne saniyeler içinde.": "Scan answer sheets with your phone, results and report cards in seconds."
+"Optik kâğıtları telefonla okutun, sonuç ve karne saniyeler içinde.": "Scan answer sheets with your phone, results and report cards in seconds.",
+"Belgeden yazı okunamadı. Eski .doc dosyalarını Word'de .docx olarak kaydedip deneyin.": "Could not read text from the document. Save old .doc files as .docx in Word and try again.",
+"PDF / Word / Excel'den": "From PDF / Word / Excel",
+"Tüm sınıfları tek Excel dosyasında (.xlsx, eski .xls, .ods veya CSV) aktarabilirsiniz: okul no, ad, soyad ve sınıf sütunları otomatik tanınır, öğrenciler sınıflarına kendiliğinden ayrılır. Öğrencinin geçmişini görmek için üstüne, düzenlemek için kalem simgesine dokunun.": "You can import all classes in a single Excel file (.xlsx, old .xls, .ods or CSV): student number, first name, last name and class columns are recognised automatically, and students are sorted into their classes. Tap a student to see their history, or the pencil icon to edit."
 }

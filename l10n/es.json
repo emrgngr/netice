@@ -2114,5 +2114,8 @@
 "Özel not sistemi": "Sistema de calificación propio",
 "Öğrencinin puanı, tam puanın yüzdesine göre bu düzeylere yerleşir. Raporlar, karneler ve düzey dağılımı bu sistemi kullanır.": "La puntuación del estudiante se ubica en estos niveles según su porcentaje sobre la puntuación total. Los informes, boletines y la distribución por niveles usan este sistema.",
 "Ücretsiz indirin": "Descárgala gratis",
-"Optik kâğıtları telefonla okutun, sonuç ve karne saniyeler içinde.": "Corrige hojas de respuestas con el móvil, resultados e informes en segundos."
+"Optik kâğıtları telefonla okutun, sonuç ve karne saniyeler içinde.": "Corrige hojas de respuestas con el móvil, resultados e informes en segundos.",
+"Belgeden yazı okunamadı. Eski .doc dosyalarını Word'de .docx olarak kaydedip deneyin.": "No se pudo leer el texto. Guarde los archivos .doc antiguos como .docx en Word e inténtelo de nuevo.",
+"PDF / Word / Excel'den": "Desde PDF / Word / Excel",
+"Tüm sınıfları tek Excel dosyasında (.xlsx, eski .xls, .ods veya CSV) aktarabilirsiniz: okul no, ad, soyad ve sınıf sütunları otomatik tanınır, öğrenciler sınıflarına kendiliğinden ayrılır. Öğrencinin geçmişini görmek için üstüne, düzenlemek için kalem simgesine dokunun.": "Puedes importar todas las clases en un solo archivo de Excel (.xlsx, .xls antiguo, .ods o CSV): las columnas de número, nombre, apellidos y clase se reconocen solas y los alumnos se reparten en sus clases. Toca un alumno para ver su historial o el lápiz para editarlo."
 }
