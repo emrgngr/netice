@@ -83,10 +83,21 @@ class AiException implements Exception {
   String toString() => message;
 }
 
-/// Kota: ücretli Pro (abonelik, dönem paketi, kurum lisansı) ayda
-/// [AiUsage.monthlyLimit] soru; diğer herkes toplam [AiUsage.trialLimit]
-/// soruluk deneme hakkı. Sayaç cihazda tutulur; sunucu da cihaz başına
-/// aylık sınır uygular.
+/// Soru üretme hakkının seviyesi.
+enum AiTier {
+  /// Ücretsiz / deneme: toplam [AiUsage.trialLimit] soru.
+  trial,
+
+  /// Netice Pro (yıllık, dönem paketi, bilgisayar sürümü): ayda [AiUsage.proMonthlyLimit].
+  pro,
+
+  /// Pro + Yapay Zekâ ya da kurum lisansı: ayda [AiUsage.aiMonthlyLimit].
+  ai,
+}
+
+/// Kota: seviyeye göre aylık hak ([AiTier]); bitince satın alınan ek soru
+/// paketinden ([credits]) düşülür. Sayaç cihazda tutulur; sunucu da cihaz
+/// başına aylık bir üst sınır uygular.
 class AiUsage extends ChangeNotifier {
   AiUsage._();
   static AiUsage instance = AiUsage._();
@@ -94,8 +105,12 @@ class AiUsage extends ChangeNotifier {
   @visibleForTesting
   factory AiUsage.forTest() => AiUsage._();
 
-  static const monthlyLimit = 300;
+  static const proMonthlyLimit = 50;
+  static const aiMonthlyLimit = 300;
   static const trialLimit = 20;
+
+  /// Ek soru paketiyle alınan, süresi dolmayan soru hakkı.
+  int credits = 0;
 
   String device = '';
   String month = '';
@@ -122,6 +137,7 @@ class AiUsage extends ChangeNotifier {
         monthUsed = (j['monthUsed'] as num?)?.toInt() ?? 0;
         trialUsed = (j['trialUsed'] as num?)?.toInt() ?? 0;
         consent = j['consent'] as bool? ?? false;
+        credits = (j['credits'] as num?)?.toInt() ?? 0;
       }
     } catch (_) {}
     if (device.isEmpty) {
@@ -142,30 +158,54 @@ class AiUsage extends ChangeNotifier {
         'monthUsed': monthUsed,
         'trialUsed': trialUsed,
         'consent': consent,
+        'credits': credits,
       }));
     } catch (_) {}
   }
 
-  /// Bu cihazda aylık Pro kotası mı geçerli?
-  static bool paid(AppStore s) =>
-      AppStore.proFreeOnThisPlatform || s.hasSubscription || s.hasTermPass || s.hasLicense;
+  /// Bu cihazda hangi seviye geçerli?
+  static AiTier tierOf(AppStore s) {
+    if (s.hasAiPlan || s.hasLicense) return AiTier.ai;
+    if (AppStore.proFreeOnThisPlatform || s.hasSubscription || s.hasTermPass) return AiTier.pro;
+    return AiTier.trial;
+  }
+
+  /// Seviyenin aylık (denemede toplam) hakkı.
+  static int limitOf(AiTier t) => switch (t) {
+        AiTier.trial => trialLimit,
+        AiTier.pro => proMonthlyLimit,
+        AiTier.ai => aiMonthlyLimit,
+      };
 
   int usedThisMonth([DateTime? now]) => month == monthOf(now ?? DateTime.now()) ? monthUsed : 0;
 
-  int limit(bool paid) => paid ? monthlyLimit : trialLimit;
+  /// Seviyenin kalan hakkı (ek paket hariç).
+  int planRemaining(AiTier t, [DateTime? now]) =>
+      math.max(0, t == AiTier.trial ? trialLimit - trialUsed : limitOf(t) - usedThisMonth(now));
 
-  int remaining(bool paid, [DateTime? now]) =>
-      math.max(0, paid ? monthlyLimit - usedThisMonth(now) : trialLimit - trialUsed);
+  /// Kalan toplam hak: seviye + ek paket.
+  int remaining(AiTier t, [DateTime? now]) => planRemaining(t, now) + credits;
 
-  void record(int n, bool paid, [DateTime? now]) {
+  void record(int n, AiTier t, [DateTime? now]) {
     if (n <= 0) return;
+    final fromPlan = math.min(n, planRemaining(t, now));
+    final fromCredits = math.min(n - fromPlan, credits);
     final m = monthOf(now ?? DateTime.now());
     if (month != m) {
       month = m;
       monthUsed = 0;
     }
     monthUsed += n;
-    if (!paid) trialUsed += n;
+    if (t == AiTier.trial) trialUsed += fromPlan;
+    credits -= fromCredits;
+    _save();
+    notifyListeners();
+  }
+
+  /// Ek soru paketi alındı.
+  void addCredits(int n) {
+    if (n <= 0) return;
+    credits += n;
     _save();
     notifyListeners();
   }
@@ -309,7 +349,7 @@ Future<AiResult> generateAiQuestions(
   AiOptions o, {
   required BankStore store,
   required AiUsage usage,
-  required bool paid,
+  required AiTier tier,
   List<String> alsoAvoid = const [],
   http.Client? client,
   String? url,
@@ -318,12 +358,8 @@ Future<AiResult> generateAiQuestions(
   if (base.isEmpty) {
     throw AiException(tr('Soru üretme hizmeti henüz açılmadı. Yakında kullanılabilecek.'));
   }
-  if (usage.remaining(paid) < o.count) {
-    throw AiException(
-        paid
-            ? tr('Bu ayki soru üretme hakkınız doldu. Gelecek ay yenilenir.')
-            : tr('Deneme hakkınız doldu. Netice Pro ile her ay {0} soru üretebilirsiniz.', [AiUsage.monthlyLimit]),
-        quota: true);
+  if (usage.remaining(tier) < o.count) {
+    throw AiException(quotaMessage(tier), quota: true);
   }
 
   // Görseller (en fazla 6) küçültülüp gönderilir.
@@ -376,7 +412,7 @@ Future<AiResult> generateAiQuestions(
   if (r.statusCode != 200) {
     final code = j['error'];
     if (code == 'quota') {
-      usage.syncServer((j['used'] as num?)?.toInt() ?? AiUsage.monthlyLimit);
+      usage.syncServer((j['used'] as num?)?.toInt() ?? AiUsage.aiMonthlyLimit);
     }
     throw AiException(
       switch (code) {
@@ -392,8 +428,16 @@ Future<AiResult> generateAiQuestions(
     );
   }
   final result = parseAiResponse(j, note, store);
-  usage.record(result.questions.length, paid);
+  usage.record(result.questions.length, tier);
   final used = (j['used'] as num?)?.toInt();
   if (used != null) usage.syncServer(used);
   return result;
 }
+
+/// Hak dolduğunda gösterilecek açıklama.
+String quotaMessage(AiTier t) => switch (t) {
+      AiTier.trial => tr('Deneme hakkınız doldu. Netice Pro ile her ay {0} soru üretebilir, ek soru paketi alabilirsiniz.', [AiUsage.proMonthlyLimit]),
+      AiTier.pro => tr('Bu ayki {0} soruluk hakkınız doldu. Ek soru paketi alabilir ya da ayda {1} soru için Pro + Yapay Zekâ\'ya geçebilirsiniz.',
+          [AiUsage.proMonthlyLimit, AiUsage.aiMonthlyLimit]),
+      AiTier.ai => tr('Bu ayki soru üretme hakkınız doldu. Ek soru paketi alabilir ya da gelecek ayı bekleyebilirsiniz.'),
+    };

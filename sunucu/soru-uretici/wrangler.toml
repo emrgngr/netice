@@ -9,8 +9,8 @@ compatibility_flags = ["nodejs_compat"]
 [vars]
 # Claude modeli. Maliyeti düşürmek için ör. "claude-sonnet-5-5" ya da "claude-haiku-5-5" yazılabilir.
 MODEL = "claude-opus-5-5"
-# Bir cihazın bir ayda üretebileceği en fazla soru (uygulamadaki Pro kotasıyla aynı).
-MONTHLY_DEVICE_LIMIT = "300"
+# Bir cihazın bir ayda üretebileceği en fazla soru (en yüksek plan 300 + ek soru paketi için pay).
+MONTHLY_DEVICE_LIMIT = "600"
 # Bir IP adresinden günde en fazla soru.
 DAILY_IP_LIMIT = "200"
 # Bütün kullanıcılar için günlük üst sınır (maliyet emniyeti).
