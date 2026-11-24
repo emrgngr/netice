@@ -156,7 +156,7 @@ class Exam {
   final String className;
   final DateTime date;
 
-  /// 4 veya 5.
+  /// 4 veya 5 (çocuk formunda 2–5).
   final int choiceCount;
   final List<Question> questions;
   final ScoringRule rule;
@@ -194,6 +194,10 @@ class Exam {
   /// Formdaki öğrenci numarası hane sayısı (6 ya da 10). Eski sınavlar 6.
   final int numberDigits;
 
+  /// Çocuk (ilkokul) kitapçığının köşesindeki küçük cevap kutusuyla okunur.
+  /// Bu sınavlarda şık sayısı 2–5 olabilir (genellikle 3: A, B, C).
+  final bool kidForm;
+
   const Exam({
     required this.id,
     required this.name,
@@ -209,6 +213,7 @@ class Exam {
     this.templateId,
     this.commonId,
     this.numberDigits = 10,
+    this.kidForm = false,
   });
 
   bool get isCommon => commonId != null;
@@ -362,6 +367,7 @@ class Exam {
     String? id,
     String? commonId,
     int? numberDigits,
+    bool? kidForm,
   }) =>
       Exam(
         id: id ?? this.id,
@@ -378,6 +384,7 @@ class Exam {
         templateId: clearTemplate ? null : (templateId ?? this.templateId),
         commonId: commonId ?? this.commonId,
         numberDigits: numberDigits ?? this.numberDigits,
+        kidForm: kidForm ?? this.kidForm,
       );
 
   Map<String, dynamic> toJson() => {
@@ -399,6 +406,7 @@ class Exam {
         if (templateId != null) 'templateId': templateId,
         if (commonId != null) 'commonId': commonId,
         'numberDigits': numberDigits,
+        if (kidForm) 'kidForm': true,
         if (openQuestions.isNotEmpty) 'openQuestions': openQuestions.map((q) => q.toJson()).toList(),
       };
 
@@ -427,6 +435,7 @@ class Exam {
         commonId: j['commonId'] as String?,
         // Alan yoksa eski sürümde basılmış 6 haneli formdur.
         numberDigits: j['numberDigits'] == 10 ? 10 : 6,
+        kidForm: j['kidForm'] == true,
         openQuestions: [
           for (final e in (j['openQuestions'] as List?) ?? const []) OpenQuestion.fromJson(e as Map<String, dynamic>)
         ],
@@ -829,8 +838,13 @@ class SchoolInfo {
   /// Eğitim-öğretim yılı: eylülden itibaren yeni yıl başlar (Japonyada
   /// nisandan başlar ve tek yılla yazılır).
   static String academicYear(DateTime d) {
+    // Japonya ve Kore'de (nisan / mart) ve Brezilya'da (şubat) öğretim yılı
+    // tek yılla yazılır; Hindistan'da nisanda, Endonezya'da temmuzda başlar.
     if (L10n.code == 'ja') return '${d.month >= 4 ? d.year : d.year - 1}';
-    final start = d.month >= 9 ? d.year : d.year - 1;
+    if (L10n.code == 'ko') return '${d.month >= 3 ? d.year : d.year - 1}';
+    if (L10n.code == 'pt') return '${d.month >= 2 ? d.year : d.year - 1}';
+    final startMonth = switch (L10n.code) { 'hi' => 4, 'id' => 7, _ => 9 };
+    final start = d.month >= startMonth ? d.year : d.year - 1;
     return '$start-${start + 1}';
   }
 

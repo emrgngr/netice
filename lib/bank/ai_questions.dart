@@ -52,7 +52,11 @@ class AiOptions {
 
   /// Üretilecek soru türleri; birden çoksa sayı türlere yaklaşık eşit bölünür.
   final Set<QuestionType> types;
-  const AiOptions({this.count = 5, this.choices = 5, this.difficulty = AiDifficulty.mixed, this.types = const {QuestionType.multiple}});
+
+  /// Çocuklara (ilkokul) uygun dil: kısa cümleler, basit kelimeler, çocuğa hitap.
+  final bool kids;
+  const AiOptions(
+      {this.count = 5, this.choices = 5, this.difficulty = AiDifficulty.mixed, this.types = const {QuestionType.multiple}, this.kids = false});
 }
 
 /// Sunucudaki tür adları.
@@ -249,6 +253,7 @@ Map<String, dynamic> aiRequestBody(BankNote note, AiOptions o, {List<String> ima
       'difficulty': o.difficulty.name,
       'types': [for (final t in QuestionType.values) if (o.types.contains(t)) aiTypeNames[t]],
       'lang': L10n.code,
+      if (o.kids) 'audience': 'kids',
       'avoid': avoid,
       'note': {
         'title': note.title,

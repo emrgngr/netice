@@ -176,6 +176,12 @@ void main() {
         then: () async {
       await tester.tap(find.text('Kitapçık'));
     });
+    await shot(tester, _themed(BookletWizardScreen(booklet: b.bookletById('k1')), store), const Size(390, 1000), 'kitapcik_2_cocuk_sablonu',
+        then: () async {
+      await tester.tap(find.text('Görünüm'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Çocuk / İlkokul'));
+    });
     await shot(tester, _themed(Builder(builder: (c) => Scaffold(body: AutoPickSheet(used: const {}))), store), const Size(390, 1300), 'kitapcik_otomatik');
     final page = DocPage(diagram(), 640, 300);
     await shot(tester, _themed(CropScreen(pages: [page, page]), store), phone, 'banka_kes');

@@ -50,16 +50,18 @@ class _SchoolOfferScreenState extends State<SchoolOfferScreen> {
 
   String get _yearly => ProService.yearlyPriceText();
 
+  static String _line(String label, String value) => '$label: $value';
+
   String _mailBody() {
     final custom = _teachers >= SchoolPackage.customFrom;
     return [
       tr('Merhaba, okulumuz için Netice okul paketi teklifi rica ediyoruz.'),
       '',
-      '${tr('Kurum')}: ${_school.text.trim()}',
-      '${tr('İl / ilçe')}: ${_city.text.trim()}',
-      '${tr('Öğretmen sayısı')}: $_teachers',
-      '${tr('Yetkili')}: ${_name.text.trim()}',
-      '${tr('Telefon')}: ${_phone.text.trim()}',
+      _line(tr('Kurum'), _school.text.trim()),
+      _line(tr('İl / ilçe'), _city.text.trim()),
+      _line(tr('Öğretmen sayısı'), '$_teachers'),
+      _line(tr('Yetkili'), _name.text.trim()),
+      _line(tr('Telefon'), _phone.text.trim()),
       '',
       if (custom)
         tr('Öğretmen sayımız fazla olduğu için özel teklif bekliyoruz.')

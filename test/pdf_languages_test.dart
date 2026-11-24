@@ -20,6 +20,10 @@ void main() {
     'zh': ('王', '小明', '北京市第一中学', '北京'),
     'ja': ('佐藤', '花子', '東京都立日比谷高等学校', '東京都'),
     'de': ('Jürgen', 'Groß', 'Goethe-Gymnasium', 'München'),
+    'pt': ('João', 'Conceição', 'Colégio Estadual Dom Pedro II', 'São Paulo'),
+    'hi': ('राहुल', 'शर्मा', 'केंद्रीय विद्यालय', 'नई दिल्ली'),
+    'id': ('Budi', 'Santoso', 'SMA Negeri 1 Jakarta', 'Jakarta'),
+    'ko': ('민준', '김', '서울과학고등학교', '서울특별시'),
   };
 
   for (final e in names.entries) {
