@@ -1,0 +1,17 @@
+{
+ "00_acilis": "Saat Anda membuka Netice, animasi pembuka singkat menyambut Anda.",
+ "01_tanitim": "Pada pembukaan pertama, beberapa halaman memperkenalkan aplikasi. Ketuk Lanjutkan untuk melanjutkan.",
+ "02_ana": "Di beranda Anda melihat ringkasan ujian. Untuk ujian baru, ketuk tombol plus di kanan atas; untuk memindai lembar jawaban, ketuk Pindai. Hapus data contoh dengan tombol Hapus contoh.",
+ "03_siniflar": "Buka Kelas dari menu bawah. Impor siswa dari daftar Excel atau tambahkan satu per satu dengan Tambah siswa.",
+ "04_yeni_sinav": "Di layar ujian baru, atur jumlah soal dengan tombol plus dan minus atau dengan mengetik di kotak, pilih jumlah pilihan jawaban, isi kunci jawaban, lalu ketuk Simpan ujian.",
+ "05_form_yazdir": "Di layar ujian, pilih Cetak formulir dari menu kanan atas dan bagikan lembar jawaban kepada siswa.",
+ "06_okut": "Setelah ujian selesai, ketuk tombol Pindai.",
+ "07_okut_ekrani": "Pindai lembar jawaban dengan kamera atau pilih fotonya dari galeri. Netice membaca setiap lembar dalam hitungan detik.",
+ "08_sonuclar": "Di tab Hasil Anda melihat jumlah benar, salah, kosong, dan nilai setiap siswa.",
+ "09_analiz": "Dari tab Analisis Anda bisa mendapatkan laporan ujian dan rapor siswa dalam bentuk PDF.",
+ "10_ogrenci": "Halaman siswa menunjukkan perkembangan dan memberi tahu Anda tentang siswa yang nilainya menurun.",
+ "11_kurum": "Di tab Profil, buka Data lembaga dan pilih jenis lembaga Anda. Isi urutan kop resmi dengan instansi atasan, dinas, dan nama lembaga. Tombol Contoh mengisi urutan untuk akademi kepolisian, sekolah militer, dan universitas. Laporan Anda keluar dengan kop resmi.",
+ "12_kutuphane": "Di Pustaka, bangun bank soal Anda sendiri. Pisahkan soal menjadi mudah, sedang, dan sulit, dan simpan juga catatan pelajaran serta ringkasan Anda di sini.",
+ "12_ayarlar": "Di Pengaturan Anda bisa mengganti bahasa aplikasi, mematikan melodi pembuka, dan mencadangkan data Anda.",
+ "13_yardim": "Jika bingung, ketuk tanda tanya di beranda; panduan, video, dan pertanyaan umum ada di sana. Selamat bekerja!"
+}

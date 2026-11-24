@@ -28,6 +28,7 @@ TITLES = {
     'tr': 'Kullanım rehberi', 'en': 'User guide', 'de': 'Anleitung', 'fr': "Guide d'utilisation",
     'ru': 'Руководство', 'az': 'İstifadə bələdçisi', 'es': 'Guía de uso', 'it': 'Guida all\'uso',
     'ar': 'دليل الاستخدام', 'zh': '使用指南', 'ja': '使い方ガイド',
+    'pt': 'Guia de uso', 'hi': 'उपयोग गाइड', 'id': 'Panduan penggunaan', 'ko': '사용 안내',
 }
 
 
@@ -37,10 +38,12 @@ def font(lang, size, bold=False):
         'zh': 'assets/pdf_fonts/NotoSansSC-Regular.ttf',
         'ja': 'assets/pdf_fonts/NotoSansJP-Regular.ttf',
         'ru': 'assets/pdf_fonts/NotoSans-Bold.ttf' if bold else 'assets/pdf_fonts/NotoSans-Regular.ttf',
+        'hi': 'assets/pdf_fonts/NotoSansDevanagari-Regular.ttf',
+        'ko': 'assets/pdf_fonts/NotoSansKR-Regular.ttf',
     }.get(lang)
     path = special or ('assets/fonts/PlusJakartaSans_700Bold.ttf' if bold else 'assets/fonts/PlusJakartaSans_500Medium.ttf')
     kw = {}
-    if lang == 'ar':
+    if lang in ('ar', 'hi'):
         kw['layout_engine'] = ImageFont.Layout.RAQM
     return ImageFont.truetype(os.path.join(ROOT, path), size, **kw)
 
@@ -107,6 +110,8 @@ TAGLINES = {
     'ru': 'Проверка бланков за секунды', 'az': 'Optik vərəqləri saniyələr içində oxuyun',
     'es': 'Corrige hojas de respuestas en segundos', 'it': 'Correggi i fogli risposta in pochi secondi',
     'ar': 'صحح أوراق الإجابة في ثوان', 'zh': '几秒钟批改答题卡', 'ja': 'マークシートを数秒で採点',
+    'pt': 'Corrija cartões-resposta em segundos', 'hi': 'OMR शीट कुछ सेकंड में जाँचें',
+    'id': 'Koreksi lembar jawaban dalam hitungan detik', 'ko': 'OMR 답안지를 몇 초 만에 채점',
 }
 PLATFORMS = 'iOS · Android · Windows · macOS'
 

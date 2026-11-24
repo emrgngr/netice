@@ -6,7 +6,8 @@
   "scan": "Kâğıt okutma",
   "report": "Sonuçlar ve raporlar",
   "data": "Verileriniz",
-  "library": "Soru bankası ve kitapçık"
+  "library": "Soru bankası ve kitapçık",
+  "pro": "Netice Pro"
  },
  "k_sinav_ayar": "Sınav ayarlarında tam puanı, geçme puanını ve yanlış götürmeyi belirleyin. Kitapçık türlerini ve klasik soruları da buradan ekleyin.",
  "k_sablon": "Yayınevi ya da başka bir firmanın formunu kullanacaksanız Ayarlar'daki Başka firma formları bölümünden bir kez şablon oluşturun.",
@@ -18,5 +19,13 @@
  "k_notlar": "Notlar sekmesinde konu özetlerinizi ve hap bilgilerinizi tutun. Zayıf çıkan konuların hap bilgileri öğrenci karnesine kendiliğinden eklenir.",
  "k_sihirbaz": "Yeni kitapçık ile sihirbazı açın. Soruları bankadan seçin ya da soru sayısını ve zorluk dağılımını verip Netice'ye seçtirin.",
  "k_kitapcik_turu": "A'dan H'ye kadar kitapçık türü oluşturun, soruları ve şıkları karıştırın. Sınav oluştur ile optik okumaya hazır sınavınız kurulur.",
- "k_banka_analiz": "Analiz sekmesi bankanızın zorluk dengesini ve konu kapsamını gösterir. Sınavlar okutuldukça soruların gerçek zorluğunu da ölçer."
+ "k_banka_analiz": "Analiz sekmesi bankanızın zorluk dengesini ve konu kapsamını gösterir. Sınavlar okutuldukça soruların gerçek zorluğunu da ölçer.",
+ "k_yz_soru": "Bir notu açıp Bu nottan soru üret'e dokunun. Soru sayısını, türünü ve zorluğu seçin; yapay zekâ soruları, doğru cevapları ve kısa çözümleri önerir. Kontrol edip beğendiklerinizi bankaya ekleyin.",
+ "k_cocuk": "İlkokul için kitapçık sihirbazının Görünüm adımında Çocuk şablonunu seçin. İri yazı ve renkli numaralar gelir; cevaplar ilk sayfanın köşesindeki kutuya işaretlenir ve telefonla okunur.",
+ "k_not_sistemi": "Ayarlar'daki Not sistemi ekranından ülkenizin not sistemini seçin ya da düzeyleri kendiniz yazın. Karneler ve raporlar bu sisteme göre hazırlanır.",
+ "k_pro": "Profil'deki Netice Pro ekranında planları görürsünüz. Pro'da ayda elli, Pro artı Yapay Zekâ'da ayda üç yüz yapay zekâ sorusu vardır. Sınav dönemi paketi üç aylıktır ve kendiliğinden yenilenmez.",
+ "k_pro_alt": "Aylık soru hakkınız bitince ek soru paketi alabilirsiniz; süresi dolmaz. Aynı okuldan beş ve daha fazla öğretmen birlikte alırsa okul paketiyle indirim kazanır.",
+ "k_okul": "Okul paketi ekranında öğretmen sayısını girin, indirimli fiyatı görün ve Okulunuza teklif isteyin'e dokunun. Onaylanınca okulunuza kurum kodu verilir.",
+ "k_sinif_analiz": "Aynı sınavı birden çok şubede yaptıysanız ana ekrandaki Sınıf sınıf analiz şubeleri yan yana gösterir. Öne çıkanlar, genel ortalamaya göre fark ve soru soru doğru oranları burada; sağ üstteki düğmeyle PDF rapor alırsınız.",
+ "k_genel_istatistik": "Genel istatistik tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir. Dönemi ve sınıfları seçerek daraltın, raporu PDF olarak paylaşın."
 }

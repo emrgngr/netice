@@ -10,10 +10,14 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:netice/bank/bank_models.dart';
 import 'package:netice/bank/bank_store.dart';
+import 'package:netice/core/campaigns.dart';
+import 'package:netice/core/pro.dart';
 import 'package:netice/core/store.dart';
 import 'package:netice/l10n/l10n.dart';
 import 'package:netice/main.dart';
+import 'package:netice/ui/bank/ai_questions_screen.dart';
 import 'package:netice/ui/bank/booklet_wizard_screen.dart';
 import 'package:netice/ui/bank/image_tools.dart';
 import 'package:netice/ui/bank/import_screens.dart';
@@ -21,6 +25,11 @@ import 'package:netice/ui/bank/library_screen.dart';
 import 'package:netice/ui/bank/question_editor_screen.dart';
 import 'package:netice/ui/exam_screen.dart';
 import 'package:netice/ui/exam_settings_screen.dart';
+import 'package:netice/ui/compare_screen.dart';
+import 'package:netice/ui/general_stats_screen.dart';
+import 'package:netice/ui/grade_scale_screen.dart';
+import 'package:netice/ui/pro_screen.dart';
+import 'package:netice/ui/school_offer_screen.dart';
 import 'package:netice/ui/help_screen.dart';
 import 'package:netice/ui/home_screen.dart';
 import 'package:netice/ui/new_exam_screen.dart';
@@ -52,6 +61,8 @@ Future<void> _fonts(String lang) async {
     'zh' => 'assets/pdf_fonts/NotoSansSC-Regular.ttf',
     'ja' => 'assets/pdf_fonts/NotoSansJP-Regular.ttf',
     'ru' => 'assets/pdf_fonts/NotoSans-Regular.ttf',
+    'hi' => 'assets/pdf_fonts/NotoSansDevanagari-Regular.ttf',
+    'ko' => 'assets/pdf_fonts/NotoSansKR-Regular.ttf',
     _ => null,
   };
   await load(
@@ -63,6 +74,17 @@ Future<void> _fonts(String lang) async {
               'assets/fonts/PlusJakartaSans_$w.ttf',
           ],
   );
+  // Not sistemi ekranındaki ülke adları için yedek yazı tipleri.
+  for (final f in [
+    ('FbNoto', 'NotoSans-Regular'),
+    ('FbArabic', 'NotoSansArabic-Regular'),
+    ('FbHI', 'NotoSansDevanagari-Regular'),
+    ('FbKR', 'NotoSansKR-Regular'),
+    ('FbJP', 'NotoSansJP-Regular'),
+    ('FbSC', 'NotoSansSC-Regular'),
+  ]) {
+    await load(f.$1, ['assets/pdf_fonts/${f.$2}.ttf']);
+  }
   await load('ReportSerif', ['assets/pdf_fonts/LiberationSerif-Regular.ttf', 'assets/pdf_fonts/LiberationSerif-Bold.ttf']);
   await load('MaterialIcons', [
     const String.fromEnvironment(
@@ -71,6 +93,15 @@ Future<void> _fonts(String lang) async {
     ),
   ]);
 }
+
+const _fallback = ['FbNoto', 'FbArabic', 'FbHI', 'FbKR', 'FbJP', 'FbSC'];
+
+ThemeData _withFallback(ThemeData t) => t.copyWith(
+      textTheme: t.textTheme.apply(fontFamilyFallback: _fallback),
+      chipTheme: t.chipTheme.copyWith(
+        labelStyle: (t.chipTheme.labelStyle ?? const TextStyle()).copyWith(fontFamilyFallback: _fallback),
+      ),
+    );
 
 void main() {
   testWidgets('rehber videosu kareleri', timeout: const Timeout(Duration(minutes: 20)), (tester) async {
@@ -115,7 +146,7 @@ void main() {
             store: store,
             child: MaterialApp(
               debugShowCheckedModeBanner: false,
-              theme: NTheme.light(),
+              theme: _withFallback(NTheme.light()),
               locale: L10n.locale,
               supportedLocales: [for (final l in AppLanguage.all) Locale(l.code)],
               localizationsDelegates: GlobalMaterialLocalizations.delegates,
@@ -283,8 +314,9 @@ void main() {
     await scene('k_banka_analiz', const LibraryScreen(initialTab: 3),
         () => [text(tr('Zorluk dağılımı')), text(tr('Konu kapsamı'))]);
     // Kılavuz bölüm videoları için ek sahneler (tool/video/kilavuz.json).
-    Future<void> reveal(Finder f, {double dy = -160}) async {
-      if (f.evaluate().isEmpty) return;
+    Future<void> reveal(Finder f, {double dy = -160, bool lazy = false}) async {
+      // lazy: hedef henüz çizilmemiş olabilir (uzun liste), yine de kaydır.
+      if (!lazy && f.evaluate().isEmpty) return;
       try {
         await tester.dragUntilVisible(f, find.byType(Scrollable).first, Offset(0, dy));
         await settle();
@@ -313,6 +345,45 @@ void main() {
       () => [text(tr('Yedeği dosyaya kaydet')), text(tr('Yedekten geri yükle'))],
       then: () => reveal(text(tr('Yedeği dosyaya kaydet'))),
     );
+    // Nottan soru üretme ve çocuk kitapçığı (bölüm videosu "library").
+    final drafts = [for (final id in ['bq5', 'bq6', 'bq7']) bank.questionById(id)].whereType<BankQuestion>().toList();
+    await scene('k_yz_soru', AiQuestionsScreen(noteId: 'n3', initialDrafts: drafts),
+        () => [text(tr('Çocuklar için (ilkokul)')), find.byType(FilledButton).first, text(tr('Öneriler'))],
+        then: () => reveal(text(tr('Çocuklar için (ilkokul)')), dy: -200));
+    await scene('k_cocuk', BookletWizardScreen(booklet: bank.bookletById('k1')), () => [text(tr('Çocuk / İlkokul'))],
+        then: () async {
+      await tester.tap(find.text(tr('İleri')).last);
+      await settle();
+      await tester.tap(find.text(tr('Çocuk / İlkokul')).last);
+    });
+    // Sınıf sınıf analiz ve genel istatistik (bölüm videosu "report").
+    await scene('k_sinif_analiz', const CompareScreen(),
+        () => [find.byType(FilterChip), text(tr('Öne çıkanlar')), tip(tr('PDF rapor'))],
+        then: () async {
+          await reveal(find.text(tr('Öne çıkanlar')), lazy: true);
+          // Sınav seçimi de görünsün: biraz geri kaydır.
+          await tester.drag(find.byType(Scrollable).first, const Offset(0, 220));
+        });
+    await scene('k_genel_istatistik', const GeneralStatsScreen(),
+        () => [find.byType(ChoiceChip), find.textContaining(tr('GENEL BAŞARI')), tip(tr('PDF rapor'))]);
+    // Not sistemi (bölüm videosu "report").
+    await scene('k_not_sistemi', const GradeScaleScreen(),
+        () => [text(tr('Hazır sistemler')), text(tr('Kendim yazacağım')), text(tr('Düzeyler'))],
+        then: () => reveal(text(tr('Kendim yazacağım'))));
+    // Netice Pro (bölüm videosu "pro"): kampanyasız bir gün, deneme bitmiş.
+    Campaign.debugNow = DateTime(2026, 10, 15);
+    AppStore.proFreeOnThisPlatform = false;
+    store.trialStart = DateTime.now().subtract(const Duration(days: 40));
+    await tester.runAsync(() => ProService.instance.attach(store));
+    Finder plan(String s) => find.ancestor(of: find.text(s), matching: find.byType(InkWell));
+    await scene('k_pro', const ProScreen(),
+        () => [plan(tr('Pro · yıllık')), plan(tr('Pro + Yapay Zekâ · yıllık')), plan(tr('Sınav dönemi paketi'))],
+        then: () => reveal(find.text(tr('Pro · yıllık')), lazy: true));
+    await scene('k_pro_alt', const ProScreen(),
+        () => [find.textContaining(tr('Ek soru paketi · {0} soru', [200])), text(tr('Okul / zümre paketi'))],
+        then: () => reveal(find.text(tr('Okul / zümre paketi')), dy: -300, lazy: true));
+    await scene('k_okul', const SchoolOfferScreen(), () => [find.byType(Card).first, find.byType(FilledButton).last]);
+    AppStore.proFreeOnThisPlatform = true;
     await scene('13_yardim', const HelpScreen(), () => [find.textContaining(tr('Sık sorulanlar'))]);
 
     File('${out.path}/hedefler.json').writeAsStringSync(const JsonEncoder.withIndent(' ').convert(targets));
@@ -331,6 +402,10 @@ const _schoolName = {
   'fr': 'Lycée Victor Hugo',
   'zh': '北京市第四中学',
   'ja': '桜ヶ丘高等学校',
+  'pt': 'Escola Estadual Monteiro Lobato',
+  'hi': 'केंद्रीय विद्यालय, लखनऊ',
+  'id': 'SMA Negeri 8 Jakarta',
+  'ko': '한빛고등학교',
 };
 
 const _city = {
@@ -344,4 +419,8 @@ const _city = {
   'fr': 'Paris',
   'zh': '北京',
   'ja': '東京',
+  'pt': 'São Paulo',
+  'hi': 'लखनऊ',
+  'id': 'Jakarta',
+  'ko': '서울',
 };

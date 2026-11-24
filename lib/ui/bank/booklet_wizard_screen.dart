@@ -814,7 +814,7 @@ class _BookletWizardScreenState extends State<BookletWizardScreen> {
             Row(children: [
               IconBadge(icon, size: 30),
               const SizedBox(width: 10),
-              Text(title, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+              Expanded(child: Text(title, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800))),
             ]),
             const SizedBox(height: 10),
             ...children,

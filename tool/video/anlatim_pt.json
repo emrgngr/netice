@@ -1,0 +1,17 @@
+{
+ "00_acilis": "Ao abrir o Netice, uma breve animação de abertura dá as boas-vindas.",
+ "01_tanitim": "Na primeira abertura, algumas páginas apresentam o aplicativo. Toque em Continuar para avançar.",
+ "02_ana": "Na tela inicial você vê o resumo das suas provas. Para uma nova prova, toque no botão de mais no canto superior direito; para corrigir folhas, toque em Escanear. Remova os dados de exemplo com o botão Excluir exemplos.",
+ "03_siniflar": "No menu inferior, vá para Turmas. Importe seus alunos de uma lista do Excel ou adicione um por um com Adicionar aluno.",
+ "04_yeni_sinav": "Na tela de nova prova, defina o número de questões com os botões de mais e menos ou digitando na caixa, escolha o número de alternativas, preencha o gabarito e toque em Salvar prova.",
+ "05_form_yazdir": "Na tela da prova, escolha Imprimir formulários no menu do canto superior direito e distribua as folhas de respostas aos alunos.",
+ "06_okut": "Quando a prova terminar, toque no botão Escanear.",
+ "07_okut_ekrani": "Escaneie as folhas com a câmera ou escolha as fotos na galeria. O Netice lê cada folha em segundos.",
+ "08_sonuclar": "Na aba Resultados você vê os acertos, erros, questões em branco e a nota de cada aluno.",
+ "09_analiz": "Na aba Análise você obtém o relatório da prova e os boletins dos alunos em PDF.",
+ "10_ogrenci": "A página do aluno mostra a evolução e avisa você sobre alunos cujo desempenho está caindo.",
+ "11_kurum": "Na aba Perfil, abra Dados da instituição e escolha o tipo de instituição. Preencha a sequência do cabeçalho oficial com o órgão superior, a diretoria e o nome da instituição. O botão de exemplo pronto preenche a sequência para academias de polícia, escolas militares e universidades. Seus relatórios saem com um cabeçalho oficial.",
+ "12_kutuphane": "Na Biblioteca, monte seu próprio banco de questões. Separe as questões em fáceis, médias e difíceis e guarde também suas anotações de aula e resumos.",
+ "12_ayarlar": "Em Configurações você pode mudar o idioma do aplicativo, desligar a melodia de abertura e fazer backup dos seus dados.",
+ "13_yardim": "Se tiver dúvidas, toque no ponto de interrogação na tela inicial: o manual, os vídeos e as perguntas frequentes estão lá. Bom trabalho!"
+}

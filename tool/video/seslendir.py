@@ -16,6 +16,8 @@ import json
 import os
 import subprocess
 import sys
+import time
+import urllib.error
 import urllib.request
 
 RELEASE = 'rehber-videolari'
@@ -24,10 +26,19 @@ API = 'https://api.elevenlabs.io/v1'
 
 
 def api(path, body=None):
-    req = urllib.request.Request(API + path, data=json.dumps(body).encode() if body is not None else None,
-                                 headers={'xi-api-key': os.environ['ELEVENLABS_API_KEY'], 'Content-Type': 'application/json'})
-    with urllib.request.urlopen(req, timeout=120) as r:
-        return r.read()
+    # 429 (çok fazla istek) ve geçici sunucu hatalarında bekleyip yeniden dener.
+    for attempt in range(8):
+        req = urllib.request.Request(API + path, data=json.dumps(body).encode() if body is not None else None,
+                                     headers={'xi-api-key': os.environ['ELEVENLABS_API_KEY'], 'Content-Type': 'application/json'})
+        try:
+            with urllib.request.urlopen(req, timeout=120) as r:
+                return r.read()
+        except urllib.error.HTTPError as e:
+            if e.code not in (429, 500, 502, 503, 504) or attempt == 7:
+                raise
+            wait = 5 * (attempt + 1)
+            print(f'ElevenLabs {e.code}, {wait} sn sonra yeniden deneniyor')
+            time.sleep(wait)
 
 
 def voice_id():

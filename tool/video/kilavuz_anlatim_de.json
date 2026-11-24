@@ -6,7 +6,8 @@
   "scan": "Bögen auswerten",
   "report": "Ergebnisse und Berichte",
   "data": "Ihre Daten",
-  "library": "Fragenbank und Aufgabenhefte"
+  "library": "Fragenbank und Aufgabenhefte",
+  "pro": "Netice Pro"
  },
  "k_sinav_ayar": "In den Prüfungseinstellungen legen Sie die volle Punktzahl, die Bestehensgrenze und den Abzug für falsche Antworten fest. Hier fügen Sie auch Hefttypen und schriftliche Fragen hinzu.",
  "k_sablon": "Wenn Sie den Bogen eines Verlags oder einer anderen Firma verwenden, legen Sie dafür einmal eine Vorlage unter Andere Bögen in den Einstellungen an.",
@@ -18,5 +19,13 @@
  "k_notlar": "Im Reiter Notizen verwalten Sie Zusammenfassungen und Merksätze. Merksätze zu schwachen Themen kommen automatisch ins Schülerzeugnis.",
  "k_sihirbaz": "Öffnen Sie mit Neues Heft den Assistenten. Wählen Sie Fragen aus der Bank, oder geben Sie Anzahl und Schwierigkeit vor und lassen Sie Netice auswählen.",
  "k_kitapcik_turu": "Erstellen Sie Heftvarianten von A bis H und mischen Sie Fragen und Antworten. Mit Prüfung erstellen ist alles bereit zum Scannen.",
- "k_banka_analiz": "Der Reiter Analyse zeigt die Schwierigkeitsverteilung und die Themenabdeckung Ihrer Bank. Mit jeder Prüfung misst er auch die echte Schwierigkeit."
+ "k_banka_analiz": "Der Reiter Analyse zeigt die Schwierigkeitsverteilung und die Themenabdeckung Ihrer Bank. Mit jeder Prüfung misst er auch die echte Schwierigkeit.",
+ "k_yz_soru": "Öffnen Sie eine Notiz und tippen Sie auf Fragen aus dieser Notiz erstellen. Wählen Sie Anzahl, Typ und Schwierigkeit; die KI schlägt Fragen, richtige Antworten und kurze Lösungen vor. Prüfen Sie sie und übernehmen Sie die passenden in die Fragenbank.",
+ "k_cocuk": "Für die Grundschule wählen Sie im Schritt Darstellung des Heft-Assistenten die Kindervorlage. Sie erhalten große Schrift und bunte Nummern; die Antworten werden im Kästchen in der Ecke der ersten Seite markiert und mit dem Handy gelesen.",
+ "k_not_sistemi": "Wählen Sie unter Einstellungen im Bildschirm Notensystem das System Ihres Landes oder geben Sie die Stufen selbst ein. Zeugnisse und Berichte richten sich danach.",
+ "k_pro": "Der Bildschirm Netice Pro im Profil zeigt die Pläne. Pro enthält fünfzig KI-Fragen pro Monat, Pro plus KI dreihundert. Das Prüfungszeit-Paket gilt drei Monate und verlängert sich nicht.",
+ "k_pro_alt": "Ist Ihr Monatskontingent aufgebraucht, kaufen Sie ein Zusatzpaket, das nicht verfällt. Kaufen fünf oder mehr Lehrkräfte derselben Schule gemeinsam, gibt es mit dem Schulpaket Rabatt.",
+ "k_okul": "Geben Sie im Schulpaket die Zahl der Lehrkräfte ein, sehen Sie den reduzierten Preis und tippen Sie auf Angebot für Ihre Schule anfordern. Nach der Freigabe erhält Ihre Schule einen Einrichtungscode.",
+ "k_sinif_analiz": "Wenn Sie dieselbe Prüfung in mehreren Klassen geschrieben haben, zeigt die Klassenanalyse auf dem Startbildschirm die Klassen nebeneinander. Hier sehen Sie das Wichtigste, den Abstand zum Gesamtdurchschnitt und die Lösungsquote je Frage; mit der Schaltfläche oben rechts erhalten Sie einen PDF-Bericht.",
+ "k_genel_istatistik": "Die Gesamtstatistik zeigt die Ergebnisse aller Klassen und aller geprüften Schüler zusammen. Grenzen Sie nach Zeitraum und Klasse ein und teilen Sie den Bericht als PDF."
 }
