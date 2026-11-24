@@ -32,7 +32,7 @@ enum ProFeature {
   lanSync('Wi-Fi ile eşitleme', 'Aynı ağdaki öğretmenlerle internetsiz, dosyasız sonuç toplama'),
   bulkParent('Velilere toplu gönderim', 'Bütün sınıfın karnelerini sırayla, hazır mesajla gönderin'),
   aiQuestions('Nottan soru üretme', 'Yapay zekâ ders notunuzdan soru önerir · Pro\'da ayda 50, Pro + Yapay Zekâ\'da ayda 300 soru'),
-  noAds('Reklamsız kullanım', 'Hiçbir sayfada reklam gösterilmez');
+  noAds('Pro\'da hiç reklam yok', 'Kendi tanıtımlarımız da gösterilmez. Ücretsiz sürümde de üçüncü taraf reklam yok.');
 
   final String _title;
   final String _detail;

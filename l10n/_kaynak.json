@@ -2336,5 +2336,9 @@
  "İlk",
  "İlk sınavdan son sınava genel ortalama {0} puan düştü.",
  "İlk sınavdan son sınava genel ortalama {0} puan yükseldi.",
- "Şubeleri ortalama, yayılım, düzey ve soru soru yan yana görün"
+ "Şubeleri ortalama, yayılım, düzey ve soru soru yan yana görün",
+ "Netice'de üçüncü taraf reklam ve reklam ağı yoktur: reklam kimliğiniz okunmaz, hiçbir reklam şirketi sizi izlemez ve bilgileriniz kimseye satılmaz. Zaman zaman gördüğünüz tanıtımlar yalnızca Netice geliştiricisinin kendi uygulamaları, web siteleri ve ürünleri içindir. Netice Pro'da bu tanıtımlar da gösterilmez.",
+ "Üçüncü taraf reklam yok · Sizi izleyen reklam ağı yok",
+ "Üçüncü taraf reklam yok · Sizi izleyen reklam ağı yok · Verileriniz cihazınızda kalır",
+ "Üçüncü taraf reklam yok, sizi izleyen reklam ağı yok"
 ]
