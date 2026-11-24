@@ -6,6 +6,7 @@ import 'account_card.dart';
 import 'admin_panel_screen.dart';
 import 'common_exam_ui.dart';
 import 'lan_sync_screen.dart';
+import 'invite_screen.dart';
 import 'license_screen.dart';
 import 'pro_screen.dart';
 import 'school_screen.dart';
@@ -84,6 +85,8 @@ class ProfileScreen extends StatelessWidget {
                 ? tr('Kurum lisansıyla etkin: {0}', [store.license!.institution])
                 : store.hasSubscription
                 ? tr('Aboneliğiniz etkin. Teşekkürler!')
+                : store.hasBonusPro
+                ? tr('Davet ödülü Pro: {0} tarihine kadar', [L10n.date(store.bonusProUntil!)])
                 : store.hasTermPass
                 ? tr('Sınav dönemi paketi: {0} tarihine kadar', [L10n.date(store.termPassUntil!)])
                 : store.inTrial
@@ -93,6 +96,18 @@ class ProfileScreen extends StatelessWidget {
                         : tr('Dönem raporu, karne, veliye gönderme ve daha fazlası')),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProScreen(), fullscreenDialog: true)),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Card(
+          clipBehavior: Clip.antiAlias,
+          child: ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            leading: const IconBadge(Icons.card_giftcard_rounded, color: NColors.emerald),
+            title: Text(tr('Arkadaşını davet et'), style: const TextStyle(fontWeight: FontWeight.w700)),
+            subtitle: Text(tr('Arkadaşınıza %15 indirim, size 1 ay ek Pro')),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const InviteScreen())),
           ),
         ),
         SectionTitle(tr('Hesap')),

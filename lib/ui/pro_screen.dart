@@ -1,12 +1,15 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../core/legal.dart';
 import '../core/pro.dart';
+import '../core/referral.dart';
 import '../main.dart';
+import 'invite_screen.dart';
 import 'license_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
@@ -81,7 +84,9 @@ class ProScreen extends StatefulWidget {
 }
 
 class _ProScreenState extends State<ProScreen> {
-  List<ProPlan> _plans = ProService.fallbackPlans;
+  List<ProPlan> _plans = ProService.instance.inviteApplied
+      ? ProService.plansFor(DateTime.now(), invite: true)
+      : ProService.fallbackPlans;
   String _selected = proYearlyId;
   bool _busy = false;
   StreamSubscription<String>? _sub;
@@ -89,15 +94,26 @@ class _ProScreenState extends State<ProScreen> {
   @override
   void initState() {
     super.initState();
-    ProService.instance.plans().then((p) {
-      if (mounted) setState(() => _plans = p);
-    });
+    _loadPlans();
     _sub = ProService.instance.events.listen((m) {
       if (!mounted) return;
       setState(() => _busy = false);
       toast(context, m);
       if (StoreScope.of(context).isPro) Navigator.of(context).maybePop();
     });
+  }
+
+  void _loadPlans() {
+    ProService.instance.plans().then((p) {
+      if (mounted) setState(() => _plans = p);
+    });
+  }
+
+  Future<void> _openInvite() async {
+    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const InviteScreen()));
+    if (!mounted) return;
+    setState(() => _plans = ProService.fallbackPlans);
+    _loadPlans();
   }
 
   @override
@@ -168,6 +184,15 @@ class _ProScreenState extends State<ProScreen> {
                     textAlign: TextAlign.center,
                     style: const TextStyle(color: Color(0xFFE9C46A), fontWeight: FontWeight.w600, fontSize: 13)),
               ),
+            if (store.thanksCode != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: _InviteCta(
+                  title: tr('Davet edene teşekkür kodunuzu gönderin'),
+                  detail: tr('Sizi davet eden öğretmen 1 ay ek Pro kazansın.'),
+                  onTap: _openInvite,
+                ),
+              ),
             if (store.hasLicense)
               _LicenseActiveCard(store.license!.institution, store.license!.daysLeft(DateTime.now()))
             else if (store.hasSubscription)
@@ -181,6 +206,26 @@ class _ProScreenState extends State<ProScreen> {
                           [L10n.date(store.termPassUntil!)]),
                       textAlign: TextAlign.center,
                       style: const TextStyle(color: Color(0xFF7BE0B4), fontWeight: FontWeight.w600, fontSize: 13)),
+                ),
+              if (ProService.instance.inviteApplied)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Text(tr('Davet kodu uygulandı: {0} · yıllık abonelik ilk yıl %15 indirimli', [store.appliedInvite!]),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Color(0xFF7BE0B4), fontWeight: FontWeight.w700, fontSize: 13)),
+                ),
+              if (ProService.instance.inviteApplied && Platform.isIOS)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(foregroundColor: Colors.white, side: const BorderSide(color: Colors.white38)),
+                    onPressed: () async {
+                      await Clipboard.setData(const ClipboardData(text: Referral.appStoreOfferCode));
+                      await ProService.instance.redeemInviteOnAppStore();
+                    },
+                    icon: const Icon(Icons.local_offer_outlined),
+                    label: Text(tr('İndirimi App Store\'da kullan (kod: {0})', [Referral.appStoreOfferCode])),
+                  ),
                 ),
               for (final p in _plans)
                 _PlanTile(
@@ -212,6 +257,16 @@ class _ProScreenState extends State<ProScreen> {
               ),
             ],
             const SizedBox(height: 4),
+            if (store.thanksCode == null) ...[
+              _InviteCta(
+                title: tr('Arkadaşını davet et'),
+                detail: store.appliedInvite == null && !store.hasSubscription
+                    ? tr('Davet kodunuz varsa %15 indirim. Siz davet ederseniz her arkadaşınız için 1 ay ek Pro.')
+                    : tr('Her arkadaşınız için 1 ay ek Pro kazanın.'),
+                onTap: _openInvite,
+              ),
+              const SizedBox(height: 10),
+            ],
             _InstitutionCta(onTap: () async {
               await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LicenseScreen()));
               if (context.mounted && StoreScope.of(context).isPro && widget.feature != null) Navigator.of(context).maybePop();
@@ -347,7 +402,16 @@ class _PlanTile extends StatelessWidget {
                   Text(plan.note, style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 12.5)),
                 ]),
               ),
-              Text(plan.price, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 15)),
+              Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                if (plan.oldPrice != null)
+                  Text(plan.oldPrice!,
+                      style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.5),
+                          fontSize: 12.5,
+                          decoration: TextDecoration.lineThrough,
+                          decorationColor: Colors.white54)),
+                Text(plan.price, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 15)),
+              ]),
             ]),
           ),
         ),
@@ -382,6 +446,39 @@ class _ActiveCard extends StatelessWidget {
             child: Text(tr('Aboneliği yönet')),
           ),
         ]),
+      );
+}
+
+/// "Arkadaşını davet et" çağrısı: davet ekranını açar.
+class _InviteCta extends StatelessWidget {
+  final String title;
+  final String detail;
+  final VoidCallback onTap;
+  const _InviteCta({required this.title, required this.detail, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) => InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: const Color(0xFF7BE0B4).withValues(alpha: 0.5)),
+            color: const Color(0xFF7BE0B4).withValues(alpha: 0.06),
+          ),
+          child: Row(children: [
+            const Icon(Icons.card_giftcard_rounded, color: Color(0xFF7BE0B4)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 14.5)),
+                Text(detail, style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 12.5)),
+              ]),
+            ),
+            const Icon(Icons.chevron_right, color: Colors.white54),
+          ]),
+        ),
       );
 }
 
