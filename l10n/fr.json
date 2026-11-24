@@ -1999,5 +1999,7 @@
 "geri kalan": "reste",
 "Örnek: \"% 85\" yazılan düzey, tam puanın %85 ve üzerini alanlara verilir. 20 veya 10 üzerinden puan için Sınav ayarlarında \"Tam puan\" değerini değiştirin.": "Exemple : le niveau « % 85 » est attribué à ceux qui obtiennent au moins 85 % de la note maximale. Pour une note sur 20 ou sur 10, modifiez « Note maximale » dans les réglages de l'examen.",
 "Özel not sistemi": "Système de notation personnalisé",
-"Öğrencinin puanı, tam puanın yüzdesine göre bu düzeylere yerleşir. Raporlar, karneler ve düzey dağılımı bu sistemi kullanır.": "La note de l'élève est placée dans ces niveaux selon son pourcentage de la note maximale. Les rapports, bulletins et la répartition par niveau utilisent ce système."
+"Öğrencinin puanı, tam puanın yüzdesine göre bu düzeylere yerleşir. Raporlar, karneler ve düzey dağılımı bu sistemi kullanır.": "La note de l'élève est placée dans ces niveaux selon son pourcentage de la note maximale. Les rapports, bulletins et la répartition par niveau utilisent ce système.",
+"Ücretsiz indirin": "Téléchargez-la gratuitement",
+"Optik kâğıtları telefonla okutun, sonuç ve karne saniyeler içinde.": "Corrigez les grilles réponses avec votre téléphone, résultats et bulletins en quelques secondes."
 }
