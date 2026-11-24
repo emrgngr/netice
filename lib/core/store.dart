@@ -1060,7 +1060,8 @@ ReadSpec specFor(AppStore store, Exam exam) => ReadSpec(
       choices: exam.choiceCount,
       booklets: exam.bookletCount,
       digits: exam.numberDigits,
-      template: store.templateById(exam.templateId),
+      template: exam.kidForm ? null : store.templateById(exam.templateId),
+      kids: exam.kidForm,
     );
 
 /// Seçili sınav için okuma motoru oluşturur.
