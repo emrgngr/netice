@@ -2415,6 +2415,7 @@ const Map<String, Map<String, String>> translations = {
     'Sınavları seçip silin': 'Select and delete exams',
     'Yanlışlıkla silerseniz altta beliren "Geri al" düğmesine 6 saniye içinde dokunun.': 'If you delete something by mistake, tap "Undo" at the bottom within 6 seconds.',
     'Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.': 'Tap the trash can and confirm. Your students and classes are not deleted.',
+    'Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.': 'In the Windows version, Pro is unlocked with a licence code. To get a code, write to us: {0}. Enter it under Profile > Institution licence.',
   },
   'az': {
     '\n\n— Netice ile hazırlandı. Siz de deneyin: {0}': '\n\n— Netice ilə hazırlanıb. Siz də sınayın: {0}',
@@ -4829,6 +4830,7 @@ const Map<String, Map<String, String>> translations = {
     'Sınavları seçip silin': 'İmtahanları seçib silin',
     'Yanlışlıkla silerseniz altta beliren "Geri al" düğmesine 6 saniye içinde dokunun.': 'Səhvən silsəniz, aşağıda çıxan "Geri al" düyməsinə 6 saniyə ərzində toxunun.',
     'Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.': 'Zibil qutusuna toxunub təsdiqləyin. Şagirdləriniz və sinifləriniz silinmir.',
+    'Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.': 'Windows versiyasında Pro lisenziya kodu ilə açılır. Kod almaq üçün bizə yazın: {0}. Kodu Profil > Qurum lisenziyası bölməsinə daxil edin.',
   },
   'de': {
     '\n\n— Netice ile hazırlandı. Siz de deneyin: {0}': '\n\n— Erstellt mit Netice. Probieren Sie es aus: {0}',
@@ -7243,6 +7245,7 @@ const Map<String, Map<String, String>> translations = {
     'Sınavları seçip silin': 'Prüfungen auswählen und löschen',
     'Yanlışlıkla silerseniz altta beliren "Geri al" düğmesine 6 saniye içinde dokunun.': 'Haben Sie versehentlich gelöscht, tippen Sie innerhalb von 6 Sekunden unten auf „Rückgängig“.',
     'Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.': 'Tippen Sie auf den Papierkorb und bestätigen Sie. Ihre Schüler und Klassen werden nicht gelöscht.',
+    'Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.': 'In der Windows-Version wird Pro mit einem Lizenzcode freigeschaltet. Für einen Code schreiben Sie uns: {0}. Geben Sie ihn unter Profil > Institutionslizenz ein.',
   },
   'ar': {
     '\n\n— Netice ile hazırlandı. Siz de deneyin: {0}': '\n\n— أعد باستخدام Netice. جربه أنت أيضا: {0}',
@@ -9657,6 +9660,7 @@ const Map<String, Map<String, String>> translations = {
     'Sınavları seçip silin': 'حدد الاختبارات واحذفها',
     'Yanlışlıkla silerseniz altta beliren "Geri al" düğmesine 6 saniye içinde dokunun.': 'إن حذفت خطأ فالمس زر تراجع في الأسفل خلال 6 ثوان.',
     'Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.': 'اضغط سلة المهملات وأكد. لا يحذف طلابك ولا صفوفك.',
+    'Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.': 'في إصدار Windows يفعل Pro برمز ترخيص. للحصول على رمز راسلنا: {0}. أدخله في الملف الشخصي > ترخيص المؤسسة.',
   },
   'es': {
     '\n\n— Netice ile hazırlandı. Siz de deneyin: {0}': '\n\n— Hecho con Netice. Pruébalo tú también: {0}',
@@ -12071,6 +12075,7 @@ const Map<String, Map<String, String>> translations = {
     'Sınavları seçip silin': 'Seleccione y borre exámenes',
     'Yanlışlıkla silerseniz altta beliren "Geri al" düğmesine 6 saniye içinde dokunun.': 'Si borra algo por error, toque «Deshacer» abajo en 6 segundos.',
     'Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.': 'Toca la papelera y confirma. Tus alumnos y clases no se eliminan.',
+    'Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.': 'En la versión de Windows, Pro se activa con un código de licencia. Para obtenerlo, escríbenos: {0}. Introdúcelo en Perfil > Licencia de institución.',
   },
   'ru': {
     '\n\n— Netice ile hazırlandı. Siz de deneyin: {0}': '\n\n— Сделано в Netice. Попробуйте и вы: {0}',
@@ -14485,6 +14490,7 @@ const Map<String, Map<String, String>> translations = {
     'Sınavları seçip silin': 'Выберите и удалите',
     'Yanlışlıkla silerseniz altta beliren "Geri al" düğmesine 6 saniye içinde dokunun.': 'Удалили по ошибке — нажмите «Отменить» внизу в течение 6 секунд.',
     'Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.': 'Нажмите на корзину и подтвердите. Ученики и классы не удаляются.',
+    'Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.': 'В версии для Windows Pro открывается лицензионным кодом. Чтобы получить код, напишите нам: {0}. Введите его в разделе Профиль > Лицензия учреждения.',
   },
   'it': {
     '\n\n— Netice ile hazırlandı. Siz de deneyin: {0}': '\n\n— Creato con Netice. Provalo anche tu: {0}',
@@ -16899,6 +16905,7 @@ const Map<String, Map<String, String>> translations = {
     'Sınavları seçip silin': 'Seleziona ed elimina verifiche',
     'Yanlışlıkla silerseniz altta beliren "Geri al" düğmesine 6 saniye içinde dokunun.': 'Se elimini per errore, tocca «Annulla» in basso entro 6 secondi.',
     'Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.': 'Tocca il cestino e conferma. Studenti e classi non vengono eliminati.',
+    'Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.': 'Nella versione Windows, Pro si attiva con un codice di licenza. Per ottenerlo scrivici: {0}. Inseriscilo in Profilo > Licenza istituto.',
   },
   'fr': {
     '\n\n— Netice ile hazırlandı. Siz de deneyin: {0}': '\n\n— Réalisé avec Netice. Essayez-le vous aussi : {0}',
@@ -19313,6 +19320,7 @@ const Map<String, Map<String, String>> translations = {
     'Sınavları seçip silin': 'Sélectionner et supprimer',
     'Yanlışlıkla silerseniz altta beliren "Geri al" düğmesine 6 saniye içinde dokunun.': 'Supprimé par erreur ? Touchez « Annuler » en bas dans les 6 secondes.',
     'Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.': 'Touchez la corbeille et confirmez. Vos élèves et vos classes ne sont pas supprimés.',
+    'Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.': 'Dans la version Windows, Pro s\'active avec un code de licence. Pour obtenir un code, écrivez-nous : {0}. Saisissez-le dans Profil > Licence d\'établissement.',
   },
   'zh': {
     '\n\n— Netice ile hazırlandı. Siz de deneyin: {0}': '\n\n— 由 Netice 制作。您也来试试：{0}',
@@ -21727,6 +21735,7 @@ const Map<String, Map<String, String>> translations = {
     'Sınavları seçip silin': '选择并删除考试',
     'Yanlışlıkla silerseniz altta beliren "Geri al" düğmesine 6 saniye içinde dokunun.': '误删时，请在 6 秒内点底部出现的“撤销”。',
     'Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.': '点垃圾桶并确认。学生和班级不会被删除。',
+    'Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.': 'Windows 版通过许可证代码开通 Pro。获取代码请联系我们：{0}。在“个人资料 > 机构许可证”中输入代码。',
   },
   'ja': {
     '\n\n— Netice ile hazırlandı. Siz de deneyin: {0}': '\n\n— Netice で作成しました。ぜひお試しください：{0}',
@@ -24141,6 +24150,7 @@ const Map<String, Map<String, String>> translations = {
     'Sınavları seçip silin': 'テストを選んで削除',
     'Yanlışlıkla silerseniz altta beliren "Geri al" düğmesine 6 saniye içinde dokunun.': 'うっかり削除したら、6秒以内に下の「元に戻す」をタップします。',
     'Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.': 'ごみ箱をタップして確定します。生徒とクラスは削除されません。',
+    'Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.': 'Windows 版では Pro はライセンスコードで有効になります。コードはこちらへご連絡ください：{0}。プロフィール > 機関ライセンスで入力してください。',
   },
   'pt': {
     '\n\n— Netice ile hazırlandı. Siz de deneyin: {0}': '\n\n— Feito com o Netice. Experimente você também: {0}',
@@ -26555,6 +26565,7 @@ const Map<String, Map<String, String>> translations = {
     'Sınavları seçip silin': 'Selecione e exclua provas',
     'Yanlışlıkla silerseniz altta beliren "Geri al" düğmesine 6 saniye içinde dokunun.': 'Se excluir por engano, toque em "Desfazer" embaixo em até 6 segundos.',
     'Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.': 'Toque na lixeira e confirme. Seus alunos e turmas não são excluídos.',
+    'Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.': 'Na versão para Windows, o Pro é ativado com um código de licença. Para obter um código, escreva para nós: {0}. Digite-o em Perfil > Licença institucional.',
   },
   'hi': {
     '\n\n— Netice ile hazırlandı. Siz de deneyin: {0}': '\n\n— Netice से बनाया गया। आप भी आज़माएँ: {0}',
@@ -28969,6 +28980,7 @@ const Map<String, Map<String, String>> translations = {
     'Sınavları seçip silin': 'परीक्षाएँ चुनकर हटाएँ',
     'Yanlışlıkla silerseniz altta beliren "Geri al" düğmesine 6 saniye içinde dokunun.': 'ग़लती से हट जाए तो नीचे आने वाले "वापस लें" बटन को 6 सेकंड में दबाएँ।',
     'Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.': 'कूड़ेदान को दबाएँ और पुष्टि करें। आपके छात्र और कक्षाएँ नहीं हटतीं।',
+    'Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.': 'Windows संस्करण में Pro लाइसेंस कोड से खुलता है। कोड पाने के लिए हमें लिखें: {0}. इसे प्रोफ़ाइल > संस्थान लाइसेंस में दर्ज करें।',
   },
   'id': {
     '\n\n— Netice ile hazırlandı. Siz de deneyin: {0}': '\n\n— Dibuat dengan Netice. Coba sendiri: {0}',
@@ -31383,6 +31395,7 @@ const Map<String, Map<String, String>> translations = {
     'Sınavları seçip silin': 'Pilih dan hapus ujian',
     'Yanlışlıkla silerseniz altta beliren "Geri al" düğmesine 6 saniye içinde dokunun.': 'Jika terhapus tidak sengaja, ketuk "Urungkan" yang muncul di bawah dalam 6 detik.',
     'Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.': 'Ketuk tempat sampah dan konfirmasi. Siswa dan kelas Anda tidak terhapus.',
+    'Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.': 'Di versi Windows, Pro dibuka dengan kode lisensi. Untuk mendapatkan kode, hubungi kami: {0}. Masukkan di Profil > Lisensi institusi.',
   },
   'ko': {
     '\n\n— Netice ile hazırlandı. Siz de deneyin: {0}': '\n\n— Netice로 만들었습니다. 직접 사용해 보세요: {0}',
@@ -33797,5 +33810,6 @@ const Map<String, Map<String, String>> translations = {
     'Sınavları seçip silin': '시험을 골라 삭제',
     'Yanlışlıkla silerseniz altta beliren "Geri al" düğmesine 6 saniye içinde dokunun.': '실수로 지웠다면 아래에 나오는 "실행 취소"를 6초 안에 누르세요.',
     'Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.': '휴지통을 누르고 확인하세요. 학생과 반은 삭제되지 않습니다.',
+    'Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.': 'Windows 버전에서는 라이선스 코드로 Pro가 열립니다. 코드를 받으려면 문의하세요: {0}. 프로필 > 기관 라이선스에 입력하세요.',
   },
 };

@@ -5,7 +5,7 @@ name: Mağaza görselleri
 on:
   workflow_dispatch:
   push:
-    branches: [ilk-surum, main, 'claude/magaza*', 'claude/project-thread-c1557n']
+    branches: [ilk-surum, main, 'claude/magaza*', 'claude/project-thread-c1557n', 'claude/project-thread-f0ew5u']
     paths: ['tool/magaza/**', 'tool/screenshots_test.dart', '.github/workflows/magaza.yml']
 
 permissions:
@@ -33,6 +33,14 @@ jobs:
         run: |
           flutter test tool/screenshots_test.dart
           flutter test tool/magaza/yeni_ekranlar_test.dart
+          flutter test tool/magaza/genis_ekranlar_test.dart --dart-define=LANG_SHOT=tr
+          flutter test tool/magaza/genis_ekranlar_test.dart --dart-define=LANG_SHOT=en
+      - name: App Store, tablet ve bilgisayar görselleri
+        run: python3 tool/magaza/paketler.py build/paketler tr en
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Netice-Magaza-Paketleri
+          path: build/paketler
       - name: Görseller ve video
         run: |
           python3 tool/magaza/gorseller.py tool/magaza/ornek_form.png build/magaza

@@ -2480,5 +2480,6 @@
 "Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.": "Tap the trash can and confirm. Your students and classes are not deleted.",
 "Silme ve düzeltme": "Deleting and fixing",
 "Sınavları seçip silin": "Select and delete exams",
-"Yanlışlıkla silerseniz altta beliren \"Geri al\" düğmesine 6 saniye içinde dokunun.": "If you delete something by mistake, tap \"Undo\" at the bottom within 6 seconds."
+"Yanlışlıkla silerseniz altta beliren \"Geri al\" düğmesine 6 saniye içinde dokunun.": "If you delete something by mistake, tap \"Undo\" at the bottom within 6 seconds.",
+"Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.": "In the Windows version, Pro is unlocked with a licence code. To get a code, write to us: {0}. Enter it under Profile > Institution licence."
 }

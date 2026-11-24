@@ -76,7 +76,13 @@ class AppStore extends ChangeNotifier {
   static const proGrace = Duration(days: 40);
 
   /// Bilgisayar sürümünde Pro özellikleri şimdilik açık.
-  static bool proFreeOnThisPlatform = !(Platform.isAndroid || Platform.isIOS);
+  /// Pro yalnız geliştirme ortamında (Linux, testler) kendiliğinden açıktır.
+  /// Windows ve Mac'te de telefondaki gibi 14 gün deneme, sonra Pro gerekir
+  /// (Mac: App Store aboneliği, Windows: lisans kodu).
+  static bool proFreeOnThisPlatform = Platform.isLinux;
+
+  /// Mağaza ekran görüntülerinde "örnek veriler" uyarısını gizlemek için.
+  static bool showDemoNotice = true;
 
   /// İlk kurulumdan itibaren 14 gün tüm Pro özellikleri ücretsiz (kart gerekmez).
   DateTime? trialStart;

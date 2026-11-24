@@ -2480,5 +2480,6 @@
 "Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.": "Нажмите на корзину и подтвердите. Ученики и классы не удаляются.",
 "Silme ve düzeltme": "Удаление и исправление",
 "Sınavları seçip silin": "Выберите и удалите",
-"Yanlışlıkla silerseniz altta beliren \"Geri al\" düğmesine 6 saniye içinde dokunun.": "Удалили по ошибке — нажмите «Отменить» внизу в течение 6 секунд."
+"Yanlışlıkla silerseniz altta beliren \"Geri al\" düğmesine 6 saniye içinde dokunun.": "Удалили по ошибке — нажмите «Отменить» внизу в течение 6 секунд.",
+"Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.": "В версии для Windows Pro открывается лицензионным кодом. Чтобы получить код, напишите нам: {0}. Введите его в разделе Профиль > Лицензия учреждения."
 }

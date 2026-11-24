@@ -468,5 +468,6 @@
  "Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.": "휴지통을 누르고 확인하세요. 학생과 반은 삭제되지 않습니다.",
  "Silme ve düzeltme": "삭제와 수정",
  "Sınavları seçip silin": "시험을 골라 삭제",
- "Yanlışlıkla silerseniz altta beliren \"Geri al\" düğmesine 6 saniye içinde dokunun.": "실수로 지웠다면 아래에 나오는 \"실행 취소\"를 6초 안에 누르세요."
+ "Yanlışlıkla silerseniz altta beliren \"Geri al\" düğmesine 6 saniye içinde dokunun.": "실수로 지웠다면 아래에 나오는 \"실행 취소\"를 6초 안에 누르세요.",
+ "Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.": "Windows 버전에서는 라이선스 코드로 Pro가 열립니다. 코드를 받으려면 문의하세요: {0}. 프로필 > 기관 라이선스에 입력하세요."
 }

@@ -468,5 +468,6 @@
  "Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.": "कूड़ेदान को दबाएँ और पुष्टि करें। आपके छात्र और कक्षाएँ नहीं हटतीं।",
  "Silme ve düzeltme": "हटाना और सुधारना",
  "Sınavları seçip silin": "परीक्षाएँ चुनकर हटाएँ",
- "Yanlışlıkla silerseniz altta beliren \"Geri al\" düğmesine 6 saniye içinde dokunun.": "ग़लती से हट जाए तो नीचे आने वाले \"वापस लें\" बटन को 6 सेकंड में दबाएँ।"
+ "Yanlışlıkla silerseniz altta beliren \"Geri al\" düğmesine 6 saniye içinde dokunun.": "ग़लती से हट जाए तो नीचे आने वाले \"वापस लें\" बटन को 6 सेकंड में दबाएँ।",
+ "Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.": "Windows संस्करण में Pro लाइसेंस कोड से खुलता है। कोड पाने के लिए हमें लिखें: {0}. इसे प्रोफ़ाइल > संस्थान लाइसेंस में दर्ज करें।"
 }

@@ -1402,5 +1402,6 @@
  "Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.": "点垃圾桶并确认。学生和班级不会被删除。",
  "Silme ve düzeltme": "删除与更正",
  "Sınavları seçip silin": "选择并删除考试",
- "Yanlışlıkla silerseniz altta beliren \"Geri al\" düğmesine 6 saniye içinde dokunun.": "误删时，请在 6 秒内点底部出现的“撤销”。"
+ "Yanlışlıkla silerseniz altta beliren \"Geri al\" düğmesine 6 saniye içinde dokunun.": "误删时，请在 6 秒内点底部出现的“撤销”。",
+ "Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.": "Windows 版通过许可证代码开通 Pro。获取代码请联系我们：{0}。在“个人资料 > 机构许可证”中输入代码。"
 }

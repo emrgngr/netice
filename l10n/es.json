@@ -2480,5 +2480,6 @@
 "Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.": "Toca la papelera y confirma. Tus alumnos y clases no se eliminan.",
 "Silme ve düzeltme": "Borrar y corregir",
 "Sınavları seçip silin": "Seleccione y borre exámenes",
-"Yanlışlıkla silerseniz altta beliren \"Geri al\" düğmesine 6 saniye içinde dokunun.": "Si borra algo por error, toque «Deshacer» abajo en 6 segundos."
+"Yanlışlıkla silerseniz altta beliren \"Geri al\" düğmesine 6 saniye içinde dokunun.": "Si borra algo por error, toque «Deshacer» abajo en 6 segundos.",
+"Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.": "En la versión de Windows, Pro se activa con un código de licencia. Para obtenerlo, escríbenos: {0}. Introdúcelo en Perfil > Licencia de institución."
 }

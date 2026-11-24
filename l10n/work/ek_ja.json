@@ -1402,5 +1402,6 @@
  "Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.": "ごみ箱をタップして確定します。生徒とクラスは削除されません。",
  "Silme ve düzeltme": "削除と修正",
  "Sınavları seçip silin": "テストを選んで削除",
- "Yanlışlıkla silerseniz altta beliren \"Geri al\" düğmesine 6 saniye içinde dokunun.": "うっかり削除したら、6秒以内に下の「元に戻す」をタップします。"
+ "Yanlışlıkla silerseniz altta beliren \"Geri al\" düğmesine 6 saniye içinde dokunun.": "うっかり削除したら、6秒以内に下の「元に戻す」をタップします。",
+ "Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.": "Windows 版では Pro はライセンスコードで有効になります。コードはこちらへご連絡ください：{0}。プロフィール > 機関ライセンスで入力してください。"
 }

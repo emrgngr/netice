@@ -1402,5 +1402,6 @@
  "Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.": "Touchez la corbeille et confirmez. Vos élèves et vos classes ne sont pas supprimés.",
  "Silme ve düzeltme": "Supprimer et corriger",
  "Sınavları seçip silin": "Sélectionner et supprimer",
- "Yanlışlıkla silerseniz altta beliren \"Geri al\" düğmesine 6 saniye içinde dokunun.": "Supprimé par erreur ? Touchez « Annuler » en bas dans les 6 secondes."
+ "Yanlışlıkla silerseniz altta beliren \"Geri al\" düğmesine 6 saniye içinde dokunun.": "Supprimé par erreur ? Touchez « Annuler » en bas dans les 6 secondes.",
+ "Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.": "Dans la version Windows, Pro s'active avec un code de licence. Pour obtenir un code, écrivez-nous : {0}. Saisissez-le dans Profil > Licence d'établissement."
 }
