@@ -72,7 +72,7 @@ jobs:
         if: steps.hazir.outputs.tamam == '1'
         run: |
           flutter pub get
-          flutter build ios --release --config-only --build-number=${{ github.run_number }} --dart-define=GOOGLE_IOS_CLIENT_ID=${{ secrets.GOOGLE_IOS_CLIENT_ID }}
+          flutter build ios --release --config-only --no-codesign --build-number=${{ github.run_number }} --dart-define=GOOGLE_IOS_CLIENT_ID=${{ secrets.GOOGLE_IOS_CLIENT_ID }}
       - name: Arşiv (imzalı)
         if: steps.hazir.outputs.tamam == '1'
         run: |
