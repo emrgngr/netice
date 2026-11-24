@@ -1,0 +1,79 @@
+# "Nottan soru üret" özelliğinin küçük sunucusunu (Cloudflare Worker) yayınlar.
+#
+# Gerekli GitHub secret'ları (Settings > Secrets and variables > Actions):
+#   ANTHROPIC_API_KEY      Claude API anahtarı (console.anthropic.com)
+#   CLOUDFLARE_API_TOKEN   Cloudflare "Edit Cloudflare Workers" şablonlu API token
+#   CLOUDFLARE_ACCOUNT_ID  Cloudflare hesap kimliği
+# Secret'lar eklenmemişse iş hata vermeden atlanır.
+name: Soru sunucusu
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, ilk-surum]
+    paths:
+      - 'sunucu/soru-uretici/**'
+      - '.github/workflows/soru-sunucusu.yml'
+
+concurrency:
+  group: soru-sunucusu
+  cancel-in-progress: false
+
+jobs:
+  yayinla:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sunucu/soru-uretici
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm test
+
+      - name: Secret'lar var mı?
+        id: hazir
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ] || [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "::warning::ANTHROPIC_API_KEY, CLOUDFLARE_API_TOKEN ve CLOUDFLARE_ACCOUNT_ID secret'ları eklenmemiş; yayın atlandı."
+            echo "tamam=0" >> "$GITHUB_OUTPUT"
+          else
+            echo "tamam=1" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Kota deposu (KV) hazırla
+        if: steps.hazir.outputs.tamam == '1'
+        run: |
+          set -euo pipefail
+          bul() {
+            curl -fsS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+              "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/storage/kv/namespaces?per_page=100" \
+              | jq -r '.result[] | select(.title == "netice-soru-kota") | .id' | head -n1
+          }
+          ID=$(bul)
+          if [ -z "$ID" ]; then
+            curl -fsS -X POST -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" \
+              --data '{"title":"netice-soru-kota"}' \
+              "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/storage/kv/namespaces" > /dev/null
+            ID=$(bul)
+          fi
+          test -n "$ID"
+          sed -i "s/KV_ID_BURAYA/$ID/" wrangler.toml
+
+      - name: Yayınla
+        if: steps.hazir.outputs.tamam == '1'
+        run: |
+          set -euo pipefail
+          npx wrangler deploy | tee yayin.log
+          printf '%s' "$ANTHROPIC_API_KEY" | npx wrangler secret put ANTHROPIC_API_KEY
+          ADRES=$(grep -oE 'https://[a-zA-Z0-9.-]+\.workers\.dev' yayin.log | head -n1 || true)
+          echo "Sunucu adresi: $ADRES"
+          echo "### Soru sunucusu yayında" >> "$GITHUB_STEP_SUMMARY"
+          echo "Adres: \`$ADRES\`" >> "$GITHUB_STEP_SUMMARY"
+          if [ -n "$ADRES" ]; then curl -fsS "$ADRES/" ; fi

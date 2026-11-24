@@ -7,6 +7,7 @@ import '../../reports/notes_pdf.dart';
 import '../report_preview_screen.dart';
 import '../theme.dart';
 import '../widgets.dart';
+import 'ai_questions_screen.dart';
 import 'bank_widgets.dart';
 import 'image_tools.dart';
 
@@ -263,6 +264,15 @@ class NoteViewScreen extends StatelessWidget {
                       padding: const EdgeInsets.only(top: 4),
                       child: Text(n.topicLabel, style: TextStyle(color: t.colorScheme.onSurface.withValues(alpha: 0.6))),
                     ),
+                  const SizedBox(height: 14),
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: FilledButton.tonalIcon(
+                      onPressed: () => AiQuestionsScreen.open(context, n),
+                      icon: const Icon(Icons.auto_awesome_rounded),
+                      label: Text(tr('Bu nottan soru üret')),
+                    ),
+                  ),
                   const SizedBox(height: 18),
                   if (n.body.isNotEmpty)
                     Container(

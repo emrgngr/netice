@@ -6,6 +6,7 @@ import '../../l10n/l10n.dart';
 import '../../main.dart';
 import '../theme.dart';
 import '../widgets.dart';
+import 'ai_questions_screen.dart';
 import 'bank_analysis_view.dart';
 import 'bank_widgets.dart';
 import 'booklet_wizard_screen.dart';
@@ -46,6 +47,9 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
       ActionTileData(Icons.crop_rounded, tr('PDF ya da fotoğraftan kes'),
           tr('Kitap, deneme ya da yaprak test sayfasında soruları seçip hızla ekleyin'), () => CropImportScreen.start(context),
           color: NColors.ink),
+      ActionTileData(Icons.auto_awesome_rounded, tr('Ders notundan üret'),
+          tr('Yapay zekâ notunuzdan çoktan seçmeli soru, cevap ve çözüm önerir'), () => pickNoteForAi(context),
+          color: const Color(0xFF7C5CE0)),
       ActionTileData(Icons.table_view_rounded, tr('Excel\'den aktar'), tr('Şablona yazdığınız soruları ve notları tek seferde ekleyin'),
           () => importBankExcel(context),
           color: const Color(0xFF1D6F42)),

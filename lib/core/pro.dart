@@ -20,6 +20,7 @@ enum ProFeature {
   adminPanel('Kurum yönetici paneli', 'Tüm şubeler, sınavlar ve risk altındaki öğrenciler tek ekranda'),
   bookletVariants('A–H kitapçık türleri', 'Soruları ve şıkları karıştırılmış sekize kadar kitapçık, hap bilgi eki'),
   studyTips('Zayıf konu föyü', 'Zayıf konuların hap bilgileri karnede ve çalışma föyünde'),
+  aiQuestions('Nottan soru üretme', 'Yapay zekâ ders notunuzdan çoktan seçmeli soru önerir · ayda 300 soru'),
   noAds('Reklamsız kullanım', 'Hiçbir sayfada reklam gösterilmez');
 
   final String _title;
