@@ -76,4 +76,23 @@ jobs:
           echo "Sunucu adresi: $ADRES"
           echo "### Soru sunucusu yayında" >> "$GITHUB_STEP_SUMMARY"
           echo "Adres: \`$ADRES\`" >> "$GITHUB_STEP_SUMMARY"
-          if [ -n "$ADRES" ]; then curl -fsS "$ADRES/" ; fi
+          echo "ADRES=$ADRES" >> "$GITHUB_ENV"
+
+      # Yeni workers.dev adresinin sertifikası birkaç dakikada hazır olur; o yüzden bekleyerek dener.
+      - name: Sunucuyu dene
+        if: steps.hazir.outputs.tamam == '1' && env.ADRES != ''
+        run: |
+          for i in $(seq 1 20); do
+            if curl -fsS -m 20 "$ADRES/"; then echo; break; fi
+            echo "Adres henüz hazır değil, 30 sn sonra yeniden denenecek ($i/20)"
+            sleep 30
+          done
+          # Gerçek bir deneme: 1 soru üretir (anahtar ve model çalışıyor mu).
+          NOT='Fotosentez, yeşil bitkilerin ışık enerjisini kullanarak karbondioksit ve sudan glikoz ve oksijen ürettiği olaydır. Kloroplastlarda gerçekleşir; klorofil ışığı soğurur.'
+          jq -n --arg t "$NOT" '{note:{subject:"Biyoloji",topic:"Fotosentez",text:$t},count:1,choices:5,lang:"tr"}' > deneme.json
+          KOD=$(curl -sS -m 180 -o cevap.json -w '%{http_code}' -X POST "$ADRES/uret" \
+            -H 'content-type: application/json' -H 'x-netice-app: netice-app-1' -H 'x-netice-device: github-deneme-01' \
+            --data @deneme.json)
+          echo "HTTP $KOD"
+          jq '{soru: .questions[0].text, konu: .questions[0].topic, hata: .error, sorun: .problem}' cevap.json || cat cevap.json
+          test "$KOD" = "200"
