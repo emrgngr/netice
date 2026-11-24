@@ -6,7 +6,8 @@
 /// önerilen fiyatı aynı kurala göre günceller.
 library;
 
-/// Fiyatların ilk belirlendiği gün (99 TL/ay, 799 TL/yıl). Her yıl bu
+/// Fiyatların ilk belirlendiği gün (yıllık 399 TL, 2026-11-24'te 299'dan
+/// güncellendi; artış günü değişmedi). Her yıl bu
 /// günün yıl dönümünde fiyat %30 artar. Mağaza görevi de aynı günü kullanır.
 final proPriceBaseDate = DateTime(2026, 11, 19);
 
@@ -104,6 +105,15 @@ String increasePriceText(String text, int years) {
   return n.replace(text, increasedAmount(n.value, years, cents: n.decimals > 0));
 }
 
+/// Fiyat yazısındaki ilk sayıyı [rate] oranında indirir (davet indirimi):
+/// "399 TL / yıl" → "339 TL / yıl", "\$29.99 / year" → "\$25.49 / year".
+String discountPriceText(String text, double rate) {
+  final n = _Num.parse(text);
+  if (n == null) return text;
+  final x = n.value * (1 - rate);
+  return n.replace(text, n.decimals > 0 ? (x * 100).round() / 100 : x.floorToDouble());
+}
+
 /// "Ayda yaklaşık 67 TL" notunu artırılmış yıllık fiyata göre yeniden yazar.
 String monthlyNoteText(String note, String yearlyText, int years) {
   if (years <= 0) return note;
@@ -112,4 +122,12 @@ String monthlyNoteText(String note, String yearlyText, int years) {
   if (y == null || n == null) return note;
   final yearly = increasedAmount(y.value, years, cents: y.decimals > 0);
   return n.replace(note, yearly / 12);
+}
+
+/// Fiyat yazısındaki ilk sayıyı [factor] ile çarpar (ör. öğretmen sayısı).
+String multiplyPriceText(String text, double factor) {
+  final n = _Num.parse(text);
+  if (n == null) return text;
+  final x = n.value * factor;
+  return n.replace(text, n.decimals > 0 ? (x * 100).round() / 100 : x.roundToDouble());
 }
