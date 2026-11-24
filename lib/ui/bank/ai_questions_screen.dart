@@ -88,6 +88,7 @@ class _AiQuestionsScreenState extends State<AiQuestionsScreen> {
   int _count = 20;
   late int _choices = _defaultChoices();
   AiDifficulty _difficulty = AiDifficulty.mixed;
+  Set<QuestionType> _types = {QuestionType.multiple};
   bool _busy = false;
   int _done = 0;
   int _target = 0;
@@ -155,7 +156,7 @@ class _AiQuestionsScreenState extends State<AiQuestionsScreen> {
         final n = math.min(aiMaxPerRequest, count - _done);
         final r = await generateAiQuestions(
           note,
-          AiOptions(count: n, choices: _choices, difficulty: _difficulty),
+          AiOptions(count: n, choices: _choices, difficulty: _difficulty, types: _types),
           store: bank,
           usage: _usage,
           paid: paid,
@@ -303,6 +304,28 @@ class _AiQuestionsScreenState extends State<AiQuestionsScreen> {
                       ),
                     ),
                     const SizedBox(height: 14),
+                    Text(tr('Soru türleri'), style: const TextStyle(fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 8),
+                    Wrap(spacing: 8, runSpacing: 8, children: [
+                      for (final ty in QuestionType.values)
+                        FilterChip(
+                          label: Text(ty.label),
+                          selected: _types.contains(ty),
+                          onSelected: _busy
+                              ? null
+                              : (v) => setState(() {
+                                    final next = {..._types};
+                                    v ? next.add(ty) : next.remove(ty);
+                                    // En az bir tür seçili kalır.
+                                    if (next.isNotEmpty) _types = next;
+                                  }),
+                        ),
+                    ]),
+                    if (_types.length > 1) ...[
+                      const SizedBox(height: 6),
+                      Text(tr('Soru sayısı seçilen türlere yaklaşık eşit bölünür.'), style: t.textTheme.bodySmall),
+                    ],
+                    const SizedBox(height: 14),
                     Text(tr('Zorluk'), style: const TextStyle(fontWeight: FontWeight.w700)),
                     const SizedBox(height: 8),
                     Wrap(spacing: 8, runSpacing: 8, children: [
@@ -313,17 +336,19 @@ class _AiQuestionsScreenState extends State<AiQuestionsScreen> {
                           onSelected: _busy ? null : (_) => setState(() => _difficulty = d),
                         ),
                     ]),
-                    const SizedBox(height: 14),
-                    Text(tr('Şık sayısı'), style: const TextStyle(fontWeight: FontWeight.w700)),
-                    const SizedBox(height: 8),
-                    SegmentedButton<int>(
-                      segments: const [
-                        ButtonSegment(value: 4, label: Text('A–D')),
-                        ButtonSegment(value: 5, label: Text('A–E')),
-                      ],
-                      selected: {_choices},
-                      onSelectionChanged: _busy ? null : (s) => setState(() => _choices = s.first),
-                    ),
+                    if (_types.contains(QuestionType.multiple)) ...[
+                      const SizedBox(height: 14),
+                      Text(tr('Şık sayısı'), style: const TextStyle(fontWeight: FontWeight.w700)),
+                      const SizedBox(height: 8),
+                      SegmentedButton<int>(
+                        segments: const [
+                          ButtonSegment(value: 4, label: Text('A–D')),
+                          ButtonSegment(value: 5, label: Text('A–E')),
+                        ],
+                        selected: {_choices},
+                        onSelectionChanged: _busy ? null : (s) => setState(() => _choices = s.first),
+                      ),
+                    ],
                     const SizedBox(height: 16),
                     FilledButton.icon(
                       style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(50)),
@@ -518,6 +543,12 @@ class _DraftCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 2, 12, 0),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              if (q.type != QuestionType.multiple)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Text(q.type.label.toUpperCase(),
+                      style: t.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w800, letterSpacing: 0.6, color: t.colorScheme.primary)),
+                ),
               SelectableText(q.text, style: t.textTheme.bodyLarge?.copyWith(height: 1.45)),
               const SizedBox(height: 8),
               for (var i = 0; i < q.choices.length; i++)
@@ -547,6 +578,23 @@ class _DraftCard extends StatelessWidget {
                     ),
                   ]),
                 ),
+              if (!q.type.optical || q.type == QuestionType.trueFalse) ...[
+                const SizedBox(height: 4),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                  decoration: BoxDecoration(
+                    color: NColors.emerald.withValues(alpha: 0.10),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text.rich(TextSpan(children: [
+                    TextSpan(
+                        text: '${q.type == QuestionType.open ? tr('Örnek cevap') : tr('Cevap')}: ',
+                        style: const TextStyle(fontWeight: FontWeight.w800, color: NColors.emerald)),
+                    TextSpan(text: q.answerLabel),
+                  ])),
+                ),
+              ],
               if (q.solution.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 Text.rich(

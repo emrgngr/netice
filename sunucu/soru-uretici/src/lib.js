@@ -17,6 +17,9 @@ export const LANGUAGES = {
 
 export const DIFFICULTIES = ["mixed", "easy", "medium", "hard"];
 
+// Soru türleri: çoktan seçmeli, doğru/yanlış, boşluk doldurma, klasik (açık uçlu).
+export const TYPES = ["multiple", "true_false", "fill", "open"];
+
 export const LIMITS = {
   maxQuestions: 20,
   maxTextChars: 60000,
@@ -63,6 +66,9 @@ export function parseRequest(body) {
   const difficulty = DIFFICULTIES.includes(body.difficulty) ? body.difficulty : "mixed";
   const lang = LANGUAGES[body.lang] ? body.lang : "tr";
 
+  const types = Array.isArray(body.types) ? TYPES.filter((t) => body.types.includes(t)) : [];
+  if (!types.length) types.push("multiple");
+
   const avoid = Array.isArray(body.avoid) ? body.avoid.filter((s) => typeof s === "string").slice(0, 30).map((s) => s.slice(0, 300)) : [];
 
   return {
@@ -70,6 +76,7 @@ export function parseRequest(body) {
     choices,
     difficulty,
     lang,
+    types,
     avoid,
     note: {
       title: str(note.title),
@@ -85,9 +92,16 @@ export function parseRequest(body) {
 
 export const SYSTEM_PROMPT = `You are an experienced assessment writer helping a teacher build a question bank from their own lesson notes.
 
-Write multiple-choice questions that a teacher could put on a real classroom exam:
+Write questions that a teacher could put on a real classroom exam. The requested question types can be:
+- "multiple": multiple choice. Exactly one choice is correct; give its 0-based position in "correct_index".
+- "true_false": a single clear statement that is either true or false (no "choices"). "correct_index" is 0 if the statement is TRUE, 1 if it is FALSE. Mix true and false statements about evenly; a false statement must be false because of one specific, checkable error, not vague wording.
+- "fill": a sentence from the note's content with one key term replaced by "_____" (exactly one blank). "answer" is the missing term (1–4 words); add acceptable alternatives after " / " if any.
+- "open": a short-answer or essay question (explain, compare, calculate, give an example). "answer" is a model answer a teacher can grade against (2–5 sentences or the main points).
+For "true_false", "fill" and "open": "choices" is an empty array and "correct_index" is -1 except for true_false as above. For "multiple": "answer" is an empty string.
+
+Rules:
 - Every question must be answerable from the note's content (text and images). Do not test facts the note does not cover.
-- Exactly one choice is correct. Distractors are plausible: common misconceptions, calculation slips, or partly true statements — never joke answers, never "all of the above" / "none of the above".
+- For multiple choice: exactly one choice is correct. Distractors are plausible: common misconceptions, calculation slips, or partly true statements — never joke answers, never "all of the above" / "none of the above".
 - Choices are short, parallel in grammar and similar in length, so the longest choice is not a giveaway. Spread the correct answers over different positions.
 - Question stems are self-contained, clear and age-appropriate for the stated grade or level; avoid negative stems unless the negation is emphasised (e.g. in capitals).
 - Mix question kinds where the material allows: recall, understanding, application, interpreting a table/graph/figure from the note.
@@ -125,7 +139,12 @@ export function buildContent(req) {
   if (n.text) text += `<note>\n${n.text}\n</note>\n\n`;
   if (n.images.length) text += `The note also has ${n.images.length} image(s) above (pages, photos or figures from the teacher's material).\n\n`;
   if (req.avoid.length) text += `Avoid (already in the bank):\n${req.avoid.map((s) => `- ${s}`).join("\n")}\n\n`;
-  text += `Write ${req.count} multiple-choice question(s) with exactly ${req.choices} choices each. Difficulty: ${diff}. Write everything (stems, choices, solutions, note_problem) in ${language}.`;
+  const typeNames = { multiple: `multiple choice (exactly ${req.choices} choices each)`, true_false: "true/false", fill: "fill in the blank", open: "open-ended (short answer / essay)" };
+  const kinds =
+    req.types.length === 1
+      ? `All questions are of type "${req.types[0]}" — ${typeNames[req.types[0]]}.`
+      : `Use these question types, split about evenly over the set: ${req.types.map((t) => `"${t}" (${typeNames[t]})`).join(", ")}.`;
+  text += `Write ${req.count} question(s). ${kinds} Difficulty: ${diff}. Write everything (stems, choices, answers, solutions, note_problem) in ${language}.`;
   blocks.push({ type: "text", text });
   return blocks;
 }
@@ -143,12 +162,14 @@ export function outputSchema() {
         items: {
           type: "object",
           additionalProperties: false,
-          required: ["text", "topic", "choices", "correct_index", "difficulty", "solution"],
+          required: ["type", "text", "topic", "choices", "correct_index", "answer", "difficulty", "solution"],
           properties: {
+            type: { type: "string", enum: TYPES },
             text: { type: "string" },
             topic: { type: "string" },
             choices: { type: "array", items: { type: "string" } },
             correct_index: { type: "integer" },
+            answer: { type: "string" },
             difficulty: { type: "string", enum: ["easy", "medium", "hard"] },
             solution: { type: "string" },
           },
@@ -165,20 +186,38 @@ export function cleanOutput(parsed, req) {
   const out = [];
   const seen = new Set();
   for (const q of Array.isArray(parsed?.questions) ? parsed.questions : []) {
+    const type = TYPES.includes(q?.type) && req.types.includes(q.type) ? q.type : req.types.length === 1 ? req.types[0] : "";
+    if (!type) continue;
     const text = str(q?.text, 4000);
-    const choices = (Array.isArray(q?.choices) ? q.choices : []).map((c) => str(c, 1000).replace(LETTER_PREFIX, ""));
-    const correct = Number.isInteger(q?.correct_index) ? q.correct_index : -1;
-    if (!text || choices.length !== req.choices || choices.some((c) => !c)) continue;
-    if (correct < 0 || correct >= choices.length) continue;
-    if (new Set(choices.map((c) => c.toLowerCase())).size !== choices.length) continue;
+    if (!text) continue;
+    let choices = [];
+    let correct = -1;
+    let answer = "";
+    const idx = Number.isInteger(q?.correct_index) ? q.correct_index : -1;
+    if (type === "multiple") {
+      choices = (Array.isArray(q?.choices) ? q.choices : []).map((c) => str(c, 1000).replace(LETTER_PREFIX, ""));
+      if (choices.length !== req.choices || choices.some((c) => !c)) continue;
+      if (idx < 0 || idx >= choices.length) continue;
+      if (new Set(choices.map((c) => c.toLowerCase())).size !== choices.length) continue;
+      correct = idx;
+    } else if (type === "true_false") {
+      if (idx !== 0 && idx !== 1) continue;
+      correct = idx;
+    } else {
+      answer = str(q?.answer, 3000);
+      if (!answer) continue;
+      if (type === "fill" && !/_{3,}|…{2,}|\.{4,}/.test(text)) continue;
+    }
     const key = text.toLowerCase().replace(/\s+/g, " ");
     if (seen.has(key)) continue;
     seen.add(key);
     out.push({
+      type,
       text,
       topic: str(q?.topic, 200),
       choices,
       correct,
+      answer,
       difficulty: ["easy", "medium", "hard"].includes(q.difficulty) ? q.difficulty : "medium",
       solution: str(q?.solution, 2000),
     });
