@@ -79,12 +79,13 @@ export default {
       return fail("busy", "Daily limit reached, try again tomorrow", 429);
     }
 
-    const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY, maxRetries: 2, timeout: 170_000 });
+    const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY, maxRetries: 2, timeout: 280_000 });
     let response;
     try {
-      response = await client.beta.messages.create({
+      // 20 soruya kadar uzun yanıt: akış (stream) ile alınır, zaman aşımı olmaz.
+      const stream = client.beta.messages.stream({
         model: env.MODEL || "claude-opus-5-5",
-        max_tokens: 16000,
+        max_tokens: 32000,
         system: SYSTEM_PROMPT,
         messages: [{ role: "user", content: buildContent(req) }],
         output_config: {
@@ -95,6 +96,7 @@ export default {
         betas: ["server-side-fallback-2026-07-01"],
         fallbacks: "default",
       });
+      response = await stream.finalMessage();
     } catch (e) {
       if (e instanceof Anthropic.RateLimitError) return fail("busy", "Service is busy, try again shortly", 503);
       if (e instanceof Anthropic.BadRequestError) {

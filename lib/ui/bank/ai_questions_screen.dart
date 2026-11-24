@@ -84,7 +84,7 @@ class _Draft {
 class _AiQuestionsScreenState extends State<AiQuestionsScreen> {
   AiUsage get _usage => AiUsage.instance;
   late BankNote? _note = bank.noteById(widget.noteId);
-  int _count = 5;
+  int _count = 20;
   late int _choices = _defaultChoices();
   AiDifficulty _difficulty = AiDifficulty.mixed;
   bool _busy = false;
@@ -257,7 +257,7 @@ class _AiQuestionsScreenState extends State<AiQuestionsScreen> {
                     Text(tr('Soru sayısı'), style: const TextStyle(fontWeight: FontWeight.w700)),
                     const SizedBox(height: 8),
                     SegmentedButton<int>(
-                      segments: [for (final n in const [3, 5, 10]) ButtonSegment(value: n, label: Text('$n'))],
+                      segments: [for (final n in const [5, 10, 15, 20]) ButtonSegment(value: n, label: Text('$n'))],
                       selected: {_count},
                       onSelectionChanged: _busy ? null : (s) => setState(() => _count = s.first),
                     ),
