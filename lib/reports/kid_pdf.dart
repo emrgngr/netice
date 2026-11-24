@@ -146,7 +146,7 @@ pw.Widget kidAnswerBox(KidLayout l, {String? name, FormCode? code}) {
           child: pw.RichText(
             maxLines: 1,
             text: pw.TextSpan(children: [
-              pw.TextSpan(text: tr('Adım:') + ' ', style: const pw.TextStyle(fontSize: 7.5, color: kidMuted)),
+              pw.TextSpan(text: tr('Adım:').padRight(tr('Adım:').length + 1), style: const pw.TextStyle(fontSize: 7.5, color: kidMuted)),
               if (name != null) pw.TextSpan(text: name, style: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold, color: kidInk)),
             ]),
           ),
