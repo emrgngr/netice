@@ -9,6 +9,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../bank/bank_excel.dart';
+import '../../core/spreadsheet.dart';
 import '../../bank/bank_models.dart';
 import '../../core/doc_text.dart';
 import '../../l10n/l10n.dart';
@@ -28,12 +29,12 @@ Future<void> importBankExcel(BuildContext context) async {
     final files = await FilePicker.pickFiles(
       dialogTitle: tr('Excel dosyası seçin'),
       type: FileType.custom,
-      allowedExtensions: ['xlsx', 'csv', 'txt'],
+      allowedExtensions: [...spreadsheetExtensions, 'txt'],
     );
     if (files.isEmpty || !context.mounted) return;
     final f = files.first;
     final bytes = await f.readAsBytes();
-    final r = f.name.toLowerCase().endsWith('.xlsx') ? BankExcel.parseXlsx(bytes) : BankExcel.parseCsv(utf8.decode(bytes, allowMalformed: true));
+    final r = BankExcel.parseFile(bytes, f.name);
     if (!context.mounted) return;
     if (r.isEmpty) {
       toast(context, tr('Dosyada soru ya da not bulunamadı. Şablonu indirip sütun başlıklarını aynı yazın.'));
@@ -133,13 +134,13 @@ Future<String> ocrImageBytes(Uint8List bytes) async {
   }
 }
 
-/// PDF / Word / metin belgesinden not: metin çıkarılır, düzenleyici açılır.
+/// PDF / Word / Excel / metin belgesinden not: metin çıkarılır, düzenleyici açılır.
 Future<void> noteFromDocument(BuildContext context, {NoteKind kind = NoteKind.summary}) async {
   try {
     final files = await FilePicker.pickFiles(
       dialogTitle: tr('Ders notu belgesi'),
       type: FileType.custom,
-      allowedExtensions: ['pdf', 'docx', 'txt', 'md'],
+      allowedExtensions: ['pdf', 'docx', ...spreadsheetExtensions, 'txt', 'md'],
     );
     if (files.isEmpty || !context.mounted) return;
     final f = files.first;

@@ -49,9 +49,12 @@ class StudentImport {
   /// Excel (.xlsx) dosyasının bütün sayfalarını okur. Sınıf sütunu olmayan
   /// sayfalarda sınıf, başlık üstündeki "9. Sınıf / A Şubesi" satırından ya da
   /// sayfanın adından ("9-A") alınır; ikisi de yoksa [defaultClass].
-  static List<Student> parseXlsx(List<int> bytes, {String defaultClass = ''}) {
+  static List<Student> parseXlsx(List<int> bytes, {String defaultClass = ''}) => parseSheets(xlsxSheets(bytes), defaultClass: defaultClass);
+
+  /// Herhangi bir tablo dosyasının sayfalarından (.xlsx, .xls, .ods…) öğrenciler.
+  static List<Student> parseSheets(List<(String, List<List<String>>)> sheets, {String defaultClass = ''}) {
     final out = <Student>[];
-    for (final (name, rows) in xlsxSheets(bytes)) {
+    for (final (name, rows) in sheets) {
       final cls = _classFromTitle(rows) ?? (_genericSheet(name) ? null : name.trim()) ?? defaultClass;
       out.addAll(parseRows(rows, defaultClass: cls));
     }

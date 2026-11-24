@@ -679,7 +679,7 @@ class _NotesTabState extends State<NotesTab> {
           actions: [
             FilledButton.icon(
                 onPressed: () => NoteEditorScreen.open(context, null, NoteKind.tip), icon: const Icon(Icons.bolt_rounded), label: Text(tr('Hap bilgi yaz'))),
-            OutlinedButton.icon(onPressed: () => noteFromDocument(context), icon: const Icon(Icons.description_outlined), label: Text(tr('PDF / Word\'den'))),
+            OutlinedButton.icon(onPressed: () => noteFromDocument(context), icon: const Icon(Icons.description_outlined), label: Text(tr('PDF / Word / Excel\'den'))),
             OutlinedButton.icon(onPressed: () => noteFromPhoto(context), icon: const Icon(Icons.photo_camera_outlined), label: Text(tr('Fotoğraftan'))),
           ],
         ),
