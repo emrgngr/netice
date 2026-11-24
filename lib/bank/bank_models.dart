@@ -405,6 +405,18 @@ enum QuestionOrder {
 }
 
 /// Kitapçık sayfa boyutu.
+/// Kitapçığın görünümü: klasik (lise, kurum sınavları) ya da çocuk (ilkokul):
+/// iri ve okunaklı yazı, renkli numaralar, A–B–C şıkları ve köşede küçük cevap kutusu.
+enum BookletStyle {
+  classic,
+  kids;
+
+  String get label => switch (this) {
+        BookletStyle.classic => tr('Klasik şablon'),
+        BookletStyle.kids => tr('Çocuk / İlkokul'),
+      };
+}
+
 enum PaperSize {
   a4,
   a5,
@@ -499,6 +511,11 @@ class BookletOptions {
 
   final int seed;
 
+  /// Görünüm şablonu.
+  final BookletStyle style;
+
+  bool get kids => style == BookletStyle.kids;
+
   const BookletOptions({
     this.title = '',
     this.subtitle = '',
@@ -533,6 +550,7 @@ class BookletOptions {
     this.equalPoints = true,
     this.wrongsPerCorrect = 0,
     this.seed = 1,
+    this.style = BookletStyle.classic,
   });
 
   static String defaultInstructions() => tr(
@@ -572,6 +590,7 @@ class BookletOptions {
     bool? equalPoints,
     int? wrongsPerCorrect,
     int? seed,
+    BookletStyle? style,
   }) =>
       BookletOptions(
         title: title ?? this.title,
@@ -607,6 +626,7 @@ class BookletOptions {
         equalPoints: equalPoints ?? this.equalPoints,
         wrongsPerCorrect: wrongsPerCorrect ?? this.wrongsPerCorrect,
         seed: seed ?? this.seed,
+        style: style ?? this.style,
       );
 
   Map<String, dynamic> toJson() => {
@@ -643,6 +663,7 @@ class BookletOptions {
         'equalPoints': equalPoints,
         'wrongsPerCorrect': wrongsPerCorrect,
         'seed': seed,
+        if (style != BookletStyle.classic) 'style': style.name,
       };
 
   factory BookletOptions.fromJson(Map<String, dynamic> j) {
@@ -682,6 +703,7 @@ class BookletOptions {
       equalPoints: v('equalPoints', d.equalPoints),
       wrongsPerCorrect: v('wrongsPerCorrect', d.wrongsPerCorrect),
       seed: v('seed', d.seed),
+      style: BookletStyle.values.asNameMap()[j['style']] ?? d.style,
     );
   }
 }

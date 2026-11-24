@@ -71,6 +71,9 @@ export function parseRequest(body) {
 
   const avoid = Array.isArray(body.avoid) ? body.avoid.filter((s) => typeof s === "string").slice(0, 30).map((s) => s.slice(0, 300)) : [];
 
+  // Çocuklara (ilkokul) uygun dil; eski istemciler göndermez.
+  const kids = body.audience === "kids";
+
   return {
     count,
     choices,
@@ -78,6 +81,7 @@ export function parseRequest(body) {
     lang,
     types,
     avoid,
+    kids,
     note: {
       title: str(note.title),
       subject: str(note.subject),
@@ -114,6 +118,15 @@ Rules:
 
 If the note does not contain enough material for the requested number of good questions, write as many good ones as you can and explain briefly in "note_problem". If the note is not lesson material at all, return no questions and explain in "note_problem". Otherwise "note_problem" is an empty string.`;
 
+// Çocuk (ilkokul, yaklaşık 6–10 yaş) şablonu için ek kurallar.
+export const KIDS_PROMPT = `Audience: young primary-school children (about 6–10 years old, grades 1–4) who are still building reading skills. These questions will be printed in a colourful children's test booklet.
+- Speak to the child directly and warmly where it fits (e.g. "Which one is a plant?", "What happens if Ali's flower gets no water?"). Use simple everyday examples, names and situations from a child's life.
+- Keep stems short: one or two short sentences, at most about 15 words each. Use common, concrete words; explain or avoid technical terms the note does not teach.
+- Keep choices very short (one to four words where possible) and clearly different from each other. Distractors are plausible for a child but never tricky, silly or scary.
+- Prefer positive stems. If a negative is unavoidable, write the negative word in capitals (e.g. "Which one is NOT a living thing?").
+- Each question tests one idea. No double negatives, no "all/none of the above", no long tables or calculations beyond the grade.
+- Solutions are one short, encouraging sentence a teacher can read to the child.`;
+
 /** Claude'a gönderilecek kullanıcı mesajının içerik blokları. */
 export function buildContent(req) {
   const n = req.note;
@@ -144,6 +157,7 @@ export function buildContent(req) {
     req.types.length === 1
       ? `All questions are of type "${req.types[0]}" — ${typeNames[req.types[0]]}.`
       : `Use these question types, split about evenly over the set: ${req.types.map((t) => `"${t}" (${typeNames[t]})`).join(", ")}.`;
+  if (req.kids) text += KIDS_PROMPT + "\n\n";
   text += `Write ${req.count} question(s). ${kinds} Difficulty: ${diff}. Write everything (stems, choices, answers, solutions, note_problem) in ${language}.`;
   blocks.push({ type: "text", text });
   return blocks;

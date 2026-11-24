@@ -930,8 +930,8 @@ class AppStore extends ChangeNotifier {
     String fit(String f, String l) => L10n.code == 'ru' && RegExp(r'[ая]$').hasMatch(f) && RegExp(r'(ов|ев|ин)$').hasMatch(l) ? '$lа' : l;
     return [
       for (var i = 0; i < count; i++)
-        // Çince ve Japoncada soyadı önce yazılır.
-        if (L10n.code == 'zh' || L10n.code == 'ja')
+        // Çince, Japonca ve Korecede soyadı önce yazılır.
+        if (L10n.code == 'zh' || L10n.code == 'ja' || L10n.code == 'ko')
           [last[(i * 5 + i ~/ last.length + shift * 3) % last.length], first[(i + shift) % first.length]]
         else
           [
@@ -981,6 +981,22 @@ class AppStore extends ChangeNotifier {
     'ja': (
       ['陽翔', '結衣', '蓮', '葵', '湊', '陽菜', '大翔', '凛', '悠真', '芽依', '颯太', '美咲'],
       ['佐藤', '鈴木', '高橋', '田中', '伊藤', '渡辺', '山本', '中村', '小林', '加藤', '吉田', '山田']
+    ),
+    'pt': (
+      ['Miguel', 'Helena', 'Arthur', 'Alice', 'Gael', 'Laura', 'Heitor', 'Valentina', 'Davi', 'Sophia', 'Bernardo', 'Manuela'],
+      ['Silva', 'Santos', 'Oliveira', 'Souza', 'Rodrigues', 'Ferreira', 'Alves', 'Pereira', 'Lima', 'Gomes', 'Costa', 'Ribeiro']
+    ),
+    'hi': (
+      ['आरव', 'अनन्या', 'विहान', 'दिया', 'अर्जुन', 'सान्वी', 'रोहन', 'इशिता', 'कबीर', 'मीरा', 'आदित्य', 'प्रिया'],
+      ['शर्मा', 'वर्मा', 'गुप्ता', 'सिंह', 'कुमार', 'पटेल', 'यादव', 'जोशी', 'मिश्रा', 'अग्रवाल', 'चौहान', 'त्रिपाठी']
+    ),
+    'id': (
+      ['Budi', 'Siti', 'Rizky', 'Putri', 'Fajar', 'Ayu', 'Dimas', 'Nadia', 'Bayu', 'Intan', 'Andi', 'Dewi'],
+      ['Santoso', 'Wijaya', 'Saputra', 'Lestari', 'Pratama', 'Kusuma', 'Hidayat', 'Nugroho', 'Setiawan', 'Rahayu', 'Siregar', 'Hutapea']
+    ),
+    'ko': (
+      ['민준', '서연', '도윤', '서윤', '시우', '지우', '하준', '하은', '주원', '민서', '지호', '수아'],
+      ['김', '이', '박', '최', '정', '강', '조', '윤', '장', '임', '한', '오']
     ),
   };
 
@@ -1044,7 +1060,8 @@ ReadSpec specFor(AppStore store, Exam exam) => ReadSpec(
       choices: exam.choiceCount,
       booklets: exam.bookletCount,
       digits: exam.numberDigits,
-      template: store.templateById(exam.templateId),
+      template: exam.kidForm ? null : store.templateById(exam.templateId),
+      kids: exam.kidForm,
     );
 
 /// Seçili sınav için okuma motoru oluşturur.
