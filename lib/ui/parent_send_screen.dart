@@ -134,7 +134,9 @@ class _ParentSendScreenState extends State<ParentSendScreen> {
                   style: const TextStyle(color: Colors.white70)),
               const SizedBox(height: 14),
               FilledButton.icon(
-                style: FilledButton.styleFrom(backgroundColor: NColors.emerald, foregroundColor: NColors.ink),
+                style: FilledButton.styleFrom(
+                    backgroundColor: NColors.buttonBg(Theme.of(context).brightness == Brightness.dark),
+                    foregroundColor: NColors.buttonFg(Theme.of(context).brightness == Brightness.dark)),
                 onPressed: next == null || _busy ? null : () => _sharePdf(exam, next.$1),
                 icon: _busy
                     ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))

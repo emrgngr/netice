@@ -340,9 +340,10 @@ class AdThumb extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fg = NColors.on(context, NColors.ink);
     Widget icon(IconData i) => Container(
-          color: NColors.ink.withValues(alpha: 0.08),
-          child: Center(child: Icon(i, color: NColors.ink.withValues(alpha: 0.5))),
+          color: fg.withValues(alpha: 0.08),
+          child: Center(child: Icon(i, color: fg.withValues(alpha: 0.6))),
         );
     if (ad.type == AdType.video) return icon(Icons.play_circle_outline_rounded);
     final f = AdService.instance.fileFor(ad);

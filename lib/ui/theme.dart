@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:material_ui/material_ui.dart';
 
 /// Netice tasarım dili: tek vurgu rengi, anlamlı renkler, sakin yüzeyler.
@@ -9,8 +11,48 @@ class NColors {
   static const amber = Color(0xFFF2B33D); // kontrol gerekiyor
   static const gray = Color(0xFF9AA0AE); // boş
 
-  static const darkBg = Color(0xFF0A1229);
-  static const darkSurface = Color(0xFF142147);
+  static const darkBg = Color(0xFF0B1430);
+  static const darkSurface = Color(0xFF17244D);
+
+  /// Gece modunda dolu düğmelerin zümrüdü: koyu ton, üstünde beyaz yazı.
+  static const nightEmerald = Color(0xFF05875F);
+
+  /// Dolu (zümrüt) düğme zemini ve yazısı: gündüz açık zümrüt + lacivert yazı,
+  /// gece koyu zümrüt + beyaz yazı.
+  static Color buttonBg(bool dark) => dark ? nightEmerald : emerald;
+  static Color buttonFg(bool dark) => dark ? Colors.white : ink;
+
+  /// Gece modunda grafiklerde lacivert yerine kullanılan açık lacivert.
+  static const nightNavy = Color(0xFF6C7BB5);
+
+  /// Grafik ve çubuklarda "lacivert" veri rengi: gece modunda açık lacivert.
+  static Color navy(bool dark) => dark ? nightNavy : ink;
+
+  /// Gece modunda koyu zemin üstündeki yazı için açık "mürekkep".
+  static const nightInk = Color(0xFFF1F4FB);
+
+  /// Gece modu kuralı: koyu zemin üstündeki yazı ve simgeler açık renkli olur.
+  /// Renk koyu zemine karşı yeterince okunmuyorsa (kontrast < 4.5) tonunu
+  /// koruyarak açılır; gündüz modunda renk olduğu gibi kalır.
+  static Color readable(Color c, {required bool dark}) {
+    if (!dark) return c;
+    final opaque = c.withValues(alpha: 1);
+    if (_contrast(opaque, darkSurface) >= 4.5) return c;
+    var out = opaque;
+    for (var t = 0.1; t <= 1.0 && _contrast(out, darkSurface) < 4.5; t += 0.1) {
+      out = Color.lerp(opaque, nightInk, t)!;
+    }
+    return out.withValues(alpha: c.a < 0.6 ? 0.85 : c.a);
+  }
+
+  /// [readable] için kısa yol: temanın parlaklığına göre.
+  static Color on(BuildContext context, Color c) =>
+      readable(c, dark: Theme.of(context).brightness == Brightness.dark);
+
+  static double _contrast(Color a, Color b) {
+    final la = a.computeLuminance(), lb = b.computeLuminance();
+    return (math.max(la, lb) + 0.05) / (math.min(la, lb) + 0.05);
+  }
 }
 
 /// Rakamlar için eş genişlikli (tabular) yazı.
@@ -30,6 +72,20 @@ const emeraldGradient = LinearGradient(
   colors: [Color(0xFF34D399), Color(0xFF059669)],
 );
 
+/// Gece modunda grafik çubukları: koyu zeminde seçilebilen açık lacivert.
+const nightNavyGradient = LinearGradient(
+  begin: Alignment.topCenter,
+  end: Alignment.bottomCenter,
+  colors: [Color(0xFF8391CC), Color(0xFF4E5C99)],
+);
+
+/// Gece modunda büyük düğmelerin zümrüt gradyanı: üstünde beyaz yazı okunur.
+const nightEmeraldGradient = LinearGradient(
+  begin: Alignment.topCenter,
+  end: Alignment.bottomCenter,
+  colors: [Color(0xFF0E9F6E), Color(0xFF056A4B)],
+);
+
 class NTheme {
   static const _font = 'PlusJakartaSans';
 
@@ -44,7 +100,7 @@ class NTheme {
         brightness: Brightness.dark,
         bg: NColors.darkBg,
         surface: NColors.darkSurface,
-        onSurface: const Color(0xFFE9ECF5),
+        onSurface: NColors.nightInk,
       );
 
   static ThemeData _build({
@@ -66,9 +122,11 @@ class NTheme {
       onError: Colors.white,
       surface: surface,
       onSurface: onSurface,
-      surfaceContainerHighest: isDark ? const Color(0xFF1C2A55) : const Color(0xFFEDE9DF),
-      outline: isDark ? const Color(0xFF52608C) : const Color(0xFFB9B3A6),
-      outlineVariant: isDark ? const Color(0xFF2A3967) : const Color(0xFFE2DDD1),
+      // İkincil yazılar (açıklamalar) gece modunda da açık gri-mavi.
+      onSurfaceVariant: isDark ? const Color(0xFFBCC6E3) : onSurface,
+      surfaceContainerHighest: isDark ? const Color(0xFF22315F) : const Color(0xFFEDE9DF),
+      outline: isDark ? const Color(0xFF6B79A6) : const Color(0xFFB9B3A6),
+      outlineVariant: isDark ? const Color(0xFF2F3F70) : const Color(0xFFE2DDD1),
     );
     final base = ThemeData(
       useMaterial3: true,
@@ -116,8 +174,8 @@ class NTheme {
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: NColors.emerald,
-          foregroundColor: NColors.ink,
+          backgroundColor: NColors.buttonBg(isDark),
+          foregroundColor: NColors.buttonFg(isDark),
           minimumSize: const Size(0, 52),
           textStyle: const TextStyle(fontFamily: _font, fontWeight: FontWeight.w700, fontSize: 16),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
@@ -159,7 +217,8 @@ class NTheme {
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
       ),
       listTileTheme: ListTileThemeData(
-        iconColor: onSurface.withValues(alpha: 0.75),
+        iconColor: onSurface.withValues(alpha: isDark ? 0.85 : 0.75),
+        textColor: onSurface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
       dividerTheme: DividerThemeData(color: scheme.outlineVariant, thickness: 1, space: 1),
@@ -207,7 +266,7 @@ class NTheme {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),
-      textTheme: base.textTheme.copyWith(
+      textTheme: base.textTheme.apply(bodyColor: onSurface, displayColor: onSurface).copyWith(
         headlineMedium: base.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800, letterSpacing: -0.6),
         titleLarge: base.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700, letterSpacing: -0.3),
       ),

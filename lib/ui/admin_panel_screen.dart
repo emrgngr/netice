@@ -116,7 +116,7 @@ class AdminPanelScreen extends StatelessWidget {
                                 child: LinearProgressIndicator(
                                   value: (cl.$2 / 100).clamp(0, 1),
                                   minHeight: 8,
-                                  color: cl.$2 >= c.meanPct ? NColors.emerald : NColors.ink,
+                                  color: cl.$2 >= c.meanPct ? NColors.emerald : NColors.navy(t.brightness == Brightness.dark),
                                   backgroundColor: t.colorScheme.onSurface.withValues(alpha: 0.08),
                                 ),
                               ),

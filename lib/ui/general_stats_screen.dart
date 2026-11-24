@@ -142,7 +142,8 @@ class _GeneralStatsScreenState extends State<GeneralStatsScreen> {
                 title: Text(s.student.fullName, maxLines: 1, overflow: TextOverflow.ellipsis),
                 subtitle: Text(sub?.call(s) ?? '${s.student.className} · ${tr('{0} sınav', [s.count])}'),
                 trailing: Text(value(s),
-                    style: TextStyle(fontWeight: FontWeight.w800, fontFeatures: tabular, color: color)),
+                    style: TextStyle(
+                        fontWeight: FontWeight.w800, fontFeatures: tabular, color: color == null ? null : NColors.on(context, color))),
                 onTap: () => openStudent(s),
               ),
           ]),

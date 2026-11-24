@@ -398,8 +398,8 @@ class ExamScreen extends StatelessWidget {
           ]),
         ),
         floatingActionButton: FloatingActionButton.extended(
-          backgroundColor: NColors.emerald,
-          foregroundColor: NColors.ink,
+          backgroundColor: NColors.buttonBg(Theme.of(context).brightness == Brightness.dark),
+          foregroundColor: NColors.buttonFg(Theme.of(context).brightness == Brightness.dark),
           onPressed: () => Navigator.of(context).push(scanRoute(exam.id)),
           icon: const Icon(Icons.document_scanner_outlined),
           label: Text(tr('Okut'), style: TextStyle(fontWeight: FontWeight.w700)),
@@ -768,7 +768,9 @@ class _Histogram extends StatelessWidget {
                   duration: const Duration(milliseconds: 250),
                   height: 90 * bins[i] / maxV + 2,
                   decoration: BoxDecoration(
-                    gradient: i == 4 ? emeraldGradient : inkGradient,
+                    gradient: i == 4
+                        ? emeraldGradient
+                        : (Theme.of(context).brightness == Brightness.dark ? nightNavyGradient : inkGradient),
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
@@ -1227,7 +1229,8 @@ class _ChartsPanelState extends State<_ChartsPanel> {
         ]),
       _ => DonutChart(key: const ValueKey(3), centerLabel: tr('soru'), unit: ' ${tr('soru')}', slices: [
           Slice(tr('Kolay'), (rep.difficultyCounts[tr('Kolay')] ?? 0).toDouble(), NColors.emerald, detail: tr('Doğru oranı %80 üzeri')),
-          Slice(tr('Orta'), (rep.difficultyCounts[tr('Orta')] ?? 0).toDouble(), NColors.ink, detail: tr('Doğru oranı %30–80')),
+          Slice(tr('Orta'), (rep.difficultyCounts[tr('Orta')] ?? 0).toDouble(),
+              NColors.navy(Theme.of(context).brightness == Brightness.dark), detail: tr('Doğru oranı %30–80')),
           Slice(tr('Zor'), (rep.difficultyCounts[tr('Zor')] ?? 0).toDouble(), NColors.coral, detail: tr('Doğru oranı %30 altı')),
         ]),
     };

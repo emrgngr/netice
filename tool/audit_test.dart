@@ -2,6 +2,7 @@
 // kaydırır, taşmaları kaydeder ve görüntü alır.
 // flutter test tool/audit_test.dart --dart-define=LANG_SHOT=de
 import 'dart:io';
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/rendering.dart';
@@ -56,8 +57,11 @@ Future<void> _fonts(String lang) async {
 }
 
 void main() {
-  testWidgets('ekran denetimi', timeout: const Timeout(Duration(minutes: 20)), (tester) async {
+  testWidgets('ekran denetimi', timeout: const Timeout(Duration(minutes: 40)), (tester) async {
     const lang = String.fromEnvironment('LANG_SHOT', defaultValue: 'tr');
+    // --dart-define=DARK_SHOT=true: gece (koyu) modunda çizer.
+    const dark = bool.fromEnvironment('DARK_SHOT');
+    const outDir = dark ? 'build/audit/$lang-gece' : 'build/audit/$lang';
     debugDisableShadows = false;
     await tester.runAsync(() => _fonts(lang));
     L10n.use(lang);
@@ -67,6 +71,7 @@ void main() {
     store.ratePrompted = true;
 
     final problems = <String>[];
+    final lowContrast = <String>{};
     var current = '';
     final old = FlutterError.onError;
     FlutterError.onError = (d) {
@@ -80,18 +85,24 @@ void main() {
     tester.view.devicePixelRatio = 2;
     tester.view.padding = const FakeViewPadding(top: 48, bottom: 48);
     tester.view.viewPadding = tester.view.padding;
-    Directory('build/audit/$lang').createSync(recursive: true);
+    Directory(outDir).createSync(recursive: true);
 
     Future<void> capture(String name) async {
       await tester.runAsync(() async {
         final b = tester.renderObject<RenderRepaintBoundary>(find.byKey(const ValueKey('shot')));
         final img = await b.toImage(pixelRatio: 1);
         final data = await img.toByteData(format: ui.ImageByteFormat.png);
-        File('build/audit/$lang/$name.png').writeAsBytesSync(data!.buffer.asUint8List());
+        File('$outDir/$name.png').writeAsBytesSync(data!.buffer.asUint8List());
+        final raw = await img.toByteData(format: ui.ImageByteFormat.rawRgba);
+        _contrast(b, raw!, img.width, img.height, name, lowContrast);
+        File('$outDir/okunurluk.txt').writeAsStringSync(lowContrast.join('\n'));
       });
     }
 
+    // --dart-define=ONLY=14,18: yalnız bu numaralı ekranlar.
+    const only = String.fromEnvironment('ONLY');
     Future<void> screen(String name, Widget w, {Future<void> Function()? then}) async {
+      if (only.isNotEmpty && !only.split(',').any((p) => name.startsWith(p))) return;
       current = name;
       // ignore: avoid_print
       print('EKRAN $name');
@@ -103,6 +114,8 @@ void main() {
           child: MaterialApp(
             debugShowCheckedModeBanner: false,
             theme: NTheme.light(),
+            darkTheme: NTheme.dark(),
+            themeMode: dark ? ThemeMode.dark : ThemeMode.light,
             locale: L10n.locale,
             supportedLocales: [for (final l in AppLanguage.all) Locale(l.code)],
             localizationsDelegates: GlobalMaterialLocalizations.delegates,
@@ -167,9 +180,76 @@ void main() {
     await screen('23_genel_istatistik', const GeneralStatsScreen());
 
     FlutterError.onError = old;
-    File('build/audit/$lang/sorunlar.txt').writeAsStringSync(problems.toSet().join('\n'));
+    File('$outDir/sorunlar.txt').writeAsStringSync(problems.toSet().join('\n'));
+    File('$outDir/okunurluk.txt').writeAsStringSync(lowContrast.join('\n'));
+    // ignore: avoid_print
+    print('OKUNURLUK ${lowContrast.length}');
     // ignore: avoid_print
     print('SORUNLAR ${problems.toSet().length}\n${problems.toSet().join('\n')}');
     L10n.use('tr');
+    debugDisableShadows = true;
   });
+}
+
+
+double _lum(int r, int g, int b) {
+  double ch(int v) {
+    final c = v / 255;
+    return c <= 0.03928 ? c / 12.92 : math.pow((c + 0.055) / 1.055, 2.4).toDouble();
+  }
+
+  return 0.2126 * ch(r) + 0.7152 * ch(g) + 0.0722 * ch(b);
+}
+
+double _ratio(double a, double b) => (math.max(a, b) + 0.05) / (math.min(a, b) + 0.05);
+
+/// Her yazının rengini, hemen çevresindeki zemin pikselleriyle karşılaştırır;
+/// kontrast oranı 3'ün altındaysa (okunması zor) kaydeder.
+void _contrast(RenderRepaintBoundary root, ByteData raw, int w, int h, String name, Set<String> out) {
+  void visit(RenderObject o) {
+    if (o is RenderParagraph && o.attached && o.hasSize && o.size.width > 4) {
+      final style = (o.text is TextSpan) ? (o.text as TextSpan).style : null;
+      Color? c = style?.color;
+      if (c == null && o.text is TextSpan) {
+        (o.text as TextSpan).visitChildren((s) {
+          c ??= s.style?.color;
+          return c == null;
+        });
+      }
+      final text = o.text.toPlainText().trim();
+      if (c != null && text.isNotEmpty && c!.a > 0.3) {
+        final r = MatrixUtils.transformRect(o.getTransformTo(root), Offset.zero & o.size);
+        if (r.top >= 0 && r.left >= 0 && r.bottom < h && r.right < w) {
+          // Zemin: yazı kutusunun hemen dışındaki iki satır pikselin en sık rengi.
+          final counts = <int, int>{};
+          void px(int x, int y) {
+            if (x < 0 || y < 0 || x >= w || y >= h) return;
+            final i = (y * w + x) * 4;
+            final v = (raw.getUint8(i) >> 3) << 10 | (raw.getUint8(i + 1) >> 3) << 5 | (raw.getUint8(i + 2) >> 3);
+            counts[v] = (counts[v] ?? 0) + 1;
+          }
+          for (var x = r.left.floor(); x < r.right.ceil(); x += 2) {
+            px(x, r.top.floor() - 2);
+            px(x, r.bottom.ceil() + 1);
+          }
+          if (counts.isNotEmpty) {
+            final bg = counts.entries.reduce((a, b) => a.value >= b.value ? a : b).key;
+            final br = ((bg >> 10) & 31) << 3, bgG = ((bg >> 5) & 31) << 3, bb = (bg & 31) << 3;
+            // Yazı rengini zemine karıştır (saydamlık).
+            final a = c!.a;
+            int mix(double f, int b) => ((f * 255) * a + b * (1 - a)).round();
+            final tr = mix(c!.r, br), tg = mix(c!.g, bgG), tb = mix(c!.b, bb);
+            final k = _ratio(_lum(tr, tg, tb), _lum(br, bgG, bb));
+            if (k < 3) {
+              final short = text.length > 40 ? '${text.substring(0, 40)}…' : text;
+              out.add('$name  oran ${k.toStringAsFixed(1)}  "$short"  yazı #${tr.toRadixString(16).padLeft(2, '0')}${tg.toRadixString(16).padLeft(2, '0')}${tb.toRadixString(16).padLeft(2, '0')} zemin #${br.toRadixString(16).padLeft(2, '0')}${bgG.toRadixString(16).padLeft(2, '0')}${bb.toRadixString(16).padLeft(2, '0')}');
+            }
+          }
+        }
+      }
+    }
+    o.visitChildren(visit);
+  }
+
+  visit(root);
 }
