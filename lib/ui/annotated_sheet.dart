@@ -6,6 +6,7 @@ import '../core/models.dart';
 import '../core/scoring.dart';
 import '../core/store.dart';
 import '../omr/form_layout.dart';
+import '../omr/kid_layout.dart';
 import '../omr/template.dart';
 import 'theme.dart';
 import '../l10n/l10n.dart';
@@ -28,7 +29,9 @@ class AnnotatedSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => AspectRatio(
-        aspectRatio: template == null ? FormLayout.pageWidth / FormLayout.pageHeight : 1 / template!.aspect,
+        aspectRatio: kidLayoutFor(exam) != null
+            ? 1 / kidLayoutFor(exam)!.aspect
+            : (template == null ? FormLayout.pageWidth / FormLayout.pageHeight : 1 / template!.aspect),
         child: Stack(fit: StackFit.expand, children: [
           Image.memory(jpeg, fit: BoxFit.fill, gaplessPlayback: true),
           CustomPaint(painter: SheetMarksPainter(exam: exam, result: result, booklet: booklet, template: template)),
@@ -46,16 +49,20 @@ class SheetMarksPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final t = template;
-    final k = size.width / (t == null ? FormLayout.pageWidth : FormTemplate.width);
-    final mm = size.width / FormLayout.pageWidth; // rozet ölçüsü (mm)
+    // Çocuk sınavında görüntü, köşedeki cevap kutusudur.
+    final kid = kidLayoutFor(exam);
+    final t = kid == null ? template : null;
+    final k = size.width / (kid != null ? kid.width : (t == null ? FormLayout.pageWidth : FormTemplate.width));
+    // Rozet ölçüsü (mm); küçük kutuda rozet kutuya göre küçültülür.
+    final mm = kid != null ? k * 0.55 : size.width / FormLayout.pageWidth;
     final layout = layoutFor(exam, mini: result.sheet.mini);
     Offset at(Pt p) => Offset(p.x * k, p.y * k);
     // Şablonda daire boyutu bloktan gelir.
-    final unit = t == null || t.blocks.isEmpty ? layout.bubbleR : t.blocks.first.radius;
+    final unit = kid != null ? KidLayout.bubbleRadius : (t == null || t.blocks.isEmpty ? layout.bubbleR : t.blocks.first.radius);
     final r = unit * k * (t == null ? 1.45 : 1.25);
-    final sw = t == null ? 0.55 * k : unit * k * 0.2;
+    final sw = t == null ? 0.55 * k * (kid != null ? 0.8 : 1) : unit * k * 0.2;
     Pt bubble(int row, int c) {
+      if (kid != null) return kid.answerBubble(row, c);
       if (t == null) return layout.answerBubble(row, c);
       for (final b in t.blocks) {
         final q = row - (b.start - 1);
@@ -130,7 +137,10 @@ class SheetMarksPainter extends CustomPainter {
     if (drawScore) {
       // Sağ üstte puan rozeti
       final box = RRect.fromRectAndRadius(
-          Rect.fromLTWH(size.width - 58 * mm, t == null ? 246 * mm : 12 * mm, 38 * mm, 18 * mm), Radius.circular(3 * mm));
+          kid != null
+              ? Rect.fromLTWH(size.width - 46 * mm, 15 * mm, 38 * mm, 18 * mm)
+              : Rect.fromLTWH(size.width - 58 * mm, t == null ? 246 * mm : 12 * mm, 38 * mm, 18 * mm),
+          Radius.circular(3 * mm));
       canvas.drawRRect(box, Paint()..color = NColors.ink.withValues(alpha: 0.92));
       final tp = TextPainter(
         text: TextSpan(children: [

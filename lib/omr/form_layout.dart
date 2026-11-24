@@ -70,8 +70,9 @@ class FormLayout {
     if (questionCount < 1 || questionCount > 100) {
       throw ArgumentError('Soru sayısı 1–100 arasında olmalı');
     }
-    if (choiceCount != 4 && choiceCount != 5) {
-      throw ArgumentError('Şık sayısı 4 ya da 5 olmalı');
+    // 2–3 şık yalnız çocuk (ilkokul) sınavlarında; formun yerleşimi aynıdır.
+    if (choiceCount < 2 || choiceCount > 5) {
+      throw ArgumentError('Şık sayısı 2–5 arasında olmalı');
     }
     if (booklets < 1 || booklets > maxBooklets) {
       throw ArgumentError('Kitapçık sayısı 1–$maxBooklets arasında olmalı');

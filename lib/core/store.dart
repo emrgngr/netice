@@ -1162,7 +1162,8 @@ ReadSpec specFor(AppStore store, Exam exam) => ReadSpec(
       choices: exam.choiceCount,
       booklets: exam.bookletCount,
       digits: exam.numberDigits,
-      template: store.templateById(exam.templateId),
+      template: exam.kidForm ? null : store.templateById(exam.templateId),
+      kids: exam.kidForm,
     );
 
 /// Sınavın A4 formu ya da (kâğıt kısa quiz formuysa) çeyrek A4 formu yerleşimi.

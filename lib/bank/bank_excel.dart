@@ -1,4 +1,4 @@
-// Soru bankası için Excel (.xlsx) ve CSV aktarma, örnek şablon üretme.
+// Soru bankası için Excel (.xlsx, .xls, .ods) ve CSV aktarma, örnek şablon üretme.
 
 import 'dart:convert';
 import 'dart:typed_data';
@@ -6,6 +6,7 @@ import 'dart:typed_data';
 import 'package:archive/archive.dart';
 
 import '../core/import_export.dart';
+import '../core/spreadsheet.dart';
 import '../l10n/l10n.dart';
 import 'bank_models.dart';
 import 'bank_store.dart';
@@ -201,6 +202,12 @@ class BankExcel {
   }
 
   static BankImportResult parseXlsx(List<int> bytes) => parseRows(StudentImport.xlsxSheets(bytes));
+
+  /// Herhangi bir tablo dosyası (.xlsx, .xls, .ods) ya da CSV.
+  static BankImportResult parseFile(Uint8List bytes, String fileName) {
+    final sheets = spreadsheetSheets(bytes, fileName);
+    return sheets != null ? parseRows(sheets) : parseCsv(utf8.decode(bytes, allowMalformed: true));
+  }
 
   static BankImportResult parseCsv(String text) {
     if (text.startsWith('﻿')) text = text.substring(1);

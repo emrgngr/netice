@@ -12,6 +12,7 @@ import '../omr/form_layout.dart';
 import '../omr/frame_quality.dart';
 import '../omr/omr_reader.dart';
 import '../omr/sheet_reader.dart';
+import '../omr/kid_layout.dart';
 import '../omr/serial_scanner.dart';
 import 'exam_screen.dart';
 import 'review_screen.dart' show unmatchedLabel;
@@ -38,10 +39,14 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
   _FrameJob? _lastJob;
   bool _torch = false;
   DateTime _lastFrame = DateTime.fromMillisecondsSinceEpoch(0);
-  final _scanner = SerialScanner();
+  /// Çocuk sınavı: köşedeki küçük cevap kutusu okunur.
+  late final bool _kid = StoreScope.of(context).examById(widget.examId)?.kidForm ?? false;
+  late final _scanner = SerialScanner(releaseAfter: _kid ? 3 : 0);
   Sheet? _lastSheet;
-  static String get _frameHint => tr('Kâğıdı dört köşesi görünecek şekilde çerçeveye alın');
-  String _hint = _frameHint;
+  String get _frameHint => _kid
+      ? tr('Köşedeki cevap kutusunu dört siyah karesi görünecek şekilde çerçeveye alın')
+      : tr('Kâğıdı dört köşesi görünecek şekilde çerçeveye alın');
+  late String _hint = _frameHint;
   bool _warn = false;
   FrameAdvice? _pendingAdvice;
   int _sessionCount = 0;
@@ -276,7 +281,7 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
                                   child: CameraPreview(c),
                                 ),
                               ),
-                              IgnorePointer(child: CustomPaint(painter: _GuidePainter(active: _scanner.formVisible))),
+                              IgnorePointer(child: CustomPaint(painter: _GuidePainter(active: _scanner.formVisible, ratio: _kid ? 1 / kidLayoutFor(StoreScope.of(context).examById(widget.examId)!)!.aspect : null))),
                               Positioned(
                                 top: 14,
                                 left: 0,
@@ -415,11 +420,13 @@ class _LastCard extends StatelessWidget {
 /// Köşe kılavuzları; form algılanınca zümrüt yeşiline döner.
 class _GuidePainter extends CustomPainter {
   final bool active;
-  _GuidePainter({required this.active});
+  /// Genişlik / yükseklik; null = A4 form.
+  final double? boxRatio;
+  _GuidePainter({required this.active, double? ratio}) : boxRatio = ratio;
 
   @override
   void paint(Canvas canvas, Size s) {
-    const ratio = FormLayout.pageWidth / FormLayout.pageHeight;
+    final ratio = boxRatio ?? FormLayout.pageWidth / FormLayout.pageHeight;
     var h = s.height * 0.86, w = h * ratio;
     if (w > s.width * 0.9) {
       w = s.width * 0.9;
@@ -444,7 +451,7 @@ class _GuidePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_GuidePainter o) => o.active != active;
+  bool shouldRepaint(_GuidePainter o) => o.active != active || o.boxRatio != boxRatio;
 }
 
 class _FrameJob {

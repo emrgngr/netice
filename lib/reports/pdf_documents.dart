@@ -18,6 +18,8 @@ import '../core/legal.dart';
 import '../omr/form_code.dart';
 import '../omr/form_layout.dart';
 import '../l10n/l10n.dart';
+import 'brand_footer.dart';
+import 'kid_pdf.dart';
 
 const _ink = PdfColor.fromInt(0xFF0F1B3D);
 const _emerald = PdfColor.fromInt(0xFF10B981);
@@ -54,6 +56,7 @@ class _Fonts {
 
   /// [family]: netice, times ya da arial (Kurum bilgileri > Yazı stili).
   static Future<_Fonts> load([String family = 'netice']) async {
+    await BrandAssets.load();
     final key = '${L10n.code}/$family';
     if (_cache[key] != null) return _cache[key]!;
     Future<pw.Font> f(String path) async => pw.Font.ttf(await rootBundle.load(path));
@@ -119,6 +122,8 @@ Future<Uint8List> buildFormsPdf(Exam exam, List<Student> students,
 /// sınavıyla (makine kodu) basılır. Kitapçıklar her şubede A'dan başlar.
 Future<Uint8List> buildClassFormsPdf(List<(Exam, List<Student>)> groups,
     {int blankCopies = 1, SchoolInfo school = const SchoolInfo(), bool alternateBooklets = false}) async {
+  // Çocuk (ilkokul) sınavları: köşedeki kutunun isimli kartları (A4'e 4 kart).
+  if (groups.every((g) => g.$1.kidForm)) return buildKidCardsPdf(groups, blankCopies: blankCopies, school: school);
   final fonts = await _Fonts.load();
   final first = groups.first.$1;
   final doc = pw.Document(theme: fonts.theme, title: tr('{0} · optik form', [first.name]), author: tr('Netice'));
@@ -745,12 +750,12 @@ class _Kit {
     pw.Row(
       mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
       children: [
-        pw.Text(tr('Netice ile hazırlandı'), style: const pw.TextStyle(color: _emerald, fontSize: 8)),
         pw.Text(tr('Rapor tarihi: {0}', [created]), style: const pw.TextStyle(color: _muted, fontSize: 8)),
         pw.Text(tr('Sayfa {0} / {1}', [ctx.pageNumber, ctx.pagesCount]), style: const pw.TextStyle(color: _muted, fontSize: 8)),
       ],
     ),
-    downloadNote(),
+    pw.SizedBox(height: 3),
+    brandStrip(),
   ]);
 
   pw.Widget title(String t, [String? sub]) => pw.Padding(
@@ -1874,21 +1879,6 @@ pw.Widget _pieBox(String title, List<(String, double, PdfColor)> data, {bool don
 }
 
 /// Paylaşılan her belgenin altındaki uygulama ve indirme bilgisi.
-pw.Widget downloadNote() => pw.Padding(
-      padding: const pw.EdgeInsets.only(top: 3),
-      child: pw.UrlLink(
-        destination: downloadUrl,
-        child: pw.RichText(
-          textAlign: pw.TextAlign.center,
-          text: pw.TextSpan(style: const pw.TextStyle(fontSize: 7, color: _muted), children: [
-            pw.TextSpan(text: tr('Netice'), style: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: _ink)),
-            pw.TextSpan(text: tr(' · Optik kâğıtları telefonla okutun, sonuç ve karne saniyeler içinde · Ücretsiz indirin: ')),
-            pw.TextSpan(text: downloadLabel, style: const pw.TextStyle(color: _emerald, decoration: pw.TextDecoration.underline)),
-          ]),
-        ),
-      ),
-    );
-
 // Sağdan sola metin düzenleyicisi "…" karakterinde hata veriyor; Arapçada üç nokta kullanılır.
 String _short(String s, [int n = 14]) => s.length <= n ? s : '${s.substring(0, n - 1)}${L10n.rtl ? '...' : '…'}';
 

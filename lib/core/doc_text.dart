@@ -4,9 +4,10 @@ import 'dart:typed_data';
 import 'package:archive/archive.dart';
 import 'package:xml/xml.dart';
 
-import 'import_export.dart';
+import 'spreadsheet.dart';
 
-/// Belgedeki yazıyı satır satır çıkarır: PDF, Word (.docx), Excel (.xlsx),
+/// Belgedeki yazıyı satır satır çıkarır: PDF, Word (.docx), Excel (.xlsx, .xls),
+/// LibreOffice (.ods),
 /// metin (.txt, .csv). Tablolarda hücreler " | " ile ayrılır. Desteklenmeyen
 /// biçimde ya da yazı bulunamazsa boş metin döner.
 String documentText(Uint8List bytes, String fileName) {
@@ -17,9 +18,9 @@ String documentText(Uint8List bytes, String fileName) {
         return pdfText(bytes);
       case 'docx':
         return docxText(bytes);
-      case 'xlsx':
+      case 'xlsx' || 'xls' || 'ods':
         return [
-          for (final (name, rows) in StudentImport.xlsxSheets(bytes)) ...[
+          for (final (name, rows) in spreadsheetSheets(bytes, fileName) ?? const <(String, List<List<String>>)>[]) ...[
             if (name.isNotEmpty) name,
             for (final r in rows) r.where((c) => c.trim().isNotEmpty).join(' | '),
           ],
