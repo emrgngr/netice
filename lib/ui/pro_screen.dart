@@ -281,6 +281,7 @@ class _FeatureRow extends StatelessWidget {
     ProFeature.wordExport: Icons.description_outlined,
     ProFeature.lanSync: Icons.wifi_rounded,
     ProFeature.bulkParent: Icons.forward_to_inbox_rounded,
+    ProFeature.aiQuestions: Icons.auto_awesome_outlined,
     ProFeature.noAds: Icons.block_rounded,
   };
 

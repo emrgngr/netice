@@ -25,6 +25,7 @@ enum ProFeature {
   wordExport('Word\'e aktarma', 'Kitapçığı düzenlenebilir Word (.docx) belgesi olarak kaydedin'),
   lanSync('Wi-Fi ile eşitleme', 'Aynı ağdaki öğretmenlerle internetsiz, dosyasız sonuç toplama'),
   bulkParent('Velilere toplu gönderim', 'Bütün sınıfın karnelerini sırayla, hazır mesajla gönderin'),
+  aiQuestions('Nottan soru üretme', 'Yapay zekâ ders notunuzdan çoktan seçmeli soru önerir · ayda 300 soru'),
   noAds('Reklamsız kullanım', 'Hiçbir sayfada reklam gösterilmez');
 
   final String _title;
