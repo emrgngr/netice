@@ -1017,5 +1017,22 @@
 "Beklenen cevap": "参考答案",
 "Klasik sorular · cevap anahtarı": "主观题 · 答案",
 "Soru sayısı seçilen türlere yaklaşık eşit bölünür.": "题目数量会大致平均分配到所选题型。",
-"Soru türleri": "题型"
+"Soru türleri": "题型",
+"Değiştirmek için bir hazır sistem ya da \"Kendim yazacağım\" seçin.": "如需修改，请选择现成的制度或“自己填写”。",
+"Düzey / not": "等级 / 分数",
+"Düzey ekle": "添加等级",
+"En az %": "最低 %",
+"En az {0} düzey olmalı.": "至少需要 {0} 个等级。",
+"Hazır sistemler": "现成制度",
+"Her düzeye bir ad yazın.": "请为每个等级填写名称。",
+"Kendim yazacağım": "自己填写",
+"Not sistemi": "评分制度",
+"Not sistemi kaydedildi.": "评分制度已保存。",
+"Sınırlar yukarıdan aşağıya küçülmeli ve 0 ile 100 arasında olmalı.": "分数线须从上到下递减，且在 0 到 100 之间。",
+"Uygulama dilinin sistemi": "应用语言的制度",
+"Uygulama dilinin sistemi: {0}": "应用语言的制度：{0}",
+"geri kalan": "其余",
+"Örnek: \"% 85\" yazılan düzey, tam puanın %85 ve üzerini alanlara verilir. 20 veya 10 üzerinden puan için Sınav ayarlarında \"Tam puan\" değerini değiştirin.": "示例：写着“% 85”的等级授予得分达到满分 85% 及以上的学生。如需 20 分制或 10 分制，请在考试设置中修改“满分”。",
+"Özel not sistemi": "自定义评分制度",
+"Öğrencinin puanı, tam puanın yüzdesine göre bu düzeylere yerleşir. Raporlar, karneler ve düzey dağılımı bu sistemi kullanır.": "学生的分数按占满分的百分比归入这些等级。报告、成绩单和等级分布都使用此制度。"
 }

@@ -1017,5 +1017,22 @@
 "Beklenen cevap": "الإجابة المتوقعة",
 "Klasik sorular · cevap anahtarı": "الأسئلة المقالية · مفتاح الإجابة",
 "Soru sayısı seçilen türlere yaklaşık eşit bölünür.": "يقسم عدد الأسئلة بالتساوي تقريبا على الأنواع المختارة.",
-"Soru türleri": "أنواع الأسئلة"
+"Soru türleri": "أنواع الأسئلة",
+"Değiştirmek için bir hazır sistem ya da \"Kendim yazacağım\" seçin.": "للتغيير اختر نظاما جاهزا أو \"سأكتبه بنفسي\".",
+"Düzey / not": "المستوى / التقدير",
+"Düzey ekle": "إضافة مستوى",
+"En az %": "الحد الأدنى %",
+"En az {0} düzey olmalı.": "يجب ألا يقل عدد المستويات عن {0}.",
+"Hazır sistemler": "أنظمة جاهزة",
+"Her düzeye bir ad yazın.": "اكتب اسما لكل مستوى.",
+"Kendim yazacağım": "سأكتبه بنفسي",
+"Not sistemi": "نظام التقديرات",
+"Not sistemi kaydedildi.": "تم حفظ نظام التقديرات.",
+"Sınırlar yukarıdan aşağıya küçülmeli ve 0 ile 100 arasında olmalı.": "يجب أن تتناقص الحدود من الأعلى إلى الأسفل وأن تكون بين 0 و100.",
+"Uygulama dilinin sistemi": "نظام لغة التطبيق",
+"Uygulama dilinin sistemi: {0}": "نظام لغة التطبيق: {0}",
+"geri kalan": "الباقي",
+"Örnek: \"% 85\" yazılan düzey, tam puanın %85 ve üzerini alanlara verilir. 20 veya 10 üzerinden puan için Sınav ayarlarında \"Tam puan\" değerini değiştirin.": "مثال: المستوى المكتوب له \"% 85\" يعطى لمن يحصل على 85% من الدرجة الكاملة أو أكثر. للدرجة من 20 أو 10 غير \"الدرجة الكاملة\" في إعدادات الاختبار.",
+"Özel not sistemi": "نظام تقديرات خاص",
+"Öğrencinin puanı, tam puanın yüzdesine göre bu düzeylere yerleşir. Raporlar, karneler ve düzey dağılımı bu sistemi kullanır.": "توضع درجة الطالب في هذه المستويات حسب نسبتها من الدرجة الكاملة. تستخدم التقارير والشهادات وتوزيع المستويات هذا النظام."
 }

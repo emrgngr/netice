@@ -28,7 +28,13 @@ const _amber = PdfColor.fromInt(0xFFF2B33D);
 const _gray = PdfColor.fromInt(0xFF9AA0AE);
 const _ivory = PdfColor.fromInt(0xFFF6F3EC);
 const _line = PdfColor.fromInt(0xFFE2DDD1);
-const _levelColors = [_emerald, PdfColor.fromInt(0xFF34D399), _amber, PdfColor.fromInt(0xFFF59E0B), _coral];
+const _levelPalette = [_emerald, PdfColor.fromInt(0xFF34D399), _amber, PdfColor.fromInt(0xFFF59E0B), _coral];
+
+/// Düzey sayısı not sistemine göre değişir; renkler yeşilden kırmızıya yayılır.
+PdfColor _levelColor(int i) {
+  final n = Level.all.length;
+  return _levelPalette[n <= 1 ? 0 : (i * (_levelPalette.length - 1) / (n - 1)).round()];
+}
 
 class _Fonts {
   final pw.Font regular;
@@ -1015,7 +1021,7 @@ Future<Uint8List> buildResultsPdf({
           return pw.Row(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
             pw.Expanded(
                 child: _pieBox(tr('Başarı düzeyleri'), [
-              for (var i = 0; i < Level.all.length; i++) (Level.all[i].name, r.levelCounts[i].toDouble(), _levelColors[i]),
+              for (var i = 0; i < Level.all.length; i++) (Level.all[i].name, r.levelCounts[i].toDouble(), _levelColor(i)),
             ])),
             pw.SizedBox(width: 6),
             pw.Expanded(
@@ -1125,7 +1131,7 @@ Future<Uint8List> buildResultsPdf({
                               style: const pw.TextStyle(fontSize: 7.5),
                             ),
                           ),
-                          pw.Expanded(child: k.hbar(s.count == 0 ? 0 : r.levelCounts[i] / s.count, _levelColors[i])),
+                          pw.Expanded(child: k.hbar(s.count == 0 ? 0 : r.levelCounts[i] / s.count, _levelColor(i))),
                           pw.SizedBox(
                             width: 24,
                             child: pw.Text(
