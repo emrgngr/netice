@@ -4,6 +4,7 @@
 import 'dart:math' as math;
 
 import '../core/models.dart';
+import '../omr/kid_layout.dart';
 import 'bank_models.dart';
 import 'bank_store.dart';
 
@@ -63,6 +64,9 @@ class BookletPlan {
 
   int get questionCount => testMaster.length + openMaster.length;
 
+  /// Köşedeki küçük cevap kutusuyla okunur mu? (Çocuk şablonu, en çok 30 test sorusu.)
+  bool get kidBox => options.kids && testMaster.isNotEmpty && testMaster.length <= KidLayout.maxQuestions;
+
   /// Çoktan seçmeli şıklarda "Hepsi", "Hiçbiri" gibi sona ait şıklar.
   static final _anchored = RegExp(
       r'(hepsi|hiçbiri|hicbiri|yukarıdaki|yukaridaki|all of the above|none of the above|both|alle|keine|todas|ninguna|все|ни одн|tutti|nessun|toutes|aucune|以上|以上都|上記)',
@@ -86,7 +90,10 @@ class BookletPlan {
     final sorted = BankStore.sortQuestions(questions, o.order, seed: o.seed);
     final test = sorted.where((q) => q.type.optical).toList();
     final open = sorted.where((q) => !q.type.optical).toList();
-    final choiceCount = test.any((q) => q.optionCount >= 5) ? 5 : 4;
+    // Çocuk şablonunda şık sayısı soruların kendisinden gelir (genellikle 3: A, B, C).
+    final choiceCount = o.kids
+        ? test.fold(2, (m, q) => math.max(m, q.optionCount)).clamp(2, 5)
+        : (test.any((q) => q.optionCount >= 5) ? 5 : 4);
 
     // Puanlar: eşit bölüştür ya da her sorunun kendi puanı, toplam = totalScore.
     final all = [...test, ...open];
@@ -104,7 +111,8 @@ class BookletPlan {
     final openPts = pts.skip(test.length).toList();
 
     final variants = <BookletVariant>[];
-    final count = o.bookletCount.clamp(1, Exam.maxBooklets);
+    // Çocuk şablonunda tek kitapçık: köşedeki kutuda kitapçık dairesi yoktur.
+    final count = o.kids ? 1 : o.bookletCount.clamp(1, Exam.maxBooklets);
     for (var b = 0; b < count; b++) {
       final rnd = math.Random(o.seed * 7919 + b * 104729);
       var order = List.generate(test.length, (i) => i);
@@ -194,6 +202,7 @@ class BookletPlan {
       ),
       bookletOrders: orders,
       bookletChoiceOrders: anyChoice ? choiceOrders : const [],
+      kidForm: kidBox,
       openQuestions: [
         for (var i = 0; i < openMaster.length; i++)
           OpenQuestion(label: _openLabel(openMaster[i], i), maxPoints: openPoints[i], bankId: openMaster[i].id),
