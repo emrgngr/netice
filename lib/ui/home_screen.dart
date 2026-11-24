@@ -13,6 +13,7 @@ import 'school_screen.dart';
 import 'settings_screen.dart';
 import 'illustrations.dart';
 import 'help_screen.dart';
+import 'bank/library_screen.dart';
 import 'rate_share.dart';
 import 'term_screen.dart';
 import 'exam_screen.dart';
@@ -68,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final body = switch (_tab) {
       0 => const _Dashboard(),
       1 => const StudentsScreen(embedded: true),
-      2 => const HelpScreen(),
+      2 => const LibraryScreen(embedded: true),
       3 => const ProfileScreen(),
       _ => const SettingsScreen(),
     };
@@ -76,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final tabs = [
       (Icons.home_outlined, Icons.home_rounded, tr('Ana sayfa')),
       (Icons.groups_outlined, Icons.groups_rounded, tr('Sınıflar')),
-      (Icons.help_outline_rounded, Icons.help_rounded, tr('Yardım')),
+      (Icons.local_library_outlined, Icons.local_library_rounded, tr('Kütüphane')),
       (Icons.person_outline_rounded, Icons.person_rounded, tr('Profil')),
       (Icons.settings_outlined, Icons.settings_rounded, tr('Ayarlar')),
     ];

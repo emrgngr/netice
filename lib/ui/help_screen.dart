@@ -29,6 +29,7 @@ class _HelpScreenState extends State<HelpScreen> {
         'print' => Icons.print_outlined,
         'scan' => Icons.document_scanner_outlined,
         'report' => Icons.insights_rounded,
+        'library' => Icons.local_library_outlined,
         'data' => Icons.shield_outlined,
         _ => Icons.help_outline,
       };

@@ -168,6 +168,8 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
     }
     StoreScope.of(context).upsertExam(_exam.copyWith(
       bookletOrders: orders,
+      // Sıra elle değiştiyse kitapçık bankadan basılan karışık şık eşlemesi geçersizdir.
+      bookletChoiceOrders: orders.toString() == _exam.bookletOrders.toString() ? _exam.bookletChoiceOrders : const [],
       bookletKeys: _booklet ? _exam.bookletKeys : const [],
       openQuestions: open,
       templateId: tpl?.id,

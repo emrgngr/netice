@@ -5,11 +5,18 @@
   "print": "Stampare i fogli",
   "scan": "Correggere i fogli",
   "report": "Risultati e report",
-  "data": "I tuoi dati"
+  "data": "I tuoi dati",
+  "library": "Banca domande e fascicoli"
  },
  "k_sinav_ayar": "Nelle impostazioni della verifica scegli il punteggio massimo, la soglia di sufficienza e se le risposte errate tolgono punti. Qui aggiungi anche i tipi di fascicolo e le domande scritte.",
  "k_sablon": "Se usi il foglio di un editore o di un'altra azienda, crea una volta un modello in Impostazioni, alla voce Altri fogli.",
  "k_kontrol": "Tocca un foglio corretto. I segni incerti sono evidenziati in giallo e puoi correggerli con un tocco.",
  "k_donem": "Il report del periodo unisce le verifiche scelte in voti del periodo e pagelle per obiettivi.",
- "k_yedek": "Netice funziona offline e conserva i dati solo sul tuo dispositivo. Quando cambi dispositivo, usa Salva backup su file."
+ "k_yedek": "Netice funziona offline e conserva i dati solo sul tuo dispositivo. Quando cambi dispositivo, usa Salva backup su file.",
+ "k_soru_kes": "Scegli il PDF o la foto di una pagina di libro o simulazione. Disegna un rettangolo attorno alla domanda, segna la risposta giusta e aggiungila alla banca.",
+ "k_soru_yaz": "Puoi anche scrivere tu le domande. Scegli il tipo, aggiungi un'immagine e tocca la lettera dell'opzione giusta.",
+ "k_notlar": "Conserva riassunti e pillole nella scheda Note. Le pillole sugli argomenti deboli finiscono da sole nella pagella dello studente.",
+ "k_sihirbaz": "Apri la procedura con Nuovo fascicolo. Scegli le domande dalla banca, oppure indica numero e difficoltà e lascia scegliere Netice.",
+ "k_kitapcik_turu": "Crea fascicoli dalla A alla H e mescola domande e opzioni. Con Crea verifica è tutto pronto per la scansione.",
+ "k_banka_analiz": "La scheda Analisi mostra il bilanciamento della difficoltà e la copertura degli argomenti. Con le verifiche scansionate misura anche la difficoltà reale."
 }
