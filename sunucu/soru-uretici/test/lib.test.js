@@ -42,7 +42,7 @@ test("bozuk sorular atılır, şık harfleri temizlenir", () => {
     {
       note_problem: "",
       questions: [
-        { text: "Soru 1", choices: ["A) bir", "B) iki", "C) üç", "D) dört"], correct_index: 2, difficulty: "easy", solution: "çünkü" },
+        { text: "Soru 1", topic: "Hız", choices: ["A) bir", "B) iki", "C) üç", "D) dört"], correct_index: 2, difficulty: "easy", solution: "çünkü" },
         { text: "Soru 2", choices: ["a", "b", "c"], correct_index: 0, difficulty: "easy", solution: "" },
         { text: "Soru 3", choices: ["a", "b", "c", "d"], correct_index: 9, difficulty: "easy", solution: "" },
         { text: "Soru 4", choices: ["a", "a", "c", "d"], correct_index: 0, difficulty: "easy", solution: "" },
@@ -55,5 +55,7 @@ test("bozuk sorular atılır, şık harfleri temizlenir", () => {
   assert.equal(out.questions.length, 2);
   assert.deepEqual(out.questions[0].choices, ["bir", "iki", "üç", "dört"]);
   assert.equal(out.questions[0].correct, 2);
+  assert.equal(out.questions[0].topic, "Hız");
+  assert.equal(out.questions[1].topic, "");
   assert.equal(out.questions[1].difficulty, "medium");
 });
