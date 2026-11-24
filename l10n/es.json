@@ -1907,5 +1907,9 @@
 "Sınav analizinde \"Zayıf konular ve hap bilgiler\" kartından sınıfa çalışma föyü (PDF) alabilirsiniz.": "En el análisis del examen, obtenga una ficha de estudio (PDF) para la clase desde la tarjeta «Temas débiles y datos clave».",
 "Çok sayıda soru için \"Excel şablonunu indir\"i doldurup \"Excel'den aktar\" ile tek seferde ekleyin.": "Para muchas preguntas, rellene la «plantilla Excel» y añádalas de una vez con «Importar desde Excel».",
 "Öğrenci karnesinde \"Çalışması gereken konular\" bölümü, öğrencinin zayıf kaldığı konuların hap bilgileriyle otomatik dolar.": "La sección «Temas para estudiar» del boletín se completa sola con los datos clave de los temas débiles del alumno.",
-"İsterseniz. \"Şıkları karıştır\" açıksa B ve sonraki kitapçıklarda şıkların yeri değişir; \"Hepsi / hiçbiri\" gibi son şıklar yerinde kalır. Okuma ve puanlama bunu kendiliğinden hesaba katar.": "Si quiere. Con «Mezclar opciones» activado, las opciones cambian de lugar desde el cuadernillo B; las últimas como «todas / ninguna de las anteriores» se quedan. La corrección lo tiene en cuenta automáticamente."
+"İsterseniz. \"Şıkları karıştır\" açıksa B ve sonraki kitapçıklarda şıkların yeri değişir; \"Hepsi / hiçbiri\" gibi son şıklar yerinde kalır. Okuma ve puanlama bunu kendiliğinden hesaba katar.": "Si quiere. Con «Mezclar opciones» activado, las opciones cambian de lugar desde el cuadernillo B; las últimas como «todas / ninguna de las anteriores» se quedan. La corrección lo tiene en cuenta automáticamente.",
+"A–H kitapçık türleri": "Modelos A–H",
+"Soruları ve şıkları karıştırılmış sekize kadar kitapçık, hap bilgi eki": "Hasta ocho modelos con preguntas y opciones mezcladas, anexo de datos clave",
+"Zayıf konu föyü": "Ficha de temas flojos",
+"Zayıf konuların hap bilgileri karnede ve çalışma föyünde": "Datos clave de los temas flojos en el boletín y en la ficha de estudio"
 }

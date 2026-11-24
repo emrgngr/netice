@@ -1907,5 +1907,9 @@
 "Sınav analizinde \"Zayıf konular ve hap bilgiler\" kartından sınıfa çalışma föyü (PDF) alabilirsiniz.": "Dans l'analyse de l'épreuve, obtenez une fiche de révision (PDF) pour la classe depuis la carte « Thèmes faibles et essentiels ».",
 "Çok sayıda soru için \"Excel şablonunu indir\"i doldurup \"Excel'den aktar\" ile tek seferde ekleyin.": "Pour beaucoup de questions, remplissez le « modèle Excel » et ajoutez-les d'un coup avec « Importer depuis Excel ».",
 "Öğrenci karnesinde \"Çalışması gereken konular\" bölümü, öğrencinin zayıf kaldığı konuların hap bilgileriyle otomatik dolar.": "La partie « Thèmes à réviser » du bulletin se remplit automatiquement avec les essentiels des thèmes faibles de l'élève.",
-"İsterseniz. \"Şıkları karıştır\" açıksa B ve sonraki kitapçıklarda şıkların yeri değişir; \"Hepsi / hiçbiri\" gibi son şıklar yerinde kalır. Okuma ve puanlama bunu kendiliğinden hesaba katar.": "Si vous le souhaitez. Avec « Mélanger les réponses », les réponses changent de place à partir du sujet B ; les dernières comme « toutes / aucune des précédentes » restent. La lecture et la notation en tiennent compte automatiquement."
+"İsterseniz. \"Şıkları karıştır\" açıksa B ve sonraki kitapçıklarda şıkların yeri değişir; \"Hepsi / hiçbiri\" gibi son şıklar yerinde kalır. Okuma ve puanlama bunu kendiliğinden hesaba katar.": "Si vous le souhaitez. Avec « Mélanger les réponses », les réponses changent de place à partir du sujet B ; les dernières comme « toutes / aucune des précédentes » restent. La lecture et la notation en tiennent compte automatiquement.",
+"A–H kitapçık türleri": "Livrets A–H",
+"Soruları ve şıkları karıştırılmış sekize kadar kitapçık, hap bilgi eki": "Jusqu'à huit livrets aux questions et réponses mélangées, annexe d'essentiels",
+"Zayıf konu föyü": "Fiche des thèmes faibles",
+"Zayıf konuların hap bilgileri karnede ve çalışma föyünde": "Les essentiels des thèmes faibles dans le bulletin et la fiche de révision"
 }

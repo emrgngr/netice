@@ -1907,5 +1907,9 @@
 "Sınav analizinde \"Zayıf konular ve hap bilgiler\" kartından sınıfa çalışma föyü (PDF) alabilirsiniz.": "В анализе экзамена карточка «Слабые темы и шпаргалки» даёт лист для повторения (PDF) для класса.",
 "Çok sayıda soru için \"Excel şablonunu indir\"i doldurup \"Excel'den aktar\" ile tek seferde ekleyin.": "Для большого числа вопросов заполните «шаблон Excel» и добавьте всё сразу через «Импорт из Excel».",
 "Öğrenci karnesinde \"Çalışması gereken konular\" bölümü, öğrencinin zayıf kaldığı konuların hap bilgileriyle otomatik dolar.": "Раздел «Темы для повторения» в табеле автоматически заполняется шпаргалками по слабым темам ученика.",
-"İsterseniz. \"Şıkları karıştır\" açıksa B ve sonraki kitapçıklarda şıkların yeri değişir; \"Hepsi / hiçbiri\" gibi son şıklar yerinde kalır. Okuma ve puanlama bunu kendiliğinden hesaba katar.": "По желанию. При включённом «Перемешивать варианты» ответы меняются местами с варианта B; последние вроде «все / ни один из перечисленных» остаются. Проверка учитывает это автоматически."
+"İsterseniz. \"Şıkları karıştır\" açıksa B ve sonraki kitapçıklarda şıkların yeri değişir; \"Hepsi / hiçbiri\" gibi son şıklar yerinde kalır. Okuma ve puanlama bunu kendiliğinden hesaba katar.": "По желанию. При включённом «Перемешивать варианты» ответы меняются местами с варианта B; последние вроде «все / ни один из перечисленных» остаются. Проверка учитывает это автоматически.",
+"A–H kitapçık türleri": "Варианты A–H",
+"Soruları ve şıkları karıştırılmış sekize kadar kitapçık, hap bilgi eki": "До восьми вариантов с перемешанными вопросами и ответами, приложение со шпаргалками",
+"Zayıf konu föyü": "Лист слабых тем",
+"Zayıf konuların hap bilgileri karnede ve çalışma föyünde": "Шпаргалки по слабым темам в табеле и учебном листе"
 }

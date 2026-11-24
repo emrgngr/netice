@@ -1907,5 +1907,9 @@
 "Sınav analizinde \"Zayıf konular ve hap bilgiler\" kartından sınıfa çalışma föyü (PDF) alabilirsiniz.": "In exam analysis, get a study sheet (PDF) for the class from the \"Weak topics and quick tips\" card.",
 "Çok sayıda soru için \"Excel şablonunu indir\"i doldurup \"Excel'den aktar\" ile tek seferde ekleyin.": "For many questions, fill in \"Download Excel template\" and add them at once with \"Import from Excel\".",
 "Öğrenci karnesinde \"Çalışması gereken konular\" bölümü, öğrencinin zayıf kaldığı konuların hap bilgileriyle otomatik dolar.": "The \"Topics to study\" section of the report card is filled automatically with quick tips for the student's weak topics.",
-"İsterseniz. \"Şıkları karıştır\" açıksa B ve sonraki kitapçıklarda şıkların yeri değişir; \"Hepsi / hiçbiri\" gibi son şıklar yerinde kalır. Okuma ve puanlama bunu kendiliğinden hesaba katar.": "If you want. With \"Shuffle choices\" on, choices change places in booklet B and later; last choices like \"all / none of the above\" stay. Scanning and scoring account for this automatically."
+"İsterseniz. \"Şıkları karıştır\" açıksa B ve sonraki kitapçıklarda şıkların yeri değişir; \"Hepsi / hiçbiri\" gibi son şıklar yerinde kalır. Okuma ve puanlama bunu kendiliğinden hesaba katar.": "If you want. With \"Shuffle choices\" on, choices change places in booklet B and later; last choices like \"all / none of the above\" stay. Scanning and scoring account for this automatically.",
+"A–H kitapçık türleri": "A–H booklet versions",
+"Soruları ve şıkları karıştırılmış sekize kadar kitapçık, hap bilgi eki": "Up to eight booklets with shuffled questions and options, quick tips appendix",
+"Zayıf konu föyü": "Weak topic sheet",
+"Zayıf konuların hap bilgileri karnede ve çalışma föyünde": "Quick tips for weak topics on report cards and study sheets"
 }

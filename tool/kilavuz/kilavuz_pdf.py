@@ -1,7 +1,9 @@
 """Netice kullanım kılavuzu PDF'i.
 
-Önce görüntüler: flutter test tool/kilavuz_pdf_test.dart
-Sonra:          python3 tool/kilavuz/kilavuz_pdf.py [çıktı.pdf]
+Önce görüntüler: flutter test tool/kilavuz_pdf_test.dart --dart-define=KILAVUZ_DIL=<dil>
+Sonra:          python3 tool/kilavuz/kilavuz_pdf.py <dil> [çıktı.pdf]
+Metinler icerik.py'de Türkçedir; diğer diller tool/kilavuz/ceviri/<dil>.json
+(Türkçe metin -> çeviri) dosyasından gelir.
 """
 import json
 import math
@@ -21,8 +23,37 @@ sys.path.insert(0, os.path.dirname(__file__))
 from icerik import BOLUMLER, SAYFALAR  # noqa: E402
 
 KOK = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-KARE = os.path.join(KOK, 'build', 'kilavuz', 'frames')
-CIKTI = sys.argv[1] if len(sys.argv) > 1 else os.path.join(KOK, 'build', 'kilavuz', 'Netice_Kullanim_Kilavuzu.pdf')
+DIL = sys.argv[1] if len(sys.argv) > 1 else 'tr'
+KARE = os.path.join(KOK, 'build', 'kilavuz', DIL, 'frames')
+CIKTI = sys.argv[2] if len(sys.argv) > 2 else os.path.join(KOK, 'build', 'kilavuz', f'Netice_Kullanim_Kilavuzu_{DIL}.pdf')
+RTL = DIL == 'ar'
+CJK = DIL in ('zh', 'ja')
+
+_ceviri = {}
+if DIL != 'tr':
+    _ceviri = json.load(open(os.path.join(os.path.dirname(__file__), 'ceviri', f'{DIL}.json'), encoding='utf-8'))
+
+
+def T(s):
+    """Türkçe metnin bu dildeki karşılığı."""
+    if DIL == 'tr':
+        return s
+    if s not in _ceviri:
+        raise SystemExit(f'çeviri eksik ({DIL}): {s}')
+    return _ceviri[s]
+
+
+def gorsel(s):
+    """Arapça: harfleri birleştir ve sağdan sola sıraya koy (tek satır)."""
+    if not RTL:
+        return s
+    import arabic_reshaper
+    from bidi.algorithm import get_display
+    return get_display(arabic_reshaper.reshape(s))
+
+
+def ust(s):
+    return s.replace('i', 'İ').upper() if DIL in ('tr', 'az') else s.upper()
 
 INK = HexColor('#0F1B3D')
 INK2 = HexColor('#1E2E60')
@@ -35,8 +66,19 @@ AMBER_BG = HexColor('#FDF3DC')
 MUTED = HexColor('#55607A')
 LINE = HexColor('#E3E6EE')
 
+_noto = {
+    'ar': ('NotoSansArabic-Regular', 'NotoSansArabic-Bold'),
+    'ru': ('NotoSans-Regular', 'NotoSans-Bold'),
+    'zh': ('NotoSansSC-Regular', 'NotoSansSC-Regular'),
+    'ja': ('NotoSansJP-Regular', 'NotoSansJP-Regular'),
+}.get(DIL)
 for ad, dosya in [('J', '400Regular'), ('J5', '500Medium'), ('J6', '600SemiBold'), ('J7', '700Bold'), ('J8', '800ExtraBold')]:
-    pdfmetrics.registerFont(TTFont(ad, os.path.join(KOK, 'assets', 'fonts', f'PlusJakartaSans_{dosya}.ttf')))
+    if _noto:
+        yol = os.path.join(KOK, 'assets', 'pdf_fonts', (_noto[0] if ad in ('J', 'J5') else _noto[1]) + '.ttf')
+    else:
+        yol = os.path.join(KOK, 'assets', 'fonts', f'PlusJakartaSans_{dosya}.ttf')
+    pdfmetrics.registerFont(TTFont(ad, yol))
+pdfmetrics.registerFontFamily('J', normal='J', bold='J7', italic='J', boldItalic='J7')
 
 W, H = A4
 M = 40  # kenar boşluğu
@@ -50,7 +92,36 @@ st_ipucu = ParagraphStyle('ip', fontName='J', fontSize=9.4, leading=13.2, textCo
 st_kapak = ParagraphStyle('k', fontName='J', fontSize=12, leading=18, textColor=HexColor('#C9D2EA'))
 
 
+if CJK:
+    for _st in (st_giris, st_adim_b, st_adim, st_ipucu, st_kapak):
+        _st.wordWrap = 'CJK'
+
+
+def _rtl_satirlar(text, style, width):
+    import re
+    text = re.sub(r'<[^>]+>', '', text)
+    satirlar = []
+    for parca in text.split('\n'):
+        cur = ''
+        for w in parca.split(' '):
+            dene = (cur + ' ' + w).strip()
+            if cur and pdfmetrics.stringWidth(gorsel(dene), style.fontName, style.fontSize) > width:
+                satirlar.append(cur)
+                cur = w
+            else:
+                cur = dene
+        satirlar.append(cur)
+    return satirlar
+
+
 def para(c, text, style, x, y_top, width):
+    if RTL:
+        satirlar = _rtl_satirlar(text, style, width)
+        c.setFillColor(style.textColor)
+        c.setFont(style.fontName, style.fontSize)
+        for i, sat in enumerate(satirlar):
+            c.drawRightString(x + width, y_top - style.fontSize - i * style.leading, gorsel(sat))
+        return len(satirlar) * style.leading
     p = Paragraph(text, style)
     _, h = p.wrap(width, 1000)
     p.drawOn(c, x, y_top - h)
@@ -58,7 +129,20 @@ def para(c, text, style, x, y_top, width):
 
 
 def para_h(text, style, width):
+    if RTL:
+        return len(_rtl_satirlar(text, style, width)) * style.leading
     return Paragraph(text, style).wrap(width, 1000)[1]
+
+
+def yaz(c, x, y, s, sag=False, orta=False):
+    """Tek satır yazı (Arapçada şekillendirilmiş)."""
+    s = gorsel(s)
+    if orta:
+        c.drawCentredString(x, y, s)
+    elif sag:
+        c.drawRightString(x, y, s)
+    else:
+        c.drawString(x, y, s)
 
 
 def rozet(c, x, y, n, r=10, renk=EMERALD, yazi=INK):
@@ -128,26 +212,27 @@ def hedef_kutusu(c, olcek, sol, ust, r):
 def ust_bant(c, bolum, baslik, sayfa_no):
     c.setFillColor(IVORY)
     c.rect(0, 0, W, H, stroke=0, fill=1)
-    ad = dict(BOLUMLER)[bolum]
+    ad = T(dict(BOLUMLER)[bolum])
     c.setFillColor(EMERALD_D)
     c.setFont('J7', 8.5)
-    c.drawString(M, H - 44, f'BÖLÜM {bolum}  ·  {ad.upper()}')
+    etiket = f'第{bolum}章' if CJK else f'{ust(T("BÖLÜM"))} {bolum}'
+    yaz(c, W - M if RTL else M, H - 44, f'{etiket}  ·  {ust(ad)}', sag=RTL)
     c.setFillColor(INK)
     c.setFont('J8', 22)
-    c.drawString(M, H - 70, baslik)
+    yaz(c, W - M if RTL else M, H - 70, T(baslik), sag=RTL)
     # alt bilgi
     c.setStrokeColor(LINE)
     c.setLineWidth(0.8)
     c.line(M, 34, W - M, 34)
     c.setFillColor(MUTED)
     c.setFont('J5', 8)
-    c.drawString(M, 22, 'Netice · Kullanım kılavuzu')
+    yaz(c, M, 22, 'Netice · ' + T('Kullanım kılavuzu'))
     c.drawRightString(W - M, 22, str(sayfa_no))
 
 
 def ipucu_kutusu(c, metin, x, y_top, w):
     ic = w - 46
-    h = para_h(metin, st_ipucu, ic) + 22
+    h = para_h('<b>' + T('İpucu:') + ' </b>' + metin, st_ipucu, ic) + 22
     c.setFillColor(AMBER_BG)
     c.roundRect(x, y_top - h, w, h, 10, stroke=0, fill=1)
     c.setFillColor(AMBER)
@@ -158,8 +243,19 @@ def ipucu_kutusu(c, metin, x, y_top, w):
     c.setFillColor(INK)
     c.setFont('J8', 10)
     c.drawCentredString(x + 24, y_top - 23.5, '!')
-    para(c, '<b>İpucu: </b>' + metin, st_ipucu, x + 40, y_top - 11, ic)
+    para(c, '<b>' + T('İpucu:') + ' </b>' + metin, st_ipucu, x + 40, y_top - 11, ic)
     return h
+
+
+def cevir(s):
+    s = dict(s)
+    if DIL != 'tr' and 'adimlar_diger' in s:
+        s['giris'], s['adimlar'] = s['giris_diger'], s['adimlar_diger']
+    s['giris'] = T(s['giris'])
+    s['adimlar'] = [(k, T(b), T(m)) for k, b, m in s['adimlar']]
+    if s.get('ipucu'):
+        s['ipucu'] = T(s['ipucu'])
+    return s
 
 
 def menu_sayfasi(c, s, no):
@@ -211,6 +307,7 @@ def menu_sayfasi(c, s, no):
 
 
 def adim_sayfasi(c, s, no):
+    s = cevir(s)
     if s.get('menu'):
         return menu_sayfasi(c, s, no)
     ust_bant(c, s['bolum'], s['baslik'], no)
@@ -294,18 +391,18 @@ def kapak(c):
         c.drawImage(ImageReader(logo), M + 6, H - 144, 64, 64, mask='auto')
     c.setFillColor(EMERALD)
     c.setFont('J7', 11)
-    c.drawString(M, H - 200, 'KULLANIM KILAVUZU')
+    yaz(c, M, H - 200, ust(T('Kullanım kılavuzu')))
     c.setFillColor(white)
     c.setFont('J8', 52)
     c.drawString(M, H - 252, 'Netice')
-    para(c, 'Optik formu telefonla okuyun; puan, analiz, karne ve raporlar saniyeler içinde. '
-            'Bu kılavuz, uygulamayı ilk açılıştan rapor almaya kadar adım adım anlatır.', st_kapak, M, H - 272, 300)
+    para(c, T('Optik formu telefonla okuyun; puan, analiz, karne ve raporlar saniyeler içinde. '
+              'Bu kılavuz, uygulamayı ilk açılıştan rapor almaya kadar adım adım anlatır.'), st_kapak, M, H - 272, 300)
     telefon(c, '13_sonuclar', W - M - 330, 400, 150)
     telefon(c, '02_ana', W - M - 170, 450, 170)
     c.setFillColor(HexColor('#8C97B8'))
     c.setFont('J5', 9)
-    c.drawString(M, 40, f'Sürüm {date.today().strftime("%d.%m.%Y")}')
-    c.drawString(M, 26, 'İletişim: bilgi@cooktatlihayat.com')
+    yaz(c, M, 40, T('Sürüm') + ' ' + date.today().strftime('%d.%m.%Y'))
+    yaz(c, M, 26, T('İletişim:') + ' bilgi@cooktatlihayat.com')
 
 
 def icindekiler(c, sayfa_baslari):
@@ -313,31 +410,35 @@ def icindekiler(c, sayfa_baslari):
     c.rect(0, 0, W, H, stroke=0, fill=1)
     c.setFillColor(INK)
     c.setFont('J8', 26)
-    c.drawString(M, H - 80, 'İçindekiler')
-    y = H - 130
+    yaz(c, W - M if RTL else M, H - 80, T('İçindekiler'), sag=RTL)
+    y = H - 120
     for no, ad in BOLUMLER:
         c.setFillColor(white)
         c.setStrokeColor(LINE)
-        c.roundRect(M, y - 34, W - 2 * M, 44, 12, stroke=1, fill=1)
+        c.roundRect(M, y - 32, W - 2 * M, 42, 12, stroke=1, fill=1)
         rozet(c, M + 26, y - 12, no, r=12)
         c.setFillColor(INK)
         c.setFont('J7', 13)
-        c.drawString(M + 50, y - 8, ad)
-        konular = [s['baslik'] for s in SAYFALAR if s['bolum'] == no]
+        yaz(c, M + 50, y - 8, T(ad))
+        konular = [T(s['baslik']) for s in SAYFALAR if s['bolum'] == no]
         c.setFillColor(MUTED)
         c.setFont('J', 8.5)
-        c.drawString(M + 50, y - 22, '  ·  '.join(konular))
+        satir = '  ·  '.join(konular)
+        while pdfmetrics.stringWidth(gorsel(satir), 'J', 8.5) > W - 2 * M - 110 and len(konular) > 1:
+            konular = konular[:-1]
+            satir = '  ·  '.join(konular) + '  …'
+        yaz(c, M + 50, y - 22, satir)
         c.setFillColor(EMERALD_D)
         c.setFont('J8', 13)
         c.drawRightString(W - M - 16, y - 16, str(sayfa_baslari[no]))
-        y -= 56
+        y -= 50
     # Hızlı başlangıç
     y -= 14
     c.setFillColor(INK)
     c.setFont('J8', 16)
-    c.drawString(M, y, 'Beş adımda ilk sınavınız')
+    yaz(c, W - M if RTL else M, y, T('Beş adımda ilk sınavınız'), sag=RTL)
     y -= 18
-    adim = ['Öğrencileri\nekleyin', 'Sınavı\noluşturun', 'Formu\nyazdırın', 'Kâğıtları\nokutun', 'Raporu\nalın']
+    adim = [T(a) for a in ['Öğrencileri\nekleyin', 'Sınavı\noluşturun', 'Formu\nyazdırın', 'Kâğıtları\nokutun', 'Raporu\nalın']]
     bw = (W - 2 * M - 4 * 22) / 5
     for i, a in enumerate(adim):
         x = M + i * (bw + 22)
@@ -347,7 +448,7 @@ def icindekiler(c, sayfa_baslari):
         c.setFillColor(white)
         c.setFont('J7', 10)
         for j, satir in enumerate(a.split('\n')):
-            c.drawCentredString(x + bw / 2, y - 42 - j * 13, satir)
+            yaz(c, x + bw / 2, y - 42 - j * 13, satir, orta=True)
         if i < 4:
             ok(c, x + bw + 3, y - 43, x + bw + 19, y - 43)
 
@@ -356,7 +457,7 @@ def main():
     from reportlab.pdfgen import canvas
     os.makedirs(os.path.dirname(CIKTI), exist_ok=True)
     c = canvas.Canvas(CIKTI, pagesize=A4)
-    c.setTitle('Netice Kullanım Kılavuzu')
+    c.setTitle('Netice · ' + T('Kullanım kılavuzu'))
     c.setAuthor('Netice')
     # sayfa numaraları: kapak 1, içindekiler 2, bölüm sayfaları 3'ten başlar
     basi = {}

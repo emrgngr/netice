@@ -10,9 +10,15 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:netice/bank/bank_store.dart';
 import 'package:netice/core/store.dart';
 import 'package:netice/l10n/l10n.dart';
 import 'package:netice/main.dart';
+import 'package:netice/ui/bank/booklet_wizard_screen.dart';
+import 'package:netice/ui/bank/image_tools.dart';
+import 'package:netice/ui/bank/import_screens.dart';
+import 'package:netice/ui/bank/library_screen.dart';
+import 'package:netice/ui/bank/question_editor_screen.dart';
 import 'package:netice/ui/exam_screen.dart';
 import 'package:netice/ui/exam_settings_screen.dart';
 import 'package:netice/ui/help_screen.dart';
@@ -29,6 +35,8 @@ import 'package:netice/ui/student_detail_screen.dart';
 import 'package:netice/ui/term_screen.dart';
 import 'package:netice/ui/students_screen.dart';
 import 'package:netice/ui/theme.dart';
+
+import 'guide_bank.dart';
 
 Future<void> _fonts(String lang) async {
   Future<void> load(String family, List<String> files) async {
@@ -71,7 +79,13 @@ void main() {
     await tester.runAsync(() => _fonts(lang));
     L10n.use(lang);
     final store = AppStore();
-    await tester.runAsync(() => store.load(dir: Directory.systemTemp.createTempSync('video')));
+    final dir = Directory.systemTemp.createTempSync('video');
+    await tester.runAsync(() => store.load(dir: dir));
+    final bank = BankStore.instance;
+    await tester.runAsync(() async {
+      await bank.load(dir: dir);
+      await seedGuideBank(bank, lang);
+    });
     store.onboardingDone = true;
     store.ratePrompted = true;
 
@@ -233,6 +247,41 @@ void main() {
       const SettingsScreen(),
       () => [text(tr('Uygulama dili')), text(tr('Yedeği dosyaya kaydet'))],
     );
+    // Kütüphane: soru bankası, notlar ve kitapçık (bölüm videosu "library").
+    Finder fab() => find.byType(FloatingActionButton);
+    await scene('12_kutuphane', const LibraryScreen(),
+        () => [find.textContaining(tr('Kolay')).first, fab()]);
+    await scene('k_soru_kes', CropImportScreen(pages: [DocPage(guidePage(guideBankData(lang)), 900, 1270)]),
+        () => [find.byType(RectSelector), text(tr('Doğru cevap'))], then: () async {
+      for (var i = 0; i < 5; i++) {
+        await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 200)));
+        await settle();
+      }
+      final r = tester.getRect(find.descendant(of: find.byType(RectSelector), matching: find.byType(Image)).first);
+      final from = Offset(r.left + r.width * 0.03, r.top + r.height * 0.075);
+      final to = Offset(r.left + r.width * 0.96, r.top + r.height * 0.34);
+      final g = await tester.startGesture(from);
+      for (var i = 1; i <= 8; i++) {
+        await g.moveTo(Offset.lerp(from, to, i / 8)!);
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      await g.up();
+    });
+    await scene('k_soru_yaz', QuestionEditorScreen(question: bank.questionById('bq3')),
+        () => [text(tr('Çoktan seçmeli')), text(tr('Görsel ekle')), text(tr('Şıklar'))]);
+    await scene('k_notlar', const LibraryScreen(initialTab: 1),
+        () => [find.textContaining(tr('Hap bilgi')).first, fab()]);
+    await scene('k_sihirbaz', BookletWizardScreen(booklet: bank.bookletById('k1')),
+        () => [text(tr('Bankadan seç')), text(tr('Otomatik seç'))]);
+    await scene('k_kitapcik_turu', BookletWizardScreen(booklet: bank.bookletById('k1')),
+        () => [text(tr('Kitapçık sayısı')), text(tr('Şıkları karıştır'))], then: () async {
+      for (var i = 0; i < 2; i++) {
+        await tester.tap(find.text(tr('İleri')).last);
+        await settle();
+      }
+    });
+    await scene('k_banka_analiz', const LibraryScreen(initialTab: 3),
+        () => [text(tr('Zorluk dağılımı')), text(tr('Konu kapsamı'))]);
     // Kılavuz bölüm videoları için ek sahneler (tool/video/kilavuz.json).
     Future<void> reveal(Finder f, {double dy = -160}) async {
       if (f.evaluate().isEmpty) return;

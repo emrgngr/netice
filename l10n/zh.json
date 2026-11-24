@@ -1907,5 +1907,9 @@
 "Sınav analizinde \"Zayıf konular ve hap bilgiler\" kartından sınıfa çalışma föyü (PDF) alabilirsiniz.": "在考试分析的“薄弱知识点与要点”卡片中，可为全班生成复习资料（PDF）。",
 "Çok sayıda soru için \"Excel şablonunu indir\"i doldurup \"Excel'den aktar\" ile tek seferde ekleyin.": "题目较多时，填写“Excel 模板”后用“从 Excel 导入”一次添加。",
 "Öğrenci karnesinde \"Çalışması gereken konular\" bölümü, öğrencinin zayıf kaldığı konuların hap bilgileriyle otomatik dolar.": "成绩单中的“需要复习的知识点”会自动填入该学生薄弱知识点的要点。",
-"İsterseniz. \"Şıkları karıştır\" açıksa B ve sonraki kitapçıklarda şıkların yeri değişir; \"Hepsi / hiçbiri\" gibi son şıklar yerinde kalır. Okuma ve puanlama bunu kendiliğinden hesaba katar.": "可以选择。开启“打乱选项”后，B 卷及之后选项位置会变化；“以上都是 / 以上都不是”等末尾选项保持不变。阅卷和计分会自动处理。"
+"İsterseniz. \"Şıkları karıştır\" açıksa B ve sonraki kitapçıklarda şıkların yeri değişir; \"Hepsi / hiçbiri\" gibi son şıklar yerinde kalır. Okuma ve puanlama bunu kendiliğinden hesaba katar.": "可以选择。开启“打乱选项”后，B 卷及之后选项位置会变化；“以上都是 / 以上都不是”等末尾选项保持不变。阅卷和计分会自动处理。",
+"A–H kitapçık türleri": "A–H 多套试卷",
+"Soruları ve şıkları karıştırılmış sekize kadar kitapçık, hap bilgi eki": "最多八套题目和选项打乱的试卷，附要点",
+"Zayıf konu föyü": "薄弱知识点学习单",
+"Zayıf konuların hap bilgileri karnede ve çalışma föyünde": "薄弱知识点的要点写入成绩单和学习单"
 }

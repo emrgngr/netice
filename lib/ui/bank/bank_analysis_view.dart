@@ -4,10 +4,12 @@ import '../../bank/bank_analysis.dart';
 import '../../bank/bank_models.dart';
 import '../../bank/bank_store.dart';
 import '../../core/models.dart';
+import '../../core/pro.dart';
 import '../../core/scoring.dart';
 import '../../l10n/l10n.dart';
 import '../../main.dart';
 import '../../reports/notes_pdf.dart';
+import '../pro_screen.dart';
 import '../theme.dart';
 import '../widgets.dart';
 import 'bank_widgets.dart';
@@ -281,7 +283,9 @@ class _QRow extends StatelessWidget {
 }
 
 /// Bir sınavın zayıf konuları için hap bilgi föyü.
-Future<void> openWeakTopicsPdf(BuildContext context, Exam e, List<WeakTopic> w, {String? studentName}) => openNotesPdf(
+Future<void> openWeakTopicsPdf(BuildContext context, Exam e, List<WeakTopic> w, {String? studentName}) async {
+  if (!await requirePro(context, ProFeature.studyTips) || !context.mounted) return;
+  return openNotesPdf(
       context,
       const [],
       title: studentName == null ? tr('{0} · Çalışılması gereken konular', [e.name]) : tr('{0} · Çalışması gereken konular', [studentName]),
@@ -289,6 +293,7 @@ Future<void> openWeakTopicsPdf(BuildContext context, Exam e, List<WeakTopic> w, 
         for (final x in w) NotesSection(x.topic, x.notes, subtitle: tr('Başarı %{0}', [(x.rate * 100).round()])),
       ],
     );
+}
 
 /// Sınav analizinde: zayıf konular ve bağlı hap bilgiler.
 class WeakTopicsCard extends StatelessWidget {

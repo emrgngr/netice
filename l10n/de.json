@@ -1907,5 +1907,9 @@
 "Sınav analizinde \"Zayıf konular ve hap bilgiler\" kartından sınıfa çalışma föyü (PDF) alabilirsiniz.": "In der Prüfungsanalyse erhalten Sie über die Karte „Schwache Themen und Merksätze“ ein Lernblatt (PDF) für die Klasse.",
 "Çok sayıda soru için \"Excel şablonunu indir\"i doldurup \"Excel'den aktar\" ile tek seferde ekleyin.": "Für viele Fragen füllen Sie die „Excel-Vorlage“ aus und fügen alles mit „Aus Excel importieren“ auf einmal hinzu.",
 "Öğrenci karnesinde \"Çalışması gereken konular\" bölümü, öğrencinin zayıf kaldığı konuların hap bilgileriyle otomatik dolar.": "Der Abschnitt „Zu lernende Themen“ im Zeugnis wird automatisch mit den Merksätzen zu den schwachen Themen des Schülers gefüllt.",
-"İsterseniz. \"Şıkları karıştır\" açıksa B ve sonraki kitapçıklarda şıkların yeri değişir; \"Hepsi / hiçbiri\" gibi son şıklar yerinde kalır. Okuma ve puanlama bunu kendiliğinden hesaba katar.": "Wenn Sie möchten. Ist „Antworten mischen“ an, wechseln die Antworten ab Heft B ihre Plätze; letzte Antworten wie „alle / keine der obigen“ bleiben. Einlesen und Bewertung berücksichtigen das automatisch."
+"İsterseniz. \"Şıkları karıştır\" açıksa B ve sonraki kitapçıklarda şıkların yeri değişir; \"Hepsi / hiçbiri\" gibi son şıklar yerinde kalır. Okuma ve puanlama bunu kendiliğinden hesaba katar.": "Wenn Sie möchten. Ist „Antworten mischen“ an, wechseln die Antworten ab Heft B ihre Plätze; letzte Antworten wie „alle / keine der obigen“ bleiben. Einlesen und Bewertung berücksichtigen das automatisch.",
+"A–H kitapçık türleri": "Heftvarianten A–H",
+"Soruları ve şıkları karıştırılmış sekize kadar kitapçık, hap bilgi eki": "Bis zu acht Hefte mit gemischten Fragen und Antworten, Merksatz-Anhang",
+"Zayıf konu föyü": "Blatt zu schwachen Themen",
+"Zayıf konuların hap bilgileri karnede ve çalışma föyünde": "Merksätze zu schwachen Themen im Zeugnis und auf dem Lernblatt"
 }

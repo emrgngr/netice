@@ -1907,5 +1907,9 @@
 "Sınav analizinde \"Zayıf konular ve hap bilgiler\" kartından sınıfa çalışma föyü (PDF) alabilirsiniz.": "في تحليل الاختبار تحصل على ورقة مراجعة (PDF) للصف من بطاقة «الموضوعات الضعيفة والمعلومات المركزة».",
 "Çok sayıda soru için \"Excel şablonunu indir\"i doldurup \"Excel'den aktar\" ile tek seferde ekleyin.": "للأسئلة الكثيرة املأ «قالب Excel» وأضفها دفعة واحدة عبر «استيراد من Excel».",
 "Öğrenci karnesinde \"Çalışması gereken konular\" bölümü, öğrencinin zayıf kaldığı konuların hap bilgileriyle otomatik dolar.": "يمتلئ قسم «موضوعات يجب مراجعتها» في الشهادة تلقائيًا بالمعلومات المركزة لموضوعات الطالب الضعيفة.",
-"İsterseniz. \"Şıkları karıştır\" açıksa B ve sonraki kitapçıklarda şıkların yeri değişir; \"Hepsi / hiçbiri\" gibi son şıklar yerinde kalır. Okuma ve puanlama bunu kendiliğinden hesaba katar.": "إن أردت. عند تفعيل «اخلط الخيارات» تتغير أماكن الخيارات من النموذج B؛ وتبقى الخيارات الأخيرة مثل «جميع ما سبق / لا شيء مما سبق». تراعي القراءة والتصحيح ذلك تلقائيًا."
+"İsterseniz. \"Şıkları karıştır\" açıksa B ve sonraki kitapçıklarda şıkların yeri değişir; \"Hepsi / hiçbiri\" gibi son şıklar yerinde kalır. Okuma ve puanlama bunu kendiliğinden hesaba katar.": "إن أردت. عند تفعيل «اخلط الخيارات» تتغير أماكن الخيارات من النموذج B؛ وتبقى الخيارات الأخيرة مثل «جميع ما سبق / لا شيء مما سبق». تراعي القراءة والتصحيح ذلك تلقائيًا.",
+"A–H kitapçık türleri": "كراسات A–H",
+"Soruları ve şıkları karıştırılmış sekize kadar kitapçık, hap bilgi eki": "حتى ثماني كراسات بأسئلة وخيارات مخلوطة، وملحق المعلومات المركزة",
+"Zayıf konu föyü": "ورقة الموضوعات الضعيفة",
+"Zayıf konuların hap bilgileri karnede ve çalışma föyünde": "المعلومات المركزة للموضوعات الضعيفة في البطاقة وورقة المذاكرة"
 }

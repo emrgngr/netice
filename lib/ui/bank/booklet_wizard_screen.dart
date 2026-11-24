@@ -7,10 +7,12 @@ import '../../bank/bank_models.dart';
 import '../../bank/bank_store.dart';
 import '../../bank/booklet_builder.dart';
 import '../../core/models.dart';
+import '../../core/pro.dart';
 import '../../l10n/l10n.dart';
 import '../../main.dart';
 import '../../reports/booklet_pdf.dart';
 import '../exam_screen.dart';
+import '../pro_screen.dart';
 import '../theme.dart';
 import '../widgets.dart';
 import 'bank_widgets.dart';
@@ -175,6 +177,15 @@ class _BookletWizardScreenState extends State<BookletWizardScreen> {
     final qs = _questions;
     if (qs.isEmpty) return;
     final store = StoreScope.of(context);
+    // Birden çok kitapçık türü Pro'dadır; Pro bittiyse yalnız A ile devam edilebilir.
+    if (_o.bookletCount > 1 && !store.isPro) {
+      if (!await requirePro(context, ProFeature.bookletVariants)) {
+        if (!mounted) return;
+        _setO(_o.copyWith(bookletCount: 1));
+        return;
+      }
+      if (!mounted) return;
+    }
     final classes = <String>{};
     final other = TextEditingController();
     final ok = await showModalBottomSheet<bool>(
@@ -591,7 +602,10 @@ class _BookletWizardScreenState extends State<BookletWizardScreen> {
             ChoiceChip(
               label: Text(k == 1 ? tr('Yalnız A') : 'A–${letter(k - 1)}'),
               selected: _o.bookletCount == k,
-              onSelected: (_) => _setO(_o.copyWith(bookletCount: k)),
+              onSelected: (_) async {
+                if (k > 1 && !await requirePro(context, ProFeature.bookletVariants)) return;
+                _setO(_o.copyWith(bookletCount: k));
+              },
             ),
         ]),
         if (_o.bookletCount > 1) ...[
@@ -649,7 +663,16 @@ class _BookletWizardScreenState extends State<BookletWizardScreen> {
       _section(Icons.library_add_check_outlined, tr('Ekler'), [
         _switch(tr('Cevap anahtarı sayfası'), tr('Her kitapçığın anahtarı tablo hâlinde, en sonda'), _o.answerKeyPage, (v) => _o.copyWith(answerKeyPage: v)),
         _switch(tr('Çözümlü kitapçık'), tr('Doğru cevap ve çözümler işaretli öğretmen nüshası'), _o.solutionsBooklet, (v) => _o.copyWith(solutionsBooklet: v)),
-        _switch(tr('Hap bilgi eki'), tr('Sorulan konuların hap bilgileri ve özetleri en sona eklenir'), _o.tipsAppendix, (v) => _o.copyWith(tipsAppendix: v)),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Text(tr('Hap bilgi eki')),
+          subtitle: Text(tr('Sorulan konuların hap bilgileri ve özetleri en sona eklenir')),
+          value: _o.tipsAppendix,
+          onChanged: (v) async {
+            if (v && !await requirePro(context, ProFeature.bookletVariants)) return;
+            _setO(_o.copyWith(tipsAppendix: v));
+          },
+        ),
       ]),
     ]);
   }

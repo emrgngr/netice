@@ -1907,5 +1907,9 @@
 "Sınav analizinde \"Zayıf konular ve hap bilgiler\" kartından sınıfa çalışma föyü (PDF) alabilirsiniz.": "テスト分析の「苦手単元とポイント」カードから、クラス用の学習プリント（PDF）を作れます。",
 "Çok sayıda soru için \"Excel şablonunu indir\"i doldurup \"Excel'den aktar\" ile tek seferde ekleyin.": "問題が多い場合は「Excelテンプレート」に入力し「Excelから取り込む」で一度に追加します。",
 "Öğrenci karnesinde \"Çalışması gereken konular\" bölümü, öğrencinin zayıf kaldığı konuların hap bilgileriyle otomatik dolar.": "成績表の「復習が必要な単元」には、生徒の苦手単元のポイントが自動で入ります。",
-"İsterseniz. \"Şıkları karıştır\" açıksa B ve sonraki kitapçıklarda şıkların yeri değişir; \"Hepsi / hiçbiri\" gibi son şıklar yerinde kalır. Okuma ve puanlama bunu kendiliğinden hesaba katar.": "選べます。「選択肢を並べ替え」をオンにするとB冊子以降で選択肢の位置が変わり、「すべて／どれでもない」などの最後の選択肢はそのままです。読み取りと採点は自動で対応します。"
+"İsterseniz. \"Şıkları karıştır\" açıksa B ve sonraki kitapçıklarda şıkların yeri değişir; \"Hepsi / hiçbiri\" gibi son şıklar yerinde kalır. Okuma ve puanlama bunu kendiliğinden hesaba katar.": "選べます。「選択肢を並べ替え」をオンにするとB冊子以降で選択肢の位置が変わり、「すべて／どれでもない」などの最後の選択肢はそのままです。読み取りと採点は自動で対応します。",
+"A–H kitapçık türleri": "A〜H 冊子",
+"Soruları ve şıkları karıştırılmış sekize kadar kitapçık, hap bilgi eki": "問題と選択肢を並べ替えた最大8種類の冊子、ポイント付録",
+"Zayıf konu föyü": "弱い単元のプリント",
+"Zayıf konuların hap bilgileri karnede ve çalışma föyünde": "弱い単元のポイントを成績表と学習プリントに"
 }
