@@ -195,7 +195,7 @@ def main():
     os.makedirs(tmp, exist_ok=True)
     plan = []
     for i, sc in enumerate(cfg['sahneler']):
-        src = os.path.join(audio, sc['ses'])
+        src = os.path.join(audio, sc['kare'] + '.mp3' if sc['ses'] == 'elevenlabs' else sc['ses'])
         text = sc['metin']
         voice = os.path.join(tmp, f'{i:02d}.wav')
         start = first_pause(src) if sc.get('kirp_ilk_cumle') else None

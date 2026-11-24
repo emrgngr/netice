@@ -1,26 +1,97 @@
 {
+ "_not": "ses: 'elevenlabs' olan sahneler tool/magaza/seslendir.py ile üretilir (<kare>.mp3).",
  "sahneler": [
-  {"kare": "kare_00", "ses": "hf_20261122_204257_c8988d5d-22b7-4b2e-a82d-4cdc1760ec5c.mp3",
-   "metin": "Netice ile optik formları, telefonunuzla saniyeler içinde okuyun."},
-  {"kare": "kare_01", "ses": "hf_20261122_204257_d3b49b86-b179-4337-b95a-5c013d68cc1a.mp3", "hedef": [1294, 396, 1640, 460],
-   "metin": "Okut düğmesine dokunun ve kamerayı forma tutun. Netice kâğıdı kendiliğinden bulur, okur ve puanlar."},
-  {"kare": "kare_02", "ses": "hf_20261122_204257_1cb8343f-e108-44a7-808e-470c99d6eb7e.mp3", "hedef": [1274, 254, 1656, 446],
-   "metin": "Sınıf ortalaması, puan dağılımı ve sıralama, anında hazır."},
-  {"kare": "kare_03", "ses": "hf_20261122_204257_aa4e51b0-538f-4a89-a204-89d1ca00cd25.mp3", "hedef": [1520, 170, 1712, 392],
-   "metin": "Kendi optik formunuzu yazdırın: öğrenci adlı formlar, A'dan H'ye kitapçık türleri ve on haneli öğrenci numarası."},
-  {"kare": "kare_04", "ses": "hf_20261122_204257_fe189865-97f4-46fe-914e-074addb25bca.mp3", "hedef": [1270, 250, 1662, 600],
-   "metin": "Sınav raporu, öğrenci karnesi ve Excel listesi, tek dokunuşla."},
-  {"kare": "kare_05", "ses": "hf_20261122_204257_c622d57a-388e-4052-917b-0becd9e34891.mp3", "hedef": [1276, 362, 1662, 452],
-   "metin": "Her öğrencinin gelişimini izleyin. Bir düşüş olduğunda, Netice sizi önceden uyarır."},
-  {"kare": "kare_06", "ses": "hf_20261122_204257_35569daa-31bf-4a12-a767-b266e0a57d7e.mp3", "hedef": [1272, 772, 1500, 832],
-   "metin": "Dönem notunu ve kazanım karnesini, otomatik olarak hesaplayın."},
-  {"kare": "kare_07", "ses": "hf_20261122_204258_e02c8e7d-89c0-4faa-9d3a-25c444b5b7dd.mp3", "hedef": [1270, 542, 1682, 642],
-   "metin": "Şubeleri, soru soru karşılaştırın."},
-  {"kare": "kare_08", "ses": "hf_20261119_110104_cdf0465c-b90b-41b6-b2ab-76448380cd71.mp3", "hedef": [1270, 178, 1480, 232],
-   "kirp_ilk_cumle": true,
-   "metin": "Alttaki menüden Sınıflar'a geçin. Öğrencilerinizi Excel listesinden aktarın ya da Öğrenci ekle ile tek tek girin.",
-   "metin_kirpik": "Öğrencilerinizi Excel listesinden aktarın ya da Öğrenci ekle ile tek tek girin."},
-  {"kare": "kare_99", "ses": "hf_20261122_204311_3d49b254-dc5d-4178-a9a0-51b0b3d34d1f.mp3",
-   "metin": "Netice, çevrimdışı çalışır; verileriniz cihazınızda kalır. Hemen Google Play'den indirin."}
+  {
+   "kare": "kare_00",
+   "ses": "elevenlabs",
+   "metin": "Netice ile optik formları, telefonunuzla saniyeler içinde okuyun. Kayıt gerekmez."
+  },
+  {
+   "kare": "kare_01",
+   "ses": "elevenlabs",
+   "hedef": [
+    1293,
+    393,
+    1639,
+    464
+   ],
+   "metin": "Okut düğmesine dokunun ve kamerayı forma tutun. Netice kâğıdı kendiliğinden bulur, okur ve puanlar."
+  },
+  {
+   "kare": "kare_02",
+   "ses": "elevenlabs",
+   "hedef": [
+    1274,
+    254,
+    1656,
+    446
+   ],
+   "metin": "Sınıf ortalaması, puan dağılımı ve sıralama, anında hazır."
+  },
+  {
+   "kare": "kare_03",
+   "ses": "elevenlabs",
+   "hedef": [
+    1264,
+    416,
+    1668,
+    565
+   ],
+   "metin": "Kütüphanede kendi soru bankanızı kurun. Sorular, konu özetleri ve hap bilgiler tek yerde."
+  },
+  {
+   "kare": "kare_04",
+   "ses": "elevenlabs",
+   "hedef": [
+    1286,
+    347,
+    1632,
+    450
+   ],
+   "metin": "Bankadan soru seçin, sınav kitapçığınızı hazırlayın. A'dan H'ye kitapçık türleri, karışık şıklar, PDF ya da Word."
+  },
+  {
+   "kare": "kare_05",
+   "ses": "elevenlabs",
+   "hedef": [
+    1293,
+    596,
+    1554,
+    706
+   ],
+   "metin": "Konu ve kazanım analizinin ardından, her öğrenciye kendi eksiklerine göre bir tekrar testi hazırlayın."
+  },
+  {
+   "kare": "kare_06",
+   "ses": "elevenlabs",
+   "hedef": [
+    1269,
+    197,
+    1663,
+    471
+   ],
+   "metin": "Bütün sınıfın karnelerini, hazır mesajla, velilere sırayla gönderin."
+  },
+  {
+   "kare": "kare_07",
+   "ses": "elevenlabs",
+   "hedef": [
+    1269,
+    340,
+    1663,
+    490
+   ],
+   "metin": "Aynı Wi-Fi ağındaki öğretmenler, ortak sınavın sonuçlarını internetsiz ve dosyasız, tek cihazda toplar."
+  },
+  {
+   "kare": "kare_08",
+   "ses": "elevenlabs",
+   "metin": "Kendi optik formunuzu yazdırın. Dört küçük formlu kısa quiz kâğıdıyla kâğıttan da tasarruf edin."
+  },
+  {
+   "kare": "kare_99",
+   "ses": "elevenlabs",
+   "metin": "Kayıt gerekmez, internetsiz çalışır, verileriniz cihazınızda kalır. Netice'yi hemen Google Play'den indirin."
+  }
  ]
 }

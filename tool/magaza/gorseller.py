@@ -25,14 +25,14 @@ MINT = (167, 243, 208)
 
 # (ekran, başlık, alt başlık)
 SLIDES = [
-    ('mobil_ana_sayfa', 'Kâğıttan sonuca,\nsaniyeler içinde', 'Optik formları telefon kamerasıyla okuyun'),
+    ('mobil_ana_sayfa', 'Kâğıttan sonuca,\nsaniyeler içinde', 'Kayıt gerekmez · Verileriniz cihazınızda'),
     ('mobil_sinav_sonuclari', 'Sonuçlar anında hazır', 'Puan, net, sıralama ve puan dağılımı'),
-    ('FORM', 'Kendi optik formunuzu\nyazdırın', 'Öğrenci adlı form · A–H kitapçık · 10 haneli numara'),
-    ('mobil_analiz', 'Raporlar tek dokunuşla', 'Sınav raporu, öğrenci karnesi ve Excel'),
-    ('mobil_ogrenci_gecmisi', 'Her öğrencinin gelişimi', 'Gelişim grafiği ve erken uyarı'),
-    ('mobil_donem_raporu', 'Dönem notu ve\nkazanım karnesi', 'Ağırlıklı ortalama, PDF ve Excel'),
-    ('mobil_sube_karsilastirmasi', 'Şubeleri karşılaştırın', 'Soru bazında doğru oranları'),
-    ('mobil_siniflar', 'Excel veya PDF’ten\nöğrenci aktarın', 'Tüm sınıflar kendiliğinden ayrılır'),
+    ('magaza_kutuphane_sekme', 'Soru bankanız\ncebinizde', 'Soru, konu özeti ve hap bilgi tek yerde'),
+    ('magaza_kitapcik', 'Sınav kitapçığını\nkendiniz hazırlayın', 'A–H kitapçık · karışık şıklar · PDF ve Word'),
+    ('mobil_analiz', 'Konu ve kazanım analizi', 'Zayıf konular ve kişiye özel tekrar testi'),
+    ('magaza_veli', 'Velilere toplu\ngönderin', 'Karneler hazır mesajla, sırayla WhatsApp’tan'),
+    ('magaza_wifi', 'Aynı Wi-Fi’da\ninternetsiz eşitleme', 'Ortak sınav sonuçları tek cihazda toplanır'),
+    ('FORM', 'Kendi optik formunuzu\nyazdırın', 'Tam form · 4’lü kısa quiz · 10 haneli numara'),
 ]
 
 
@@ -193,9 +193,9 @@ def feature(out):
     icon = Image.open(os.path.join(ROOT, 'assets', 'icon', 'netice_icon_rounded_1024.png')).convert('RGBA').resize((120, 120), Image.LANCZOS)
     c.paste(icon, (64, 92), icon)
     d.text((204, 100), 'Netice', font=font('800ExtraBold', 74), fill=(255, 255, 255))
-    d.text((66, 250), 'Optik formu telefonla okuyun,', font=font('700Bold', 38), fill=(255, 255, 255))
-    d.text((66, 300), 'sonuç ve raporlar anında hazır.', font=font('700Bold', 38), fill=MINT)
-    d.text((66, 380), 'Çevrimdışı çalışır · Verileriniz cihazınızda', font=font('500Medium', 24), fill=(203, 213, 225))
+    d.text((66, 240), 'Optik okuma, soru bankası', font=font('700Bold', 38), fill=(255, 255, 255))
+    d.text((66, 290), 've raporlar tek uygulamada.', font=font('700Bold', 38), fill=MINT)
+    d.text((66, 370), 'Kayıt gerekmez · Verileriniz cihazınızda', font=font('500Medium', 24), fill=(203, 213, 225))
     dev = phone(Image.open(os.path.join(SHOTS, 'mobil_sinav_sonuclari.png')), 220)
     shadow(c, (740, 70, 740 + dev.width, 70 + dev.height), 30, blur=24)
     c.paste(dev, (740, 60), dev)
@@ -210,8 +210,8 @@ def main():
     for i, s in enumerate(SLIDES, 1):
         portrait(s, form, os.path.join(out, 'telefon', f'{i:02d}.png'))
         landscape(s, form, os.path.join(out, 'video', f'kare_{i:02d}.png'), i)
-    logo_slide(os.path.join(out, 'video', 'kare_00.png'), 'Optik okuma ve sınav analizi', 'Öğretmenler ve kurumlar için')
-    logo_slide(os.path.join(out, 'video', 'kare_99.png'), 'Google Play’de ücretsiz indirin', 'Çevrimdışı çalışır · Verileriniz cihazınızda')
+    logo_slide(os.path.join(out, 'video', 'kare_00.png'), 'Optik okuma, soru bankası ve sınav analizi', 'Okullar, kurslar, akademiler ve üniversiteler için')
+    logo_slide(os.path.join(out, 'video', 'kare_99.png'), 'Google Play’de ücretsiz indirin', 'Kayıt gerekmez · Verileriniz cihazınızda')
     Image.open(os.path.join(ROOT, 'assets', 'icon', 'netice_icon_1024.png')).convert('RGBA').resize((512, 512), Image.LANCZOS).save(os.path.join(out, 'simge_512.png'))
     feature(os.path.join(out, 'kapak_1024x500.png'))
 
