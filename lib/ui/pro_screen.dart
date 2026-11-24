@@ -371,6 +371,7 @@ class _FeatureRow extends StatelessWidget {
     ProFeature.parentShare: Icons.send_rounded,
     ProFeature.cloudBackup: Icons.cloud_done_outlined,
     ProFeature.advancedCharts: Icons.donut_large_rounded,
+    ProFeature.detailedStats: Icons.query_stats_rounded,
     ProFeature.officialHeader: Icons.account_balance_outlined,
     ProFeature.commonExam: Icons.hub_outlined,
     ProFeature.adminPanel: Icons.dashboard_customize_outlined,
