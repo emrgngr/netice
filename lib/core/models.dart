@@ -198,6 +198,13 @@ class Exam {
   /// Bu sınavlarda şık sayısı 2–5 olabilir (genellikle 3: A, B, C).
   final bool kidForm;
 
+  /// Raporlar (karne, sınıf raporu) çocuk şablonuyla hazırlanır. Çocuk
+  /// kitapçığından oluşan sınavlarda açıktır; ayarlardan da açılabilir.
+  final bool kidReports;
+
+  /// Çocuk görünümlü raporlar kullanılsın mı?
+  bool get kidStyle => kidForm || kidReports;
+
   const Exam({
     required this.id,
     required this.name,
@@ -214,6 +221,7 @@ class Exam {
     this.commonId,
     this.numberDigits = 10,
     this.kidForm = false,
+    this.kidReports = false,
   });
 
   bool get isCommon => commonId != null;
@@ -368,6 +376,7 @@ class Exam {
     String? commonId,
     int? numberDigits,
     bool? kidForm,
+    bool? kidReports,
   }) =>
       Exam(
         id: id ?? this.id,
@@ -385,6 +394,7 @@ class Exam {
         commonId: commonId ?? this.commonId,
         numberDigits: numberDigits ?? this.numberDigits,
         kidForm: kidForm ?? this.kidForm,
+        kidReports: kidReports ?? this.kidReports,
       );
 
   Map<String, dynamic> toJson() => {
@@ -407,6 +417,7 @@ class Exam {
         if (commonId != null) 'commonId': commonId,
         'numberDigits': numberDigits,
         if (kidForm) 'kidForm': true,
+        if (kidReports) 'kidReports': true,
         if (openQuestions.isNotEmpty) 'openQuestions': openQuestions.map((q) => q.toJson()).toList(),
       };
 
@@ -436,6 +447,7 @@ class Exam {
         // Alan yoksa eski sürümde basılmış 6 haneli formdur.
         numberDigits: j['numberDigits'] == 10 ? 10 : 6,
         kidForm: j['kidForm'] == true,
+        kidReports: j['kidReports'] == true,
         openQuestions: [
           for (final e in (j['openQuestions'] as List?) ?? const []) OpenQuestion.fromJson(e as Map<String, dynamic>)
         ],
@@ -838,8 +850,13 @@ class SchoolInfo {
   /// Eğitim-öğretim yılı: eylülden itibaren yeni yıl başlar (Japonyada
   /// nisandan başlar ve tek yılla yazılır).
   static String academicYear(DateTime d) {
+    // Japonya ve Kore'de (nisan / mart) ve Brezilya'da (şubat) öğretim yılı
+    // tek yılla yazılır; Hindistan'da nisanda, Endonezya'da temmuzda başlar.
     if (L10n.code == 'ja') return '${d.month >= 4 ? d.year : d.year - 1}';
-    final start = d.month >= 9 ? d.year : d.year - 1;
+    if (L10n.code == 'ko') return '${d.month >= 3 ? d.year : d.year - 1}';
+    if (L10n.code == 'pt') return '${d.month >= 2 ? d.year : d.year - 1}';
+    final startMonth = switch (L10n.code) { 'hi' => 4, 'id' => 7, _ => 9 };
+    final start = d.month >= startMonth ? d.year : d.year - 1;
     return '$start-${start + 1}';
   }
 

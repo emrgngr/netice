@@ -3,7 +3,7 @@
 Kullanım: python3 tool/l10n.py"""
 import json, os, re
 
-LANGS = ['en', 'az', 'de', 'ar', 'es', 'ru', 'it', 'fr', 'zh', 'ja']
+LANGS = ['en', 'az', 'de', 'ar', 'es', 'ru', 'it', 'fr', 'zh', 'ja', 'pt', 'hi', 'id', 'ko']
 src = json.load(open('l10n/_kaynak.json', encoding='utf-8'))
 srcset = set(src)
 

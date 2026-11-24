@@ -21,6 +21,7 @@ import '../omr/form_layout.dart';
 import '../l10n/l10n.dart';
 import 'brand_footer.dart';
 import 'kid_pdf.dart';
+import 'kid_reports_pdf.dart';
 
 const _ink = PdfColor.fromInt(0xFF0F1B3D);
 const _emerald = PdfColor.fromInt(0xFF10B981);
@@ -44,7 +45,7 @@ class _Fonts {
   final pw.Font italic;
   final pw.Font boldItalic;
 
-  /// Latin dışı harfler (Kiril, Arap, Çin, Japon) için yedek yazı tipleri.
+  /// Latin dışı harfler (Kiril, Arap, Çin, Japon, Kore, Hint) için yedek yazı tipleri.
   final List<pw.Font> fallback;
   _Fonts(this.regular, this.bold, this.fallback, {pw.Font? italic, pw.Font? boldItalic})
       : italic = italic ?? regular,
@@ -65,8 +66,14 @@ class _Fonts {
     final arabic = await f('assets/pdf_fonts/NotoSansArabic-Regular.ttf');
     final sc = await f('assets/pdf_fonts/NotoSansSC-Regular.ttf');
     final jp = await f('assets/pdf_fonts/NotoSansJP-Regular.ttf');
+    final kr = await f('assets/pdf_fonts/NotoSansKR-Regular.ttf');
+    final deva = await f('assets/pdf_fonts/NotoSansDevanagari-Regular.ttf');
     // Japonca seçiliyse ortak Çince/Japonca karakterler Japon biçimiyle yazılsın.
-    final cjk = L10n.code == 'ja' ? [jp, sc] : [sc, jp];
+    final cjk = [
+      ...switch (L10n.code) { 'ja' => [jp, sc], 'ko' => [kr, sc, jp], _ => [sc, jp] },
+      if (L10n.code != 'ko') kr,
+      deva,
+    ];
     final jakarta = await f('assets/fonts/PlusJakartaSans_400Regular.ttf');
     final jakartaBold = await f('assets/fonts/PlusJakartaSans_700Bold.ttf');
     // Arapçada harflerin birleşmesi için Arap yazı tipi ana yazı tipi olmalı.
@@ -912,7 +919,14 @@ Future<Uint8List> buildResultsPdf({
   required List<Result> results,
   required Map<String, Student> students,
   SchoolInfo school = const SchoolInfo(),
+
+  /// Çocuk sınavlarında sınıfın gelişim grafiği: aynı sınıfın sınavları
+  /// eskiden yeniye (ad, ortalama yüzde).
+  List<(String, double)> classHistory = const [],
 }) async {
+  if (exam.kidStyle) {
+    return buildKidResultsPdf(exam: exam, results: results, students: students, school: school, classHistory: classHistory);
+  }
   final fonts = await _Fonts.load(school.fontFamily);
   final r = ExamReport.build(exam, results);
   final s = r.stats;
@@ -1339,7 +1353,21 @@ Future<Uint8List> buildStudentCardsPdf({
 
   /// Öğrenci kimliği → çalışması gereken konular (konu, başarı, hap bilgiler).
   Map<String, List<(String, double, List<String>)>> studyTopics = const {},
+
+  /// Çocuk sınavlarında gelişim grafiği için öğrencinin tüm sınavları.
+  Map<String, List<HistoryEntry>> history = const {},
 }) async {
+  if (exam.kidStyle) {
+    return buildKidStudentCardsPdf(
+        exam: exam,
+        results: results,
+        students: students,
+        school: school,
+        onlyStudentId: onlyStudentId,
+        notes: notes,
+        studyTopics: studyTopics,
+        history: history);
+  }
   final fonts = await _Fonts.load(school.fontFamily);
   final r = ExamReport.build(exam, results);
   final k = _Kit(exam, school, docTitle: tr('Öğrenci Sınav Karnesi'), letterheadEveryPage: true);
