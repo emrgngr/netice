@@ -291,6 +291,7 @@ class StudentImport {
     var iLast = find(['soyad']);
     var iFull = find(['adsoyad', 'adisoyadi', 'adsoyadi']);
     final iClass = find(['sinif', 'sube']);
+    final iPhone = find(['velitelefonu', 'velitelefon', 'velitel', 'velicep', 'telefon', 'gsm', 'cep', 'phone']);
     final hasHeader = iNo >= 0 || iFirst >= 0 || iFull >= 0;
     final data = hasHeader ? rows.skip(1) : rows;
     if (!hasHeader) {
@@ -320,6 +321,7 @@ class StudentImport {
         lastName: last,
         number: no,
         className: at(iClass).isNotEmpty ? at(iClass) : defaultClass,
+        parentPhone: iPhone >= 0 ? at(iPhone).trim() : '',
       ));
     }
     return out;

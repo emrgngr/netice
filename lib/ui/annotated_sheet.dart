@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../core/models.dart';
 import '../core/scoring.dart';
+import '../core/store.dart';
 import '../omr/form_layout.dart';
 import '../omr/kid_layout.dart';
 import '../omr/template.dart';
@@ -54,10 +55,10 @@ class SheetMarksPainter extends CustomPainter {
     final k = size.width / (kid != null ? kid.width : (t == null ? FormLayout.pageWidth : FormTemplate.width));
     // Rozet ölçüsü (mm); küçük kutuda rozet kutuya göre küçültülür.
     final mm = kid != null ? k * 0.55 : size.width / FormLayout.pageWidth;
-    final layout = FormLayout(questionCount: exam.questionCount, choiceCount: exam.choiceCount, booklets: exam.bookletCount, digits: exam.numberDigits);
+    final layout = layoutFor(exam, mini: result.sheet.mini);
     Offset at(Pt p) => Offset(p.x * k, p.y * k);
     // Şablonda daire boyutu bloktan gelir.
-    final unit = kid != null ? KidLayout.bubbleRadius : (t == null || t.blocks.isEmpty ? FormLayout.bubbleRadius : t.blocks.first.radius);
+    final unit = kid != null ? KidLayout.bubbleRadius : (t == null || t.blocks.isEmpty ? layout.bubbleR : t.blocks.first.radius);
     final r = unit * k * (t == null ? 1.45 : 1.25);
     final sw = t == null ? 0.55 * k * (kid != null ? 0.8 : 1) : unit * k * 0.2;
     Pt bubble(int row, int c) {

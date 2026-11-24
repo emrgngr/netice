@@ -31,13 +31,27 @@ class Student {
   final String number;
   final String className;
 
+  /// Velinin telefonu (isteğe bağlı; karneyi WhatsApp'tan göndermek için).
+  /// Yalnızca bu cihazda tutulur; ortak sınav dosyalarına yazılmaz.
+  final String parentPhone;
+
   const Student({
     required this.id,
     required this.firstName,
     required this.lastName,
     required this.number,
     required this.className,
+    this.parentPhone = '',
   });
+
+  Student copyWith({String? number, String? className, String? parentPhone}) => Student(
+        id: id,
+        firstName: firstName,
+        lastName: lastName,
+        number: number ?? this.number,
+        className: className ?? this.className,
+        parentPhone: parentPhone ?? this.parentPhone,
+      );
 
   /// Çince ve Japonca adlar arasında boşluk bırakılmaz (王伟).
   String get fullName => _cjk.hasMatch(firstName) && _cjk.hasMatch(lastName) ? '$firstName$lastName' : '$firstName $lastName';
@@ -49,6 +63,7 @@ class Student {
         'lastName': lastName,
         'number': number,
         'className': className,
+        if (parentPhone.isNotEmpty) 'parentPhone': parentPhone,
       };
 
   factory Student.fromJson(Map<String, dynamic> j) => Student(
@@ -57,6 +72,7 @@ class Student {
         lastName: j['lastName'] as String,
         number: j['number'] as String,
         className: j['className'] as String,
+        parentPhone: j['parentPhone'] as String? ?? '',
       );
 }
 
@@ -509,6 +525,9 @@ class Sheet {
   /// Öğrenci eşleşmediğinde kâğıttan okunan numara ('?' = okunamayan rakam).
   final String? readNumber;
 
+  /// Kâğıt çeyrek A4 kısa quiz formuydu (işaretli görüntü buna göre çizilir).
+  final bool mini;
+
   const Sheet({
     required this.examId,
     this.studentId,
@@ -517,6 +536,7 @@ class Sheet {
     this.openScores = const [],
     this.imageId,
     this.readNumber,
+    this.mini = false,
   });
 
   bool get needsReview =>
@@ -530,6 +550,7 @@ class Sheet {
         openScores: openScores ?? this.openScores,
         imageId: imageId ?? this.imageId,
         readNumber: readNumber,
+        mini: mini,
       );
 
   Map<String, dynamic> toJson() => {
@@ -540,6 +561,7 @@ class Sheet {
         if (openScores.isNotEmpty) 'openScores': openScores,
         if (imageId != null) 'imageId': imageId,
         if (readNumber != null) 'readNumber': readNumber,
+        if (mini) 'mini': true,
       };
 
   factory Sheet.fromJson(Map<String, dynamic> j) => Sheet(
@@ -552,6 +574,7 @@ class Sheet {
         openScores: [for (final v in (j['openScores'] as List?) ?? const []) (v as num?)?.toDouble()],
         imageId: j['imageId'] as String?,
         readNumber: j['readNumber'] as String?,
+        mini: j['mini'] as bool? ?? false,
       );
 }
 

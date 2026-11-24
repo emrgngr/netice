@@ -81,6 +81,12 @@ class FormLayout {
 
   bool get hasBooklets => booklets > 1;
 
+  /// Bu yerleşimdeki dairelerin yarıçapı (form birimiyle).
+  double get bubbleR => bubbleRadius;
+
+  /// Çeyrek A4 kısa quiz formu mu?
+  bool get mini => false;
+
   // ---- Öğrenci numarası alanı ----
 
   /// Numara ızgarasının sol üst dairesinin merkezi (6 haneli formda).
@@ -153,5 +159,66 @@ class FormLayout {
   Pt questionLabel(int index) {
     final b = answerBubble(index, 0);
     return Pt(b.x - 10, b.y);
+  }
+}
+
+/// Çeyrek A4 (A6) kısa quiz formu. Bir A4 kâğıda dört tane basılır, kesilip
+/// dağıtılır.
+///
+/// Koordinatlar A4 formuyla aynı çerçevede (210 × 297 birim) tutulur ve
+/// basılırken yarı ölçeğe küçültülür (A serisi kâğıtlar aynı orandadır). Böylece
+/// köşe kareleri, kenardaki makine kodu ve düzleştirme A4 formuyla birebir
+/// aynıdır; yalnızca daireler başka yerdedir ve kâğıtta küçülmesinler diye
+/// biraz daha büyük çizilir. Okuma motoru iki yerleşimi de dener ve daire
+/// çemberleri hangisine uyuyorsa onu seçer.
+class MiniFormLayout extends FormLayout {
+  MiniFormLayout({required super.questionCount, required super.choiceCount, super.digits = 6}) : super(booklets: 1) {
+    if (questionCount > maxQuestionsFor(digits)) {
+      throw ArgumentError('Kısa quiz formunda en fazla ${maxQuestionsFor(digits)} soru olabilir');
+    }
+  }
+
+  /// Kısa formdaki en fazla soru sayısı (10 haneli numarada alan daralır).
+  static int maxQuestionsFor(int digits) => digits == 10 ? 14 : 20;
+
+  /// Basılı ölçek: form birimi × [printScale] = mm.
+  static const printScale = 0.5;
+
+  @override
+  bool get mini => true;
+
+  @override
+  double get bubbleR => 4.2;
+
+  /// Öğrenci numarası: her hane bir satır, değerler 0–9 soldan sağa.
+  static const numberTop = 78.0;
+  static const numberLeft = 66.0;
+  static const numberPitchX = 12.6;
+  double get numberPitchY => wideNumber ? 10.6 : 12.2;
+
+  @override
+  Pt studentBubble(int digit, int value) => Pt(numberLeft + value * numberPitchX, numberTop + digit * numberPitchY);
+
+  /// Cevap alanı: iki sütun.
+  int get rowsPerColumn => wideNumber ? 7 : 10;
+  double get answerRowPitch => wideNumber ? 11.6 : 11.8;
+  double get answerTop => studentBubble(digits - 1, 0).y + 22;
+  static const answerPitchX = 14.0;
+  static const _columnLeft = [45.0, 123.0];
+
+  @override
+  int get columnCount => (questionCount / rowsPerColumn).ceil();
+
+  @override
+  Pt answerBubble(int index, int choice) {
+    final col = (index ~/ rowsPerColumn).clamp(0, 1);
+    final row = index % rowsPerColumn;
+    return Pt(_columnLeft[col] + choice * answerPitchX, answerTop + row * answerRowPitch);
+  }
+
+  @override
+  Pt questionLabel(int index) {
+    final b = answerBubble(index, 0);
+    return Pt(b.x - 11, b.y);
   }
 }

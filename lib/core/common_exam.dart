@@ -127,7 +127,8 @@ String exportCommonResults(AppStore store, Exam exam) {
     'from': store.school.teacher.trim(),
     'className': e.className,
     'exam': e.toJson(),
-    'students': [for (final s in students) s.toJson()],
+    // Veli telefonu cihazdan çıkmaz.
+    'students': [for (final s in students) s.copyWith(parentPhone: '').toJson()..remove('parentPhone')],
     'sheets': [
       for (final s in sheets)
         Sheet(
