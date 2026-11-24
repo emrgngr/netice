@@ -2471,5 +2471,14 @@
 "Kütüphaneniz bu cihazda {0} yer kaplıyor.": "Your library takes up {0} on this device.",
 "Sabit bir sınır yoktur; sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar.": "There is no fixed limit; the free space on your device sets it. A text-only question takes about 1 KB, a question with an image 100–300 KB.",
 "Kütüphanenin depolama alanı ne kadar?": "How much storage does the library have?",
-"Sabit bir sınır yoktur; her şey cihazınızda saklanır ve sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar; 1.000 görselli soru yaklaşık 150–300 MB eder. Kütüphanenin şu an ne kadar yer kapladığını Kütüphane > Analiz sekmesinin en altında görürsünüz.": "There is no fixed limit; everything is stored on your device, so the free space on your device sets the limit. A text-only question takes about 1 KB, a question with an image 100–300 KB; 1,000 questions with images come to about 150–300 MB. You can see how much space the library uses right now at the bottom of Library > Analysis."
+"Sabit bir sınır yoktur; her şey cihazınızda saklanır ve sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar; 1.000 görselli soru yaklaşık 150–300 MB eder. Kütüphanenin şu an ne kadar yer kapladığını Kütüphane > Analiz sekmesinin en altında görürsünüz.": "There is no fixed limit; everything is stored on your device, so the free space on your device sets the limit. A text-only question takes about 1 KB, a question with an image 100–300 KB; 1,000 questions with images come to about 150–300 MB. You can see how much space the library uses right now at the bottom of Library > Analysis.",
+"\"Bu okumayı sil\" yalnızca bu kâğıdı siler. Öğrenci kaydı kalır, kâğıdı yeniden okutabilirsiniz.": "\"Delete this scan\" deletes only this sheet. The student record stays, and you can scan the sheet again.",
+"Ana sayfayı aşağı kaydırın ve \"Son sınavlar\" bölümündeki \"Seç ve sil\"e dokunun. Bir sınav kartına uzun basarak da seçmeye başlayabilirsiniz.": "Scroll down the home screen and tap \"Select and delete\" in the \"Recent exams\" section. You can also start selecting by long-pressing an exam card.",
+"Bir kâğıdı silin veya yeniden okutun": "Delete a sheet or scan it again",
+"Silmek istediğiniz sınavlara dokunun ya da \"Tümünü seç\"i kullanın.": "Tap the exams you want to delete, or use \"Select all\".",
+"Sonuçlar listesinde öğrenciye dokunun.": "Tap the student in the results list.",
+"Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.": "Tap the trash can and confirm. Your students and classes are not deleted.",
+"Silme ve düzeltme": "Deleting and fixing",
+"Sınavları seçip silin": "Select and delete exams",
+"Yanlışlıkla silerseniz altta beliren \"Geri al\" düğmesine 6 saniye içinde dokunun.": "If you delete something by mistake, tap \"Undo\" at the bottom within 6 seconds."
 }

@@ -7,7 +7,8 @@
   "report": "Nəticələr və hesabatlar",
   "data": "Məlumatlarınız",
   "library": "Sual bankı və kitabça",
-  "pro": "Netice Pro"
+  "pro": "Netice Pro",
+  "fix": "Silmə və düzəliş"
  },
  "k_sinav_ayar": "İmtahan ayarlarında tam balı, keçid balını və səhvlərin düzü aparmasını təyin edin. Variant növlərini və yazılı sualları da buradan əlavə edin.",
  "k_sablon": "Nəşriyyatın və ya başqa şirkətin vərəqindən istifadə edirsinizsə, Ayarlardakı Digər vərəqlər bölməsində bir dəfə şablon yaradın.",
@@ -27,5 +28,8 @@
  "k_pro_alt": "Aylıq limitiniz bitəndə müddəti bitməyən əlavə sual paketi ala bilərsiniz. Eyni məktəbdən beş və daha çox müəllim birlikdə alsa, məktəb paketi ilə endirim qazanır.",
  "k_okul": "Məktəb paketi ekranında müəllim sayını daxil edin, endirimli qiyməti görün və Məktəbiniz üçün təklif istəyin düyməsinə toxunun. Təsdiqlənəndə məktəbinizə qurum kodu verilir.",
  "k_sinif_analiz": "Eyni imtahanı bir neçə sinifdə keçirmisinizsə, ana ekrandakı Sinif-sinif təhlil sinifləri yan-yana göstərir. Önə çıxanlar, ümumi ortadan fərq və sual-sual düzgün faizləri buradadır; yuxarı sağdakı düymə ilə PDF hesabat alırsınız.",
- "k_genel_istatistik": "Ümumi statistika bütün siniflərin və imtahana girən bütün şagirdlərin nəticələrini birlikdə göstərir. Dövrü və sinifləri seçərək daraldın, hesabatı PDF kimi paylaşın."
+ "k_genel_istatistik": "Ümumi statistika bütün siniflərin və imtahana girən bütün şagirdlərin nəticələrini birlikdə göstərir. Dövrü və sinifləri seçərək daraldın, hesabatı PDF kimi paylaşın.",
+ "k_sec_sil": "İmtahanı silmək üçün ana səhifəni aşağı sürüşdürün və Son imtahanlar bölməsindəki Seç və sil-ə toxunun. İmtahan kartına uzun basaraq da seçməyə başlaya bilərsiniz.",
+ "k_secildi": "Silmək istədiyiniz imtahanlara toxunun və ya Hamısını seç-dən istifadə edin, sonra zibil qutusuna toxunub təsdiqləyin. Şagirdləriniz silinmir. Səhvən silsəniz, aşağıda görünən Geri al-a toxunun.",
+ "k_okuma_sil": "Tək bir vərəqi silmək üçün Nəticələr siyahısında şagirdə toxunun və Bu oxunuşu sil-i seçin. Şagird qeydi qalır, vərəqi yenidən oxuda bilərsiniz."
 }

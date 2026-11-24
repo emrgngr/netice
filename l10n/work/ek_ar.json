@@ -1393,5 +1393,14 @@
  "Kütüphaneniz bu cihazda {0} yer kaplıyor.": "تشغل مكتبتك {0} على هذا الجهاز.",
  "Sabit bir sınır yoktur; sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar.": "لا يوجد حد ثابت، فالحد هو المساحة الفارغة في جهازك. يشغل السؤال النصي نحو 1 KB، والسؤال الذي يحتوي على صورة من 100 إلى 300 KB.",
  "Kütüphanenin depolama alanı ne kadar?": "ما مساحة التخزين المتاحة للمكتبة؟",
- "Sabit bir sınır yoktur; her şey cihazınızda saklanır ve sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar; 1.000 görselli soru yaklaşık 150–300 MB eder. Kütüphanenin şu an ne kadar yer kapladığını Kütüphane > Analiz sekmesinin en altında görürsünüz.": "لا يوجد حد ثابت، فكل شيء محفوظ على جهازك والحد هو المساحة الفارغة فيه. يشغل السؤال النصي نحو 1 KB، والسؤال الذي يحتوي على صورة من 100 إلى 300 KB، و1000 سؤال بالصور تشغل نحو 150 إلى 300 MB. يمكنك رؤية المساحة التي تشغلها المكتبة الآن في أسفل المكتبة > التحليل."
+ "Sabit bir sınır yoktur; her şey cihazınızda saklanır ve sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar; 1.000 görselli soru yaklaşık 150–300 MB eder. Kütüphanenin şu an ne kadar yer kapladığını Kütüphane > Analiz sekmesinin en altında görürsünüz.": "لا يوجد حد ثابت، فكل شيء محفوظ على جهازك والحد هو المساحة الفارغة فيه. يشغل السؤال النصي نحو 1 KB، والسؤال الذي يحتوي على صورة من 100 إلى 300 KB، و1000 سؤال بالصور تشغل نحو 150 إلى 300 MB. يمكنك رؤية المساحة التي تشغلها المكتبة الآن في أسفل المكتبة > التحليل.",
+ "\"Bu okumayı sil\" yalnızca bu kâğıdı siler. Öğrenci kaydı kalır, kâğıdı yeniden okutabilirsiniz.": "يحذف \"حذف هذه القراءة\" هذه الورقة فقط. يبقى سجل الطالب، ويمكنك قراءة الورقة مرة أخرى.",
+ "Ana sayfayı aşağı kaydırın ve \"Son sınavlar\" bölümündeki \"Seç ve sil\"e dokunun. Bir sınav kartına uzun basarak da seçmeye başlayabilirsiniz.": "مرر الشاشة الرئيسية إلى الأسفل واضغط \"تحديد وحذف\" في قسم \"آخر الاختبارات\". يمكنك أيضا بدء التحديد بالضغط المطول على بطاقة اختبار.",
+ "Bir kâğıdı silin veya yeniden okutun": "احذف ورقة أو أعد قراءتها",
+ "Silmek istediğiniz sınavlara dokunun ya da \"Tümünü seç\"i kullanın.": "اضغط على الاختبارات التي تريد حذفها، أو استخدم \"تحديد الكل\".",
+ "Sonuçlar listesinde öğrenciye dokunun.": "اضغط على الطالب في قائمة النتائج.",
+ "Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.": "اضغط سلة المهملات وأكد. لا يحذف طلابك ولا صفوفك.",
+ "Silme ve düzeltme": "الحذف والتصحيح",
+ "Sınavları seçip silin": "حدد الاختبارات واحذفها",
+ "Yanlışlıkla silerseniz altta beliren \"Geri al\" düğmesine 6 saniye içinde dokunun.": "إن حذفت خطأ فالمس زر تراجع في الأسفل خلال 6 ثوان."
 }

@@ -2399,5 +2399,14 @@
 "Kütüphaneniz bu cihazda {0} yer kaplıyor.": "Sua biblioteca ocupa {0} neste aparelho.",
 "Sabit bir sınır yoktur; sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar.": "Não há limite fixo; quem define é o espaço livre do aparelho. Uma questão só de texto ocupa cerca de 1 KB, uma com imagem 100–300 KB.",
 "Kütüphanenin depolama alanı ne kadar?": "Quanto espaço de armazenamento a biblioteca tem?",
-"Sabit bir sınır yoktur; her şey cihazınızda saklanır ve sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar; 1.000 görselli soru yaklaşık 150–300 MB eder. Kütüphanenin şu an ne kadar yer kapladığını Kütüphane > Analiz sekmesinin en altında görürsünüz.": "Não há limite fixo: tudo fica salvo no seu aparelho, então o limite é o espaço livre dele. Uma questão só de texto ocupa cerca de 1 KB, uma com imagem 100–300 KB; 1.000 questões com imagem dão cerca de 150–300 MB. Veja quanto a biblioteca ocupa agora no fim de Biblioteca > Análise."
+"Sabit bir sınır yoktur; her şey cihazınızda saklanır ve sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar; 1.000 görselli soru yaklaşık 150–300 MB eder. Kütüphanenin şu an ne kadar yer kapladığını Kütüphane > Analiz sekmesinin en altında görürsünüz.": "Não há limite fixo: tudo fica salvo no seu aparelho, então o limite é o espaço livre dele. Uma questão só de texto ocupa cerca de 1 KB, uma com imagem 100–300 KB; 1.000 questões com imagem dão cerca de 150–300 MB. Veja quanto a biblioteca ocupa agora no fim de Biblioteca > Análise.",
+"\"Bu okumayı sil\" yalnızca bu kâğıdı siler. Öğrenci kaydı kalır, kâğıdı yeniden okutabilirsiniz.": "\"Excluir esta leitura\" apaga só esta folha. O registro do aluno continua e você pode ler a folha de novo.",
+"Ana sayfayı aşağı kaydırın ve \"Son sınavlar\" bölümündeki \"Seç ve sil\"e dokunun. Bir sınav kartına uzun basarak da seçmeye başlayabilirsiniz.": "Role a tela inicial para baixo e toque em \"Selecionar e excluir\" na seção \"Provas recentes\". Você também pode começar a selecionar tocando e segurando um cartão de prova.",
+"Bir kâğıdı silin veya yeniden okutun": "Excluir uma folha ou ler de novo",
+"Silmek istediğiniz sınavlara dokunun ya da \"Tümünü seç\"i kullanın.": "Toque nas provas que deseja excluir ou use \"Selecionar tudo\".",
+"Sonuçlar listesinde öğrenciye dokunun.": "Toque no aluno na lista de resultados.",
+"Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.": "Toque na lixeira e confirme. Seus alunos e turmas não são excluídos.",
+"Silme ve düzeltme": "Excluir e corrigir",
+"Sınavları seçip silin": "Selecione e exclua provas",
+"Yanlışlıkla silerseniz altta beliren \"Geri al\" düğmesine 6 saniye içinde dokunun.": "Se excluir por engano, toque em \"Desfazer\" embaixo em até 6 segundos."
 }

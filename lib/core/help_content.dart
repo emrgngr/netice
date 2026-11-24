@@ -204,6 +204,22 @@ List<GuideSection> get guideSections => <GuideSection>[
       tr('Teklif onaylanınca okulunuza bir kurum kodu verilir. Her öğretmen bu kodu Profil > "Kurum lisansı" ekranına girer.'),
     ]),
   ]),
+  GuideSection(tr('Silme ve düzeltme'), 'fix', [
+    GuideTopic(tr('Sınavları seçip silin'), [
+      tr('Ana sayfayı aşağı kaydırın ve "Son sınavlar" bölümündeki "Seç ve sil"e dokunun. Bir sınav kartına uzun basarak da seçmeye başlayabilirsiniz.'),
+      tr('Silmek istediğiniz sınavlara dokunun ya da "Tümünü seç"i kullanın.'),
+      tr('Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.'),
+    ], tip: tr('Yanlışlıkla silerseniz altta beliren "Geri al" düğmesine 6 saniye içinde dokunun.')),
+    GuideTopic(tr('Bir kâğıdı silin veya yeniden okutun'), [
+      tr('Sonuçlar listesinde öğrenciye dokunun.'),
+      tr('"Bu okumayı sil" yalnızca bu kâğıdı siler. Öğrenci kaydı kalır, kâğıdı yeniden okutabilirsiniz.'),
+    ]),
+    GuideTopic(tr('Kontrol ve düzeltme'), [
+      tr('Okunan bir kâğıda dokunun; işaretlenen şıklar görünür.'),
+      tr('Belirsiz (iki şık işaretli veya çok silik) sorular sarı uyarıyla gösterilir; dokunarak düzeltebilirsiniz.'),
+      tr('Eşleşmeyen kâğıtta öğrenciyi listeden seçin.'),
+    ]),
+  ]),
   GuideSection(tr('Verileriniz'), 'data', [
     GuideTopic(tr('Yedekleme'), [
       tr('Netice çevrimdışı çalışır; verilerinizi yalnızca bu telefonda (veya bilgisayarda) saklar, internete göndermez.'),

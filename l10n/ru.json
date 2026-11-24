@@ -2471,5 +2471,14 @@
 "Kütüphaneniz bu cihazda {0} yer kaplıyor.": "Ваша библиотека занимает на этом устройстве {0}.",
 "Sabit bir sınır yoktur; sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar.": "Жёсткого ограничения нет: всё зависит от свободного места на устройстве. Вопрос только с текстом занимает около 1 КБ, вопрос с картинкой — 100–300 КБ.",
 "Kütüphanenin depolama alanı ne kadar?": "Сколько места есть у библиотеки?",
-"Sabit bir sınır yoktur; her şey cihazınızda saklanır ve sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar; 1.000 görselli soru yaklaşık 150–300 MB eder. Kütüphanenin şu an ne kadar yer kapladığını Kütüphane > Analiz sekmesinin en altında görürsünüz.": "Жёсткого ограничения нет: всё хранится на вашем устройстве, поэтому предел — свободное место на нём. Вопрос только с текстом занимает около 1 КБ, вопрос с картинкой — 100–300 КБ; 1000 вопросов с картинками — примерно 150–300 МБ. Сколько места библиотека занимает сейчас, видно в самом низу раздела Библиотека > Анализ."
+"Sabit bir sınır yoktur; her şey cihazınızda saklanır ve sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar; 1.000 görselli soru yaklaşık 150–300 MB eder. Kütüphanenin şu an ne kadar yer kapladığını Kütüphane > Analiz sekmesinin en altında görürsünüz.": "Жёсткого ограничения нет: всё хранится на вашем устройстве, поэтому предел — свободное место на нём. Вопрос только с текстом занимает около 1 КБ, вопрос с картинкой — 100–300 КБ; 1000 вопросов с картинками — примерно 150–300 МБ. Сколько места библиотека занимает сейчас, видно в самом низу раздела Библиотека > Анализ.",
+"\"Bu okumayı sil\" yalnızca bu kâğıdı siler. Öğrenci kaydı kalır, kâğıdı yeniden okutabilirsiniz.": "«Удалить это сканирование» удаляет только этот бланк. Запись ученика остаётся, бланк можно отсканировать снова.",
+"Ana sayfayı aşağı kaydırın ve \"Son sınavlar\" bölümündeki \"Seç ve sil\"e dokunun. Bir sınav kartına uzun basarak da seçmeye başlayabilirsiniz.": "Прокрутите главный экран вниз и нажмите «Выбрать и удалить» в разделе «Последние тесты». Начать выбор можно и долгим нажатием на карточку теста.",
+"Bir kâğıdı silin veya yeniden okutun": "Удалить бланк или отсканировать заново",
+"Silmek istediğiniz sınavlara dokunun ya da \"Tümünü seç\"i kullanın.": "Нажмите на тесты, которые хотите удалить, или используйте «Выбрать все».",
+"Sonuçlar listesinde öğrenciye dokunun.": "Нажмите на ученика в списке результатов.",
+"Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.": "Нажмите на корзину и подтвердите. Ученики и классы не удаляются.",
+"Silme ve düzeltme": "Удаление и исправление",
+"Sınavları seçip silin": "Выберите и удалите",
+"Yanlışlıkla silerseniz altta beliren \"Geri al\" düğmesine 6 saniye içinde dokunun.": "Удалили по ошибке — нажмите «Отменить» внизу в течение 6 секунд."
 }

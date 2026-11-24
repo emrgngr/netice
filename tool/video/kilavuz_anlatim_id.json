@@ -7,7 +7,8 @@
   "report": "Hasil dan laporan",
   "data": "Data Anda",
   "library": "Bank soal dan buklet",
-  "pro": "Netice Pro"
+  "pro": "Netice Pro",
+  "fix": "Menghapus dan memperbaiki"
  },
  "k_sinav_ayar": "Di Pengaturan ujian, tentukan nilai maksimum, nilai kelulusan, dan pengurangan untuk jawaban salah. Tambahkan juga jenis buklet dan soal uraian di sini.",
  "k_sablon": "Jika memakai formulir dari penerbit atau perusahaan lain, buat templatnya sekali saja di bagian Formulir lain pada Pengaturan.",
@@ -27,5 +28,8 @@
  "k_pro_alt": "Jika kuota bulanan habis, Anda bisa membeli paket soal tambahan yang tidak kedaluwarsa. Jika lima guru atau lebih dari sekolah yang sama membeli bersama, mereka mendapat diskon paket sekolah.",
  "k_okul": "Di layar paket sekolah, masukkan jumlah guru, lihat harga diskonnya, lalu ketuk Minta penawaran untuk sekolah Anda. Setelah disetujui, sekolah Anda menerima kode lembaga.",
  "k_sinif_analiz": "Jika Anda memberi ujian yang sama di beberapa kelas, Analisis per kelas di beranda menampilkannya berdampingan. Di sini ada sorotan, selisih dari rata-rata keseluruhan, dan persentase jawaban benar tiap soal; tombol di kanan atas menghasilkan laporan PDF.",
- "k_genel_istatistik": "Statistik umum menampilkan hasil semua kelas dan semua siswa yang mengikuti ujian sekaligus. Saring menurut periode dan kelas, lalu bagikan laporannya dalam PDF."
+ "k_genel_istatistik": "Statistik umum menampilkan hasil semua kelas dan semua siswa yang mengikuti ujian sekaligus. Saring menurut periode dan kelas, lalu bagikan laporannya dalam PDF.",
+ "k_sec_sil": "Untuk menghapus ujian, gulir beranda ke bawah dan ketuk Pilih dan hapus di bagian Ujian terakhir. Anda juga bisa mulai dengan menekan lama kartu ujian.",
+ "k_secildi": "Ketuk ujian yang ingin dihapus atau gunakan Pilih semua, lalu ketuk tempat sampah dan konfirmasi. Siswa Anda tidak terhapus. Jika terhapus tidak sengaja, ketuk Urungkan di bawah.",
+ "k_okuma_sil": "Untuk menghapus satu lembar, ketuk siswa di daftar Hasil dan pilih Hapus pindaian ini. Data siswa tetap ada dan lembar bisa dipindai lagi."
 }
