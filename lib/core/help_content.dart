@@ -122,8 +122,16 @@ List<GuideSection> get guideSections => <GuideSection>[
       tr('Dahil edilecek sınavları işaretleyin ve gerekirse ağırlık verin (1×, 2×, 3×).'),
       tr('"Not çizelgesi" dönem sonu notlarını, "Kazanım karneleri" her öğrencinin dönem boyunca kazanım başarısını verir.'),
     ]),
-    GuideTopic(tr('Şube karşılaştırması'), [
-      tr('Aynı sınavı birden çok şubede yaptıysanız ana ekrandaki "Şube karşılaştırması" şubeleri yan yana gösterir.'),
+    GuideTopic(tr('Sınıf sınıf analiz'), [
+      tr('Aynı sınavı birden çok şubede yaptıysanız ana ekrandaki "Sınıf sınıf analiz" şubeleri yan yana gösterir.'),
+      tr('Öne çıkanlar, genel ortalamaya göre fark, geçme ve katılım oranı, özet tablo ve soru soru doğru oranları herkese açıktır.'),
+      tr('Pro ile her şubenin puan yayılımı, başarı düzeyleri, doğru / yanlış / boş dağılımı, en çok ayrışan sorular ve sınıf birincileri de görünür.'),
+    ]),
+    GuideTopic(tr('Genel istatistik'), [
+      tr('Ana ekrandaki "Genel istatistik" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.'),
+      tr('Üstten dönemi (tüm zamanlar, son 30 gün, son 90 gün) ve sınıfları seçerek daraltın.'),
+      tr('Genel başarı, katılım, sınıf sıralaması, başarı düzeyleri ve sınav listesi herkese açıktır; Pro ile puan dağılımı, gelişim çizgileri, en başarılı, en çok gelişen ve desteğe ihtiyaç duyan öğrenciler ile kazanım özeti eklenir.'),
+      tr('Sağ üstteki PDF düğmesiyle tüm istatistiği rapor olarak alabilirsiniz.'),
     ]),
   ]),
   GuideSection(tr('Soru bankası ve kitapçık'), 'library', [

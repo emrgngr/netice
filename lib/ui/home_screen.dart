@@ -7,6 +7,7 @@ import '../core/models.dart';
 import '../core/progress.dart';
 import '../main.dart';
 import 'compare_screen.dart';
+import 'general_stats_screen.dart';
 import 'profile_screen.dart';
 import 'onboarding_screen.dart';
 import 'school_screen.dart';
@@ -539,10 +540,22 @@ class _Insights extends StatelessWidget {
         child: ListTile(
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           leading: const IconBadge(Icons.compare_arrows_rounded, color: NColors.emerald),
-          title: Text(tr('Şube karşılaştırması'), style: TextStyle(fontWeight: FontWeight.w700)),
-          subtitle: Text(tr('Aynı sınavı farklı şubelerde yan yana görün')),
+          title: Text(tr('Sınıf sınıf analiz'), style: TextStyle(fontWeight: FontWeight.w700)),
+          subtitle: Text(tr('Şubeleri ortalama, yayılım, düzey ve soru soru yan yana görün')),
           trailing: const Icon(Icons.chevron_right),
           onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CompareScreen())),
+        ),
+      ),
+      const SizedBox(height: 12),
+      Card(
+        clipBehavior: Clip.antiAlias,
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          leading: const IconBadge(Icons.query_stats_rounded, color: Color(0xFF6C7FD8)),
+          title: Text(tr('Genel istatistik'), style: TextStyle(fontWeight: FontWeight.w700)),
+          subtitle: Text(tr('Tüm sınıflar ve sınava giren tüm öğrenciler bir arada')),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const GeneralStatsScreen())),
         ),
       ),
       const SizedBox(height: 12),
