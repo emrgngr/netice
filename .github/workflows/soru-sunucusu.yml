@@ -87,12 +87,12 @@ jobs:
             echo "Adres henüz hazır değil, 30 sn sonra yeniden denenecek ($i/20)"
             sleep 30
           done
-          # Gerçek bir deneme: 1 soru üretir (anahtar ve model çalışıyor mu).
+          # Gerçek bir deneme: her türden 1 soru üretir (anahtar, model ve türler çalışıyor mu).
           NOT='Fotosentez, yeşil bitkilerin ışık enerjisini kullanarak karbondioksit ve sudan glikoz ve oksijen ürettiği olaydır. Kloroplastlarda gerçekleşir; klorofil ışığı soğurur.'
-          jq -n --arg t "$NOT" '{note:{subject:"Biyoloji",topic:"Fotosentez",text:$t},count:1,choices:5,lang:"tr"}' > deneme.json
+          jq -n --arg t "$NOT" '{note:{subject:"Biyoloji",topic:"Fotosentez",text:$t},count:4,choices:5,lang:"tr",types:["multiple","true_false","fill","open"]}' > deneme.json
           KOD=$(curl -sS -m 180 -o cevap.json -w '%{http_code}' -X POST "$ADRES/uret" \
             -H 'content-type: application/json' -H 'x-netice-app: netice-app-1' -H 'x-netice-device: github-deneme-01' \
             --data @deneme.json)
           echo "HTTP $KOD"
-          jq '{soru: .questions[0].text, konu: .questions[0].topic, hata: .error, sorun: .problem}' cevap.json || cat cevap.json
+          jq '{sorular: [.questions[] | {tur: .type, soru: .text, cevap: (if .type == "multiple" then .choices[.correct] elif .type == "true_false" then (if .correct == 0 then "Doğru" else "Yanlış" end) else .answer end), konu: .topic}], hata: .error, sorun: .problem}' cevap.json || cat cevap.json
           test "$KOD" = "200"
