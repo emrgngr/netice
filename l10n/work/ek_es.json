@@ -1393,5 +1393,14 @@
  "Kütüphaneniz bu cihazda {0} yer kaplıyor.": "Tu biblioteca ocupa {0} en este dispositivo.",
  "Sabit bir sınır yoktur; sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar.": "No hay un límite fijo; lo marca el espacio libre de tu dispositivo. Una pregunta solo de texto ocupa unos 1 KB y una con imagen, 100–300 KB.",
  "Kütüphanenin depolama alanı ne kadar?": "¿Cuánto espacio tiene la biblioteca?",
- "Sabit bir sınır yoktur; her şey cihazınızda saklanır ve sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar; 1.000 görselli soru yaklaşık 150–300 MB eder. Kütüphanenin şu an ne kadar yer kapladığını Kütüphane > Analiz sekmesinin en altında görürsünüz.": "No hay un límite fijo; todo se guarda en tu dispositivo, así que el límite es el espacio libre que tengas. Una pregunta solo de texto ocupa unos 1 KB y una con imagen, 100–300 KB; 1.000 preguntas con imagen ocupan unos 150–300 MB. Puedes ver cuánto ocupa ahora la biblioteca al final de Biblioteca > Análisis."
+ "Sabit bir sınır yoktur; her şey cihazınızda saklanır ve sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar; 1.000 görselli soru yaklaşık 150–300 MB eder. Kütüphanenin şu an ne kadar yer kapladığını Kütüphane > Analiz sekmesinin en altında görürsünüz.": "No hay un límite fijo; todo se guarda en tu dispositivo, así que el límite es el espacio libre que tengas. Una pregunta solo de texto ocupa unos 1 KB y una con imagen, 100–300 KB; 1.000 preguntas con imagen ocupan unos 150–300 MB. Puedes ver cuánto ocupa ahora la biblioteca al final de Biblioteca > Análisis.",
+ "\"Bu okumayı sil\" yalnızca bu kâğıdı siler. Öğrenci kaydı kalır, kâğıdı yeniden okutabilirsiniz.": "\"Eliminar esta lectura\" borra solo esta hoja. El registro del alumno se mantiene y puedes volver a leer la hoja.",
+ "Ana sayfayı aşağı kaydırın ve \"Son sınavlar\" bölümündeki \"Seç ve sil\"e dokunun. Bir sınav kartına uzun basarak da seçmeye başlayabilirsiniz.": "Desplázate hacia abajo en la pantalla de inicio y toca \"Seleccionar y eliminar\" en la sección \"Exámenes recientes\". También puedes empezar a seleccionar manteniendo pulsada una tarjeta de examen.",
+ "Bir kâğıdı silin veya yeniden okutun": "Eliminar una hoja o volver a leerla",
+ "Silmek istediğiniz sınavlara dokunun ya da \"Tümünü seç\"i kullanın.": "Toca los exámenes que quieras eliminar o usa \"Seleccionar todo\".",
+ "Sonuçlar listesinde öğrenciye dokunun.": "Toca al alumno en la lista de resultados.",
+ "Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.": "Toca la papelera y confirma. Tus alumnos y clases no se eliminan.",
+ "Silme ve düzeltme": "Borrar y corregir",
+ "Sınavları seçip silin": "Seleccione y borre exámenes",
+ "Yanlışlıkla silerseniz altta beliren \"Geri al\" düğmesine 6 saniye içinde dokunun.": "Si borra algo por error, toque «Deshacer» abajo en 6 segundos."
 }

@@ -7,7 +7,8 @@
   "report": "Résultats et rapports",
   "data": "Vos données",
   "library": "Banque de questions et sujets",
-  "pro": "Netice Pro"
+  "pro": "Netice Pro",
+  "fix": "Supprimer et corriger"
  },
  "k_sinav_ayar": "Dans les réglages de l'évaluation, fixez la note maximale, le seuil de réussite et la pénalité des réponses fausses. Vous y ajoutez aussi les types de sujet et les questions écrites.",
  "k_sablon": "Si vous utilisez la grille d'un éditeur ou d'une autre société, créez-en une fois un modèle dans Réglages, rubrique Autres grilles.",
@@ -27,5 +28,8 @@
  "k_pro_alt": "Quand votre quota mensuel est épuisé, achetez un pack de questions supplémentaire qui n'expire pas. Si cinq enseignants ou plus d'une même école achètent ensemble, l'offre école leur donne une réduction.",
  "k_okul": "Sur l'écran de l'offre école, saisissez le nombre d'enseignants, voyez le prix réduit et touchez Demander un devis pour votre école. Une fois accepté, votre école reçoit un code d'établissement.",
  "k_sinif_analiz": "Si vous avez donné la même épreuve dans plusieurs classes, l'Analyse classe par classe de l'écran d'accueil les montre côte à côte. Vous y trouvez les points forts, l'écart à la moyenne générale et le taux de bonnes réponses par question ; le bouton en haut à droite donne un rapport PDF.",
- "k_genel_istatistik": "Les Statistiques générales montrent ensemble les résultats de toutes les classes et de tous les élèves ayant passé une épreuve. Affinez par période et par classe, et partagez le rapport en PDF."
+ "k_genel_istatistik": "Les Statistiques générales montrent ensemble les résultats de toutes les classes et de tous les élèves ayant passé une épreuve. Affinez par période et par classe, et partagez le rapport en PDF.",
+ "k_sec_sil": "Pour supprimer une évaluation, faites défiler l'écran d'accueil et touchez Sélectionner et supprimer dans Évaluations récentes. Vous pouvez aussi commencer par un appui long sur une carte.",
+ "k_secildi": "Touchez les évaluations à supprimer ou Tout sélectionner, puis la corbeille, et confirmez. Vos élèves ne sont pas supprimés. En cas d'erreur, touchez Annuler en bas.",
+ "k_okuma_sil": "Pour supprimer une seule copie, touchez l'élève dans la liste Résultats et choisissez Supprimer cette lecture. La fiche de l'élève reste et vous pouvez relire la copie."
 }

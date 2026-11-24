@@ -459,5 +459,14 @@
  "Kütüphaneniz bu cihazda {0} yer kaplıyor.": "आपकी लाइब्रेरी इस डिवाइस पर {0} जगह ले रही है।",
  "Sabit bir sınır yoktur; sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar.": "कोई तय सीमा नहीं है; सीमा आपके डिवाइस की खाली जगह से तय होती है। सिर्फ़ लिखित प्रश्न लगभग 1 KB और चित्र वाला प्रश्न 100–300 KB लेता है।",
  "Kütüphanenin depolama alanı ne kadar?": "लाइब्रेरी में कितनी स्टोरेज है?",
- "Sabit bir sınır yoktur; her şey cihazınızda saklanır ve sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar; 1.000 görselli soru yaklaşık 150–300 MB eder. Kütüphanenin şu an ne kadar yer kapladığını Kütüphane > Analiz sekmesinin en altında görürsünüz.": "कोई तय सीमा नहीं है; सब कुछ आपके डिवाइस पर सहेजा जाता है, इसलिए सीमा डिवाइस की खाली जगह है। सिर्फ़ लिखित प्रश्न लगभग 1 KB और चित्र वाला प्रश्न 100–300 KB लेता है; चित्र वाले 1,000 प्रश्न लगभग 150–300 MB होते हैं। लाइब्रेरी अभी कितनी जगह ले रही है, यह लाइब्रेरी > विश्लेषण के सबसे नीचे दिखता है।"
+ "Sabit bir sınır yoktur; her şey cihazınızda saklanır ve sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar; 1.000 görselli soru yaklaşık 150–300 MB eder. Kütüphanenin şu an ne kadar yer kapladığını Kütüphane > Analiz sekmesinin en altında görürsünüz.": "कोई तय सीमा नहीं है; सब कुछ आपके डिवाइस पर सहेजा जाता है, इसलिए सीमा डिवाइस की खाली जगह है। सिर्फ़ लिखित प्रश्न लगभग 1 KB और चित्र वाला प्रश्न 100–300 KB लेता है; चित्र वाले 1,000 प्रश्न लगभग 150–300 MB होते हैं। लाइब्रेरी अभी कितनी जगह ले रही है, यह लाइब्रेरी > विश्लेषण के सबसे नीचे दिखता है।",
+ "\"Bu okumayı sil\" yalnızca bu kâğıdı siler. Öğrenci kaydı kalır, kâğıdı yeniden okutabilirsiniz.": "\"यह स्कैन हटाएँ\" सिर्फ़ यही पत्रक हटाता है। छात्र का रिकॉर्ड बना रहता है और आप पत्रक को फिर से स्कैन कर सकते हैं।",
+ "Ana sayfayı aşağı kaydırın ve \"Son sınavlar\" bölümündeki \"Seç ve sil\"e dokunun. Bir sınav kartına uzun basarak da seçmeye başlayabilirsiniz.": "होम स्क्रीन को नीचे स्क्रॉल करें और \"हाल की परीक्षाएँ\" भाग में \"चुनें और हटाएँ\" दबाएँ। किसी परीक्षा कार्ड को देर तक दबाकर भी चुनना शुरू कर सकते हैं।",
+ "Bir kâğıdı silin veya yeniden okutun": "पत्रक हटाएँ या फिर से स्कैन करें",
+ "Silmek istediğiniz sınavlara dokunun ya da \"Tümünü seç\"i kullanın.": "जिन परीक्षाओं को हटाना है उन्हें दबाएँ, या \"सभी चुनें\" का इस्तेमाल करें।",
+ "Sonuçlar listesinde öğrenciye dokunun.": "परिणाम सूची में छात्र को दबाएँ।",
+ "Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.": "कूड़ेदान को दबाएँ और पुष्टि करें। आपके छात्र और कक्षाएँ नहीं हटतीं।",
+ "Silme ve düzeltme": "हटाना और सुधारना",
+ "Sınavları seçip silin": "परीक्षाएँ चुनकर हटाएँ",
+ "Yanlışlıkla silerseniz altta beliren \"Geri al\" düğmesine 6 saniye içinde dokunun.": "ग़लती से हट जाए तो नीचे आने वाले \"वापस लें\" बटन को 6 सेकंड में दबाएँ।"
 }

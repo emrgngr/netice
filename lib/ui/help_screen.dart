@@ -30,6 +30,7 @@ class _HelpScreenState extends State<HelpScreen> {
         'scan' => Icons.document_scanner_outlined,
         'report' => Icons.insights_rounded,
         'library' => Icons.local_library_outlined,
+        'fix' => Icons.delete_sweep_outlined,
         'data' => Icons.shield_outlined,
         'pro' => Icons.workspace_premium_outlined,
         _ => Icons.help_outline,
