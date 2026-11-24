@@ -742,6 +742,36 @@ Future<Uint8List> buildBookletPdf(
           if (pts.length == 1)
             pw.Text(tr('Puan = doğru sayısı × {0}', [_fmt(pts.first)]) + (o.wrongsPerCorrect > 0 ? ' · ${tr('{0} yanlış 1 doğruyu götürür', [o.wrongsPerCorrect])}' : ''),
                 style: const pw.TextStyle(fontSize: 7.5, color: _muted)),
+          if (plan.openMaster.isNotEmpty) ...[
+            sectionTitle(tr('Klasik sorular · cevap anahtarı')),
+            pw.Table(
+              border: pw.TableBorder.all(color: _line, width: 0.5),
+              columnWidths: const {
+                0: pw.FixedColumnWidth(22),
+                1: pw.FixedColumnWidth(34),
+                2: pw.FlexColumnWidth(1.2),
+                3: pw.FlexColumnWidth(2.2),
+                4: pw.FlexColumnWidth(1.8),
+              },
+              children: [
+                pw.TableRow(repeat: true, decoration: const pw.BoxDecoration(color: _ink), children: [
+                  pad(pw.Text(tr('No'), style: head)),
+                  pad(pw.Text(tr('Puan'), style: head)),
+                  pad(pw.Text(tr('Konu'), style: head)),
+                  pad(pw.Text(tr('Beklenen cevap'), style: head)),
+                  pad(pw.Text(tr('Dayanak / kısa açıklama'), style: head)),
+                ]),
+                for (var i = 0; i < plan.openMaster.length; i++)
+                  pw.TableRow(decoration: pw.BoxDecoration(color: i.isOdd ? _soft : PdfColors.white), children: [
+                    pad(pw.Text('${i + 1}', style: bold)),
+                    pad(pw.Text(_fmt(plan.openPoints[i]), style: cell, textAlign: pw.TextAlign.center)),
+                    pad(pw.Text(topicCell(plan.openMaster[i]), style: cell)),
+                    pad(pw.Text(plan.openMaster[i].answerText.trim().isEmpty ? '—' : plan.openMaster[i].answerText.trim(), style: cell)),
+                    pad(pw.Text(plan.openMaster[i].solution.trim().isEmpty ? '—' : plan.openMaster[i].solution.trim(), style: cell)),
+                  ]),
+              ],
+            ),
+          ],
         ],
       ));
     }

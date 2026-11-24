@@ -21,7 +21,7 @@ import 'bank_models.dart';
 import 'bank_store.dart';
 
 /// Sunucu adresi. Derlemede `--dart-define=SORU_SERVIS_URL=…` ile değiştirilebilir.
-const aiServiceUrl = String.fromEnvironment('SORU_SERVIS_URL', defaultValue: '');
+const aiServiceUrl = String.fromEnvironment('SORU_SERVIS_URL', defaultValue: 'https://netice-soru.bilgi-7ff.workers.dev');
 const _appKey = 'netice-app-1';
 
 /// Sunucuya bir istekte sorulan en fazla soru. Daha fazlası istenirse
@@ -49,8 +49,19 @@ class AiOptions {
   final int count;
   final int choices;
   final AiDifficulty difficulty;
-  const AiOptions({this.count = 5, this.choices = 5, this.difficulty = AiDifficulty.mixed});
+
+  /// Üretilecek soru türleri; birden çoksa sayı türlere yaklaşık eşit bölünür.
+  final Set<QuestionType> types;
+  const AiOptions({this.count = 5, this.choices = 5, this.difficulty = AiDifficulty.mixed, this.types = const {QuestionType.multiple}});
 }
+
+/// Sunucudaki tür adları.
+const aiTypeNames = {
+  QuestionType.multiple: 'multiple',
+  QuestionType.trueFalse: 'true_false',
+  QuestionType.fill: 'fill',
+  QuestionType.open: 'open',
+};
 
 class AiResult {
   final List<BankQuestion> questions;
@@ -196,6 +207,7 @@ Map<String, dynamic> aiRequestBody(BankNote note, AiOptions o, {List<String> ima
       'count': o.count,
       'choices': o.choices,
       'difficulty': o.difficulty.name,
+      'types': [for (final t in QuestionType.values) if (o.types.contains(t)) aiTypeNames[t]],
       'lang': L10n.code,
       'avoid': avoid,
       'note': {
@@ -216,10 +228,18 @@ AiResult parseAiResponse(Map<String, dynamic> j, BankNote note, BankStore store,
   final list = <BankQuestion>[];
   for (final raw in (j['questions'] as List?) ?? const []) {
     if (raw is! Map) continue;
-    final choices = [for (final c in (raw['choices'] as List?) ?? const []) '$c'];
+    final type = aiTypeNames.entries.where((e) => e.value == raw['type']).firstOrNull?.key ?? QuestionType.multiple;
+    final choices = type == QuestionType.multiple ? [for (final c in (raw['choices'] as List?) ?? const []) '$c'] : <String>[];
     final correct = (raw['correct'] as num?)?.toInt() ?? -1;
     final text = '${raw['text'] ?? ''}'.trim();
-    if (text.isEmpty || choices.length < 2 || correct < 0 || correct >= choices.length) continue;
+    final answer = '${raw['answer'] ?? ''}'.trim();
+    if (text.isEmpty) continue;
+    final ok = switch (type) {
+      QuestionType.multiple => choices.length >= 2 && correct >= 0 && correct < choices.length,
+      QuestionType.trueFalse => correct == 0 || correct == 1,
+      _ => answer.isNotEmpty,
+    };
+    if (!ok) continue;
     // Yapay zekânın verdiği alt konu: notta konu varsa kazanım olarak,
     // yoksa konu olarak yazılır (cevap anahtarında konu dağılımı için).
     final sub = '${raw['topic'] ?? ''}'.trim();
@@ -234,11 +254,12 @@ AiResult parseAiResponse(Map<String, dynamic> j, BankNote note, BankStore store,
         'hard' => Difficulty.hard,
         _ => Difficulty.medium,
       },
-      type: QuestionType.multiple,
+      type: type,
       text: text,
       choices: choices,
-      choiceCount: choices.length,
-      correct: {correct},
+      choiceCount: type == QuestionType.multiple ? choices.length : (type == QuestionType.trueFalse ? 2 : 5),
+      correct: type.optical ? {correct} : const {},
+      answerText: type.optical ? '' : answer,
       solution: '${raw['solution'] ?? ''}'.trim(),
       tags: [...note.tags.where((x) => x != tag), tag],
       source: note.displayTitle,
