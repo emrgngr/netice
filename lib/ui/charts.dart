@@ -456,3 +456,244 @@ class _RadarPainter extends CustomPainter {
   @override
   bool shouldRepaint(_RadarPainter o) => false;
 }
+
+/// Yatay yığılmış çubuk: parçalar oranlarına göre yan yana dizilir
+/// (başarı düzeyleri, doğru/yanlış/boş gibi).
+class StackedBar extends StatelessWidget {
+  final List<(double value, Color color)> parts;
+  final double height;
+  final bool showPercent;
+  const StackedBar({super.key, required this.parts, this.height = 22, this.showPercent = true});
+
+  @override
+  Widget build(BuildContext context) {
+    final total = parts.fold<double>(0, (a, p) => a + p.$1);
+    final t = Theme.of(context);
+    if (total <= 0) {
+      return Container(
+        height: height,
+        decoration: BoxDecoration(color: t.colorScheme.surfaceContainerHighest, borderRadius: BorderRadius.circular(6)),
+      );
+    }
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(6),
+      child: SizedBox(
+        height: height,
+        child: Row(children: [
+          for (final p in parts)
+            if (p.$1 > 0)
+              Expanded(
+                flex: math.max(1, (p.$1 / total * 1000).round()),
+                child: Container(
+                  color: p.$2,
+                  alignment: Alignment.center,
+                  child: showPercent && p.$1 / total >= 0.09
+                      ? Text('${(p.$1 / total * 100).round()}',
+                          maxLines: 1,
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700, fontFeatures: tabular))
+                      : null,
+                ),
+              ),
+        ]),
+      ),
+    );
+  }
+}
+
+/// Grafik açıklaması: renkli kare ve etiket.
+class ChartLegend extends StatelessWidget {
+  final List<(String label, Color color)> items;
+  const ChartLegend(this.items, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context);
+    return Wrap(spacing: 12, runSpacing: 6, children: [
+      for (final (l, c) in items)
+        Row(mainAxisSize: MainAxisSize.min, children: [
+          Container(width: 10, height: 10, decoration: BoxDecoration(color: c, borderRadius: BorderRadius.circular(3))),
+          const SizedBox(width: 5),
+          Text(l, style: t.textTheme.bodySmall),
+        ]),
+    ]);
+  }
+}
+
+/// Dikey sütun grafiği (dağılım, aylık ortalama vb.). Değerlerin üstünde
+/// sayılar, altında etiketler yazar.
+class ColumnChart extends StatelessWidget {
+  final List<double> values;
+  final List<String> labels;
+  final List<Color>? colors;
+  final double height;
+  final String Function(double)? format;
+  const ColumnChart(
+      {super.key, required this.values, required this.labels, this.colors, this.height = 160, this.format});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context);
+    final max = values.isEmpty ? 1.0 : math.max(1e-9, values.reduce(math.max));
+    final muted = t.colorScheme.onSurface.withValues(alpha: 0.6);
+    return SizedBox(
+      height: height,
+      child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+        for (var i = 0; i < values.length; i++)
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              child: Column(mainAxisAlignment: MainAxisAlignment.end, children: [
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(format?.call(values[i]) ?? '${values[i].round()}',
+                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, fontFeatures: tabular)),
+                ),
+                const SizedBox(height: 2),
+                Container(
+                  height: math.max(2, (height - 40) * values[i] / max),
+                  decoration: BoxDecoration(
+                    color: colors == null ? NColors.emerald : colors![i % colors!.length],
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(5)),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                SizedBox(
+                  height: 14,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(labels[i], style: TextStyle(fontSize: 10, color: muted)),
+                  ),
+                ),
+              ]),
+            ),
+          ),
+      ]),
+    );
+  }
+}
+
+/// Birden çok seri için çizgi grafiği (0–100 ölçeği): sınıfların zaman
+/// içindeki ortalamaları gibi.
+class LineSeriesChart extends StatelessWidget {
+  final List<(String label, Color color, List<double?> values)> series;
+  final List<String> xLabels;
+  final double height;
+  final double? target;
+  const LineSeriesChart(
+      {super.key, required this.series, required this.xLabels, this.height = 190, this.target});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context);
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      SizedBox(
+        height: height,
+        child: CustomPaint(
+          size: Size.infinite,
+          painter: _LinePainter(
+            series: series,
+            xLabels: xLabels,
+            target: target,
+            grid: t.colorScheme.outlineVariant,
+            text: t.colorScheme.onSurface.withValues(alpha: 0.6),
+            font: t.textTheme.bodySmall?.fontFamily,
+          ),
+        ),
+      ),
+      if (series.length > 1) ...[
+        const SizedBox(height: 8),
+        ChartLegend([for (final s in series) (s.$1, s.$2)]),
+      ],
+    ]);
+  }
+}
+
+class _LinePainter extends CustomPainter {
+  final List<(String, Color, List<double?>)> series;
+  final List<String> xLabels;
+  final double? target;
+  final Color grid, text;
+  final String? font;
+  _LinePainter(
+      {required this.series, required this.xLabels, required this.target, required this.grid, required this.text, this.font});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const left = 30.0, bottom = 22.0, top = 8.0;
+    final w = size.width - left - 10, h = size.height - bottom - top;
+    final n = xLabels.length;
+    void label(String s, Offset o, {bool center = false}) {
+      final tp = TextPainter(
+          text: TextSpan(text: s, style: TextStyle(color: text, fontSize: 10, fontFamily: font)),
+          textDirection: TextDirection.ltr)
+        ..layout();
+      tp.paint(canvas, center ? o - Offset(tp.width / 2, 0) : o - Offset(tp.width, tp.height / 2));
+    }
+
+    final g = Paint()
+      ..color = grid
+      ..strokeWidth = 1;
+    for (final v in [0, 25, 50, 75, 100]) {
+      final y = top + h * (1 - v / 100);
+      canvas.drawLine(Offset(left, y), Offset(left + w, y), g);
+      label('$v', Offset(left - 6, y));
+    }
+    if (target != null) {
+      final y = top + h * (1 - target!.clamp(0, 100) / 100);
+      final p = Paint()
+        ..color = NColors.amber
+        ..strokeWidth = 1.5;
+      for (var x = left; x < left + w; x += 8) {
+        canvas.drawLine(Offset(x, y), Offset(math.min(x + 4, left + w), y), p);
+      }
+    }
+    Offset pt(int i, double v) => Offset(left + (n <= 1 ? w / 2 : w * i / (n - 1)), top + h * (1 - v.clamp(0, 100) / 100));
+    for (final (_, color, values) in series) {
+      final path = Path();
+      var started = false;
+      for (var i = 0; i < values.length && i < n; i++) {
+        final v = values[i];
+        if (v == null) continue;
+        final o = pt(i, v);
+        started ? path.lineTo(o.dx, o.dy) : path.moveTo(o.dx, o.dy);
+        started = true;
+      }
+      canvas.drawPath(
+          path,
+          Paint()
+            ..color = color
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 2.5
+            ..strokeCap = StrokeCap.round
+            ..strokeJoin = StrokeJoin.round);
+      for (var i = 0; i < values.length && i < n; i++) {
+        final v = values[i];
+        if (v != null) canvas.drawCircle(pt(i, v), 3.5, Paint()..color = color);
+      }
+    }
+    // Etiketler çok sıkışırsa bazılarını atla.
+    final step = math.max(1, (n * 46 / math.max(1, w)).ceil());
+    for (var i = 0; i < n; i += step) {
+      label(xLabels[i], Offset(pt(i, 0).dx, size.height - bottom + 6), center: true);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_LinePainter o) => true;
+}
+
+/// Sınıflar için tutarlı renkler.
+const seriesColors = [
+  NColors.emerald,
+  Color(0xFF6C7FD8),
+  NColors.coral,
+  NColors.amber,
+  Color(0xFF14B8A6),
+  Color(0xFFA855F7),
+  Color(0xFF0EA5E9),
+  Color(0xFFEC4899),
+];
+
+/// Başarı düzeyleri için renkler (en yüksekten en düşüğe).
+const levelPalette = [NColors.emerald, Color(0xFF34D399), NColors.amber, Color(0xFFF59E0B), NColors.coral];
