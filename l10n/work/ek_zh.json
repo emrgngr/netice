@@ -1013,5 +1013,9 @@
 "İlk": "第一次",
 "İlk sınavdan son sınava genel ortalama {0} puan düştü.": "总平均分从第一次考试到最后一次下降了 {0} 分。",
 "İlk sınavdan son sınava genel ortalama {0} puan yükseldi.": "总平均分从第一次考试到最后一次上升了 {0} 分。",
-"Şubeleri ortalama, yayılım, düzey ve soru soru yan yana görün": "并排查看各班：平均分、离散、等级和每道题"
+"Şubeleri ortalama, yayılım, düzey ve soru soru yan yana görün": "并排查看各班：平均分、离散、等级和每道题",
+"Beklenen cevap": "参考答案",
+"Klasik sorular · cevap anahtarı": "主观题 · 答案",
+"Soru sayısı seçilen türlere yaklaşık eşit bölünür.": "题目数量会大致平均分配到所选题型。",
+"Soru türleri": "题型"
 }

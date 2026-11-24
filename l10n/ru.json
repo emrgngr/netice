@@ -2091,5 +2091,9 @@
 "İlk": "Первая",
 "İlk sınavdan son sınava genel ortalama {0} puan düştü.": "Общее среднее снизилось на {0} баллов от первой работы к последней.",
 "İlk sınavdan son sınava genel ortalama {0} puan yükseldi.": "Общее среднее выросло на {0} баллов от первой работы к последней.",
-"Şubeleri ortalama, yayılım, düzey ve soru soru yan yana görün": "Классы рядом: среднее, разброс, уровни и каждый вопрос"
+"Şubeleri ortalama, yayılım, düzey ve soru soru yan yana görün": "Классы рядом: среднее, разброс, уровни и каждый вопрос",
+"Beklenen cevap": "Ожидаемый ответ",
+"Klasik sorular · cevap anahtarı": "Открытые вопросы · ключ ответов",
+"Soru sayısı seçilen türlere yaklaşık eşit bölünür.": "Количество вопросов делится примерно поровну между выбранными типами.",
+"Soru türleri": "Типы вопросов"
 }

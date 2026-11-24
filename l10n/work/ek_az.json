@@ -1013,5 +1013,9 @@
 "İlk": "İlk",
 "İlk sınavdan son sınava genel ortalama {0} puan düştü.": "İlk imtahandan son imtahana ümumi ortalama {0} bal düşdü.",
 "İlk sınavdan son sınava genel ortalama {0} puan yükseldi.": "İlk imtahandan son imtahana ümumi ortalama {0} bal yüksəldi.",
-"Şubeleri ortalama, yayılım, düzey ve soru soru yan yana görün": "Sinifləri ortalama, yayılma, səviyyə və sual-sual yan-yana görün"
+"Şubeleri ortalama, yayılım, düzey ve soru soru yan yana görün": "Sinifləri ortalama, yayılma, səviyyə və sual-sual yan-yana görün",
+"Beklenen cevap": "Gözlənilən cavab",
+"Klasik sorular · cevap anahtarı": "Açıq suallar · cavab açarı",
+"Soru sayısı seçilen türlere yaklaşık eşit bölünür.": "Sual sayı seçilən növlər arasında təxminən bərabər bölünür.",
+"Soru türleri": "Sual növləri"
 }

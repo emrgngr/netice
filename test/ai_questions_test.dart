@@ -131,6 +131,26 @@ void main() {
     expect(((b['note'] as Map)['images'] as List).single, {'type': 'image/jpeg', 'data': 'QUJD'});
   });
 
+  test('soru türleri istenir ve bankaya doğru türle yazılır', () {
+    final b = aiRequestBody(note(), const AiOptions(types: {QuestionType.open, QuestionType.trueFalse}));
+    expect(b['types'], ['true_false', 'open']);
+    expect(aiRequestBody(note(), const AiOptions())['types'], ['multiple']);
+    final r = parseAiResponse({
+      'questions': [
+        {'type': 'true_false', 'text': 'Zar seçici geçirgendir.', 'choices': [], 'correct': 1},
+        {'type': 'true_false', 'text': 'Bozuk', 'choices': [], 'correct': 4},
+        {'type': 'fill', 'text': 'Suyun geçişine _____ denir.', 'choices': [], 'correct': -1, 'answer': 'osmoz'},
+        {'type': 'open', 'text': 'Difüzyonu açıklayınız.', 'choices': [], 'correct': -1, 'answer': ''},
+        {'type': 'open', 'text': 'Osmozu açıklayınız.', 'choices': [], 'correct': -1, 'answer': 'Suyun zardan geçişi.'},
+      ],
+    }, note(), store);
+    expect(r.questions.map((q) => q.type), [QuestionType.trueFalse, QuestionType.fill, QuestionType.open]);
+    expect(r.questions[0].answerLabel, 'Yanlış');
+    expect(r.questions[1].answerText, 'osmoz');
+    expect(r.questions[1].correct, isEmpty);
+    expect(r.questions.every((q) => q.complete), isTrue);
+  });
+
   test('sunucuyla soru üretimi ve sayaç', () async {
     late http.Request sent;
     final client = MockClient((req) async {

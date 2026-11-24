@@ -1013,5 +1013,9 @@
 "İlk": "Premier",
 "İlk sınavdan son sınava genel ortalama {0} puan düştü.": "La moyenne générale a baissé de {0} points entre le premier et le dernier examen.",
 "İlk sınavdan son sınava genel ortalama {0} puan yükseldi.": "La moyenne générale a augmenté de {0} points entre le premier et le dernier examen.",
-"Şubeleri ortalama, yayılım, düzey ve soru soru yan yana görün": "Voir les classes côte à côte : moyenne, dispersion, niveaux et chaque question"
+"Şubeleri ortalama, yayılım, düzey ve soru soru yan yana görün": "Voir les classes côte à côte : moyenne, dispersion, niveaux et chaque question",
+"Beklenen cevap": "Réponse attendue",
+"Klasik sorular · cevap anahtarı": "Questions ouvertes · corrigé",
+"Soru sayısı seçilen türlere yaklaşık eşit bölünür.": "Le nombre de questions est réparti à peu près également entre les types choisis.",
+"Soru türleri": "Types de questions"
 }

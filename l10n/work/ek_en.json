@@ -1013,5 +1013,9 @@
 "İlk": "First",
 "İlk sınavdan son sınava genel ortalama {0} puan düştü.": "The overall average fell {0} points from the first exam to the last.",
 "İlk sınavdan son sınava genel ortalama {0} puan yükseldi.": "The overall average rose {0} points from the first exam to the last.",
-"Şubeleri ortalama, yayılım, düzey ve soru soru yan yana görün": "See classes side by side: average, spread, levels and each question"
+"Şubeleri ortalama, yayılım, düzey ve soru soru yan yana görün": "See classes side by side: average, spread, levels and each question",
+"Beklenen cevap": "Expected answer",
+"Klasik sorular · cevap anahtarı": "Open-ended questions · answer key",
+"Soru sayısı seçilen türlere yaklaşık eşit bölünür.": "The number of questions is split roughly evenly across the selected types.",
+"Soru türleri": "Question types"
 }
