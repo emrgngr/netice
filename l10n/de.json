@@ -2467,5 +2467,18 @@
 "İlkokul öğrencileri optik form doldurabilir mi?": "Können Grundschulkinder Antwortbögen ausfüllen?",
 "İri yazı, renkli soru numaraları, A–B–C şıkları ve çocuklara uygun yönerge gelir.": "Große Schrift, bunte Fragenummern, Antworten A–B–C und kindgerechte Anweisungen.",
 "İsimli cevap kartlarını sınav ekranındaki \"Form yazdır\" ile basabilirsiniz. Çocuk sınavlarının karnesi de yıldızlı, sade bir tasarımla çıkar.": "Namentliche Antwortkarten drucken Sie mit „Bögen drucken“ auf dem Prüfungsbildschirm. Auch die Zeugnisse von Kinderprüfungen erscheinen in einem schlichten Design mit Sternen.",
-"Kurumunuzun resmi başlığı ve imza alanı": "Offizieller Briefkopf Ihrer Einrichtung und Unterschriftsfelder"
+"Kurumunuzun resmi başlığı ve imza alanı": "Offizieller Briefkopf Ihrer Einrichtung und Unterschriftsfelder",
+"Kütüphaneniz bu cihazda {0} yer kaplıyor.": "Ihre Bibliothek belegt auf diesem Gerät {0}.",
+"Sabit bir sınır yoktur; sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar.": "Es gibt keine feste Grenze; sie hängt vom freien Speicher Ihres Geräts ab. Eine reine Textfrage braucht etwa 1 KB, eine Frage mit Bild 100–300 KB.",
+"Kütüphanenin depolama alanı ne kadar?": "Wie viel Speicher hat die Bibliothek?",
+"Sabit bir sınır yoktur; her şey cihazınızda saklanır ve sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar; 1.000 görselli soru yaklaşık 150–300 MB eder. Kütüphanenin şu an ne kadar yer kapladığını Kütüphane > Analiz sekmesinin en altında görürsünüz.": "Es gibt keine feste Grenze; alles wird auf Ihrem Gerät gespeichert, die Grenze ist also der freie Speicher Ihres Geräts. Eine reine Textfrage braucht etwa 1 KB, eine Frage mit Bild 100–300 KB; 1.000 Fragen mit Bild ergeben etwa 150–300 MB. Wie viel Platz die Bibliothek gerade belegt, sehen Sie ganz unten unter Bibliothek > Analyse.",
+"\"Bu okumayı sil\" yalnızca bu kâğıdı siler. Öğrenci kaydı kalır, kâğıdı yeniden okutabilirsiniz.": "\"Diesen Scan löschen\" löscht nur diesen Bogen. Der Schülereintrag bleibt, und Sie können den Bogen erneut scannen.",
+"Ana sayfayı aşağı kaydırın ve \"Son sınavlar\" bölümündeki \"Seç ve sil\"e dokunun. Bir sınav kartına uzun basarak da seçmeye başlayabilirsiniz.": "Scrollen Sie auf dem Startbildschirm nach unten und tippen Sie im Bereich \"Letzte Prüfungen\" auf \"Auswählen und löschen\". Sie können auch mit langem Drücken auf eine Prüfungskarte mit der Auswahl beginnen.",
+"Bir kâğıdı silin veya yeniden okutun": "Einen Bogen löschen oder neu scannen",
+"Silmek istediğiniz sınavlara dokunun ya da \"Tümünü seç\"i kullanın.": "Tippen Sie auf die Prüfungen, die Sie löschen möchten, oder nutzen Sie \"Alle auswählen\".",
+"Sonuçlar listesinde öğrenciye dokunun.": "Tippen Sie in der Ergebnisliste auf den Schüler.",
+"Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.": "Tippen Sie auf den Papierkorb und bestätigen Sie. Ihre Schüler und Klassen werden nicht gelöscht.",
+"Silme ve düzeltme": "Löschen und Korrigieren",
+"Sınavları seçip silin": "Prüfungen auswählen und löschen",
+"Yanlışlıkla silerseniz altta beliren \"Geri al\" düğmesine 6 saniye içinde dokunun.": "Haben Sie versehentlich gelöscht, tippen Sie innerhalb von 6 Sekunden unten auf „Rückgängig“."
 }

@@ -7,7 +7,8 @@
   "report": "Sonuçlar ve raporlar",
   "data": "Verileriniz",
   "library": "Soru bankası ve kitapçık",
-  "pro": "Netice Pro"
+  "pro": "Netice Pro",
+  "fix": "Silme ve düzeltme"
  },
  "k_sinav_ayar": "Sınav ayarlarında tam puanı, geçme puanını ve yanlış götürmeyi belirleyin. Kitapçık türlerini ve klasik soruları da buradan ekleyin.",
  "k_sablon": "Yayınevi ya da başka bir firmanın formunu kullanacaksanız Ayarlar'daki Başka firma formları bölümünden bir kez şablon oluşturun.",
@@ -27,5 +28,8 @@
  "k_pro_alt": "Aylık soru hakkınız bitince ek soru paketi alabilirsiniz; süresi dolmaz. Aynı okuldan beş ve daha fazla öğretmen birlikte alırsa okul paketiyle indirim kazanır.",
  "k_okul": "Okul paketi ekranında öğretmen sayısını girin, indirimli fiyatı görün ve Okulunuza teklif isteyin'e dokunun. Onaylanınca okulunuza kurum kodu verilir.",
  "k_sinif_analiz": "Aynı sınavı birden çok şubede yaptıysanız ana ekrandaki Sınıf sınıf analiz şubeleri yan yana gösterir. Öne çıkanlar, genel ortalamaya göre fark ve soru soru doğru oranları burada; sağ üstteki düğmeyle PDF rapor alırsınız.",
- "k_genel_istatistik": "Genel istatistik tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir. Dönemi ve sınıfları seçerek daraltın, raporu PDF olarak paylaşın."
+ "k_genel_istatistik": "Genel istatistik tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir. Dönemi ve sınıfları seçerek daraltın, raporu PDF olarak paylaşın.",
+ "k_sec_sil": "Bir sınavı silmek için ana sayfayı aşağı kaydırın ve Son sınavlar bölümündeki Seç ve sil'e dokunun. Bir sınav kartına uzun basarak da seçmeye başlayabilirsiniz.",
+ "k_secildi": "Silmek istediğiniz sınavlara dokunun ya da Tümünü seç'i kullanın, sonra çöp kutusuna dokunup onaylayın. Öğrencileriniz silinmez. Yanlışlıkla silerseniz altta beliren Geri al'a dokunun.",
+ "k_okuma_sil": "Tek bir kâğıdı silmek için Sonuçlar listesinde öğrenciye dokunun ve Bu okumayı sil'i seçin. Öğrenci kaydı kalır, kâğıdı yeniden okutabilirsiniz."
 }

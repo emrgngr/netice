@@ -2467,5 +2467,18 @@
 "İlkokul öğrencileri optik form doldurabilir mi?": "İbtidai sinif şagirdləri optik vərəq doldura bilərmi?",
 "İri yazı, renkli soru numaraları, A–B–C şıkları ve çocuklara uygun yönerge gelir.": "İri yazı, rəngli sual nömrələri, A–B–C variantları və uşaqlara uyğun təlimat gəlir.",
 "İsimli cevap kartlarını sınav ekranındaki \"Form yazdır\" ile basabilirsiniz. Çocuk sınavlarının karnesi de yıldızlı, sade bir tasarımla çıkar.": "Adlı cavab kartlarını imtahan ekranındakı \"Vərəq çap et\" ilə çap edə bilərsiniz. Uşaq imtahanlarının karnesi də ulduzlu, sadə dizaynla çıxır.",
-"Kurumunuzun resmi başlığı ve imza alanı": "Qurumunuzun rəsmi başlığı və imza sahəsi"
+"Kurumunuzun resmi başlığı ve imza alanı": "Qurumunuzun rəsmi başlığı və imza sahəsi",
+"Kütüphaneniz bu cihazda {0} yer kaplıyor.": "Kitabxananız bu cihazda {0} yer tutur.",
+"Sabit bir sınır yoktur; sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar.": "Sabit bir limit yoxdur; limiti cihazınızdakı boş yer müəyyən edir. Yalnız mətndən ibarət sual təxminən 1 KB, şəkilli sual 100–300 KB tutur.",
+"Kütüphanenin depolama alanı ne kadar?": "Kitabxananın yaddaş sahəsi nə qədərdir?",
+"Sabit bir sınır yoktur; her şey cihazınızda saklanır ve sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar; 1.000 görselli soru yaklaşık 150–300 MB eder. Kütüphanenin şu an ne kadar yer kapladığını Kütüphane > Analiz sekmesinin en altında görürsünüz.": "Sabit bir limit yoxdur; hər şey cihazınızda saxlanılır və limiti cihazınızdakı boş yer müəyyən edir. Yalnız mətndən ibarət sual təxminən 1 KB, şəkilli sual 100–300 KB tutur; 1.000 şəkilli sual təxminən 150–300 MB edir. Kitabxananın hazırda nə qədər yer tutduğunu Kitabxana > Təhlil bölməsinin ən altında görürsünüz.",
+"\"Bu okumayı sil\" yalnızca bu kâğıdı siler. Öğrenci kaydı kalır, kâğıdı yeniden okutabilirsiniz.": "\"Bu oxunuşu sil\" yalnız bu vərəqi silir. Şagird qeydi qalır, vərəqi yenidən oxuda bilərsiniz.",
+"Ana sayfayı aşağı kaydırın ve \"Son sınavlar\" bölümündeki \"Seç ve sil\"e dokunun. Bir sınav kartına uzun basarak da seçmeye başlayabilirsiniz.": "Ana səhifəni aşağı sürüşdürün və \"Son imtahanlar\" bölməsindəki \"Seç və sil\"ə toxunun. İmtahan kartına uzun basaraq da seçməyə başlaya bilərsiniz.",
+"Bir kâğıdı silin veya yeniden okutun": "Vərəqi silin və ya yenidən oxudun",
+"Silmek istediğiniz sınavlara dokunun ya da \"Tümünü seç\"i kullanın.": "Silmək istədiyiniz imtahanlara toxunun və ya \"Hamısını seç\"dən istifadə edin.",
+"Sonuçlar listesinde öğrenciye dokunun.": "Nəticələr siyahısında şagirdə toxunun.",
+"Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.": "Zibil qutusuna toxunub təsdiqləyin. Şagirdləriniz və sinifləriniz silinmir.",
+"Silme ve düzeltme": "Silmə və düzəliş",
+"Sınavları seçip silin": "İmtahanları seçib silin",
+"Yanlışlıkla silerseniz altta beliren \"Geri al\" düğmesine 6 saniye içinde dokunun.": "Səhvən silsəniz, aşağıda çıxan \"Geri al\" düyməsinə 6 saniyə ərzində toxunun."
 }

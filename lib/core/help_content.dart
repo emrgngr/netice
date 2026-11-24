@@ -204,6 +204,22 @@ List<GuideSection> get guideSections => <GuideSection>[
       tr('Teklif onaylanınca okulunuza bir kurum kodu verilir. Her öğretmen bu kodu Profil > "Kurum lisansı" ekranına girer.'),
     ]),
   ]),
+  GuideSection(tr('Silme ve düzeltme'), 'fix', [
+    GuideTopic(tr('Sınavları seçip silin'), [
+      tr('Ana sayfayı aşağı kaydırın ve "Son sınavlar" bölümündeki "Seç ve sil"e dokunun. Bir sınav kartına uzun basarak da seçmeye başlayabilirsiniz.'),
+      tr('Silmek istediğiniz sınavlara dokunun ya da "Tümünü seç"i kullanın.'),
+      tr('Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.'),
+    ], tip: tr('Yanlışlıkla silerseniz altta beliren "Geri al" düğmesine 6 saniye içinde dokunun.')),
+    GuideTopic(tr('Bir kâğıdı silin veya yeniden okutun'), [
+      tr('Sonuçlar listesinde öğrenciye dokunun.'),
+      tr('"Bu okumayı sil" yalnızca bu kâğıdı siler. Öğrenci kaydı kalır, kâğıdı yeniden okutabilirsiniz.'),
+    ]),
+    GuideTopic(tr('Kontrol ve düzeltme'), [
+      tr('Okunan bir kâğıda dokunun; işaretlenen şıklar görünür.'),
+      tr('Belirsiz (iki şık işaretli veya çok silik) sorular sarı uyarıyla gösterilir; dokunarak düzeltebilirsiniz.'),
+      tr('Eşleşmeyen kâğıtta öğrenciyi listeden seçin.'),
+    ]),
+  ]),
   GuideSection(tr('Verileriniz'), 'data', [
     GuideTopic(tr('Yedekleme'), [
       tr('Netice çevrimdışı çalışır; verilerinizi yalnızca bu telefonda (veya bilgisayarda) saklar, internete göndermez.'),
@@ -282,6 +298,8 @@ List<Faq> get faqs => <Faq>[
       tr('İsterseniz. "Şıkları karıştır" açıksa B ve sonraki kitapçıklarda şıkların yeri değişir; "Hepsi / hiçbiri" gibi son şıklar yerinde kalır. Okuma ve puanlama bunu kendiliğinden hesaba katar.')),
   Faq(tr('Soru bankası'), tr('Bankamı meslektaşımla paylaşabilir miyim?'),
       tr('Kütüphane menüsündeki "Banka paketini paylaş" ile .netbank dosyası oluşturun; meslektaşınız "Banka paketi aç" ile kendi bankasına ekler. Paylaştığınız içeriğin telif hakkı size ait olmalıdır.')),
+  Faq(tr('Soru bankası'), tr('Kütüphanenin depolama alanı ne kadar?'),
+      tr('Sabit bir sınır yoktur; her şey cihazınızda saklanır ve sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar; 1.000 görselli soru yaklaşık 150–300 MB eder. Kütüphanenin şu an ne kadar yer kapladığını Kütüphane > Analiz sekmesinin en altında görürsünüz.')),
   Faq(tr('Veriler'), tr('Verilerim nerede saklanıyor?'),
       tr('Yalnızca bu cihazda, uygulamanın kendi klasöründe. Hiçbir veri internete gönderilmez; bu nedenle KVKK açısından da güvenlidir. Yalnızca isteğe bağlı Google Drive yedeğini açarsanız yedek, kendi Google hesabınıza kaydedilir.')),
   Faq(tr('Veriler'), tr('Telefonu değiştirirsem verilerim ne olur?'),

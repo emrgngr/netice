@@ -2467,5 +2467,18 @@
 "İlkokul öğrencileri optik form doldurabilir mi?": "小学生能填答题卡吗？",
 "İri yazı, renkli soru numaraları, A–B–C şıkları ve çocuklara uygun yönerge gelir.": "大字号、彩色题号、A–B–C 选项和适合儿童的说明。",
 "İsimli cevap kartlarını sınav ekranındaki \"Form yazdır\" ile basabilirsiniz. Çocuk sınavlarının karnesi de yıldızlı, sade bir tasarımla çıkar.": "可在考试界面用“打印答题卡”打印带姓名的答题卡。儿童考试的成绩单也采用带星星的简洁设计。",
-"Kurumunuzun resmi başlığı ve imza alanı": "贵机构的正式抬头和签名栏"
+"Kurumunuzun resmi başlığı ve imza alanı": "贵机构的正式抬头和签名栏",
+"Kütüphaneniz bu cihazda {0} yer kaplıyor.": "您的题库在本设备上占用 {0}。",
+"Sabit bir sınır yoktur; sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar.": "没有固定上限，上限取决于设备的可用空间。纯文字题约 1 KB，带图片的题约 100–300 KB。",
+"Kütüphanenin depolama alanı ne kadar?": "题库有多少存储空间？",
+"Sabit bir sınır yoktur; her şey cihazınızda saklanır ve sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar; 1.000 görselli soru yaklaşık 150–300 MB eder. Kütüphanenin şu an ne kadar yer kapladığını Kütüphane > Analiz sekmesinin en altında görürsünüz.": "没有固定上限：所有内容都保存在您的设备上，上限就是设备的可用空间。纯文字题约 1 KB，带图片的题约 100–300 KB；1,000 道带图片的题约 150–300 MB。题库当前占用的空间可在“题库 > 分析”页面最下方查看。",
+"\"Bu okumayı sil\" yalnızca bu kâğıdı siler. Öğrenci kaydı kalır, kâğıdı yeniden okutabilirsiniz.": "“删除此次识别”只删除这张答题卡。学生记录会保留，您可以重新识别这张卡。",
+"Ana sayfayı aşağı kaydırın ve \"Son sınavlar\" bölümündeki \"Seç ve sil\"e dokunun. Bir sınav kartına uzun basarak da seçmeye başlayabilirsiniz.": "在主页向下滚动，点“最近的考试”中的“选择并删除”。也可以长按考试卡片开始选择。",
+"Bir kâğıdı silin veya yeniden okutun": "删除答题卡或重新识别",
+"Silmek istediğiniz sınavlara dokunun ya da \"Tümünü seç\"i kullanın.": "点选要删除的考试，或使用“全选”。",
+"Sonuçlar listesinde öğrenciye dokunun.": "在成绩列表中点学生。",
+"Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.": "点垃圾桶并确认。学生和班级不会被删除。",
+"Silme ve düzeltme": "删除与更正",
+"Sınavları seçip silin": "选择并删除考试",
+"Yanlışlıkla silerseniz altta beliren \"Geri al\" düğmesine 6 saniye içinde dokunun.": "误删时，请在 6 秒内点底部出现的“撤销”。"
 }

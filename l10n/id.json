@@ -2399,5 +2399,18 @@
 "İsimli cevap kartlarını sınav ekranındaki \"Form yazdır\" ile basabilirsiniz. Çocuk sınavlarının karnesi de yıldızlı, sade bir tasarımla çıkar.": "Anda dapat mencetak kartu jawaban bernama dengan \"Cetak formulir\" di layar ujian. Rapor ujian anak juga tampil dengan desain sederhana berbintang.",
 "Kurumunuzun resmi başlığı ve imza alanı": "Kop resmi lembaga Anda dan kolom tanda tangan",
 "Reklamsız kullanım": "Tanpa iklan",
-"Hiçbir sayfada reklam gösterilmez": "Tidak ada iklan di halaman mana pun"
+"Hiçbir sayfada reklam gösterilmez": "Tidak ada iklan di halaman mana pun",
+"Kütüphaneniz bu cihazda {0} yer kaplıyor.": "Pustaka Anda memakai {0} di perangkat ini.",
+"Sabit bir sınır yoktur; sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar.": "Tidak ada batas tetap; batasnya adalah ruang kosong di perangkat Anda. Soal berisi teks saja sekitar 1 KB, soal bergambar 100–300 KB.",
+"Kütüphanenin depolama alanı ne kadar?": "Berapa kapasitas penyimpanan pustaka?",
+"Sabit bir sınır yoktur; her şey cihazınızda saklanır ve sınırı cihazınızdaki boş alan belirler. Yalnız metin olan bir soru yaklaşık 1 KB, görselli bir soru 100–300 KB tutar; 1.000 görselli soru yaklaşık 150–300 MB eder. Kütüphanenin şu an ne kadar yer kapladığını Kütüphane > Analiz sekmesinin en altında görürsünüz.": "Tidak ada batas tetap; semuanya disimpan di perangkat Anda, jadi batasnya adalah ruang kosong perangkat. Soal berisi teks saja sekitar 1 KB, soal bergambar 100–300 KB; 1.000 soal bergambar sekitar 150–300 MB. Ruang yang dipakai pustaka saat ini terlihat di bagian paling bawah Pustaka > Analisis.",
+"\"Bu okumayı sil\" yalnızca bu kâğıdı siler. Öğrenci kaydı kalır, kâğıdı yeniden okutabilirsiniz.": "\"Hapus pindaian ini\" hanya menghapus lembar ini. Data siswa tetap ada dan lembar bisa dipindai lagi.",
+"Ana sayfayı aşağı kaydırın ve \"Son sınavlar\" bölümündeki \"Seç ve sil\"e dokunun. Bir sınav kartına uzun basarak da seçmeye başlayabilirsiniz.": "Gulir beranda ke bawah dan ketuk \"Pilih dan hapus\" di bagian \"Ujian terakhir\". Anda juga bisa mulai memilih dengan menekan lama kartu ujian.",
+"Bir kâğıdı silin veya yeniden okutun": "Hapus lembar atau pindai ulang",
+"Silmek istediğiniz sınavlara dokunun ya da \"Tümünü seç\"i kullanın.": "Ketuk ujian yang ingin dihapus, atau gunakan \"Pilih semua\".",
+"Sonuçlar listesinde öğrenciye dokunun.": "Ketuk siswa di daftar hasil.",
+"Çöp kutusuna dokunup onaylayın. Öğrencileriniz ve sınıflarınız silinmez.": "Ketuk tempat sampah dan konfirmasi. Siswa dan kelas Anda tidak terhapus.",
+"Silme ve düzeltme": "Menghapus dan memperbaiki",
+"Sınavları seçip silin": "Pilih dan hapus ujian",
+"Yanlışlıkla silerseniz altta beliren \"Geri al\" düğmesine 6 saniye içinde dokunun.": "Jika terhapus tidak sengaja, ketuk \"Urungkan\" yang muncul di bawah dalam 6 detik."
 }

@@ -17,5 +17,8 @@
  "k_pro_alt": "elevenlabs",
  "k_okul": "elevenlabs",
  "k_sinif_analiz": "elevenlabs",
- "k_genel_istatistik": "elevenlabs"
+ "k_genel_istatistik": "elevenlabs",
+ "k_sec_sil": "elevenlabs",
+ "k_secildi": "elevenlabs",
+ "k_okuma_sil": "elevenlabs"
 }
