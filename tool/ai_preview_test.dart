@@ -63,6 +63,10 @@ void main() {
     await shot(tester, _themed(const NoteViewScreen(noteId: 'n3'), store), phone, 'yz_1_not_ekrani');
     await shot(tester, _themed(const AiQuestionsScreen(noteId: 'n3'), store), phone, 'yz_2_secenekler');
     await shot(tester, _themed(AiQuestionsScreen(noteId: 'n3', initialDrafts: drafts), store), const Size(390, 1500), 'yz_3_oneriler');
+    await shot(tester, _themed(const AiQuestionsScreen(noteId: 'n3'), store), phone, 'yz_4_elle_sayi', then: () async {
+      await tester.enterText(find.byType(TextField).first, '60');
+      await tester.pump();
+    });
     debugDisableShadows = true;
   });
 }

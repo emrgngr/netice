@@ -555,6 +555,198 @@ Future<Uint8List> buildBookletPdf(
     ));
   }
 
+  // ———————————————————————————— Ayrıntılı cevap anahtarı (öğretmen nüshası)
+  //
+  // Her kitapçık için: özet (soru sayısı, puan, zorluk ve şık dağılımı),
+  // konulara göre dağılım ve soru soru cevap, zorluk, konu, diğer
+  // kitapçıklardaki numara ve açıklama.
+
+  if (parts.answerKey && plan.testMaster.isNotEmpty) {
+    final shown = plan.variants.where((v) => wanted.contains(v.index)).toList();
+    final official = o.officialHeader && school.official;
+    const cell = pw.TextStyle(fontSize: 8);
+    final bold = cell.copyWith(fontWeight: pw.FontWeight.bold);
+    final head = pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold, color: PdfColors.white);
+    pw.Widget pad(pw.Widget w) => pw.Padding(padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 3), child: w);
+    pw.Widget sectionTitle(String t) => pw.Padding(
+          padding: const pw.EdgeInsets.only(top: 12, bottom: 5),
+          child: pw.Text(SchoolInfo.upper(t), style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold, color: _ink)),
+        );
+
+    // Konu dağılımı: sorular konuya göre, konular tek ise alt konuya (kazanım) göre.
+    final topics = plan.testMaster.map((q) => q.topicLabel).where((t) => t.isNotEmpty).toSet();
+    final outcomes = plan.testMaster.map((q) => q.outcome.trim()).where((t) => t.isNotEmpty).toSet();
+    final byOutcome = topics.length <= 1 && outcomes.length > 1;
+    String groupOf(BankQuestion q) {
+      final g = byOutcome ? q.outcome.trim() : q.topicLabel;
+      return g.isEmpty ? tr('Diğer') : g;
+    }
+
+    String topicCell(BankQuestion q) {
+      final t = q.topicLabel, k = q.outcome.trim();
+      // Tek konulu sınavda konu her satırda tekrarlanmaz; alt konu yazılır.
+      if (byOutcome && k.isNotEmpty) return k;
+      return k.isNotEmpty && k != t ? (t.isEmpty ? k : '$t — $k') : (t.isEmpty ? '—' : t);
+    }
+
+    String ranges(List<int> nos) {
+      final l = [...nos]..sort();
+      final out = <String>[];
+      var i = 0;
+      while (i < l.length) {
+        var j = i;
+        while (j + 1 < l.length && l[j + 1] == l[j] + 1) {
+          j++;
+        }
+        out.add(j > i ? '${l[i]}–${l[j]}' : '${l[i]}');
+        i = j + 1;
+      }
+      return out.join(', ');
+    }
+
+    for (final v in shown) {
+      final qs = v.test;
+      final n = qs.length;
+      final others = shown.where((w) => w.index != v.index).toList();
+      int? noIn(BookletVariant w, BankQuestion q) => w.test.where((p) => p.question.id == q.id).firstOrNull?.no;
+      String answerOf(PrintedQuestion p) => p.question.type == QuestionType.trueFalse
+          ? (p.printedCorrect.contains(1) ? tr('B (Y)') : tr('A (D)'))
+          : (p.printedCorrect.toList()..sort()).map(_letter).join('/');
+
+      // Özet
+      final pts = qs.map((p) => p.points).toSet();
+      final total = qs.fold(0.0, (a, p) => a + p.points);
+      final diff = {for (final d in Difficulty.values) d: qs.where((p) => p.question.difficulty == d).length};
+      String pct(int k) => L10n.percent(n == 0 ? 0 : (k * 100 / n).round());
+      final letters = <String, int>{};
+      for (final p in qs) {
+        if (p.question.type == QuestionType.multiple) {
+          for (final c in p.printedCorrect) {
+            letters[_letter(c)] = (letters[_letter(c)] ?? 0) + 1;
+          }
+        }
+      }
+      final letterLine = (letters.keys.toList()..sort()).map((k) => '$k: ${letters[k]}').join('  ·  ');
+      final summary = <(String, String)>[
+        (
+          tr('Soru sayısı'),
+          pts.length == 1 ? tr('{0} (her biri {1} puan)', [n, _fmt(pts.first)]) : tr('{0} · toplam {1} puan', [n, _fmt(total)])
+        ),
+        (tr('Zorluk dağılımı'), [for (final d in Difficulty.values) '${d.label} ${diff[d]} (${pct(diff[d]!)})'].join('  ·  ')),
+        if (letterLine.isNotEmpty) (tr('Şık dağılımı'), letterLine),
+      ];
+
+      // Konulara göre dağılım (ilk geçtiği sıraya göre)
+      final groups = <String, List<int>>{};
+      for (final p in qs) {
+        groups.putIfAbsent(groupOf(p.question), () => []).add(p.no);
+      }
+
+      final keyTitle = multi ? tr('CEVAP ANAHTARI · {0} KİTAPÇIĞI', [v.letter]) : tr('CEVAP ANAHTARI');
+      doc.addPage(pw.MultiPage(
+        pageTheme: pageTheme(),
+        footer: (c) => pw.Align(
+          alignment: pw.Alignment.centerRight,
+          child: pw.Text('${tr('Öğretmen nüshası')} · ${c.pageNumber}/${c.pagesCount}', style: const pw.TextStyle(fontSize: 7, color: _muted)),
+        ),
+        build: (c) => [
+          if (official) ...[
+            for (final line in school.letterhead)
+              pw.Text(line, textAlign: pw.TextAlign.center, style: pw.TextStyle(fontSize: 9.5, fontWeight: pw.FontWeight.bold)),
+            pw.Text(tr('{0} EĞİTİM-ÖĞRETİM YILI', [SchoolInfo.academicYear(date)]),
+                textAlign: pw.TextAlign.center, style: const pw.TextStyle(fontSize: 8.5)),
+            pw.SizedBox(height: 4),
+          ],
+          pw.Text(SchoolInfo.upper(title), textAlign: official ? pw.TextAlign.center : pw.TextAlign.left,
+              style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold, color: _ink)),
+          pw.Text(keyTitle, textAlign: official ? pw.TextAlign.center : pw.TextAlign.left,
+              style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold, color: _ink)),
+          pw.SizedBox(height: 6),
+          pw.Container(
+            padding: const pw.EdgeInsets.symmetric(vertical: 3),
+            decoration: const pw.BoxDecoration(border: pw.Border(top: pw.BorderSide(color: _ink, width: 1), bottom: pw.BorderSide(color: _ink, width: 1))),
+            child: pw.Text(tr('ÖĞRETMEN NÜSHASIDIR — ÖĞRENCİLERE DAĞITILMAZ'),
+                textAlign: pw.TextAlign.center, style: pw.TextStyle(fontSize: 8.5, fontWeight: pw.FontWeight.bold, color: PdfColors.red800)),
+          ),
+          pw.SizedBox(height: 8),
+          pw.Table(
+            border: pw.TableBorder.all(color: _line, width: 0.5),
+            columnWidths: const {0: pw.FixedColumnWidth(110), 1: pw.FlexColumnWidth()},
+            children: [
+              for (final (k, val) in summary)
+                pw.TableRow(children: [
+                  pw.Container(color: _soft, child: pad(pw.Text(k, style: bold))),
+                  pad(pw.Text(val, style: cell)),
+                ]),
+            ],
+          ),
+          sectionTitle(tr('Soruların konulara göre dağılımı')),
+          pw.Table(
+            border: pw.TableBorder.all(color: _line, width: 0.5),
+            columnWidths: const {0: pw.FixedColumnWidth(90), 1: pw.FlexColumnWidth(), 2: pw.FixedColumnWidth(36)},
+            children: [
+              pw.TableRow(decoration: const pw.BoxDecoration(color: _ink), children: [
+                pad(pw.Text(tr('Sorular'), style: head)),
+                pad(pw.Text(byOutcome ? tr('Alt konu / kazanım') : tr('Konu'), style: head)),
+                pad(pw.Text(tr('Adet'), style: head, textAlign: pw.TextAlign.center)),
+              ]),
+              for (final e in groups.entries)
+                pw.TableRow(children: [
+                  pad(pw.Text(ranges(e.value), style: bold)),
+                  pad(pw.Text(e.key, style: cell)),
+                  pad(pw.Text('${e.value.length}', style: cell, textAlign: pw.TextAlign.center)),
+                ]),
+            ],
+          ),
+          sectionTitle(tr('Cevap anahtarı')),
+          pw.Table(
+            border: pw.TableBorder.all(color: _line, width: 0.5),
+            columnWidths: {
+              0: const pw.FixedColumnWidth(22),
+              1: const pw.FixedColumnWidth(34),
+              2: const pw.FixedColumnWidth(36),
+              3: const pw.FlexColumnWidth(1.3),
+              for (var k = 0; k < others.length; k++) 4 + k: const pw.FixedColumnWidth(30),
+              4 + others.length: const pw.FlexColumnWidth(2.6),
+            },
+            children: [
+              pw.TableRow(
+                repeat: true,
+                decoration: const pw.BoxDecoration(color: _ink),
+                children: [
+                  pad(pw.Text(tr('No'), style: head)),
+                  pad(pw.Text(tr('Cevap'), style: head)),
+                  pad(pw.Text(tr('Zorluk'), style: head)),
+                  pad(pw.Text(byOutcome ? tr('Alt konu') : tr('Konu'), style: head)),
+                  for (final w in others) pad(pw.Text(tr('{0} kit. no', [w.letter]), style: head)),
+                  pad(pw.Text(tr('Dayanak / kısa açıklama'), style: head)),
+                ],
+              ),
+              for (final p in qs)
+                pw.TableRow(decoration: pw.BoxDecoration(color: p.no.isEven ? _soft : PdfColors.white), children: [
+                  pad(pw.Text('${p.no}', style: bold)),
+                  pad(pw.Text(answerOf(p), style: bold.copyWith(fontSize: 9), textAlign: pw.TextAlign.center)),
+                  pad(pw.Text(p.question.difficulty.label, style: cell)),
+                  pad(pw.Text(topicCell(p.question), style: cell)),
+                  for (final w in others) pad(pw.Text('${noIn(w, p.question) ?? '—'}', style: cell, textAlign: pw.TextAlign.center)),
+                  pad(pw.Text(p.question.solution.trim().isEmpty ? '—' : p.question.solution.trim(), style: cell)),
+                ]),
+            ],
+          ),
+          pw.SizedBox(height: 10),
+          pw.Text('${tr('Cevap dizisi')}: ${[for (final p in qs) '${p.no}-${answerOf(p)}'].join('   ')}', style: bold),
+          pw.SizedBox(height: 6),
+          if (others.isNotEmpty)
+            pw.Text(tr('"{0} kit. no" sütunu aynı sorunun o kitapçıktaki numarasını gösterir.', [others.first.letter]),
+                style: const pw.TextStyle(fontSize: 7.5, color: _muted)),
+          if (pts.length == 1)
+            pw.Text(tr('Puan = doğru sayısı × {0}', [_fmt(pts.first)]) + (o.wrongsPerCorrect > 0 ? ' · ${tr('{0} yanlış 1 doğruyu götürür', [o.wrongsPerCorrect])}' : ''),
+                style: const pw.TextStyle(fontSize: 7.5, color: _muted)),
+        ],
+      ));
+    }
+  }
+
   // ———————————————————————————— Çözümlü kitapçık
 
   if (parts.solutions && plan.variants.isNotEmpty) {

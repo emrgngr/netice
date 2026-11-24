@@ -18,7 +18,7 @@ export const LANGUAGES = {
 export const DIFFICULTIES = ["mixed", "easy", "medium", "hard"];
 
 export const LIMITS = {
-  maxQuestions: 10,
+  maxQuestions: 20,
   maxTextChars: 60000,
   maxImages: 6,
   // base64 uzunluğu; ~1,5 MB görsel.
@@ -57,7 +57,7 @@ export function parseRequest(body) {
   }
 
   const count = Math.round(Number(body.count) || 5);
-  if (count < 1 || count > LIMITS.maxQuestions) throw new RequestError("bad_count", "count must be 1-10");
+  if (count < 1 || count > LIMITS.maxQuestions) throw new RequestError("bad_count", "count must be 1-20");
   const choices = Math.round(Number(body.choices) || 5);
   if (choices < 3 || choices > 5) throw new RequestError("bad_choices", "choices must be 3-5");
   const difficulty = DIFFICULTIES.includes(body.difficulty) ? body.difficulty : "mixed";
@@ -92,7 +92,9 @@ Write multiple-choice questions that a teacher could put on a real classroom exa
 - Question stems are self-contained, clear and age-appropriate for the stated grade or level; avoid negative stems unless the negation is emphasised (e.g. in capitals).
 - Mix question kinds where the material allows: recall, understanding, application, interpreting a table/graph/figure from the note.
 - Do not repeat questions and do not write near-duplicates of the questions listed under "Avoid".
-- Write the solution as a short explanation (1–3 sentences) of why the correct choice is right, in the same language.
+- For each question give "topic": the specific sub-topic or learning outcome it tests, as a short phrase (2–8 words) taken from the note's own headings or terms, so a teacher can group the answer key by topic.
+- Write the solution as a short explanation (1–3 sentences) of why the correct choice is right, in the same language. Start it with the basis in the note when there is one (article/section number, rule, law, formula or definition, e.g. "m.7:", "Newton's 2nd law:"), and say briefly why the main distractor is wrong when that helps.
+- Spread the correct answers evenly over the choice positions across the whole set.
 - Use plain text. For formulas use ordinary characters (x², √, π, ≤, →); no LaTeX, no Markdown.
 - Do not put choice letters (A), B) …) inside the choice texts.
 
@@ -141,9 +143,10 @@ export function outputSchema() {
         items: {
           type: "object",
           additionalProperties: false,
-          required: ["text", "choices", "correct_index", "difficulty", "solution"],
+          required: ["text", "topic", "choices", "correct_index", "difficulty", "solution"],
           properties: {
             text: { type: "string" },
+            topic: { type: "string" },
             choices: { type: "array", items: { type: "string" } },
             correct_index: { type: "integer" },
             difficulty: { type: "string", enum: ["easy", "medium", "hard"] },
@@ -173,6 +176,7 @@ export function cleanOutput(parsed, req) {
     seen.add(key);
     out.push({
       text,
+      topic: str(q?.topic, 200),
       choices,
       correct,
       difficulty: ["easy", "medium", "hard"].includes(q.difficulty) ? q.difficulty : "medium",

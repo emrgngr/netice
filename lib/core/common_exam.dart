@@ -41,6 +41,20 @@ Exam makeCommon(AppStore store, Exam exam) {
   return e;
 }
 
+/// [exam]'ın [className] şubesindeki karşılığı. Başka şube istenirse sınav
+/// ortak sınava çevrilir ve o şube için aynı anahtarla bir kopya açılır
+/// (zaten varsa o kullanılır). Böylece her şubenin formu kendi sınavının
+/// makine kodunu taşır ve okutulan kâğıt doğru şubeye kaydedilir.
+Exam examForClass(AppStore store, Exam exam, String className) {
+  if (exam.className == className) return exam;
+  final base = makeCommon(store, exam);
+  final existing = store.exams.where((e) => e.commonId == base.commonId && e.className == className).firstOrNull;
+  if (existing != null) return existing;
+  final e = base.copyWith(id: _newId('exam'), className: className);
+  store.upsertExam(e);
+  return e;
+}
+
 /// Diğer öğretmenlere gönderilecek ortak sınav dosyası (cevap anahtarı,
 /// kitapçıklar, puanlama; öğrenci verisi yok).
 String exportCommonExam(AppStore store, Exam exam) {

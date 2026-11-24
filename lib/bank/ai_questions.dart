@@ -24,8 +24,12 @@ import 'bank_store.dart';
 const aiServiceUrl = String.fromEnvironment('SORU_SERVIS_URL', defaultValue: '');
 const _appKey = 'netice-app-1';
 
-/// Bir seferde üretilebilecek en fazla soru.
-const aiMaxPerRequest = 10;
+/// Sunucuya bir istekte sorulan en fazla soru. Daha fazlası istenirse
+/// uygulama bunu 20'şerlik parçalara böler.
+const aiMaxPerRequest = 20;
+
+/// Kullanıcının bir seferde isteyebileceği en fazla soru.
+const aiMaxTotal = 100;
 
 enum AiDifficulty {
   mixed,
@@ -216,12 +220,15 @@ AiResult parseAiResponse(Map<String, dynamic> j, BankNote note, BankStore store,
     final correct = (raw['correct'] as num?)?.toInt() ?? -1;
     final text = '${raw['text'] ?? ''}'.trim();
     if (text.isEmpty || choices.length < 2 || correct < 0 || correct >= choices.length) continue;
+    // Yapay zekânın verdiği alt konu: notta konu varsa kazanım olarak,
+    // yoksa konu olarak yazılır (cevap anahtarında konu dağılımı için).
+    final sub = '${raw['topic'] ?? ''}'.trim();
     list.add(BankQuestion(
       id: BankStore.newId('q'),
       subject: note.subject,
       grade: note.grade,
-      topic: note.topic,
-      outcome: note.outcome,
+      topic: note.topic.trim().isNotEmpty ? note.topic : sub,
+      outcome: note.outcome.trim().isNotEmpty ? note.outcome : (note.topic.trim().isNotEmpty ? sub : ''),
       difficulty: switch (raw['difficulty']) {
         'easy' => Difficulty.easy,
         'hard' => Difficulty.hard,
@@ -239,7 +246,35 @@ AiResult parseAiResponse(Map<String, dynamic> j, BankNote note, BankStore store,
       updated: t,
     ));
   }
-  return AiResult(list, '${j['problem'] ?? ''}'.trim());
+  return AiResult(balanceAnswers(list, seed: t.microsecondsSinceEpoch), '${j['problem'] ?? ''}'.trim());
+}
+
+/// Doğru şıkları harflere eşit dağıtır (ör. 20 soru, 5 şık → her harf 4 kez).
+/// Şıkların yeri değiştirilir; soru ve cevap anlamı aynı kalır.
+List<BankQuestion> balanceAnswers(List<BankQuestion> qs, {int seed = 1}) {
+  final rnd = math.Random(seed);
+  final byCount = <int, List<int>>{};
+  for (var i = 0; i < qs.length; i++) {
+    final q = qs[i];
+    if (q.type == QuestionType.multiple && q.choices.length >= 2 && q.correct.length == 1) {
+      byCount.putIfAbsent(q.choices.length, () => []).add(i);
+    }
+  }
+  final out = [...qs];
+  byCount.forEach((n, idx) {
+    final targets = [for (var k = 0; k < idx.length; k++) k % n]..shuffle(rnd);
+    for (var k = 0; k < idx.length; k++) {
+      final q = out[idx[k]];
+      final from = q.correct.first, to = targets[k];
+      if (from == to) continue;
+      final ch = [...q.choices];
+      final tmp = ch[from];
+      ch[from] = ch[to];
+      ch[to] = tmp;
+      out[idx[k]] = q.copyWith(choices: ch, correct: {to});
+    }
+  });
+  return out;
 }
 
 /// Notun metni ve görsellerinden soru önerileri ister.
@@ -249,6 +284,7 @@ Future<AiResult> generateAiQuestions(
   required BankStore store,
   required AiUsage usage,
   required bool paid,
+  List<String> alsoAvoid = const [],
   http.Client? client,
   String? url,
 }) async {
@@ -272,10 +308,14 @@ Future<AiResult> generateAiQuestions(
   }
 
   // Bankada bu konudaki sorular tekrar edilmesin.
+  // Aynı seferde önceki parçalarda üretilenler de tekrar edilmesin.
   final avoid = [
-    for (final q in store.questions)
-      if (q.topicLabel.isNotEmpty && q.topicLabel == note.topicLabel && q.text.trim().isNotEmpty) q.text.trim(),
-  ].reversed.take(30).toList();
+    ...alsoAvoid.reversed,
+    ...[
+      for (final q in store.questions)
+        if (q.topicLabel.isNotEmpty && q.topicLabel == note.topicLabel && q.text.trim().isNotEmpty) q.text.trim(),
+    ].reversed,
+  ].take(30).toList();
 
   final c = client ?? http.Client();
   http.Response r;
@@ -290,7 +330,7 @@ Future<AiResult> generateAiQuestions(
           },
           body: jsonEncode(aiRequestBody(note, o, images: images, avoid: avoid)),
         )
-        .timeout(const Duration(seconds: 180));
+        .timeout(const Duration(seconds: 300));
   } on SocketException {
     throw AiException(tr('İnternet bağlantısı yok. Soru üretmek için internete bağlanın.'));
   } on http.ClientException {
