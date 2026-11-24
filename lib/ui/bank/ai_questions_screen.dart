@@ -86,7 +86,8 @@ class _AiQuestionsScreenState extends State<AiQuestionsScreen> {
   AiUsage get _usage => AiUsage.instance;
   late BankNote? _note = bank.noteById(widget.noteId);
   int _count = 20;
-  late int _choices = _defaultChoices();
+  late bool _kids = _defaultKids();
+  late int _choices = _kids ? 3 : _defaultChoices();
   AiDifficulty _difficulty = AiDifficulty.mixed;
   Set<QuestionType> _types = {QuestionType.multiple};
   bool _busy = false;
@@ -99,6 +100,14 @@ class _AiQuestionsScreenState extends State<AiQuestionsScreen> {
   int _defaultChoices() {
     final g = int.tryParse(RegExp(r'\d+').firstMatch(_note?.grade ?? '')?.group(0) ?? '');
     return g != null && g <= 8 ? 4 : 5;
+  }
+
+  /// Not ilkokul düzeyindeyse (1–4. sınıf) çocuk dili açık başlar.
+  bool _defaultKids() {
+    final grade = (_note?.grade ?? '').toLowerCase();
+    if (grade.contains('ilkokul') || grade.contains('primary') || grade.contains('grundschule')) return true;
+    final g = int.tryParse(RegExp(r'\d+').firstMatch(grade)?.group(0) ?? '');
+    return g != null && g >= 1 && g <= 4;
   }
 
   bool get _pending => _drafts.any((d) => !d.added && d.selected);
@@ -156,7 +165,7 @@ class _AiQuestionsScreenState extends State<AiQuestionsScreen> {
         final n = math.min(aiMaxPerRequest, count - _done);
         final r = await generateAiQuestions(
           note,
-          AiOptions(count: n, choices: _choices, difficulty: _difficulty, types: _types),
+          AiOptions(count: n, choices: _choices, difficulty: _difficulty, types: _types, kids: _kids),
           store: bank,
           usage: _usage,
           paid: paid,
@@ -336,12 +345,27 @@ class _AiQuestionsScreenState extends State<AiQuestionsScreen> {
                           onSelected: _busy ? null : (_) => setState(() => _difficulty = d),
                         ),
                     ]),
+                    const SizedBox(height: 8),
+                    SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      secondary: const Icon(Icons.child_care_rounded),
+                      title: Text(tr('Çocuklar için (ilkokul)')),
+                      subtitle: Text(tr('Kısa cümleler, basit kelimeler; sorular çocuğa hitap eder. Çocuk kitapçık şablonuyla uyumlu (A–B–C).')),
+                      value: _kids,
+                      onChanged: _busy
+                          ? null
+                          : (v) => setState(() {
+                                _kids = v;
+                                _choices = v ? 3 : _defaultChoices();
+                              }),
+                    ),
                     if (_types.contains(QuestionType.multiple)) ...[
-                      const SizedBox(height: 14),
+                      const SizedBox(height: 6),
                       Text(tr('Şık sayısı'), style: const TextStyle(fontWeight: FontWeight.w700)),
                       const SizedBox(height: 8),
                       SegmentedButton<int>(
                         segments: const [
+                          ButtonSegment(value: 3, label: Text('A–C')),
                           ButtonSegment(value: 4, label: Text('A–D')),
                           ButtonSegment(value: 5, label: Text('A–E')),
                         ],

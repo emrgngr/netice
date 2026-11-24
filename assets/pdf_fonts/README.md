@@ -5,3 +5,7 @@ SC/JP dosyaları GB2312 ve JIS X 0208 karakterleriyle sınırlandırılmıştır
 Liberation Serif ve Liberation Sans (Red Hat / Google, SIL Open Font License 1.1): Times New Roman ve
 Arial ile aynı ölçülerde. Raporlarda kullanıcının seçtiği yazı tipi olarak kullanılır; Latin, Latin
 genişletilmiş (Türkçe, Azerice) ve Kiril harflerle sınırlandırılmıştır (pyftsubset).
+
+Andika (SIL International, SIL Open Font License 1.1, "Andika" ayrılmış ad; lisans: OFL-Andika.txt):
+okumayı yeni öğrenen çocuklar için tasarlanmış, harfleri birbirine karışmayan yazı tipi. Çocuk / ilkokul
+kitapçık şablonunda kullanılır. Ayrılmış ad nedeniyle dosyalar değiştirilmeden (alt küme alınmadan) eklenmiştir.
