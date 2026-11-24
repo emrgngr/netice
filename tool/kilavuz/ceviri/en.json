@@ -342,5 +342,11 @@
  "Hepsini birlikte görün ya da yalnız istediğiniz sınıfları seçin.": "See all classes together or pick only the ones you want.",
  "Ortalama başarı, sınav, kâğıt, öğrenci ve sınıf sayısı ile geçme oranı.": "Average success, number of exams, sheets, students and classes, and the pass rate.",
  "Bütün istatistiği rapor olarak alıp paylaşın.": "Get all the statistics as a report and share it.",
- "Sınıf sıralaması ve özet tablolar herkese açıktır. Puan dağılımı, gelişim çizgileri ve öğrenci listeleri Pro ile gelir.": "Class ranking and summary tables are free for everyone. Score distribution, progress lines and student lists come with Pro."
+ "Sınıf sıralaması ve özet tablolar herkese açıktır. Puan dağılımı, gelişim çizgileri ve öğrenci listeleri Pro ile gelir.": "Class ranking and summary tables are free for everyone. Score distribution, progress lines and student lists come with Pro.",
+ "Sınıf sınıf analiz": "Class-by-class analysis",
+ "Öne çıkanlar": "Highlights",
+ "Genel istatistik": "General statistics",
+ "PDF rapor": "PDF report",
+ "Dönem": "Term",
+ "Genel başarı": "Overall success"
 }

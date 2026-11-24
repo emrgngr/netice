@@ -342,5 +342,11 @@
  "Hepsini birlikte görün ya da yalnız istediğiniz sınıfları seçin.": "全クラスをまとめて見るか、見たいクラスだけを選びます。",
  "Ortalama başarı, sınav, kâğıt, öğrenci ve sınıf sayısı ile geçme oranı.": "平均正答率、テスト数、答案数、生徒数、クラス数、合格率。",
  "Bütün istatistiği rapor olarak alıp paylaşın.": "すべての統計をレポートとして出力し、共有できます。",
- "Sınıf sıralaması ve özet tablolar herkese açıktır. Puan dağılımı, gelişim çizgileri ve öğrenci listeleri Pro ile gelir.": "クラス順位と集計表は誰でも無料です。得点分布、推移グラフ、生徒一覧はProで利用できます。"
+ "Sınıf sıralaması ve özet tablolar herkese açıktır. Puan dağılımı, gelişim çizgileri ve öğrenci listeleri Pro ile gelir.": "クラス順位と集計表は誰でも無料です。得点分布、推移グラフ、生徒一覧はProで利用できます。",
+ "Sınıf sınıf analiz": "クラス別分析",
+ "Öne çıkanlar": "ハイライト",
+ "Genel istatistik": "全体統計",
+ "PDF rapor": "PDF レポート",
+ "Dönem": "学期",
+ "Genel başarı": "全体の達成度"
 }

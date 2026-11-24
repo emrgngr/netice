@@ -340,5 +340,11 @@
  "Hepsini birlikte görün ya da yalnız istediğiniz sınıfları seçin.": "모든 반을 함께 보거나 원하는 반만 고르세요.",
  "Ortalama başarı, sınav, kâğıt, öğrenci ve sınıf sayısı ile geçme oranı.": "평균 성취도, 시험·답안지·학생·반 수와 합격률.",
  "Bütün istatistiği rapor olarak alıp paylaşın.": "모든 통계를 보고서로 받아 공유하세요.",
- "Sınıf sıralaması ve özet tablolar herkese açıktır. Puan dağılımı, gelişim çizgileri ve öğrenci listeleri Pro ile gelir.": "반 순위와 요약 표는 누구나 무료입니다. 점수 분포, 성장 그래프, 학생 목록은 Pro에서 제공됩니다."
+ "Sınıf sıralaması ve özet tablolar herkese açıktır. Puan dağılımı, gelişim çizgileri ve öğrenci listeleri Pro ile gelir.": "반 순위와 요약 표는 누구나 무료입니다. 점수 분포, 성장 그래프, 학생 목록은 Pro에서 제공됩니다.",
+ "Sınıf sınıf analiz": "반별 분석",
+ "Öne çıkanlar": "주요 지표",
+ "Genel istatistik": "전체 통계",
+ "PDF rapor": "PDF 보고서",
+ "Dönem": "학기",
+ "Genel başarı": "전체 성취도"
 }

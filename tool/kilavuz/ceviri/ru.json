@@ -342,5 +342,11 @@
  "Hepsini birlikte görün ya da yalnız istediğiniz sınıfları seçin.": "Смотрите все классы вместе или выберите только нужные.",
  "Ortalama başarı, sınav, kâğıt, öğrenci ve sınıf sayısı ile geçme oranı.": "Средняя успеваемость, число работ, бланков, учеников и классов, а также доля сдавших.",
  "Bütün istatistiği rapor olarak alıp paylaşın.": "Получите всю статистику в виде отчёта и поделитесь им.",
- "Sınıf sıralaması ve özet tablolar herkese açıktır. Puan dağılımı, gelişim çizgileri ve öğrenci listeleri Pro ile gelir.": "Рейтинг классов и сводные таблицы доступны всем. Распределение баллов, линии динамики и списки учеников — с Pro."
+ "Sınıf sıralaması ve özet tablolar herkese açıktır. Puan dağılımı, gelişim çizgileri ve öğrenci listeleri Pro ile gelir.": "Рейтинг классов и сводные таблицы доступны всем. Распределение баллов, линии динамики и списки учеников — с Pro.",
+ "Sınıf sınıf analiz": "Анализ по классам",
+ "Öne çıkanlar": "Главное",
+ "Genel istatistik": "Общая статистика",
+ "PDF rapor": "PDF-отчёт",
+ "Dönem": "Полугодие",
+ "Genel başarı": "Общая успеваемость"
 }
