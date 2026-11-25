@@ -23,10 +23,12 @@ sys.path.insert(0, os.path.join(os.path.dirname(HERE), 'video'))
 from seslendir import MODEL, RELEASE, api  # noqa: E402
 
 LIAM = 'TX3LPaxmHKxFdv7VOQHJ'
-SES_ETIKETI = 'erkek_genc'
+SES_ETIKETI = 'erkek_murat'
 # Önceki onaylı kadın ses: "Meloxia Turkish Pro" axtmxCPnqPghs9C5SjJ8.
-# Boşsa kütüphaneden genç, enerjik Türkçe erkek sesi aranır.
-SECILI_SES = ''
+# Seçili ses: "Murat - Dynamic, Higher and Young" (ana dili Türkçe, genç, enerjik,
+# reklam/tanıtım için). Aramanın ilk adayı "Lucas" çok dilli İngilizce bir sesti;
+# Türkçe telaffuz için ana dili Türkçe olan ses seçildi. Boş bırakılırsa aranır.
+SECILI_SES = 'dgeCtiGkvIwzoR09qzjl'
 
 
 def promo_voice_id():
