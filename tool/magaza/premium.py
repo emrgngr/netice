@@ -235,7 +235,7 @@ def main():
     intro = os.path.join(audio, 'acilis.mp3')
     if os.path.exists(music):
         inputs += ['-stream_loop', '-1', '-i', music]
-        filt.append(f'[{k}:a]volume=0.16,afade=t=in:d=1.5,afade=t=out:st={total - 2.5:.2f}:d=2.5[m]')
+        filt.append(f'[{k}:a]volume=0.22,afade=t=in:d=1.5,afade=t=out:st={total - 2.5:.2f}:d=2.5[m]')
         labels.append('[m]')
         k += 1
     if os.path.exists(intro):
