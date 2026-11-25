@@ -208,7 +208,7 @@ class _ProScreenState extends State<ProScreen> {
                     textAlign: TextAlign.center,
                     style: const TextStyle(color: Color(0xFFE9C46A), fontWeight: FontWeight.w600, fontSize: 13)),
               ),
-            if (store.thanksCode != null)
+            if (store.thanksCode != null && !ProService.salesDisabled)
               Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: _InviteCta(
@@ -221,6 +221,8 @@ class _ProScreenState extends State<ProScreen> {
               _LicenseActiveCard(store.license!.institution, store.license!.daysLeft(DateTime.now()))
             else if (store.hasSubscription)
               _ActiveCard(product: store.proProduct)
+            else if (ProService.salesDisabled)
+              const _SoonCard()
             else ...[
               if (store.hasTermPass)
                 Padding(
@@ -300,9 +302,11 @@ class _ProScreenState extends State<ProScreen> {
               ),
             ],
             const SizedBox(height: 14),
-            _AiPackCard(plan: _pack, busy: _packBusy, onBuy: _buyPack),
-            const SizedBox(height: 14),
-            if (store.thanksCode == null) ...[
+            if (!ProService.salesDisabled) ...[
+              _AiPackCard(plan: _pack, busy: _packBusy, onBuy: _buyPack),
+              const SizedBox(height: 14),
+            ],
+            if (store.thanksCode == null && !ProService.salesDisabled) ...[
               _InviteCta(
                 title: tr('Arkadaşını davet et'),
                 detail: store.appliedInvite == null && !store.hasSubscription
@@ -312,14 +316,17 @@ class _ProScreenState extends State<ProScreen> {
               ),
               const SizedBox(height: 10),
             ],
-            _SchoolPackCta(onTap: () => SchoolOfferScreen.open(context)),
-            const SizedBox(height: 10),
+            if (!ProService.salesDisabled) ...[
+              _SchoolPackCta(onTap: () => SchoolOfferScreen.open(context)),
+              const SizedBox(height: 10),
+            ],
             _InstitutionCta(onTap: () async {
               await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LicenseScreen()));
               if (context.mounted && StoreScope.of(context).isPro && widget.feature != null) Navigator.of(context).maybePop();
               if (mounted) setState(() {});
             }),
             const SizedBox(height: 6),
+            if (!ProService.salesDisabled)
             Text(
               tr('{0} alınır. Sınav dönemi paketi ve ek soru paketi tek seferliktir ve yenilenmez. Yıllık abonelik, dönem bitmeden en az 24 saat önce iptal edilmezse aynı süre ve fiyatla kendiliğinden yenilenir. {1} bölümünden istediğiniz zaman iptal edebilirsiniz; iptal edilen abonelik dönem sonuna kadar geçerlidir. Pro\'ya geçmek verilerinizin yerini değiştirmez: her şey yine bu cihazda kalır.', [Platform.isIOS || Platform.isMacOS ? tr('Ödeme Apple Kimliğinizden') : tr('Ödeme Google Play hesabınızdan'), Platform.isIOS || Platform.isMacOS ? tr('Ayarlar > Apple Kimliği > Abonelikler') : tr('Google Play > Abonelikler')]),
               textAlign: TextAlign.center,
@@ -422,6 +429,32 @@ class _FeatureRow extends StatelessWidget {
               Text(f.detail, style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 12.5)),
             ]),
           ),
+        ]),
+      );
+}
+
+/// Satış kapalı derlemede fiyat ve satın alma yerine gösterilir.
+class _SoonCard extends StatelessWidget {
+  const _SoonCard();
+
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: Colors.white24),
+        ),
+        child: Column(children: [
+          const Icon(Icons.schedule_rounded, color: Color(0xFFE9C46A), size: 30),
+          const SizedBox(height: 8),
+          Text(tr('Pro aboneliği yakında App Store\'da'),
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 16)),
+          const SizedBox(height: 6),
+          Text(tr('Okuma, soru bankası ve temel raporlar ücretsizdir. Pro özellikleri bir sonraki güncellemeyle satın alınabilecek.'),
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white.withValues(alpha: 0.72), fontSize: 13.5, height: 1.4)),
         ]),
       );
 }

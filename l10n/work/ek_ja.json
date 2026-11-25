@@ -1403,5 +1403,18 @@
  "Silme ve düzeltme": "削除と修正",
  "Sınavları seçip silin": "テストを選んで削除",
  "Yanlışlıkla silerseniz altta beliren \"Geri al\" düğmesine 6 saniye içinde dokunun.": "うっかり削除したら、6秒以内に下の「元に戻す」をタップします。",
- "Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.": "Windows 版では Pro はライセンスコードで有効になります。コードはこちらへご連絡ください：{0}。プロフィール > 機関ライセンスで入力してください。"
+ "Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.": "Windows 版では Pro はライセンスコードで有効になります。コードはこちらへご連絡ください：{0}。プロフィール > 機関ライセンスで入力してください。",
+ "Pro aboneliği yakında App Store'da.": "Pro サブスクリプションは近日 App Store で提供予定です。",
+ "Pro aboneliği yakında App Store'da": "Pro サブスクリプションは近日 App Store で",
+ "Okuma, soru bankası ve temel raporlar ücretsizdir. Pro özellikleri bir sonraki güncellemeyle satın alınabilecek.": "読み取り、問題バンク、基本レポートは無料です。Pro 機能は次回のアップデートで購入できるようになります。",
+ "Bu sürümde yenilikler": "このバージョンの新機能",
+ "Güncelle": "アップデート",
+ "Harika": "OK",
+ "Küçük düzeltmeler ve hız iyileştirmeleri.": "細かな修正と速度の改善。",
+ "Mağazadan güncelleyin. Verileriniz olduğu gibi kalır.": "ストアからアップデートしてください。データはそのまま残ります。",
+ "Netice Pro artık App Store'da: yıllık abonelik, sınav dönemi paketi ve ek soru paketi uygulama içinden alınabilir.": "Netice Pro が App Store に登場しました。年間サブスクリプション、試験期間パック、追加問題パックをアプリ内で購入できます。",
+ "Sitemizden yeni kurulum dosyasını indirin. Verileriniz olduğu gibi kalır.": "当サイトから新しいインストーラーをダウンロードしてください。データはそのまま残ります。",
+ "Sürüm {0}": "バージョン {0}",
+ "Uygulama yeni sürüm çıktığında size haber verir; yenilikleri bu pencerede görürsünüz.": "新しいバージョンが出るとアプリがお知らせします。新機能はこの画面で確認できます。",
+ "Yeni sürüm hazır: {0}": "新しいバージョンがあります：{0}"
 }

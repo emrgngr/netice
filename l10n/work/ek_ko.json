@@ -469,5 +469,18 @@
  "Silme ve düzeltme": "삭제와 수정",
  "Sınavları seçip silin": "시험을 골라 삭제",
  "Yanlışlıkla silerseniz altta beliren \"Geri al\" düğmesine 6 saniye içinde dokunun.": "실수로 지웠다면 아래에 나오는 \"실행 취소\"를 6초 안에 누르세요.",
- "Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.": "Windows 버전에서는 라이선스 코드로 Pro가 열립니다. 코드를 받으려면 문의하세요: {0}. 프로필 > 기관 라이선스에 입력하세요."
+ "Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.": "Windows 버전에서는 라이선스 코드로 Pro가 열립니다. 코드를 받으려면 문의하세요: {0}. 프로필 > 기관 라이선스에 입력하세요.",
+ "Pro aboneliği yakında App Store'da.": "Pro 구독이 곧 App Store에 출시됩니다.",
+ "Pro aboneliği yakında App Store'da": "Pro 구독 곧 App Store 출시",
+ "Okuma, soru bankası ve temel raporlar ücretsizdir. Pro özellikleri bir sonraki güncellemeyle satın alınabilecek.": "판독, 문제 은행, 기본 보고서는 무료입니다. Pro 기능은 다음 업데이트에서 구매할 수 있습니다.",
+ "Bu sürümde yenilikler": "이번 버전의 새로운 기능",
+ "Güncelle": "업데이트",
+ "Harika": "좋아요",
+ "Küçük düzeltmeler ve hız iyileştirmeleri.": "작은 수정 및 속도 개선.",
+ "Mağazadan güncelleyin. Verileriniz olduğu gibi kalır.": "스토어에서 업데이트하세요. 데이터는 그대로 유지됩니다.",
+ "Netice Pro artık App Store'da: yıllık abonelik, sınav dönemi paketi ve ek soru paketi uygulama içinden alınabilir.": "이제 App Store에서 Netice Pro를 이용할 수 있습니다. 연간 구독, 시험 기간 패키지, 추가 문제 패키지를 앱에서 구매할 수 있습니다.",
+ "Sitemizden yeni kurulum dosyasını indirin. Verileriniz olduğu gibi kalır.": "웹사이트에서 새 설치 파일을 내려받으세요. 데이터는 그대로 유지됩니다.",
+ "Sürüm {0}": "버전 {0}",
+ "Uygulama yeni sürüm çıktığında size haber verir; yenilikleri bu pencerede görürsünüz.": "새 버전이 나오면 앱이 알려 드립니다. 새로운 기능은 이 창에서 확인할 수 있습니다.",
+ "Yeni sürüm hazır: {0}": "새 버전 사용 가능: {0}"
 }

@@ -6,6 +6,7 @@ import 'core/ads.dart';
 import 'core/cloud.dart';
 import 'core/pro.dart';
 import 'core/store.dart';
+import 'core/updates.dart';
 import 'l10n/l10n.dart';
 import 'ui/home_screen.dart';
 import 'ui/splash_screen.dart';
@@ -23,6 +24,7 @@ void main() {
     ProService.instance.attach(store);
     AdAdmin.instance.load();
     AdService.instance.refresh();
+    UpdateService.instance.check();
   });
 }
 

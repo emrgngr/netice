@@ -15,6 +15,10 @@ on:
         description: 'App Store Connect (TestFlight) için yükle'
         type: boolean
         default: true
+      satis_kapali:
+        description: 'Satın alma bölümlerini gizle (App Store ücretli anlaşması onaylanana kadar)'
+        type: boolean
+        default: false
 
 jobs:
   ipa:
@@ -103,7 +107,7 @@ jobs:
         if: steps.hazir.outputs.tamam == '1'
         run: |
           flutter pub get
-          flutter build ios --release --config-only --no-codesign --build-number=${{ github.run_number }} --dart-define=GOOGLE_IOS_CLIENT_ID=${{ secrets.GOOGLE_IOS_CLIENT_ID }}
+          flutter build ios --release --config-only --no-codesign --build-number=${{ github.run_number }} --dart-define=GOOGLE_IOS_CLIENT_ID=${{ secrets.GOOGLE_IOS_CLIENT_ID }} --dart-define=SATIS_KAPALI=${{ inputs.satis_kapali && 'true' || 'false' }}
       - name: Sertifika ve profil (App Store Connect API)
         if: steps.hazir.outputs.tamam == '1'
         run: |

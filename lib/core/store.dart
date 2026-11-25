@@ -229,6 +229,24 @@ class AppStore extends ChangeNotifier {
     return s;
   }
 
+  /// "Bu sürümde yenilikler" penceresinin en son gösterildiği sürüm. Boşsa
+  /// (yeni kurulum ya da bu özellikten önceki sürüm) pencere gösterilmez.
+  String? lastSeenVersion;
+
+  /// "Yeni sürüm hazır" uyarısı bu sürüm için kapatıldı.
+  String? dismissedUpdate;
+
+  void markVersionSeen(String v) {
+    if (lastSeenVersion == v) return;
+    lastSeenVersion = v;
+    _changed();
+  }
+
+  void dismissUpdate(String v) {
+    dismissedUpdate = v;
+    _changed();
+  }
+
   /// Ana sayfadaki öneri kartı bu tarihe kadar gizli.
   DateTime? promoHiddenUntil;
   bool get showPromo => promoHiddenUntil == null || DateTime.now().isAfter(promoHiddenUntil!);
@@ -337,6 +355,8 @@ class AppStore extends ChangeNotifier {
         'splashSound': splashSound,
         'themeMode': themeMode,
         'promoHiddenUntil': promoHiddenUntil?.toIso8601String(),
+        if (lastSeenVersion != null) 'lastSeenVersion': lastSeenVersion,
+        if (dismissedUpdate != null) 'dismissedUpdate': dismissedUpdate,
         'proProduct': proProduct,
         'trialStart': trialStart?.toIso8601String(),
         'proConfirmedAt': proConfirmedAt?.toIso8601String(),
@@ -407,6 +427,8 @@ class AppStore extends ChangeNotifier {
     }
     bonusProUntil = DateTime.tryParse('${j['bonusProUntil'] ?? ''}') ?? bonusProUntil;
     promoHiddenUntil = DateTime.tryParse('${j['promoHiddenUntil'] ?? ''}') ?? promoHiddenUntil;
+    lastSeenVersion = j['lastSeenVersion'] as String? ?? lastSeenVersion;
+    dismissedUpdate = j['dismissedUpdate'] as String? ?? dismissedUpdate;
     ratePrompted = j['ratePrompted'] as bool? ?? ratePrompted;
     splashSound = j['splashSound'] as bool? ?? splashSound;
     final tm = j['themeMode'];

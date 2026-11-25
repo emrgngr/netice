@@ -18,6 +18,7 @@ import 'help_screen.dart';
 import 'bank/library_screen.dart';
 import 'rate_share.dart';
 import 'term_screen.dart';
+import 'update_ui.dart';
 import 'exam_screen.dart';
 import 'logo.dart';
 import 'new_exam_screen.dart';
@@ -46,6 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _tab = 0;
   bool _guideShown = false;
   bool _rateShown = false;
+  bool _whatsNewChecked = false;
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +61,14 @@ class _HomeScreenState extends State<HomeScreen> {
         if (mounted) {
           Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OnboardingScreen()));
         }
+      });
+    }
+    if (store.onboardingDone && !_whatsNewChecked) {
+      _whatsNewChecked = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted) return;
+        // Yenilikler gösterildiyse puanlama sorusu bu açılışta sorulmaz.
+        if (await maybeShowWhatsNew(context, store)) _rateShown = true;
       });
     }
     if (store.onboardingDone && store.shouldAskRating && !_rateShown) {
@@ -358,6 +368,7 @@ class _DashboardState extends State<_Dashboard> {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
             sliver: SliverToBoxAdapter(child: hero),
           ),
+        SliverToBoxAdapter(child: UpdateBanner(padding: EdgeInsets.fromLTRB(wide ? 28 : 16, 12, wide ? 28 : 16, 0))),
         if (store.hasDemo && AppStore.showDemoNotice)
           SliverPadding(
             padding: EdgeInsets.fromLTRB(wide ? 28 : 16, 12, wide ? 28 : 16, 0),

@@ -1403,5 +1403,18 @@
  "Silme ve düzeltme": "Удаление и исправление",
  "Sınavları seçip silin": "Выберите и удалите",
  "Yanlışlıkla silerseniz altta beliren \"Geri al\" düğmesine 6 saniye içinde dokunun.": "Удалили по ошибке — нажмите «Отменить» внизу в течение 6 секунд.",
- "Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.": "В версии для Windows Pro открывается лицензионным кодом. Чтобы получить код, напишите нам: {0}. Введите его в разделе Профиль > Лицензия учреждения."
+ "Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.": "В версии для Windows Pro открывается лицензионным кодом. Чтобы получить код, напишите нам: {0}. Введите его в разделе Профиль > Лицензия учреждения.",
+ "Pro aboneliği yakında App Store'da.": "Подписка Pro скоро появится в App Store.",
+ "Pro aboneliği yakında App Store'da": "Подписка Pro скоро в App Store",
+ "Okuma, soru bankası ve temel raporlar ücretsizdir. Pro özellikleri bir sonraki güncellemeyle satın alınabilecek.": "Сканирование, банк вопросов и базовые отчёты бесплатны. Функции Pro можно будет купить в следующем обновлении.",
+ "Bu sürümde yenilikler": "Что нового в этой версии",
+ "Güncelle": "Обновить",
+ "Harika": "Отлично",
+ "Küçük düzeltmeler ve hız iyileştirmeleri.": "Небольшие исправления и ускорение работы.",
+ "Mağazadan güncelleyin. Verileriniz olduğu gibi kalır.": "Обновите приложение в магазине. Ваши данные сохранятся.",
+ "Netice Pro artık App Store'da: yıllık abonelik, sınav dönemi paketi ve ek soru paketi uygulama içinden alınabilir.": "Netice Pro теперь в App Store: годовую подписку, пакет на сезон экзаменов и пакет дополнительных вопросов можно купить в приложении.",
+ "Sitemizden yeni kurulum dosyasını indirin. Verileriniz olduğu gibi kalır.": "Скачайте новый установщик с нашего сайта. Ваши данные сохранятся.",
+ "Sürüm {0}": "Версия {0}",
+ "Uygulama yeni sürüm çıktığında size haber verir; yenilikleri bu pencerede görürsünüz.": "Теперь приложение сообщает о выходе новой версии; что нового — вы увидите в этом окне.",
+ "Yeni sürüm hazır: {0}": "Доступна новая версия: {0}"
 }

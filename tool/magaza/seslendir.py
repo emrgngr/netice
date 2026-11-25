@@ -7,10 +7,10 @@ yazılır. Ses bir kez üretilir ve "rehber-videolari" sürümüne
 magaza_tr_<kare>_<metin-özeti>.mp3 adıyla konur; sonraki çalışmalarda oradan indirilir
 (metin değişirse yeniden üretilir).
 
-Ses: eğitimci, enerjik ve net bir kadın sesi. Sırayla: ELEVENLABS_KADIN_VOICE_ID
-değişkeni; ElevenLabs ses kütüphanesindeki Türkçe kadın anlatıcı seslerinden
-eğitim/anlatım için olanı (hesaba eklenir); yoksa hazır "Alice" sesi
-(açık ve anlaşılır eğitimci sesi).
+Ses (kullanıcı 2026-11-25): heyecanlı, enerjik, genç bir erkek sesi. Sırayla:
+ELEVENLABS_TANITIM_VOICE_ID değişkeni; SECILI_SES; ElevenLabs ses kütüphanesindeki
+Türkçe genç erkek seslerinden reklam/tanıtım için en canlısı; yoksa hazır "Liam"
+(genç, enerjik erkek sesi).
 """
 import hashlib
 import json
@@ -22,35 +22,49 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(os.path.dirname(HERE), 'video'))
 from seslendir import MODEL, RELEASE, api  # noqa: E402
 
-ALICE = 'Xb7hH8MSUJpSbSDYk0k2'
-SES_ETIKETI = 'kadin_enerjik'
-# Kullanıcının onayladığı ses: "Meloxia Turkish Pro" (Türkçe kadın anlatıcı).
-SECILI_SES = 'axtmxCPnqPghs9C5SjJ8'
+LIAM = 'TX3LPaxmHKxFdv7VOQHJ'
+SES_ETIKETI = 'erkek_murat'
+# Önceki onaylı kadın ses: "Meloxia Turkish Pro" axtmxCPnqPghs9C5SjJ8.
+# Seçili ses: "Murat - Dynamic, Higher and Young" (ana dili Türkçe, genç, enerjik,
+# reklam/tanıtım için). Aramanın ilk adayı "Lucas" çok dilli İngilizce bir sesti;
+# Türkçe telaffuz için ana dili Türkçe olan ses seçildi. Boş bırakılırsa aranır.
+SECILI_SES = 'dgeCtiGkvIwzoR09qzjl'
 
 
-def female_voice_id():
-    if os.environ.get('ELEVENLABS_KADIN_VOICE_ID'):
-        return os.environ['ELEVENLABS_KADIN_VOICE_ID']
+def promo_voice_id():
+    if os.environ.get('ELEVENLABS_TANITIM_VOICE_ID'):
+        return os.environ['ELEVENLABS_TANITIM_VOICE_ID']
     if SECILI_SES:
         return SECILI_SES
     try:
-        q = '/shared-voices?page_size=30&language=tr&gender=female&sort=usage_character_count_1y'
-        voices = json.loads(api(q)).get('voices', [])
+        voices = []
+        for q in ('/shared-voices?page_size=50&language=tr&gender=male&age=young&sort=usage_character_count_1y',
+                  '/shared-voices?page_size=50&language=tr&gender=male&sort=usage_character_count_1y'):
+            voices = json.loads(api(q)).get('voices', [])
+            voices = [v for v in voices if (v.get('gender') or 'male') == 'male']
+            if voices:
+                break
         def score(v):
             txt = ' '.join(str(v.get(k) or '') for k in ('name', 'description', 'use_case', 'descriptive', 'category')).lower()
             s = 0
-            for w, p in (('educat', 5), ('eğitim', 5), ('teacher', 5), ('öğretmen', 5), ('narrat', 3), ('calm', 3), ('sakin', 3), ('clear', 2), ('net', 1), ('professional', 2), ('informative', 3)):
+            for w, p in (('energ', 6), ('enerj', 6), ('excit', 6), ('heyecan', 6), ('upbeat', 5), ('dynamic', 4), ('dinamik', 4),
+                         ('advert', 5), ('reklam', 5), ('commercial', 4), ('promo', 4), ('social', 3), ('youth', 3), ('genç', 3),
+                         ('young', 3), ('cheer', 3), ('lively', 4), ('clear', 1), ('professional', 1)):
                 if w in txt:
                     s += p
-            if v.get('age') == 'middle_aged':
-                s += 2
+            if v.get('age') == 'young':
+                s += 4
             if v.get('accent') in ('standard', 'turkish', 'istanbul'):
                 s += 1
+            for w in ('calm', 'sakin', 'deep', 'old', 'whisper', 'meditat', 'asmr', 'sleep'):
+                if w in txt:
+                    s -= 4
             return s
-        voices = [v for v in voices if (v.get('gender') or 'female') == 'female']
+        for v in sorted(voices, key=score, reverse=True)[:8]:
+            print('aday:', score(v), v.get('name'), v.get('voice_id'), v.get('age'), '-', v.get('description'))
         if voices:
             best = max(voices, key=score)
-            print('kadın ses seçildi:', best.get('name'), best.get('voice_id'), '-', best.get('description'))
+            print('erkek ses seçildi:', best.get('name'), best.get('voice_id'), '-', best.get('description'))
             try:
                 added = json.loads(api(f"/voices/add/{best['public_owner_id']}/{best['voice_id']}", {'new_name': 'Netice ' + best.get('name', 'Anlatıcı')}))
                 return added.get('voice_id', best['voice_id'])
@@ -59,7 +73,7 @@ def female_voice_id():
                 return best['voice_id']
     except Exception as e:  # noqa: BLE001
         print('ses kütüphanesi aranamadı:', e)
-    return ALICE
+    return LIAM
 
 
 def main(folder):
@@ -78,12 +92,12 @@ def main(folder):
             continue
         if not os.environ.get('ELEVENLABS_API_KEY'):
             sys.exit(f'{asset} yok ve ELEVENLABS_API_KEY tanımlı değil')
-        vid = vid or female_voice_id()
+        vid = vid or promo_voice_id()
         data = api(f'/text-to-speech/{vid}?output_format=mp3_44100_128', {
             'text': text,
             'model_id': MODEL,
-            # Enerjik ama net: canlı tonlama, biraz hızlı (kullanıcı 2026-11-25: önceki uykulu çıktı).
-            'voice_settings': {'stability': 0.35, 'similarity_boost': 0.8, 'style': 0.5, 'use_speaker_boost': True, 'speed': 1.08},
+            # Heyecanlı ve enerjik (kullanıcı 2026-11-25: genç erkek sesi): değişken tonlama, biraz hızlı.
+            'voice_settings': {'stability': 0.3, 'similarity_boost': 0.8, 'style': 0.6, 'use_speaker_boost': True, 'speed': 1.1},
         })
         with open(out, 'wb') as f:
             f.write(data)
