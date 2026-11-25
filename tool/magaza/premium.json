@@ -1,5 +1,5 @@
 {
- "_not": "ses: 'elevenlabs' olan sahneler tool/magaza/seslendir.py ile üretilir (<kare>.mp3).",
+ "_not": "ses: 'elevenlabs' olan sahneler tool/magaza/seslendir.py ile eğitimci, sakin bir kadın sesiyle üretilir (<kare>.mp3).",
  "sahneler": [
   {
    "kare": "kare_00",
@@ -89,9 +89,9 @@
    "metin": "Kendi optik formunuzu yazdırın. Dört küçük formlu kısa quiz kâğıdıyla kâğıttan da tasarruf edin."
   },
   {
-   "kare": "kare_99",
+   "kare": "kare_99_magazalar",
    "ses": "elevenlabs",
-   "metin": "Kayıt gerekmez, internetsiz çalışır, verileriniz cihazınızda kalır. Netice'yi hemen Google Play'den indirin."
+   "metin": "Kayıt gerekmez, internetsiz çalışır, verileriniz cihazınızda kalır. Netice'yi Google Play ve App Store'dan ücretsiz indirin."
   }
  ]
 }

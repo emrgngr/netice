@@ -15,6 +15,7 @@ import sys
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+HERE = os.path.dirname(os.path.abspath(__file__))
 SHOTS = os.path.join(ROOT, 'build', 'screenshots')
 FONT = os.path.join(ROOT, 'assets', 'fonts', 'PlusJakartaSans_{}.ttf')
 INK = (15, 27, 61)
@@ -186,6 +187,37 @@ def logo_slide(out, line1, line2):
     c.convert('RGB').save(out)
 
 
+def stores_slide(out, line1, line2):
+    """Kapanış: logo, çağrı ve resmî Google Play / App Store rozetleri (değiştirilmeden)."""
+    W, H = 1920, 1080
+    c = background(W, H).convert('RGBA')
+    d = ImageDraw.Draw(c)
+    icon = Image.open(os.path.join(ROOT, 'assets', 'icon', 'netice_icon_rounded_1024.png')).convert('RGBA').resize((200, 200), Image.LANCZOS)
+    shadow(c, (860, 140, 1060, 340), 50, blur=30, alpha=120)
+    c.paste(icon, (860, 130), icon)
+    f = font('800ExtraBold', 104)
+    w = d.textlength('Netice', font=f)
+    d.text(((W - w) / 2, 360), 'Netice', font=f, fill=(255, 255, 255))
+    fnt = font('700Bold', 50)
+    w = d.textlength(line1, font=fnt)
+    d.text(((W - w) / 2, 520), line1, font=fnt, fill=MINT)
+    gp = Image.open(os.path.join(ROOT, 'assets', 'badges', 'google_play_tr.png')).convert('RGBA')
+    gp = gp.crop(gp.getchannel('A').getbbox())
+    ap = Image.open(os.path.join(HERE, 'rozet_app_store_tr.png')).convert('RGBA')
+    bh = 120
+    gp = gp.resize((round(gp.width * bh / gp.height), bh), Image.LANCZOS)
+    ap = ap.resize((round(ap.width * bh / ap.height), bh), Image.LANCZOS)
+    gap = 48
+    x = (W - gp.width - gap - ap.width) // 2
+    y = 640
+    c.paste(gp, (x, y), gp)
+    c.paste(ap, (x + gp.width + gap, y), ap)
+    fnt = font('500Medium', 38)
+    w = d.textlength(line2, font=fnt)
+    d.text(((W - w) / 2, 830), line2, font=fnt, fill=(203, 213, 225))
+    c.convert('RGB').save(out)
+
+
 def feature(out):
     W, H = 1024, 500
     c = background(W, H).convert('RGBA')
@@ -212,6 +244,7 @@ def main():
         landscape(s, form, os.path.join(out, 'video', f'kare_{i:02d}.png'), i)
     logo_slide(os.path.join(out, 'video', 'kare_00.png'), 'Optik okuma, soru bankası ve sınav analizi', 'Okullar, kurslar, akademiler ve üniversiteler için')
     logo_slide(os.path.join(out, 'video', 'kare_99.png'), 'Google Play’de ücretsiz indirin', 'Kayıt gerekmez · Verileriniz cihazınızda')
+    stores_slide(os.path.join(out, 'video', 'kare_99_magazalar.png'), 'Google Play ve App Store\'dan ücretsiz indirin', 'Kayıt gerekmez · İnternetsiz çalışır · Verileriniz cihazınızda')
     Image.open(os.path.join(ROOT, 'assets', 'icon', 'netice_icon_1024.png')).convert('RGBA').resize((512, 512), Image.LANCZOS).save(os.path.join(out, 'simge_512.png'))
     feature(os.path.join(out, 'kapak_1024x500.png'))
 
