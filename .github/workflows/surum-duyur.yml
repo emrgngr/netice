@@ -1,0 +1,63 @@
+name: Yeni sürümü duyur
+
+# Uygulamadaki "Yeni sürüm hazır" kartı reklamlar dalındaki surum/surum.json
+# dosyasını okur. Mağaza yeni sürümü ONAYLAYIP yayımladıktan sonra çalıştırın;
+# boş bırakılan platformun sürümü değişmez.
+on:
+  workflow_dispatch:
+    inputs:
+      android:
+        description: 'Google Play sürümü (ör. 1.0.1)'
+        required: false
+      ios:
+        description: 'App Store (iPhone/iPad) sürümü'
+        required: false
+      windows:
+        description: 'Windows sürümü'
+        required: false
+      macos:
+        description: 'Mac sürümü'
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  duyur:
+    runs-on: ubuntu-latest
+    steps:
+      - name: reklamlar dalını al
+        run: |
+          git clone --depth 1 --branch reklamlar "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" d \
+            || { git init -q -b reklamlar d; cd d; git remote add origin "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}"; }
+      - name: surum.json yaz
+        working-directory: d
+        env:
+          V_ANDROID: ${{ inputs.android }}
+          V_IOS: ${{ inputs.ios }}
+          V_WINDOWS: ${{ inputs.windows }}
+          V_MACOS: ${{ inputs.macos }}
+        run: |
+          mkdir -p surum
+          python3 - <<'PY'
+          import json, os, re, datetime
+          p = 'surum/surum.json'
+          d = json.load(open(p)) if os.path.exists(p) else {}
+          for k in ('android', 'ios', 'windows', 'macos'):
+              v = os.environ.get('V_' + k.upper(), '').strip()
+              if v:
+                  if not re.fullmatch(r'\d+(\.\d+){0,2}', v):
+                      raise SystemExit(f'{k}: geçersiz sürüm {v!r}')
+                  d[k] = v
+          d['guncellendi'] = datetime.date.today().isoformat()
+          json.dump(d, open(p, 'w'), indent=1)
+          print(json.dumps(d, indent=1))
+          PY
+      - name: Gönder
+        working-directory: d
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add surum/surum.json
+          git commit -q -m "Sürüm duyurusu" || { echo "değişiklik yok"; exit 0; }
+          git push -q origin HEAD:reklamlar
