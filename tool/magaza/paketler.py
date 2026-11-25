@@ -58,6 +58,8 @@ TEXT = {
         'gizlilik': 'Kayıt gerekmez · Verileriniz cihazınızda',
         'masaustu': 'Şimdi bilgisayarınızda da',
         'platform': 'Windows · Mac · iPhone · iPad · Android',
+        'kapanis': 'Windows ve Mac için indirin',
+        'deneme': '14 gün ücretsiz deneyin · Kayıt gerekmez',
     },
     'en': {
         'ana_sayfa': ('From paper to results\nin seconds', 'No sign-up · Your data stays on your device'),
@@ -73,6 +75,8 @@ TEXT = {
         'gizlilik': 'No sign-up · Your data stays on your device',
         'masaustu': 'Now on your computer too',
         'platform': 'Windows · Mac · iPhone · iPad · Android',
+        'kapanis': 'Download for Windows and Mac',
+        'deneme': 'Try it free for 14 days · No sign-up',
     },
 }
 
@@ -339,6 +343,27 @@ def web_social(lang, out):
     save(c.convert('RGB'), os.path.join(out, 'sosyal_hikaye_1080x1920.png'))
 
 
+def video_frames(lang, out):
+    """Bilgisayar tanıtım videosu kareleri (1920x1080): açılış, 8 ekran, kapanış."""
+    t = TEXT[lang]
+    W, H = 1920, 1080
+    for name, l1, l2 in (('kare_00.png', t['masaustu'], t['slogan']), ('kare_99.png', t['kapanis'], t['deneme'])):
+        c = background(W, H).convert('RGBA')
+        logo_block(c, W // 2, H // 2 - 20, 260, lines=((l1, MINT), (l2, SOFT)))
+        d = ImageDraw.Draw(c)
+        centered(d, [t['platform']], font('700Bold', 34), WHITE, H - 120, W, 40)
+        if name == 'kare_99.png':
+            from gorseller import url_pill
+            c2 = Image.new('RGBA', c.size, (0, 0, 0, 0))
+            url_pill(c2, H - 200)
+            c = Image.alpha_composite(c, c2)
+        save(c.convert('RGB'), os.path.join(out, name))
+    for i, n in enumerate(SCREENS, 1):
+        title, sub = t[n]
+        style = 'mac' if i % 2 == 0 else 'win'
+        save(landscape(shot(lang, 'masaustu', n), title, sub, W, H, style), os.path.join(out, f'kare_{i:02d}.png'))
+
+
 def main():
     out = sys.argv[1]
     langs = sys.argv[2:] or ['tr', 'en']
@@ -356,6 +381,7 @@ def main():
             save(landscape(dk, title, sub, 2880, 1800, 'mac'), os.path.join(out, 'masaustu', 'mac-app-store', lang, n))
             save(landscape(dk, title, sub, 2560, 1440, 'win'), os.path.join(out, 'masaustu', 'microsoft-store', lang, n))
         web_social(lang, os.path.join(out, 'masaustu', 'web-ve-sosyal', lang))
+        video_frames(lang, os.path.join(out, 'masaustu', 'video-kareleri', lang))
     store_logos(os.path.join(out, 'masaustu', 'microsoft-store', 'logolar'))
     # App Store simgesi saydamlık içermemeli.
     flat = Image.open(ICON_FLAT).convert('RGBA')

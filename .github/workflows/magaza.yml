@@ -48,6 +48,11 @@ jobs:
           curl -sSf --retry 3 -o build/muzik.mp3 "$B/$(python3 -c "import json;print(json.load(open('tool/video/muzik.json'))['muzik'])")"
           curl -sSf --retry 3 -o build/acilis.mp3 "$B/$(python3 -c "import json;print(json.load(open('tool/video/muzik.json'))['acilis'])")"
           bash tool/magaza/video.sh build/magaza/video build/magaza/tanitim_videosu.mp4 build/muzik.mp3 build/acilis.mp3
+      - name: Bilgisayar tanıtım videoları (16:9, müzikli)
+        run: |
+          for l in tr en; do
+            bash tool/magaza/video.sh build/paketler/masaustu/video-kareleri/$l build/magaza/masaustu_tanitim_$l.mp4 build/muzik.mp3 build/acilis.mp3
+          done
       - name: Seslendirmeli premium video
         env:
           GH_TOKEN: ${{ github.token }}
@@ -71,9 +76,10 @@ jobs:
             build/magaza/kapak_1024x500.png
             build/magaza/tanitim_videosu.mp4
             build/magaza/tanitim_videosu_seslendirmeli.mp4
+            build/magaza/masaustu_tanitim_*.mp4
       - name: Videoları magaza-ciktilari dalına koy
         run: |
-          mkdir -p /tmp/cikti && cp -r build/magaza/tanitim_videosu.mp4 build/magaza/tanitim_videosu_seslendirmeli.mp4 build/magaza/telefon build/magaza/kapak_1024x500.png build/magaza/simge_512.png /tmp/cikti/
+          mkdir -p /tmp/cikti && cp -r build/magaza/tanitim_videosu.mp4 build/magaza/tanitim_videosu_seslendirmeli.mp4 build/magaza/masaustu_tanitim_tr.mp4 build/magaza/masaustu_tanitim_en.mp4 build/magaza/telefon build/magaza/kapak_1024x500.png build/magaza/simge_512.png /tmp/cikti/
           cd /tmp/cikti
           git init -q -b magaza-ciktilari
           git config user.name "github-actions"

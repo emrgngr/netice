@@ -409,7 +409,7 @@ def kapak(c):
     c.setFillColor(HexColor('#8C97B8'))
     c.setFont('J5', 9)
     yaz(c, M, 40, T('Sürüm') + ' ' + date.today().strftime('%d.%m.%Y'))
-    yaz(c, M, 26, T('İletişim:') + ' bilgi@cooktatlihayat.com')
+    yaz(c, M, 26, T('İletişim:') + ' bilgi@neticeoptik.com')
 
 
 def icindekiler(c, sayfa_baslari):

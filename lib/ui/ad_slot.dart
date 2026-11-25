@@ -87,7 +87,7 @@ class _AdSlotState extends State<AdSlot> {
   @override
   Widget build(BuildContext context) {
     final store = StoreScope.of(context);
-    if (store.hasSubscription || _ads.isDismissed(widget.page, widget.format)) return const SizedBox.shrink();
+    if (store.adFree || _ads.isDismissed(widget.page, widget.format)) return const SizedBox.shrink();
     final list = _eligible();
     if (list.isEmpty) return const SizedBox.shrink();
     final ad = list[_index % list.length];
