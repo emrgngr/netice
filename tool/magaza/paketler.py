@@ -352,6 +352,11 @@ def video_frames(lang, out):
         logo_block(c, W // 2, H // 2 - 20, 260, lines=((l1, MINT), (l2, SOFT)))
         d = ImageDraw.Draw(c)
         centered(d, [t['platform']], font('700Bold', 34), WHITE, H - 120, W, 40)
+        if name == 'kare_99.png':
+            from gorseller import url_pill
+            c2 = Image.new('RGBA', c.size, (0, 0, 0, 0))
+            url_pill(c2, H - 200)
+            c = Image.alpha_composite(c, c2)
         save(c.convert('RGB'), os.path.join(out, name))
     for i, n in enumerate(SCREENS, 1):
         title, sub = t[n]
