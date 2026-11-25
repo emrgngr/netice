@@ -24,11 +24,15 @@ from seslendir import MODEL, RELEASE, api  # noqa: E402
 
 ALICE = 'Xb7hH8MSUJpSbSDYk0k2'
 SES_ETIKETI = 'kadin_enerjik'
+# Kullanıcının onayladığı ses: "Meloxia Turkish Pro" (Türkçe kadın anlatıcı).
+SECILI_SES = 'axtmxCPnqPghs9C5SjJ8'
 
 
 def female_voice_id():
     if os.environ.get('ELEVENLABS_KADIN_VOICE_ID'):
         return os.environ['ELEVENLABS_KADIN_VOICE_ID']
+    if SECILI_SES:
+        return SECILI_SES
     try:
         q = '/shared-voices?page_size=30&language=tr&gender=female&sort=usage_character_count_1y'
         voices = json.loads(api(q)).get('voices', [])
