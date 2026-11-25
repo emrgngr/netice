@@ -211,31 +211,31 @@ def stores_slide(out, line1, line2):
     W, H = 1920, 1080
     c = background(W, H).convert('RGBA')
     d = ImageDraw.Draw(c)
-    icon = Image.open(os.path.join(ROOT, 'assets', 'icon', 'netice_icon_rounded_1024.png')).convert('RGBA').resize((200, 200), Image.LANCZOS)
-    shadow(c, (860, 100, 1060, 300), 50, blur=30, alpha=120)
-    c.paste(icon, (860, 90), icon)
-    f = font('800ExtraBold', 104)
+    icon = Image.open(os.path.join(ROOT, 'assets', 'icon', 'netice_icon_rounded_1024.png')).convert('RGBA').resize((170, 170), Image.LANCZOS)
+    shadow(c, (875, 70, 1045, 240), 45, blur=28, alpha=120)
+    c.paste(icon, (875, 60), icon)
+    f = font('800ExtraBold', 96)
     w = d.textlength('Netice', font=f)
-    d.text(((W - w) / 2, 310), 'Netice', font=f, fill=(255, 255, 255))
+    d.text(((W - w) / 2, 250), 'Netice', font=f, fill=(255, 255, 255))
     fnt = font('700Bold', 50)
     w = d.textlength(line1, font=fnt)
-    d.text(((W - w) / 2, 465), line1, font=fnt, fill=MINT)
+    d.text(((W - w) / 2, 392), line1, font=fnt, fill=MINT)
     gp = Image.open(os.path.join(ROOT, 'assets', 'badges', 'google_play_tr.png')).convert('RGBA')
     gp = gp.crop(gp.getchannel('A').getbbox())
     ap = Image.open(os.path.join(HERE, 'rozet_app_store_tr.png')).convert('RGBA')
-    bh = 120
+    bh = 110
     gp = gp.resize((round(gp.width * bh / gp.height), bh), Image.LANCZOS)
     ap = ap.resize((round(ap.width * bh / ap.height), bh), Image.LANCZOS)
     gap = 48
     x = (W - gp.width - gap - ap.width) // 2
-    y = 580
+    y = 490
     c.paste(gp, (x, y), gp)
     c.paste(ap, (x + gp.width + gap, y), ap)
     fnt = font('500Medium', 38)
     w = d.textlength(line2, font=fnt)
-    d.text(((W - w) / 2, 745), line2, font=fnt, fill=(203, 213, 225))
+    d.text(((W - w) / 2, 638), line2, font=fnt, fill=(203, 213, 225))
     c2 = Image.new('RGBA', c.size, (0, 0, 0, 0))
-    url_pill(c2, 865)
+    url_pill(c2, 760)
     c = Image.alpha_composite(c, c2)
     c.convert('RGB').save(out)
 
