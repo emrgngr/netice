@@ -195,6 +195,10 @@ class AppStore extends ChangeNotifier {
       hasLicense ||
       (proConfirmedAt != null && DateTime.now().difference(proConfirmedAt!) < proGrace);
 
+  /// Ücretli Pro (abonelik, Windows/kurum lisans kodu, dönem paketi, davet ödülü):
+  /// reklam gösterilmez. Deneme süresinde tanıtımlar görünür.
+  bool get adFree => hasSubscription || hasLicense || hasTermPass || hasBonusPro;
+
   /// Abonelik var mı (bilgisayar istisnası hariç)?
   bool get hasSubscription => proConfirmedAt != null && DateTime.now().difference(proConfirmedAt!) < proGrace;
 
