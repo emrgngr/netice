@@ -358,7 +358,7 @@ class AdThumb extends StatelessWidget {
 }
 
 /// Reklamı yapılan kendi siteleri (hazır bağlantı düğmeleri).
-const _ownSites = ['www.sepetmix.com', 'www.cooktatlihayat.com', 'www.amare.com'];
+const _ownSites = ['www.neticeoptik.com', 'www.sepetmix.com', 'www.cooktatlihayat.com', 'www.amare.com'];
 
 /// Tek reklamı ekleme/düzenleme.
 class AdEditScreen extends StatefulWidget {
