@@ -1403,5 +1403,8 @@
  "Silme ve düzeltme": "削除と修正",
  "Sınavları seçip silin": "テストを選んで削除",
  "Yanlışlıkla silerseniz altta beliren \"Geri al\" düğmesine 6 saniye içinde dokunun.": "うっかり削除したら、6秒以内に下の「元に戻す」をタップします。",
- "Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.": "Windows 版では Pro はライセンスコードで有効になります。コードはこちらへご連絡ください：{0}。プロフィール > 機関ライセンスで入力してください。"
+ "Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.": "Windows 版では Pro はライセンスコードで有効になります。コードはこちらへご連絡ください：{0}。プロフィール > 機関ライセンスで入力してください。",
+ "Pro aboneliği yakında App Store'da.": "Pro サブスクリプションは近日 App Store で提供予定です。",
+ "Pro aboneliği yakında App Store'da": "Pro サブスクリプションは近日 App Store で",
+ "Okuma, soru bankası ve temel raporlar ücretsizdir. Pro özellikleri bir sonraki güncellemeyle satın alınabilecek.": "読み取り、問題バンク、基本レポートは無料です。Pro 機能は次回のアップデートで購入できるようになります。"
 }

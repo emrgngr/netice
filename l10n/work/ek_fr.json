@@ -1403,5 +1403,8 @@
  "Silme ve düzeltme": "Supprimer et corriger",
  "Sınavları seçip silin": "Sélectionner et supprimer",
  "Yanlışlıkla silerseniz altta beliren \"Geri al\" düğmesine 6 saniye içinde dokunun.": "Supprimé par erreur ? Touchez « Annuler » en bas dans les 6 secondes.",
- "Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.": "Dans la version Windows, Pro s'active avec un code de licence. Pour obtenir un code, écrivez-nous : {0}. Saisissez-le dans Profil > Licence d'établissement."
+ "Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.": "Dans la version Windows, Pro s'active avec un code de licence. Pour obtenir un code, écrivez-nous : {0}. Saisissez-le dans Profil > Licence d'établissement.",
+ "Pro aboneliği yakında App Store'da.": "L'abonnement Pro arrive bientôt sur l'App Store.",
+ "Pro aboneliği yakında App Store'da": "Abonnement Pro bientôt sur l'App Store",
+ "Okuma, soru bankası ve temel raporlar ücretsizdir. Pro özellikleri bir sonraki güncellemeyle satın alınabilecek.": "La lecture, la banque de questions et les rapports de base sont gratuits. Les fonctions Pro pourront être achetées avec la prochaine mise à jour."
 }

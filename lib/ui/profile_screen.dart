@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import '../core/pro.dart';
 import '../core/store.dart';
 
 import '../main.dart';
@@ -98,7 +99,8 @@ class ProfileScreen extends StatelessWidget {
             onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProScreen(), fullscreenDialog: true)),
           ),
         ),
-        const SizedBox(height: 10),
+        if (!ProService.salesDisabled) const SizedBox(height: 10),
+        if (!ProService.salesDisabled)
         Card(
           clipBehavior: Clip.antiAlias,
           child: ListTile(
