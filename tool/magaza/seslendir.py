@@ -7,7 +7,7 @@ yazılır. Ses bir kez üretilir ve "rehber-videolari" sürümüne
 magaza_tr_<kare>_<metin-özeti>.mp3 adıyla konur; sonraki çalışmalarda oradan indirilir
 (metin değişirse yeniden üretilir).
 
-Ses: eğitimci, sakin ve net bir kadın sesi. Sırayla: ELEVENLABS_KADIN_VOICE_ID
+Ses: eğitimci, enerjik ve net bir kadın sesi. Sırayla: ELEVENLABS_KADIN_VOICE_ID
 değişkeni; ElevenLabs ses kütüphanesindeki Türkçe kadın anlatıcı seslerinden
 eğitim/anlatım için olanı (hesaba eklenir); yoksa hazır "Alice" sesi
 (açık ve anlaşılır eğitimci sesi).
@@ -23,12 +23,16 @@ sys.path.insert(0, os.path.join(os.path.dirname(HERE), 'video'))
 from seslendir import MODEL, RELEASE, api  # noqa: E402
 
 ALICE = 'Xb7hH8MSUJpSbSDYk0k2'
-SES_ETIKETI = 'kadin'
+SES_ETIKETI = 'kadin_enerjik'
+# Kullanıcının onayladığı ses: "Meloxia Turkish Pro" (Türkçe kadın anlatıcı).
+SECILI_SES = 'axtmxCPnqPghs9C5SjJ8'
 
 
 def female_voice_id():
     if os.environ.get('ELEVENLABS_KADIN_VOICE_ID'):
         return os.environ['ELEVENLABS_KADIN_VOICE_ID']
+    if SECILI_SES:
+        return SECILI_SES
     try:
         q = '/shared-voices?page_size=30&language=tr&gender=female&sort=usage_character_count_1y'
         voices = json.loads(api(q)).get('voices', [])
@@ -46,7 +50,7 @@ def female_voice_id():
         voices = [v for v in voices if (v.get('gender') or 'female') == 'female']
         if voices:
             best = max(voices, key=score)
-            print('kadın ses seçildi:', best.get('name'), '-', best.get('description'))
+            print('kadın ses seçildi:', best.get('name'), best.get('voice_id'), '-', best.get('description'))
             try:
                 added = json.loads(api(f"/voices/add/{best['public_owner_id']}/{best['voice_id']}", {'new_name': 'Netice ' + best.get('name', 'Anlatıcı')}))
                 return added.get('voice_id', best['voice_id'])
@@ -78,8 +82,8 @@ def main(folder):
         data = api(f'/text-to-speech/{vid}?output_format=mp3_44100_128', {
             'text': text,
             'model_id': MODEL,
-            # Sakin ve net: daha kararlı, abartısız, biraz yavaş.
-            'voice_settings': {'stability': 0.7, 'similarity_boost': 0.8, 'style': 0.0, 'use_speaker_boost': True, 'speed': 0.94},
+            # Enerjik ama net: canlı tonlama, biraz hızlı (kullanıcı 2026-11-25: önceki uykulu çıktı).
+            'voice_settings': {'stability': 0.35, 'similarity_boost': 0.8, 'style': 0.5, 'use_speaker_boost': True, 'speed': 1.08},
         })
         with open(out, 'wb') as f:
             f.write(data)
