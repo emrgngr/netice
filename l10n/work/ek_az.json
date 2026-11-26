@@ -1456,5 +1456,15 @@
  "Sınavlarda ara…": "İmtahanlarda axtar…",
  "Çalışma": "İş",
  "Şubeleri yan yana karşılaştırın": "Sinifləri yan-yana müqayisə edin",
- "Pro deneme: {0} gün": "Pro sınaq: {0} gün"
+ "Pro deneme: {0} gün": "Pro sınaq: {0} gün",
+ "Cevap kâğıtlarının fotoğraflarını ya da tarayıcıdan çıkan çok sayfalı PDF'i seçin. PDF'teki her sayfa bir kâğıt sayılır, hepsi tek seferde okunur. Kâğıdın dört köşesindeki siyah kareler görünür olmalı.": "Cavab vərəqlərinin şəkillərini və ya skanerdən çıxan çoxsəhifəli PDF-i seçin. PDF-dəki hər səhifə bir vərəq sayılır, hamısı bir dəfəyə oxunur. Vərəqin dörd küncündəki qara kvadratlar görünməlidir.",
+ "Dosyalar hazırlanıyor…": "Fayllar hazırlanır…",
+ "Galeri / PDF": "Qalereya / PDF",
+ "PDF açılamadı: {0}": "PDF açılmadı: {0}",
+ "PDF'te okunacak sayfa bulunamadı.": "PDF-də oxunacaq səhifə tapılmadı.",
+ "Taranmış PDF": "Skan edilmiş PDF",
+ "Taranmış PDF dosyalarını seçin": "Skan edilmiş PDF fayllarını seçin",
+ "{0} okundu": "{0} oxundu",
+ "{0} okunuyor": "{0} oxunur",
+ "{0} · sayfa {1} / {2} okunuyor": "{0} · səhifə {1} / {2} oxunur"
 }

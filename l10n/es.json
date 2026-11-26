@@ -2534,5 +2534,15 @@
 "Sınavlarda ara…": "Buscar exámenes…",
 "Çalışma": "Trabajo",
 "Şubeleri yan yana karşılaştırın": "Compare grupos lado a lado",
-"Pro deneme: {0} gün": "Prueba Pro: {0} días"
+"Pro deneme: {0} gün": "Prueba Pro: {0} días",
+"Cevap kâğıtlarının fotoğraflarını ya da tarayıcıdan çıkan çok sayfalı PDF'i seçin. PDF'teki her sayfa bir kâğıt sayılır, hepsi tek seferde okunur. Kâğıdın dört köşesindeki siyah kareler görünür olmalı.": "Elija fotos de las hojas de respuestas o el PDF de varias páginas de su escáner. Cada página del PDF cuenta como una hoja y todas se leen de una sola vez. Los cuadrados negros de las cuatro esquinas de la hoja deben verse.",
+"Dosyalar hazırlanıyor…": "Preparando archivos…",
+"Galeri / PDF": "Galería / PDF",
+"PDF açılamadı: {0}": "No se pudo abrir el PDF: {0}",
+"PDF'te okunacak sayfa bulunamadı.": "No se encontraron páginas para leer en el PDF.",
+"Taranmış PDF": "PDF escaneado",
+"Taranmış PDF dosyalarını seçin": "Elija archivos PDF escaneados",
+"{0} okundu": "{0} leídas",
+"{0} okunuyor": "Leyendo {0}",
+"{0} · sayfa {1} / {2} okunuyor": "{0} · leyendo página {1} / {2}"
 }

@@ -2534,5 +2534,15 @@
 "Sınavlarda ara…": "Search exams…",
 "Çalışma": "Work",
 "Şubeleri yan yana karşılaştırın": "Compare classes side by side",
-"Pro deneme: {0} gün": "Pro trial: {0} days"
+"Pro deneme: {0} gün": "Pro trial: {0} days",
+"Cevap kâğıtlarının fotoğraflarını ya da tarayıcıdan çıkan çok sayfalı PDF'i seçin. PDF'teki her sayfa bir kâğıt sayılır, hepsi tek seferde okunur. Kâğıdın dört köşesindeki siyah kareler görünür olmalı.": "Choose photos of the answer sheets or the multi-page PDF from your scanner. Each page of the PDF counts as one sheet, and all of them are read in one go. The black squares in the four corners of the sheet must be visible.",
+"Dosyalar hazırlanıyor…": "Preparing files…",
+"Galeri / PDF": "Gallery / PDF",
+"PDF açılamadı: {0}": "Could not open the PDF: {0}",
+"PDF'te okunacak sayfa bulunamadı.": "No pages to read were found in the PDF.",
+"Taranmış PDF": "Scanned PDF",
+"Taranmış PDF dosyalarını seçin": "Choose scanned PDF files",
+"{0} okundu": "{0} read",
+"{0} okunuyor": "Reading {0}",
+"{0} · sayfa {1} / {2} okunuyor": "{0} · reading page {1} / {2}"
 }

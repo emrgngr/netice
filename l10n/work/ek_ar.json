@@ -1456,5 +1456,15 @@
  "Sınavlarda ara…": "ابحث في الاختبارات",
  "Çalışma": "العمل",
  "Şubeleri yan yana karşılaştırın": "قارن الشعب جنبا إلى جنب",
- "Pro deneme: {0} gün": "تجربة Pro: {0} يوم"
+ "Pro deneme: {0} gün": "تجربة Pro: {0} يوم",
+ "Cevap kâğıtlarının fotoğraflarını ya da tarayıcıdan çıkan çok sayfalı PDF'i seçin. PDF'teki her sayfa bir kâğıt sayılır, hepsi tek seferde okunur. Kâğıdın dört köşesindeki siyah kareler görünür olmalı.": "اختر صور أوراق الإجابة أو ملف PDF متعدد الصفحات من الماسح الضوئي. كل صفحة في ملف PDF تُعد ورقة واحدة، وتُقرأ جميعها دفعة واحدة. يجب أن تكون المربعات السوداء في زوايا الورقة الأربع ظاهرة.",
+ "Dosyalar hazırlanıyor…": "جارٍ تجهيز الملفات",
+ "Galeri / PDF": "المعرض / PDF",
+ "PDF açılamadı: {0}": "تعذر فتح ملف PDF: {0}",
+ "PDF'te okunacak sayfa bulunamadı.": "لم يتم العثور على صفحات للقراءة في ملف PDF.",
+ "Taranmış PDF": "PDF ممسوح ضوئيًا",
+ "Taranmış PDF dosyalarını seçin": "اختر ملفات PDF الممسوحة ضوئيًا",
+ "{0} okundu": "تمت قراءة {0}",
+ "{0} okunuyor": "جارٍ قراءة {0}",
+ "{0} · sayfa {1} / {2} okunuyor": "{0} · جارٍ قراءة الصفحة {1} / {2}"
 }
