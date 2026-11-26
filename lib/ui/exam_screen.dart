@@ -1514,7 +1514,7 @@ Future<void> deleteSheetWithUndo(BuildContext context, Sheet sheet) async {
   messenger
       .showSnackBar(SnackBar(
         content: Text(tr('Okuma silindi.')),
-        duration: const Duration(seconds: 6),
+        duration: const Duration(seconds: 3),
         persist: false,
         action: SnackBarAction(label: tr('Geri al'), onPressed: () => store.restoreSheet(index, sheet)),
       ))
