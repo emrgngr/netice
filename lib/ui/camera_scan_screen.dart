@@ -34,6 +34,8 @@ class CameraScanScreen extends StatefulWidget {
 }
 
 class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBindingObserver {
+  /// Başarılı okumada ekran parlaması.
+  final _flash = ValueNotifier<int>(0);
   CameraController? _controller;
   String? _error;
   bool _busy = false;
@@ -64,6 +66,7 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _controller?.dispose();
+    _flash.dispose();
     super.dispose();
   }
 
@@ -189,6 +192,7 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
       toast(context, tr('Bu numarayla farklı cevaplı bir kâğıt zaten okunmuştu. Yeni kâğıt "Kontrol" listesine alındı; kimin olduğunu oradan seçin.'));
     }
     ScanFeedback.success(store);
+    _flash.value++;
     setState(() {
       _lastSheet = sheet;
       _sessionCount++;
@@ -215,7 +219,7 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
     final review = store.sheetsOf(exam.id).where((s) => s.needsReview).length;
     final c = _controller;
 
-    return Scaffold(
+    return SuccessFlash(pulse: _flash, child: Scaffold(
       backgroundColor: NColors.darkBg,
       body: SafeArea(
         child: Column(children: [
@@ -349,7 +353,7 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
           ),
         ]),
       ),
-    );
+    ));
   }
 }
 

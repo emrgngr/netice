@@ -2590,5 +2590,6 @@
 "İfadeler doğru mu, yanlış mı? İşaretleyiniz.": "次の文は正しいですか、誤りですか。",
 "Şık": "選択肢",
 "Okuma sesi": "読み取り音",
-"Her kâğıt okununca kısa bir melodi çalar ve telefon hafifçe titrer": "用紙を読み取るたびに短いメロディーが鳴り、軽く振動します"
+"Her kâğıt okununca kısa bir melodi çalar ve telefon hafifçe titrer": "用紙を読み取るたびに短いメロディーが鳴り、軽く振動します",
+"Bu kâğıt zaten okunmuştu; tekrar eklenmedi.": "この用紙はすでに読み取り済みのため、追加しませんでした。"
 }
