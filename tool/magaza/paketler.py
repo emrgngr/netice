@@ -25,6 +25,12 @@ from PIL import Image, ImageDraw, ImageFilter
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from gorseller import EMERALD, MINT, ROOT, font, rounded, shadow  # noqa: E402
 from gorseller import background as _background  # noqa: E402
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'brand'))
+from bolum_simgeleri import simge as bolum_simgesi  # noqa: E402
+
+# Tanıtım videosu karelerinde her ekranın başlığının yanında bölüm simgesi.
+EKRAN_SIMGESI = {'ana_sayfa': 'start', 'sonuclar': 'exam', 'analiz': 'report', 'kutuphane': 'library',
+                 'kitapcik': 'booklet', 'veli': 'parents', 'istatistik': 'compare', 'donem': 'term'}
 
 _BG = {}
 
@@ -222,13 +228,28 @@ def portrait(scr, title, sub, W, H, kind):
     return c.convert('RGB')
 
 
-def landscape(scr, title, sub, W, H, style):
+def landscape(scr, title, sub, W, H, style, simge=None):
     c = background(W, H).convert('RGBA')
     d = ImageDraw.Draw(c)
     ft = font('800ExtraBold', int(H * 0.068))
     fs = font('600SemiBold', int(H * 0.032))
     y = int(H * 0.06)
-    y = centered(d, [title.replace('\n', ' ')], ft, WHITE, y, W, int(H * 0.085))
+    if simge:
+        # Başlık satırı: [bölüm simgesi]  Başlık  (birlikte ortalanır)
+        t = title.replace('\n', ' ')
+        s = int(H * 0.095)
+        gap = int(H * 0.02)
+        tw = d.textlength(t, font=ft)
+        x = int((W - (s + gap + tw)) / 2)
+        ic = bolum_simgesi(simge, s * 2).resize((s, s))
+        asc = ft.getbbox(t)
+        cy = y + (asc[1] + asc[3]) / 2
+        c.alpha_composite(ic, (x, int(cy - s / 2)))
+        d = ImageDraw.Draw(c)
+        d.text((x + s + gap, y), t, font=ft, fill=WHITE)
+        y += int(H * 0.085)
+    else:
+        y = centered(d, [title.replace('\n', ' ')], ft, WHITE, y, W, int(H * 0.085))
     y = centered(d, [sub], fs, MINT, y + int(H * 0.005), W, int(H * 0.04))
     top = y + int(H * 0.045)
     dev = window(scr, int(W * 0.80), style)
@@ -361,7 +382,8 @@ def video_frames(lang, out):
     for i, n in enumerate(SCREENS, 1):
         title, sub = t[n]
         style = 'mac' if i % 2 == 0 else 'win'
-        save(landscape(shot(lang, 'masaustu', n), title, sub, W, H, style), os.path.join(out, f'kare_{i:02d}.png'))
+        save(landscape(shot(lang, 'masaustu', n), title, sub, W, H, style, EKRAN_SIMGESI.get(n)),
+             os.path.join(out, f'kare_{i:02d}.png'))
 
 
 def main():

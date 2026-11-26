@@ -15,6 +15,9 @@ import sys
 
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'brand'))
+from bolum_simgeleri import simge as bolum_simgesi  # noqa: E402
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
 FONT = os.path.join(ROOT, 'assets', 'fonts', 'PlusJakartaSans_{}.ttf')
@@ -67,20 +70,29 @@ def wrap(d, text, fnt, width):
 class Caption:
     """Alt yazı: koyu yarı saydam şerit üzerinde beyaz metin."""
 
-    def __init__(self, text, left=False):
+    def __init__(self, text, left=False, simge=None):
         fnt = ImageFont.truetype(FONT.format('600SemiBold'), 36 if left else 38)
         probe = ImageDraw.Draw(Image.new('RGB', (10, 10)))
         lines = wrap(probe, text, fnt, 900 if left else 1500)
         lh = 52
-        bw = int(max(probe.textlength(l, font=fnt) for l in lines)) + 80
-        bh = lh * len(lines) + 36
+        # Sahnenin bölüm simgesi (uygulamadaki bölüm simgeleriyle aynı) metnin solunda.
+        iw = 0
+        if simge:
+            isz = max(76, min(110, lh * len(lines) + 8))
+            ic = bolum_simgesi(simge, isz * 2).resize((isz, isz), Image.LANCZOS)
+            iw = isz + 18
+        bw = int(max(probe.textlength(l, font=fnt) for l in lines)) + 80 + iw
+        bh = max(lh * len(lines) + 36, (iw + 18) if simge else 0)
         im = Image.new('RGBA', (bw, bh), (0, 0, 0, 0))
         d = ImageDraw.Draw(im)
         d.rounded_rectangle((0, 0, bw - 1, bh - 1), 22, fill=(6, 12, 32, 200))
+        if simge:
+            im.alpha_composite(ic, (22, (bh - isz) // 2))
+        ty = (bh - lh * len(lines)) // 2 - 2
         for i, l in enumerate(lines):
             w = d.textlength(l, font=fnt)
-            x = 40 if left else (bw - w) / 2
-            d.text((x, 16 + i * lh), l, font=fnt, fill=(255, 255, 255, 255))
+            x = (40 + iw) if left else iw + (bw - iw - w) / 2
+            d.text((x, ty + i * lh), l, font=fnt, fill=(255, 255, 255, 255))
         self.im = im
         self.pos = (110, H - bh - 70) if left else ((W - bw) // 2, H - bh - 42)
 
@@ -219,7 +231,7 @@ def main():
     last = None
     for sc, _, d, text in plan:
         base = Image.open(os.path.join(frames, sc['kare'] + '.png')).convert('RGB')
-        last = render_scene(base, sc, d, Caption(text, left=bool(sc.get('hedef'))), enc.stdin, last)
+        last = render_scene(base, sc, d, Caption(text, left=bool(sc.get('hedef')), simge=sc.get('bolum')), enc.stdin, last)
     enc.stdin.close()
     enc.wait()
     # Ses: seslendirmeler sahne başına göre yerleşir, müzik altta kısık.
