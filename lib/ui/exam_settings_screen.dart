@@ -6,6 +6,7 @@ import '../core/pro.dart';
 import 'key_from_photo.dart';
 import 'pro_screen.dart';
 import 'rubric_screen.dart';
+import 'bank/bank_widgets.dart' show SuggestField, bank;
 import 'theme.dart';
 import 'widgets.dart';
 import 'template_screen.dart';
@@ -602,10 +603,12 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
                           ),
                           const SizedBox(width: 8),
                           Expanded(
-                            child: TextField(
-                              controller: _codes[i],
-                              decoration: InputDecoration(labelText: tr('Kazanım / konu'), isDense: true),
-                            ),
+                            child: bank.outcomeLists.isEmpty
+                                ? TextField(
+                                    controller: _codes[i],
+                                    decoration: InputDecoration(labelText: tr('Kazanım / konu'), isDense: true),
+                                  )
+                                : SuggestField(controller: _codes[i], label: tr('Kazanım / konu'), options: () => bank.outcomesOf()),
                           ),
                           const SizedBox(width: 4),
                           Column(mainAxisSize: MainAxisSize.min, children: [

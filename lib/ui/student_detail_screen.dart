@@ -9,6 +9,7 @@ import '../main.dart';
 import 'exam_screen.dart';
 import 'sheet_image_screen.dart';
 import 'theme.dart';
+import 'transfer_ui.dart';
 import 'widgets.dart';
 import '../l10n/l10n.dart';
 import '../core/ads.dart';
@@ -41,6 +42,12 @@ class StudentDetailScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text(tr('Öğrenci')), actions: [
+        IconButton(
+          tooltip: tr('Devir dosyası'),
+          icon: const Icon(Icons.drive_file_move_outline),
+          onPressed: () => openTransferFile(context, s.className, studentId: s.id),
+        ),
+        IconButton(tooltip: tr('Kişisel hedef'), icon: const Icon(Icons.flag_outlined), onPressed: () => _GoalCard.edit(context, s)),
         if (onEdit != null)
           IconButton(tooltip: tr('Düzenle'), icon: const Icon(Icons.edit_outlined), onPressed: () => onEdit!(s)),
       ]),

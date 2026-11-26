@@ -27,6 +27,9 @@ class BankStore extends ChangeNotifier {
   final List<BankNote> notes = [];
   final List<Booklet> booklets = [];
 
+  /// İçe aktarılmış kazanım listeleri (müfredat).
+  final List<OutcomeList> outcomeLists = [];
+
   /// Son kullanılan etiket değerleri (yeni soru eklerken önerilir).
   String lastSubject = '';
   String lastGrade = '';
@@ -64,6 +67,7 @@ class BankStore extends ChangeNotifier {
     questions.clear();
     notes.clear();
     booklets.clear();
+    outcomeLists.clear();
     final f = _file!;
     if (await f.exists()) {
       try {
@@ -86,6 +90,7 @@ class BankStore extends ChangeNotifier {
         'questions': questions.map((q) => q.toJson()).toList(),
         'notes': notes.map((n) => n.toJson()).toList(),
         'booklets': booklets.map((b) => b.toJson()).toList(),
+        if (outcomeLists.isNotEmpty) 'outcomeLists': outcomeLists.map((l) => l.toJson()).toList(),
         'lastSubject': lastSubject,
         'lastGrade': lastGrade,
         'lastTopic': lastTopic,
@@ -95,6 +100,7 @@ class BankStore extends ChangeNotifier {
     questions.addAll([for (final e in (j['questions'] as List? ?? [])) BankQuestion.fromJson((e as Map).cast<String, dynamic>())]);
     notes.addAll([for (final e in (j['notes'] as List? ?? [])) BankNote.fromJson((e as Map).cast<String, dynamic>())]);
     booklets.addAll([for (final e in (j['booklets'] as List? ?? [])) Booklet.fromJson((e as Map).cast<String, dynamic>())]);
+    outcomeLists.addAll([for (final e in (j['outcomeLists'] as List? ?? [])) OutcomeList.fromJson((e as Map).cast<String, dynamic>())]);
     lastSubject = j['lastSubject'] as String? ?? '';
     lastGrade = j['lastGrade'] as String? ?? '';
     lastTopic = j['lastTopic'] as String? ?? '';
@@ -391,7 +397,20 @@ class BankStore extends ChangeNotifier {
   List<String> outcomesOf([String? subject]) => _distinct([
         ...questions.where((q) => subject == null || subject.isEmpty || q.subject == subject).map((q) => q.outcome),
         ...notes.where((n) => subject == null || subject.isEmpty || n.subject == subject).map((n) => n.outcome),
+        for (final l in outcomeLists)
+          if (subject == null || subject.isEmpty || l.subject.isEmpty || l.subject.toLowerCase() == subject.toLowerCase()) ...l.labels,
       ]);
+
+  void upsertOutcomeList(OutcomeList l) {
+    final i = outcomeLists.indexWhere((x) => x.id == l.id);
+    i < 0 ? outcomeLists.add(l) : outcomeLists[i] = l;
+    _changed();
+  }
+
+  void deleteOutcomeList(String id) {
+    outcomeLists.removeWhere((l) => l.id == id);
+    _changed();
+  }
   List<String> get tags => _distinct([...questions.expand((q) => q.tags), ...notes.expand((n) => n.tags)]);
 
   // ———————————————————————————— Sınavlarla bağlantı
@@ -618,6 +637,7 @@ class BankStore extends ChangeNotifier {
     questions.clear();
     notes.clear();
     booklets.clear();
+    outcomeLists.clear();
     lastSubject = lastGrade = lastTopic = '';
     _memImages.clear();
     final d = _dir;

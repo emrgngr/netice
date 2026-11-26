@@ -1183,3 +1183,94 @@ class AutoPick {
     this.seed = 1,
   });
 }
+
+/// Hazır kazanım listesi (müfredat): MEB, Cambridge, Common Core gibi bir
+/// programdan içe aktarılan kod ve açıklamalar. Soru ve sınav etiketlerinde
+/// öneri olarak çıkar.
+class OutcomeList {
+  final String id;
+  final String name;
+  final String subject;
+  final String grade;
+
+  /// (kod, açıklama) çiftleri; kod boş olabilir.
+  final List<(String, String)> items;
+  final DateTime created;
+
+  const OutcomeList({
+    required this.id,
+    required this.name,
+    this.subject = '',
+    this.grade = '',
+    this.items = const [],
+    required this.created,
+  });
+
+  /// Etikette kullanılan biçim: "M.5.1.2 Kesirleri karşılaştırır".
+  static String labelOf((String, String) e) => [e.$1.trim(), e.$2.trim()].where((s) => s.isNotEmpty).join(' ');
+
+  List<String> get labels => [for (final e in items) labelOf(e)];
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        if (subject.isNotEmpty) 'subject': subject,
+        if (grade.isNotEmpty) 'grade': grade,
+        'items': [
+          for (final e in items) [e.$1, e.$2]
+        ],
+        'created': created.toIso8601String(),
+      };
+
+  factory OutcomeList.fromJson(Map<String, dynamic> j) => OutcomeList(
+        id: j['id'] as String,
+        name: j['name'] as String? ?? '',
+        subject: j['subject'] as String? ?? '',
+        grade: j['grade'] as String? ?? '',
+        items: [
+          for (final e in (j['items'] as List? ?? const []))
+            if (e is List && e.length >= 2) ('${e[0]}', '${e[1]}')
+        ],
+        created: DateTime.tryParse(j['created'] as String? ?? '') ?? DateTime.now(),
+      );
+
+  /// Satır satır metinden liste: "KOD açıklama", "KOD (sekme) açıklama" ya da
+  /// yalnız açıklama. Kod, içinde nokta ya da rakam olan ilk sözcüktür.
+  static List<(String, String)> parseLines(String text) {
+    final out = <(String, String)>[];
+    final code = RegExp(r'^\s*([A-Za-zÇĞİÖŞÜçğıöşü]{0,6}[.\-]?\d+(?:[.\-][0-9A-Za-z]+)+)[\s:.)\-–]+(.+)$');
+    for (final raw in text.split(RegExp(r'\r?\n'))) {
+      final line = raw.trim();
+      if (line.isEmpty) continue;
+      final tab = line.split('\t');
+      if (tab.length >= 2 && tab[0].trim().length <= 24) {
+        out.add((tab[0].trim(), tab.sublist(1).join(' ').trim()));
+        continue;
+      }
+      final m = code.firstMatch(line);
+      out.add(m == null ? ('', line) : (m.group(1)!.trim(), m.group(2)!.trim()));
+    }
+    return out;
+  }
+
+  /// Tablo satırlarından liste: "kod" ve "kazanım/açıklama" sütunları aranır;
+  /// bulunamazsa ilk iki sütun.
+  static List<(String, String)> parseRows(List<List<String>> rows) {
+    if (rows.isEmpty) return const [];
+    String n(String s) => s.toLowerCase().replaceAll(RegExp(r'[^a-zçğıöşü]'), '');
+    final head = rows.first.map(n).toList();
+    var ic = head.indexWhere((h) => h.startsWith('kod') || h == 'code' || h.startsWith('kodu') || h == 'no');
+    var it = head.indexWhere((h) => h.startsWith('kazan') || h.startsWith('açıkla') || h.startsWith('acikla') || h.startsWith('outcome') || h.startsWith('descr') || h.startsWith('standard') || h.startsWith('objective'));
+    var data = rows.skip(1);
+    if (ic < 0 && it < 0) {
+      data = rows;
+      ic = rows.first.length >= 2 ? 0 : -1;
+      it = rows.first.length >= 2 ? 1 : 0;
+    }
+    return [
+      for (final r in data)
+        if ((it >= 0 && it < r.length && r[it].trim().isNotEmpty) || (ic >= 0 && ic < r.length && r[ic].trim().isNotEmpty))
+          (ic >= 0 && ic < r.length ? r[ic].trim() : '', it >= 0 && it < r.length ? r[it].trim() : ''),
+    ];
+  }
+}

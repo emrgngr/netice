@@ -10,6 +10,7 @@ import 'package:pdf/widgets.dart' as pw;
 
 import '../core/models.dart';
 import '../core/insights.dart';
+import '../core/mastery.dart';
 import '../core/misconceptions.dart';
 import '../core/teaching.dart';
 import '../core/overview.dart';

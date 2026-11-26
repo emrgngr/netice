@@ -9,6 +9,7 @@ import '../widgets.dart';
 import 'ai_questions_screen.dart';
 import 'bank_analysis_view.dart';
 import 'bank_widgets.dart';
+import 'outcome_lists_screen.dart';
 import 'booklet_wizard_screen.dart';
 import 'import_screens.dart';
 import 'note_screens.dart';
@@ -95,6 +96,8 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
         importBankPack(context);
       case 'importExcel':
         importBankExcel(context);
+      case 'outcomes':
+        OutcomeListsScreen.open(context);
     }
   }
 
@@ -130,6 +133,7 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
               itemBuilder: (_) => [
                 PopupMenuItem(value: 'importExcel', child: ListTile(leading: const Icon(Icons.table_view_rounded), title: Text(tr('Excel\'den aktar')))),
                 PopupMenuItem(value: 'template', child: ListTile(leading: const Icon(Icons.download_rounded), title: Text(tr('Excel şablonunu indir')))),
+                PopupMenuItem(value: 'outcomes', child: ListTile(leading: const Icon(Icons.account_tree_outlined), title: Text(tr('Kazanım listeleri')))),
                 PopupMenuItem(value: 'excel', child: ListTile(leading: const Icon(Icons.ios_share_rounded), title: Text(tr('Tümünü Excel\'e aktar')))),
                 const PopupMenuDivider(),
                 PopupMenuItem(value: 'pack', child: ListTile(leading: const Icon(Icons.inventory_2_outlined), title: Text(tr('Banka paketini paylaş')))),

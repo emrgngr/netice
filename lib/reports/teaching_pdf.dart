@@ -212,3 +212,154 @@ Future<Uint8List> buildReflectionPdf({
   }
   return doc.save();
 }
+
+/// Yıl sonu öğrenci devir dosyasının bir öğrencisi.
+class TransferEntry {
+  final Student student;
+  final List<HistoryEntry> history;
+
+  /// Gelişim notu (cümleler).
+  final List<String> notes;
+
+  /// Kazanım → (öğrenci, sınıf) birikimli başarı.
+  final Map<String, (double, double)> outcomes;
+
+  /// Kazanım → ustalık durumu (öğrenildi / gelişiyor / henüz değil).
+  final Map<String, MasteryStatus> mastery;
+
+  /// Yıl boyunca görülen kavram yanılgıları ve kaç sınavda görüldüğü.
+  final List<(String, int)> misconceptions;
+
+  const TransferEntry(this.student, this.history, this.notes, this.outcomes, this.mastery, this.misconceptions);
+}
+
+/// Yıl sonu öğrenci devir dosyası: bir sonraki öğretmenin öğrenciyi
+/// tanıması için bütün yılın özeti (sınavlar, kazanımlar, yanılgılar, hedef).
+Future<Uint8List> buildTransferPdf({
+  required List<TransferEntry> entries,
+  SchoolInfo school = const SchoolInfo(),
+  String period = '',
+}) async {
+  final fonts = await _Fonts.load(school.fontFamily);
+  final doc = pw.Document(theme: fonts.theme, title: tr('Öğrenci devir dosyası'), author: tr('Netice'));
+  const mColors = {MasteryStatus.mastered: _emerald, MasteryStatus.developing: _amber, MasteryStatus.notYet: _coral};
+  var added = 0;
+  for (final e in entries) {
+    if (e.history.isEmpty) continue;
+    added++;
+    final s = e.student;
+    final h = e.history;
+    final k = _Kit(h.last.exam, school,
+        docTitle: tr('Öğrenci Devir Dosyası'),
+        headerInfo: tr('Devir dosyası · {0}', [s.fullName]),
+        classLine: tr('{0} SINIFI', [SchoolInfo.upper(s.className)]),
+        letterheadEveryPage: false);
+    final avg = h.map((x) => x.pct).reduce((a, b) => a + b) / h.length;
+    final best = h.map((x) => x.pct).reduce(math.max);
+    final growth = h.length < 2 ? null : h.last.pct - h.first.pct;
+    final strong = [for (final o in e.outcomes.entries) if (o.value.$1 >= 0.8) o.key];
+    final weak = [for (final o in e.outcomes.entries) if (o.value.$1 < 0.6) (o.key, o.value.$1)]..sort((a, b) => a.$2.compareTo(b.$2));
+    final mastered = e.mastery.values.where((m) => m == MasteryStatus.mastered).length;
+    doc.addPage(pw.MultiPage(
+      textDirection: _dir,
+      pageFormat: PdfPageFormat.a4,
+      margin: const pw.EdgeInsets.fromLTRB(36, 30, 36, 30),
+      header: k.header,
+      footer: k.footer,
+      build: (ctx) => [
+        pw.Container(
+          padding: const pw.EdgeInsets.all(16),
+          decoration: pw.BoxDecoration(color: _ink, borderRadius: pw.BorderRadius.circular(10)),
+          child: pw.Row(children: [
+            pw.Expanded(
+              child: pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
+                pw.Text(tr('ÖĞRENCİ DEVİR DOSYASI'),
+                    style: pw.TextStyle(color: _emerald, fontSize: 8, fontWeight: pw.FontWeight.bold, letterSpacing: 1.5)),
+                pw.SizedBox(height: 4),
+                pw.Text(s.fullName, style: pw.TextStyle(color: PdfColors.white, fontSize: 18, fontWeight: pw.FontWeight.bold)),
+                pw.Text(['${tr('No')} ${s.number}', s.className, if (period.isNotEmpty) period].join(' · '),
+                    style: const pw.TextStyle(color: PdfColors.grey300, fontSize: 8.5)),
+              ]),
+            ),
+            pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.end, children: [
+              pw.Text(L10n.percent(avg.round()), style: pw.TextStyle(color: PdfColors.white, fontSize: 28, fontWeight: pw.FontWeight.bold)),
+              pw.Text(tr('yıl ortalaması'), style: const pw.TextStyle(color: PdfColors.grey300, fontSize: 8)),
+            ]),
+          ]),
+        ),
+        pw.SizedBox(height: 12),
+        k.grid([
+          k.statBox(tr('Sınav'), '${h.length}'),
+          k.statBox(tr('En yüksek'), L10n.percent(best.round())),
+          k.statBox(tr('Gelişim'), growth == null ? '–' : '${growth >= 0 ? '+' : ''}${growth.round()}',
+              hint: tr('ilk sınavdan son sınava'), color: growth == null || growth >= 0 ? _emerald : _coral),
+          k.statBox(tr('Öğrenilen kazanım'), '$mastered / ${e.mastery.length}'),
+          if (s.goal != null) k.statBox(tr('Kişisel hedef'), L10n.percent(s.goal!.round())),
+        ]),
+        if (e.notes.isNotEmpty) ...[
+          k.title(tr('Gelişim notu')),
+          pw.Text(e.notes.take(5).join(' '), style: const pw.TextStyle(fontSize: 9)),
+        ],
+        k.title(tr('Sınavlar')),
+        k.table(
+          [tr('Tarih'), tr('Sınav'), tr('Puan'), tr('Başarı'), tr('Sınıf ort.'), tr('Sıra')],
+          [
+            for (final x in h)
+              [
+                _date(x.exam.date),
+                x.exam.name,
+                '${_f1(x.standing.result.score)} / ${x.exam.rule.maxScore.round()}',
+                L10n.percent(x.pct.round()),
+                x.exam.rule.maxScore == 0 ? '–' : L10n.percent((x.classMean / x.exam.rule.maxScore * 100).round()),
+                '${x.standing.rank} / ${x.classSize}',
+              ],
+          ],
+          leftColumn: 1,
+          widths: {1: const pw.FlexColumnWidth(3)},
+        ),
+        if (e.mastery.isNotEmpty) ...[
+          k.title(tr('Kazanımlar'), tr('Yeşil: öğrenildi · sarı: gelişiyor · mercan: henüz değil')),
+          pw.Wrap(spacing: 4, runSpacing: 4, children: [
+            for (final m in e.mastery.entries)
+              pw.Container(
+                padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                decoration: pw.BoxDecoration(
+                  color: _ivory,
+                  border: pw.Border(left: pw.BorderSide(color: mColors[m.value]!, width: 3)),
+                ),
+                child: pw.Text(m.key, style: const pw.TextStyle(fontSize: 7.5)),
+              ),
+          ]),
+        ],
+        if (strong.isNotEmpty) ...[
+          k.title(tr('Güçlü olduğu konular')),
+          pw.Text(strong.take(12).join(' · '), style: const pw.TextStyle(fontSize: 8.5)),
+        ],
+        if (weak.isNotEmpty) ...[
+          k.title(tr('Desteklenmesi gereken konular')),
+          for (final (code, rate) in weak.take(10))
+            pw.Padding(
+              padding: const pw.EdgeInsets.only(bottom: 3),
+              child: pw.Row(children: [
+                pw.SizedBox(width: 200, child: pw.Text(code, style: const pw.TextStyle(fontSize: 8), maxLines: 1)),
+                pw.Expanded(child: k.hbar(rate, rate >= 0.5 ? _amber : _coral, height: 6)),
+                pw.SizedBox(width: 34, child: pw.Text(_pct(rate), textAlign: pw.TextAlign.right, style: const pw.TextStyle(fontSize: 8))),
+              ]),
+            ),
+        ],
+        if (e.misconceptions.isNotEmpty) ...[
+          k.title(tr('Yıl boyunca görülen kavram yanılgıları')),
+          for (final (m, n) in e.misconceptions.take(6)) pw.Text('• $m (${tr('{0} sınavda', [n])})', style: const pw.TextStyle(fontSize: 8.5)),
+        ],
+        k.title(tr('Yeni öğretmen için not')),
+        for (var i = 0; i < 4; i++)
+          pw.Container(height: 18, decoration: const pw.BoxDecoration(border: pw.Border(bottom: pw.BorderSide(color: _line, width: 0.8)))),
+        k.signatures(),
+      ],
+    ));
+  }
+  if (added == 0) {
+    doc.addPage(pw.Page(textDirection: _dir, build: (_) => pw.Center(child: pw.Text(tr('Henüz okunan kâğıt yok.')))));
+  }
+  return doc.save();
+}

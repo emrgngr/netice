@@ -11,6 +11,7 @@ import '../core/models.dart';
 import '../main.dart';
 import 'student_detail_screen.dart';
 import 'theme.dart';
+import 'transfer_ui.dart';
 import 'illustrations.dart';
 import 'widgets.dart';
 import '../l10n/l10n.dart';
@@ -243,7 +244,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
       parentLanguage: lang,
       goal: (() {
         final g = double.tryParse(goal.text.trim().replaceAll(',', '.').replaceAll('%', ''));
-        return g == null ? null : g.clamp(1, 100).toDouble();
+        return g?.clamp(1, 100).toDouble();
       })(),
     );
     if (existing == null) {
@@ -290,6 +291,15 @@ class _StudentsScreenState extends State<StudentsScreen> {
             for (final c in classes)
               ChoiceChip(label: Text('$c (${store.studentsOf(c).length})'), selected: c == current, onSelected: (_) => setState(() => _class = c)),
           ]),
+        if (current != null && list.isNotEmpty)
+          Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: TextButton.icon(
+              onPressed: () => openTransferFile(context, current),
+              icon: const Icon(Icons.drive_file_move_outline),
+              label: Text(tr('Sınıfın devir dosyası')),
+            ),
+          ),
         const SizedBox(height: 12),
         TextField(
           decoration: InputDecoration(prefixIcon: Icon(Icons.search), hintText: tr('Ad ya da numara ara')),
