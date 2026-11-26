@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Netice</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Netice: optik formları telefonla ya da tarayıcıyla okuyun; puan, analiz, karne ve soru kitapçığı saniyeler içinde hazır. Kayıt gerekmez, verileriniz cihazınızda.">
+<link rel="icon" href="img/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="index.html" aria-label="Netice ana sayfa"><picture><source srcset="img/logo_beyaz.png" media="(prefers-color-scheme: dark)"><img class="logo" src="img/logo.png" alt="Netice"></picture></a>
+    <button class="menu-btn" aria-expanded="false" aria-controls="menu">Menü</button>
+    <nav class="menu" id="menu">
+      <a href="index.html" aria-current="page">Ana sayfa</a>
+      <a href="ozellikler.html">Özellikler ve fiyatlar</a>
+      <a href="indir.html">İndir ve SSS</a>
+      <a class="btn primary" href="indir.html">Ücretsiz indir</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-copy">
+        <span class="eyebrow">Optik okuma · Soru bankası · Sınav analizi</span>
+        <h1>Kâğıttan sonuca, <span class="mint">saniyeler içinde.</span></h1>
+        <p class="lead">Netice, optik formları telefonunuzun kamerasıyla ya da tarayıcıdan okur; puanı, neti, konu analizini ve karneyi anında hazırlar. Sınav kitapçığınızı da kendi soru bankanızdan dakikalar içinde oluşturur.</p>
+        <div class="row">
+          <a class="btn primary" href="indir.html">Ücretsiz indir</a>
+          <a class="btn ghost" href="ozellikler.html">Neler yapabilir?</a>
+        </div>
+        <div class="trust"><span>Kayıt gerekmez</span><span>İnternetsiz çalışır</span><span>Verileriniz cihazınızda</span><span>14 gün Pro ücretsiz</span></div>
+        <div class="bubbles" aria-hidden="true">
+          <span class="q"><b>1</b><i class="on">A</i><i>B</i><i>C</i><i>D</i></span>
+          <span class="q"><b>2</b><i>A</i><i>B</i><i class="on">C</i><i>D</i></span>
+          <span class="q"><b>3</b><i>A</i><i class="on">B</i><i>C</i><i>D</i></span>
+          <span class="q"><b>4</b><i>A</i><i>B</i><i>C</i><i class="on">D</i></span>
+          <span class="q"><b>5</b><i>A</i><i>B</i><i class="on">C</i><i>D</i></span>
+        </div>
+      </div>
+      <div class="hero-art" aria-hidden="true"><img class="f" src="img/deco_form.svg" alt=""><img class="k" src="img/deco_kalem.svg" alt=""><img class="c" src="img/deco_kep.svg" alt=""></div>
+      <div class="devices">
+        <div class="laptop"><img src="img/pc_ana_sayfa.jpg" alt="Netice bilgisayar sürümü: okunan kâğıt sayısı, ortalama ve sınıf analizleriyle pano" width="1600" height="1000"></div>
+        <div class="phone-float"><img src="img/tel_sonuclar.jpg" alt="Telefonda sınav sonuçları: sınıf ortalaması 64 ve puan dağılımı" width="560" height="1214"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="video">
+    <div class="wrap">
+      <div class="head">
+        <span class="eyebrow">Tanıtım videosu</span>
+        <h2>Netice'yi bir dakikada tanıyın</h2>
+      </div>
+      <div class="vtabs" role="tablist">
+        <button type="button" role="tab" aria-selected="true" data-video="tel">Telefonda</button>
+        <button type="button" role="tab" aria-selected="false" data-video="pc">Bilgisayarda</button>
+      </div>
+      <div class="vframe">
+        <video data-video-panel="tel" controls playsinline preload="none" poster="video/netice_tanitim.jpg"><source src="video/netice_tanitim.mp4" type="video/mp4"></video>
+        <video data-video-panel="pc" controls playsinline preload="none" poster="video/netice_bilgisayar.jpg" hidden><source src="video/netice_bilgisayar.mp4" type="video/mp4"></video>
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <div class="head">
+        <span class="eyebrow">Nasıl çalışır</span>
+        <h2>Üç adımda sınavdan karneye</h2>
+        <p class="lead">Ayrı bir optik okuyucu cihaz ya da özel kâğıt gerekmez. Formu her yazıcıdan basabilirsiniz.</p>
+      </div>
+      <div class="steps">
+        <div class="step done">
+          <h3 class="ih"><img class="ikon" src="img/bolum/print.png" alt="" width="44" height="44" aria-hidden="true">Formu yazdırın</h3>
+          <p>Netice optik formunu A4'e basın. Kısa quizler için bir sayfaya dört form sığar. Form, sınavı ve öğrenciyi kendi makine koduyla tanır.</p>
+          <img src="img/optik_form.jpg" alt="Netice optik formu">
+        </div>
+        <div class="step done">
+          <h3 class="ih"><img class="ikon" src="img/bolum/scan.png" alt="" width="44" height="44" aria-hidden="true">Telefonla okutun</h3>
+          <p>Kamerayı forma tutun; Netice kâğıdı bulur, düzeltir ve okur. Gölgeli, eğik ya da buruşuk kâğıtlar sorun değil. Bilgisayarda taranmış PDF'leri toplu okur.</p>
+          <img src="img/tel_ana_sayfa.jpg" alt="Telefonda Okut düğmesi olan ana sayfa">
+        </div>
+        <div class="step done">
+          <h3 class="ih"><img class="ikon" src="img/bolum/report.png" alt="" width="44" height="44" aria-hidden="true">Raporu paylaşın</h3>
+          <p>Puan, net, sıralama, soru ve kazanım analizi hazır. Resmî başlıklı raporu yazdırın, karneleri velilere hazır mesajla gönderin.</p>
+          <img src="img/tel_veli.jpg" alt="Velilere toplu gönderim ekranı">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band alt">
+    <div class="wrap">
+      <div class="head">
+        <span class="eyebrow">Tek uygulamada</span>
+        <h2>Okumanın ötesinde, sınavın her aşaması</h2>
+      </div>
+      <div class="grid c3">
+        <div class="card">
+          <img class="art" src="img/cizim/empty.png" alt="" width="276" height="275" aria-hidden="true">
+          <h3 class="ih"><img class="ikon" src="img/bolum/library.png" alt="" width="44" height="44" aria-hidden="true">Soru bankası</h3>
+          <p>Kendi sorularınızı, konu özetlerinizi ve hap bilgilerinizi ders, konu, kazanım ve zorlukla etiketleyip tek yerde toplayın.</p>
+        </div>
+        <div class="card">
+          <img class="art" src="img/cizim/exams.png" alt="" width="276" height="275" aria-hidden="true">
+          <h3 class="ih"><img class="ikon" src="img/bolum/booklet.png" alt="" width="44" height="44" aria-hidden="true">Kitapçık oluşturucu</h3>
+          <p>A'dan H'ye kitapçık türleri, karışık soru ve şıklar, hazır cevap anahtarı. PDF ya da düzenlenebilir Word olarak kaydedin.</p>
+        </div>
+        <div class="card">
+          <img class="art" src="img/cizim/results.png" alt="" width="276" height="275" aria-hidden="true">
+          <h3 class="ih"><img class="ikon" src="img/bolum/report.png" alt="" width="44" height="44" aria-hidden="true">Derin analiz</h3>
+          <p>Soru güçlüğü, ayırt edicilik, KR-20 güvenilirlik, konu ısı haritası, sınıf sınıf karşılaştırma ve erken uyarı listesi.</p>
+        </div>
+        <div class="card">
+          <img class="art" src="img/cizim/guide.png" alt="" width="276" height="275" aria-hidden="true">
+          <h3 class="ih"><img class="ikon" src="img/bolum/ai.png" alt="" width="44" height="44" aria-hidden="true">Nottan soru üretme</h3>
+          <p>Yapay zekâ ders notunuzdan soru önerir; siz kontrol eder, bankanıza eklersiniz. İlkokul için çocuk dostu kitapçık şablonu da var.</p>
+        </div>
+        <div class="card">
+          <img class="art" src="img/cizim/students.png" alt="" width="276" height="275" aria-hidden="true">
+          <h3 class="ih"><img class="ikon" src="img/bolum/parents.png" alt="" width="44" height="44" aria-hidden="true">Veliler ve meslektaşlar</h3>
+          <p>Bütün sınıfın karnesini hazır mesajla velilere sırayla gönderin. Ortak sınav sonuçlarını aynı Wi-Fi'da internetsiz toplayın.</p>
+        </div>
+        <div class="card">
+          <img class="art" src="img/cizim/backup.png" alt="" width="276" height="275" aria-hidden="true">
+          <h3 class="ih"><img class="ikon" src="img/bolum/privacy.png" alt="" width="44" height="44" aria-hidden="true">Gizlilik önce gelir</h3>
+          <p>Hesap açmanız gerekmez, uygulama internetsiz çalışır, veriler cihazınızda kalır. Sizi izleyen reklam ağı yoktur.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band dark">
+    <div class="wrap stack" style="gap:36px">
+      <div class="head" style="margin:0">
+        <span class="eyebrow">Kimler için</span>
+        <h2>Her kurum, her ülke</h2>
+        <p class="lead">Rapor başlıkları kurum türüne ve ülkeye göre kendiliğinden düzenlenir: T.C. Kaymakamlığı başlığından üniversite fakültesine kadar.</p>
+      </div>
+      <div class="chips">
+        <span class="chip">İlkokul, ortaokul, lise</span><span class="chip">Kurslar ve etüt merkezleri</span><span class="chip">Meslek yüksekokulları</span>
+        <span class="chip">Üniversiteler</span><span class="chip">Polis akademisi ve POMEM</span><span class="chip">Askerî okullar</span><span class="chip">Özel ders veren öğretmenler</span>
+      </div>
+      <div class="facts">
+        <div class="fact"><b>15</b><span class="muted">dil, Türkçeden Japoncaya</span></div>
+        <div class="fact"><b>A–H</b><span class="muted">kitapçık türü</span></div>
+        <div class="fact"><b>5</b><span class="muted">platform: Android, iPhone, iPad, Windows, Mac</span></div>
+        <div class="fact"><b>0</b><span class="muted">hesap, kayıt ya da reklam ağı</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <div class="feature">
+        <div class="stack">
+          <span class="eyebrow">Telefonda ve bilgisayarda</span>
+          <h2>Büyük ekranda bütün sınıf tek bakışta</h2>
+          <p class="lead">Bilgisayar sürümü taranmış optik formları toplu okur, raporları geniş ekranda gösterir. Telefon ve bilgisayar arasında yedek dosyasıyla ya da aynı Wi-Fi üzerinden veri taşıyabilirsiniz.</p>
+          <div class="row"><a class="btn primary" href="indir.html">Windows ve Mac için</a></div>
+        </div>
+        <div class="pair">
+          <div class="shot"><div class="shot-bar"><i></i><i></i><i></i></div><img src="img/pc_istatistik.jpg" alt="Genel istatistik ekranı: genel başarı yüzde 66, sınıf sıralaması"></div>
+          <div class="tel"><img src="img/tel_kutuphane.jpg" alt="Telefonda soru bankası"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band alt decorated">
+    <img class="deco l" src="img/deco_form.svg" alt="" aria-hidden="true">
+    <img class="deco r" src="img/deco_karne.svg" alt="" aria-hidden="true">
+    <img class="deco k" src="img/deco_kalem.svg" alt="" aria-hidden="true">
+    <div class="wrap cta">
+      <span class="eyebrow">Hemen deneyin</span>
+      <h2>Okuma ücretsiz, Pro 14 gün sizde</h2>
+      <p class="lead">Okuma, soru bankası ve temel raporlar her zaman ücretsiz. Dönem raporu, karneler, A–H kitapçık ve velilere gönderim gibi Pro özelliklerini ilk 14 gün kart bilgisi vermeden kullanın.</p>
+      <div class="row"><a class="btn primary" href="indir.html">Ücretsiz indir</a><a class="btn ghost" href="ozellikler.html#fiyatlar">Fiyatları gör</a></div>
+      <div class="stores"><a href="https://play.google.com/store/apps/details?id=com.netice.netice"><img src="img/google_play_tr.png" alt="Google Play'den alın"></a><a href="indir.html#indir"><img src="img/app_store_tr.svg" alt="App Store'dan indirin"></a><a class="ms" href="indir.html#satin-alma">Windows ve Mac</a></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="stack" style="gap:10px">
+      <a class="brand" href="index.html" aria-label="Netice ana sayfa"><img class="logo" src="img/logo_beyaz.png" alt="Netice"></a>
+      <p>Optik okuma, soru bankası ve sınav analizi. Kayıt gerekmez, verileriniz cihazınızda.</p>
+    </div>
+    <nav aria-label="Sayfalar"><a href="index.html">Ana sayfa</a><a href="ozellikler.html">Özellikler ve fiyatlar</a><a href="indir.html">İndir ve SSS</a><a href="indir.html#iletisim">İletişim</a><a href="gizlilik.html">Gizlilik ve KVKK</a></nav>
+    <div class="stack" style="gap:6px"><span>İletişim</span><span style="color:var(--band-fg)">bilgi@neticeoptik.com</span><span>© 2026 Netice</span></div>
+  </div>
+</footer>
+<script src="site.js"></script>
+</body>
+</html>
