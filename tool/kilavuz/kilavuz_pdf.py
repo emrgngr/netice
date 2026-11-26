@@ -429,7 +429,7 @@ def kapak(c):
     c.setFillColor(HexColor('#8C97B8'))
     c.setFont('J5', 9)
     yaz(c, M, 40, T('Sürüm') + ' ' + date.today().strftime('%d.%m.%Y'))
-    yaz(c, M, 26, T('İletişim:') + ' bilgi@neticeoptik.com')
+    yaz(c, M, 26, T('İletişim:') + ' info@neticeoptik.com')
 
 
 def bolum_kapagi(c, no, sayfa_baslari, sayfa_no):
