@@ -46,6 +46,10 @@ class _AccountCardState extends State<AccountCard> {
     return s.length > 200 ? '${s.substring(0, 200)}…' : s;
   }
 
+  String _syncMessage(int incoming, int outgoing) => incoming == 0 && outgoing == 0
+      ? tr('Eşitlendi. Tüm cihazlar güncel.')
+      : tr('Eşitlendi: {0} değişiklik alındı, {1} değişiklik gönderildi.', [incoming, outgoing]);
+
   String _ago(DateTime t) {
     final d = DateTime.now().difference(t);
     if (d.inMinutes < 1) return tr('az önce');
@@ -66,7 +70,7 @@ class _AccountCardState extends State<AccountCard> {
         child: ListTile(
           leading: const IconBadge(Icons.cloud_off_outlined, color: NColors.gray),
           title: Text(tr('Google hesabı'), style: TextStyle(fontWeight: FontWeight.w700)),
-          subtitle: Text(tr('Google ile giriş ve Drive yedeği telefon uygulamasında. Bilgisayarda "Yedeği dosyaya kaydet / geri yükle" ile taşıyabilirsiniz.')),
+          subtitle: Text(tr('Google ile giriş, Drive yedeği ve cihazlar arası eşitleme telefon uygulamasında. Bilgisayarda "Yedeği dosyaya kaydet / geri yükle" ya da Wi-Fi ile eşitleme kullanabilirsiniz.')),
         ),
       );
     }
@@ -97,7 +101,7 @@ class _AccountCardState extends State<AccountCard> {
             ]),
             const SizedBox(height: 8),
             Text(
-              tr('Verileriniz yine bu cihazda kalır. Giriş yaparsanız her gün kendi Google Drive\'ınıza gizli bir yedek alınır; telefon değişse de sınıflarınız ve sınavlarınız kaybolmaz.'),
+              tr('Verileriniz yine bu cihazda kalır. Giriş yaparsanız her gün kendi Google Drive\'ınıza gizli bir yedek alınır; isterseniz telefon, tablet ve bilgisayarınızı eşitleyebilir, notları Google Classroom\'a gönderebilirsiniz. Hesap açmanız gerekmez.'),
               style: TextStyle(color: muted, height: 1.4),
             ),
             const SizedBox(height: 14),
@@ -164,6 +168,51 @@ class _AccountCardState extends State<AccountCard> {
                   child: Text(tr('Şimdi yedekle')),
                 ),
         ),
+        SwitchListTile(
+          secondary: Icon(Icons.devices_rounded, color: store.syncEnabled ? NColors.emerald : null),
+          value: store.syncEnabled,
+          onChanged: _busy
+              ? null
+              : (v) => _run(() async {
+                    if (!v) {
+                      store.setSyncEnabled(false);
+                      return;
+                    }
+                    if (!await requirePro(context, ProFeature.deviceSync)) throw _Cancelled();
+                    if (!mounted) return;
+                    final ok = await showDialog<bool>(
+                      context: this.context,
+                      builder: (ctx) => AlertDialog(
+                        title: Text(tr('Cihazlar arası eşitleme')),
+                        content: Text(tr('Aynı Google hesabıyla giriş yaptığınız telefon, tablet ve bilgisayarlarda sınıflarınız, sınavlarınız ve okunan kâğıtlar aynı olur. Veriler yalnız kendi Google Drive\'ınızdaki gizli Netice klasöründen geçer.\n\nÖnce bu cihazın verisinin bir kopyası otomatik yedeklere alınır.')),
+                        actions: [
+                          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr('Vazgeç'))),
+                          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(tr('Eşitlemeyi aç'))),
+                        ],
+                      ),
+                    );
+                    if (ok != true) throw _Cancelled();
+                    store.setSyncEnabled(true);
+                    final r = await cloud.sync(store);
+                    if (mounted && r != null) toast(this.context, _syncMessage(r.incoming, r.outgoing));
+                  }),
+          title: Text(tr('Cihazlar arası eşitleme')),
+          subtitle: Text(store.syncEnabled
+              ? (store.lastSync == null ? tr('Eşitleniyor…') : tr('Son eşitleme: {0}', [_ago(store.lastSync!)]))
+              : tr('Telefon, tablet ve bilgisayarda aynı veriler')),
+        ),
+        if (store.syncEnabled)
+          ListTile(
+            leading: const Icon(Icons.sync_rounded),
+            title: Text(tr('Şimdi eşitle')),
+            subtitle: Text(tr('Netice açılınca ve her değişiklikten sonra kendiliğinden eşitlenir')),
+            onTap: _busy
+                ? null
+                : () => _run(() async {
+                      final r = await cloud.sync(store);
+                      if (mounted && r != null) toast(this.context, _syncMessage(r.incoming, r.outgoing));
+                    }),
+          ),
         SwitchListTile(
           value: store.cloudAuto,
           onChanged: store.setCloudAuto,

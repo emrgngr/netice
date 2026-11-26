@@ -1,30 +1,23 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 
+import 'google_auth.dart';
 import 'store.dart';
+import 'sync_merge.dart';
 import '../l10n/l10n.dart';
 
-/// Google ile giriş ve Google Drive yedeği.
+/// Google Drive yedeği ve cihazlar arası eşitleme.
 ///
-/// Yedek, öğretmenin kendi Drive hesabında yalnızca bu uygulamanın
-/// görebildiği gizli "uygulama verisi" klasörüne yazılır (drive.appdata
-/// izni). Netice'nin sunucusu yoktur; veri hiçbir yere aktarılmaz.
+/// Yedek ve eşitleme dosyası, öğretmenin kendi Drive hesabında yalnızca bu
+/// uygulamanın görebildiği gizli "uygulama verisi" klasörüne yazılır
+/// (drive.appdata izni). Netice'nin sunucusu yoktur; veri hiçbir yere
+/// aktarılmaz.
 class CloudConfig {
-  /// Google Cloud Console'da oluşturulan "Web uygulaması" türündeki OAuth
-  /// istemci kimliği (Android'de giriş için gereklidir). Boşsa Google girişi
-  /// kapalıdır ve ayarlarda kurulum bekleniyor yazar.
-  static const serverClientId = String.fromEnvironment('GOOGLE_SERVER_CLIENT_ID',
-      defaultValue: '1093981917860-mn8966rkp1ttq34fag13b8o8qtc0mbhp.apps.googleusercontent.com');
-
-  /// iOS istemci kimliği (iOS için).
-  static const iosClientId = String.fromEnvironment('GOOGLE_IOS_CLIENT_ID');
-
-  static bool get platformSupported => Platform.isAndroid || Platform.isIOS;
-  static bool get configured =>
-      platformSupported && (Platform.isIOS ? iosClientId.isNotEmpty : serverClientId.isNotEmpty);
+  static bool get platformSupported => GoogleConfig.platformSupported;
+  static bool get configured => GoogleConfig.configured;
 }
 
 class CloudBackupInfo {
@@ -38,70 +31,59 @@ class CloudService {
   CloudService._();
   static final instance = CloudService._();
 
-  static const _scopes = ['https://www.googleapis.com/auth/drive.appdata'];
+  static const _scopes = [GoogleScopes.driveAppData];
   static const _fileName = 'netice_yedek.json';
+  static const _syncName = 'netice_esitleme.json';
 
-  bool _init = false;
-  GoogleSignInAccount? _account;
+  GoogleAuth get _auth => GoogleAuth.instance;
 
-  Future<void> _ensureInit() async {
-    if (_init) return;
-    await GoogleSignIn.instance.initialize(
-      clientId: Platform.isIOS && CloudConfig.iosClientId.isNotEmpty ? CloudConfig.iosClientId : null,
-      serverClientId: CloudConfig.serverClientId.isEmpty ? null : CloudConfig.serverClientId,
-    );
-    _init = true;
-  }
-
-  /// Uygulama açılırken sessizce oturumu geri yükler ve günlük yedeği bağlar.
+  /// Uygulama açılırken sessizce oturumu geri yükler, günlük yedeği bağlar
+  /// ve eşitleme açıksa öteki cihazlardaki değişiklikleri alır.
   Future<void> attach(AppStore store) async {
     if (!CloudConfig.configured) return;
     store.onDailyBackup = () async {
       if (store.googleEmail != null && store.cloudAuto && store.isPro) await backup(store, interactive: false);
     };
+    store.onSyncDue = () {
+      if (store.googleEmail != null && store.syncEnabled && store.isPro) {
+        sync(store, interactive: false).catchError((_) => null);
+      }
+    };
+    // Uygulamaya dönünce (ör. bilgisayarda açılan sınav telefona) güncelle.
+    _life ??= AppLifecycleListener(onResume: () => store.onSyncDue?.call());
     if (store.googleEmail == null) return;
-    try {
-      await _ensureInit();
-      _account = await GoogleSignIn.instance.attemptLightweightAuthentication();
-    } catch (_) {}
+    await _auth.restore();
+    if (store.syncEnabled && store.isPro) {
+      try {
+        await sync(store, interactive: false);
+      } catch (_) {}
+    }
   }
 
   /// Google hesabıyla giriş yapar; başarılıysa hesap bilgisini kaydeder.
-  Future<void> signIn(AppStore store) async {
-    await _ensureInit();
-    final acc = await GoogleSignIn.instance.authenticate(scopeHint: _scopes);
-    _account = acc;
-    store.setGoogleAccount(acc.email, acc.displayName);
+  Future<void> signIn(AppStore store, {List<String> scopes = _scopes}) async {
+    final u = await _auth.signIn(scopes);
+    store.setGoogleAccount(u.email, u.name);
   }
 
   Future<void> signOut(AppStore store) async {
     try {
-      await _ensureInit();
-      await GoogleSignIn.instance.signOut();
+      await _auth.signOut();
     } catch (_) {}
-    _account = null;
     store.setGoogleAccount(null, null);
+    store.setSyncEnabled(false);
   }
 
-  Future<Map<String, String>> _headers({required bool interactive}) async {
-    await _ensureInit();
-    _account ??= await GoogleSignIn.instance.attemptLightweightAuthentication();
-    if (_account == null) {
-      if (!interactive) throw StateError(tr('Google oturumu yok'));
-      _account = await GoogleSignIn.instance.authenticate(scopeHint: _scopes);
-    }
-    final client = _account!.authorizationClient;
-    final auth = await client.authorizationForScopes(_scopes) ??
-        (interactive ? await client.authorizeScopes(_scopes) : throw StateError(tr('Drive izni yok')));
-    return {'Authorization': 'Bearer ${auth.accessToken}'};
-  }
+  Future<Map<String, String>> _headers({required bool interactive}) =>
+      _auth.headers(_scopes, interactive: interactive);
 
-  Future<CloudBackupInfo?> latest({bool interactive = true}) async {
-    final h = await _headers(interactive: interactive);
+  /// Uygulama klasöründeki [name] dosyası (yoksa null).
+  Future<CloudBackupInfo?> _find(String name, Map<String, String> h) async {
     final uri = Uri.https('www.googleapis.com', '/drive/v3/files', {
       'spaces': 'appDataFolder',
-      'q': "name = '$_fileName' and trashed = false",
+      'q': "name = '$name' and trashed = false",
       'fields': 'files(id,modifiedTime,size)',
+      'orderBy': 'modifiedTime desc',
     });
     final r = await http.get(uri, headers: h);
     if (r.statusCode != 200) throw HttpException(tr('Drive listesi alınamadı ({0})', [r.statusCode]));
@@ -112,16 +94,13 @@ class CloudService {
         f['id'] as String, DateTime.tryParse(f['modifiedTime'] as String? ?? ''), int.tryParse('${f['size']}') ?? 0);
   }
 
-  /// Tüm veriyi Drive'daki tek yedek dosyasına yazar (varsa üzerine).
-  Future<void> backup(AppStore store, {bool interactive = true}) async {
-    final h = await _headers(interactive: interactive);
-    final body = utf8.encode(store.exportBackup());
-    final existing = await latest(interactive: interactive);
+  /// [name] dosyasını yazar (varsa üzerine).
+  Future<void> _write(String name, List<int> body, Map<String, String> h, CloudBackupInfo? existing) async {
     http.Response r;
     if (existing == null) {
       const boundary = 'netice_yedek_sinir';
       final meta = jsonEncode({
-        'name': _fileName,
+        'name': name,
         'parents': ['appDataFolder'],
         'mimeType': 'application/json',
       });
@@ -139,7 +118,66 @@ class CloudService {
           headers: {...h, 'Content-Type': 'application/json'},
           body: body);
     }
-    if (r.statusCode != 200) throw HttpException(tr('Drive yedeği yazılamadı ({0})', [r.statusCode]));
+    if (r.statusCode != 200) throw HttpException(tr('Drive\'a yazılamadı ({0})', [r.statusCode]));
+  }
+
+  Future<String> _read(String id, Map<String, String> h) async {
+    final r = await http.get(Uri.parse('https://www.googleapis.com/drive/v3/files/$id?alt=media'), headers: h);
+    if (r.statusCode != 200) throw HttpException(tr('Drive yedeği indirilemedi ({0})', [r.statusCode]));
+    return utf8.decode(r.bodyBytes);
+  }
+
+  bool _syncing = false;
+  AppLifecycleListener? _life;
+
+  /// Cihazlar arası eşitleme: Drive'daki ortak dosyayı indirir, bu cihazdaki
+  /// veriyle birleştirir (bkz. sync_merge.dart), sonucu hem buraya hem
+  /// Drive'a yazar. Aynı Google hesabıyla giriş yapılan tüm telefon, tablet
+  /// ve bilgisayarlar aynı dosyayı paylaşır.
+  Future<SyncMergeResult?> sync(AppStore store, {bool interactive = true}) async {
+    if (_syncing) return null;
+    _syncing = true;
+    try {
+      final h = await _headers(interactive: interactive);
+      final info = await _find(_syncName, h);
+      final remote = info == null ? null : jsonDecode(await _read(info.id, h)) as Map<String, dynamic>;
+      final res = syncMerge(store.syncPayload(), remote, store.syncBase);
+      if (res.incoming > 0) await store.applySync(res.merged);
+      if (res.outgoing > 0 || info == null) {
+        final body = utf8.encode(jsonEncode({
+          'app': 'netice',
+          'kind': 'sync',
+          'version': 1,
+          'savedAt': DateTime.now().toIso8601String(),
+          ...res.merged,
+        }));
+        await _write(_syncName, body, h, info);
+      }
+      store.markSynced(syncFingerprints(res.merged), DateTime.now());
+      return res;
+    } finally {
+      _syncing = false;
+    }
+  }
+
+  /// Eşitleme dosyasını Drive'dan siler (eşitleme kapatılınca isteğe bağlı).
+  Future<void> deleteSyncFile(AppStore store) async {
+    final h = await _headers(interactive: true);
+    final info = await _find(_syncName, h);
+    if (info != null) {
+      await http.delete(Uri.parse('https://www.googleapis.com/drive/v3/files/${info.id}'), headers: h);
+    }
+    store.markSynced(const {}, null);
+  }
+
+  Future<CloudBackupInfo?> latest({bool interactive = true}) async =>
+      _find(_fileName, await _headers(interactive: interactive));
+
+  /// Tüm veriyi Drive'daki tek yedek dosyasına yazar (varsa üzerine).
+  Future<void> backup(AppStore store, {bool interactive = true}) async {
+    final h = await _headers(interactive: interactive);
+    final existing = await _find(_fileName, h);
+    await _write(_fileName, utf8.encode(store.exportBackup()), h, existing);
     store.markCloudBackup(DateTime.now());
   }
 
@@ -148,9 +186,7 @@ class CloudService {
     final info = await latest();
     if (info == null) return null;
     final h = await _headers(interactive: true);
-    final r = await http.get(Uri.parse('https://www.googleapis.com/drive/v3/files/${info.id}?alt=media'), headers: h);
-    if (r.statusCode != 200) throw HttpException(tr('Drive yedeği indirilemedi ({0})', [r.statusCode]));
-    return store.restoreBackup(utf8.decode(r.bodyBytes));
+    return store.restoreBackup(await _read(info.id, h));
   }
 
   /// Drive'daki Netice yedeğini kalıcı olarak siler.

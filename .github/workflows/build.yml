@@ -38,7 +38,7 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
-      - run: flutter build windows --release
+      - run: flutter build windows --release --dart-define=GOOGLE_DESKTOP_CLIENT_ID=${{ secrets.GOOGLE_DESKTOP_CLIENT_ID }} --dart-define=GOOGLE_DESKTOP_CLIENT_SECRET=${{ secrets.GOOGLE_DESKTOP_CLIENT_SECRET }}
       - name: Visual C++ kitaplıklarını programın yanına koy
         shell: pwsh
         run: |
@@ -81,7 +81,7 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
-      - run: flutter build macos --release --build-number=${{ github.run_number }}
+      - run: flutter build macos --release --build-number=${{ github.run_number }} --dart-define=GOOGLE_DESKTOP_CLIENT_ID=${{ secrets.GOOGLE_DESKTOP_CLIENT_ID }} --dart-define=GOOGLE_DESKTOP_CLIENT_SECRET=${{ secrets.GOOGLE_DESKTOP_CLIENT_SECRET }}
       # Apple geliştirici imzası yok: uygulama yerel (ad-hoc) imzalı. İlk açılışta
       # Sistem Ayarları > Gizlilik ve Güvenlik > "Yine de Aç" gerekir.
       - name: DMG oluştur

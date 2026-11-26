@@ -292,6 +292,7 @@ class StudentImport {
     var iFull = find(['adsoyad', 'adisoyadi', 'adsoyadi']);
     final iClass = find(['sinif', 'sube']);
     final iPhone = find(['velitelefonu', 'velitelefon', 'velitel', 'velicep', 'telefon', 'gsm', 'cep', 'phone']);
+    final iMail = find(['eposta', 'email', 'mail', 'epostaadresi', 'emailaddress']);
     final hasHeader = iNo >= 0 || iFirst >= 0 || iFull >= 0;
     final data = hasHeader ? rows.skip(1) : rows;
     if (!hasHeader) {
@@ -322,6 +323,7 @@ class StudentImport {
         number: no,
         className: at(iClass).isNotEmpty ? at(iClass) : defaultClass,
         parentPhone: iPhone >= 0 ? at(iPhone).trim() : '',
+        email: iMail >= 0 && at(iMail).contains('@') ? at(iMail).trim() : '',
       ));
     }
     return out;

@@ -136,6 +136,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
     final no = TextEditingController(text: existing?.number ?? '');
     final cls = TextEditingController(text: existing?.className ?? _class ?? store.classNames.firstOrNull ?? '');
     final phone = TextEditingController(text: existing?.parentPhone ?? '');
+    final mail = TextEditingController(text: existing?.email ?? '');
     final result = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -172,6 +173,12 @@ class _StudentsScreenState extends State<StudentsScreen> {
                       hintText: tr('ör. 0532 123 45 67'),
                       helperText: tr('Karneyi WhatsApp\'tan doğrudan veliye açmak için. Yalnız bu cihazda kalır.'),
                       helperMaxLines: 2)),
+              const SizedBox(height: 10),
+              TextField(controller: mail, keyboardType: TextInputType.emailAddress,
+                  decoration: InputDecoration(
+                      labelText: tr('Öğrenci e-postası (isteğe bağlı)'),
+                      helperText: tr('Google Classroom ve Moodle\'a not aktarırken öğrenciyi kesin eşleştirir.'),
+                      helperMaxLines: 2)),
             ]),
           ),
         ),
@@ -206,6 +213,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
       number: number,
       className: className,
       parentPhone: phone.text.trim(),
+      email: mail.text.trim(),
     );
     if (existing == null) {
       store.addStudents([st]);

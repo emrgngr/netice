@@ -22,6 +22,7 @@ import '../reports/pdf_documents.dart';
 import 'review_screen.dart';
 import 'camera_scan_screen.dart';
 import 'exam_settings_screen.dart';
+import 'grade_export_screen.dart';
 import 'open_scores_screen.dart';
 import 'report_preview_screen.dart';
 import 'student_detail_screen.dart';
@@ -372,6 +373,7 @@ class ExamScreen extends StatelessWidget {
       if (exam.kidStyle) _Action(Icons.workspace_premium_outlined, tr('Tebrik belgeleri'), certificates),
       _Action(Icons.table_view_outlined, tr('Excel'), excel),
       _Action(Icons.school_outlined, tr('e-Okul listesi'), eokul),
+      _Action(Icons.co_present_outlined, tr('Classroom / Moodle\'a aktar'), () => openGradeExport(context, exam)),
       _Action(Icons.label_outline, tr('Sonuç etiketi'), labels),
       _Action(Icons.assignment_ind_outlined, tr('Kişiye özel tekrar testi'), () => openPersonalReview(context, exam)),
       _Action(Icons.forward_to_inbox_rounded, tr('Velilere toplu gönder'), () => openBulkParentSend(context, exam)),

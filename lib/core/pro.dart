@@ -20,6 +20,8 @@ enum ProFeature {
   studentCards('Öğrenci ve kazanım karnesi', 'Her öğrenci için ayrıntılı PDF karne'),
   parentShare('Karneyi veliye gönder', 'WhatsApp veya e-postayla tek dokunuşla'),
   cloudBackup('Google Drive yedeği', 'Kendi hesabınıza her gün otomatik yedek'),
+  deviceSync('Cihazlar arası eşitleme', 'Telefon, tablet ve bilgisayarınızda aynı sınıflar ve sınavlar'),
+  gradeExport('Classroom ve Moodle\'a not aktarma', 'Notlar tek dokunuşla Google Classroom\'a ya da Moodle not defterine'),
   advancedCharts('Gelişmiş grafikler', 'Pasta, madde haritası, puan yayılımı, kazanım radarı'),
   detailedStats('Ayrıntılı sınıf istatistikleri', 'Sınıf sınıf yayılım ve düzeyler, gelişim çizgileri, öğrenci sıralamaları'),
   officialHeader('Resmi yazı başlığı', 'Kurumunuzun resmi başlığı ve imza alanı'),
