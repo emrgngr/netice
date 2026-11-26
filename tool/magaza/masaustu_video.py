@@ -503,6 +503,9 @@ class Scene:
         self.callouts = []
         specs = sc.get('isaret', [])
         times = [LEAD + word_time(sc, audio, s['kelime'], vdur) for s in specs]
+        # Her işaret en az ~1,6 sn ekranda kalsın (kelimeler çok yakınsa sonrakini kaydır).
+        for i in range(1, len(times)):
+            times[i] = max(times[i], times[i - 1] + 1.9)
         for i, s in enumerate(specs):
             t_on = times[i]
             t_off = (times[i + 1] - 0.85) if i + 1 < len(specs) else dur - 0.35

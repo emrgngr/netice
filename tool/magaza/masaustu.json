@@ -89,7 +89,7 @@
    "vurgu": 2,
    "metin": "Genel istatistikte bütün sınıflar tek bakışta. Genel başarı, medyan, standart sapma ve katılım hep birlikte.",
    "isaret": [
-    {"hedef": [40, 420, 2840, 757], "etiket": "Genel başarı", "kelime": "Genel başarı"},
+    {"hedef": [40, 420, 2840, 757], "etiket": "Genel başarı", "kelime": "bütün sınıflar"},
     {"hedef": [40, 862, 2840, 1132], "etiket": "Medyan · sapma · katılım", "kelime": "medyan"}
    ]
   },
