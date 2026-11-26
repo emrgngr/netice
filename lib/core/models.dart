@@ -35,6 +35,10 @@ class Student {
   /// Yalnızca bu cihazda tutulur; ortak sınav dosyalarına yazılmaz.
   final String parentPhone;
 
+  /// Öğrencinin e-postası (isteğe bağlı). Google Classroom ve Moodle'a not
+  /// aktarırken öğrenciyi kesin eşleştirmek için kullanılır.
+  final String email;
+
   const Student({
     required this.id,
     required this.firstName,
@@ -42,15 +46,17 @@ class Student {
     required this.number,
     required this.className,
     this.parentPhone = '',
+    this.email = '',
   });
 
-  Student copyWith({String? number, String? className, String? parentPhone}) => Student(
+  Student copyWith({String? number, String? className, String? parentPhone, String? email}) => Student(
         id: id,
         firstName: firstName,
         lastName: lastName,
         number: number ?? this.number,
         className: className ?? this.className,
         parentPhone: parentPhone ?? this.parentPhone,
+        email: email ?? this.email,
       );
 
   /// Çince ve Japonca adlar arasında boşluk bırakılmaz (王伟).
@@ -64,6 +70,7 @@ class Student {
         'number': number,
         'className': className,
         if (parentPhone.isNotEmpty) 'parentPhone': parentPhone,
+        if (email.isNotEmpty) 'email': email,
       };
 
   factory Student.fromJson(Map<String, dynamic> j) => Student(
@@ -73,6 +80,7 @@ class Student {
         number: j['number'] as String,
         className: j['className'] as String,
         parentPhone: j['parentPhone'] as String? ?? '',
+        email: j['email'] as String? ?? '',
       );
 }
 

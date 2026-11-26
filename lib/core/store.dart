@@ -59,6 +59,21 @@ class AppStore extends ChangeNotifier {
   DateTime? lastCloudBackup;
   bool cloudAuto = true;
 
+  /// Cihazlar arası eşitleme (Google Drive üzerinden) açık mı, son eşitleme
+  /// zamanı ve son eşitlemede anlaşılan kayıt parmak izleri (bkz.
+  /// sync_merge.dart). Bunlar cihaza aittir; yedekten geri yüklenmez.
+  bool syncEnabled = false;
+  DateTime? lastSync;
+  final Map<String, String> syncBase = {};
+
+  /// Veri değiştiğinde eşitlemeyi tetikler (CloudService bağlar).
+  void Function()? onSyncDue;
+  Timer? _syncTimer;
+
+  /// Google Classroom'a aktarılan sınavlar: sınav → {course, courseWork,
+  /// courseName}. Aynı sınav yeniden gönderilince aynı ödev güncellenir.
+  final Map<String, Map<String, String>> classroomLinks = {};
+
   /// Açılış animasyonunda melodi çalsın mı.
   bool splashSound = true;
 
@@ -361,6 +376,10 @@ class AppStore extends ChangeNotifier {
         'googleName': googleName,
         'lastCloudBackup': lastCloudBackup?.toIso8601String(),
         'cloudAuto': cloudAuto,
+        if (syncEnabled) 'syncEnabled': true,
+        if (lastSync != null) 'lastSync': lastSync!.toIso8601String(),
+        if (syncBase.isNotEmpty) 'syncBase': syncBase,
+        if (classroomLinks.isNotEmpty) 'classroomLinks': classroomLinks,
         'splashSound': splashSound,
         'scanSound': scanSound,
         'scanMelody': scanMelody,
@@ -449,12 +468,103 @@ class AppStore extends ChangeNotifier {
     final tm = j['themeMode'];
     if (tm == 'system' || tm == 'light' || tm == 'dark') themeMode = tm as String;
     language = j['language'] as String? ?? language;
+    classroomLinks
+      ..clear()
+      ..addAll(_links(j['classroomLinks']));
+    syncEnabled = j['syncEnabled'] as bool? ?? false;
+    lastSync = DateTime.tryParse('${j['lastSync'] ?? ''}');
+    syncBase
+      ..clear()
+      ..addAll({if (j['syncBase'] is Map) for (final e in (j['syncBase'] as Map).entries) '${e.key}': '${e.value}'});
     if (j.containsKey('googleEmail')) {
       googleEmail = j['googleEmail'] as String?;
       googleName = j['googleName'] as String?;
       lastCloudBackup = DateTime.tryParse(j['lastCloudBackup'] as String? ?? '');
       cloudAuto = j['cloudAuto'] as bool? ?? true;
     }
+  }
+
+  static Map<String, Map<String, String>> _links(Object? v) => {
+        if (v is Map)
+          for (final e in v.entries)
+            if (e.value is Map) '${e.key}': {for (final x in (e.value as Map).entries) '${x.key}': '${x.value}'},
+      };
+
+  /// Eşitlenecek veri (liste ve ortak ayarlar); bkz. sync_merge.dart.
+  Map<String, dynamic> syncPayload() {
+    final j = jsonDecode(jsonEncode(toJsonMap())) as Map<String, dynamic>;
+    return {
+      for (final k in const ['students', 'exams', 'sheets', 'templates', 'school', 'gradeScale', 'classroomLinks'])
+        if (j[k] != null) k: j[k],
+    };
+  }
+
+  /// Eşitlemede birleşen veriyi uygular. Bu cihazın örnek verileri ve
+  /// cihaza ait ayarlar (Pro, hesap, ses…) olduğu gibi kalır. İlk
+  /// eşitlemeden önce mevcut hâlin bir kopyası otomatik yedeklere eklenir.
+  Future<void> applySync(Map<String, dynamic> merged) async {
+    if (syncBase.isEmpty) await _autoBackup(force: true);
+    final j = toJsonMap();
+    final demoStudents = [for (final s in students) if (_isDemoStudent(s.id)) s.toJson()];
+    final demoExams = [for (final e in exams) if (_isDemoExam(e.id)) e.toJson()];
+    final demoSheets = [for (final s in sheets) if (_isDemoExam(s.examId)) s.toJson()];
+    j['students'] = [...demoStudents, ...(merged['students'] as List? ?? const [])];
+    j['exams'] = [...(merged['exams'] as List? ?? const []), ...demoExams];
+    j['sheets'] = [...(merged['sheets'] as List? ?? const []), ...demoSheets];
+    j['templates'] = merged['templates'] ?? const [];
+    j['school'] = merged['school'];
+    j['gradeScale'] = merged['gradeScale'];
+    j['classroomLinks'] = merged['classroomLinks'];
+    final probe = AppStore().._apply(jsonDecode(jsonEncode(j)) as Map<String, dynamic>);
+    students
+      ..clear()
+      ..addAll(probe.students);
+    exams
+      ..clear()
+      ..addAll(probe.exams);
+    sheets
+      ..clear()
+      ..addAll(probe.sheets);
+    templates
+      ..clear()
+      ..addAll(probe.templates);
+    school = probe.school;
+    gradeScale = probe.gradeScale;
+    Level.useScale(gradeScale);
+    classroomLinks
+      ..clear()
+      ..addAll(probe.classroomLinks);
+    notifyListeners();
+    await save();
+  }
+
+  /// Başarılı eşitlemeden sonra anlaşılan hâli kaydeder.
+  void markSynced(Map<String, String> base, DateTime? at) {
+    syncBase
+      ..clear()
+      ..addAll(base);
+    lastSync = at;
+    notifyListeners();
+    save();
+  }
+
+  void setSyncEnabled(bool v) {
+    if (syncEnabled == v) return;
+    syncEnabled = v;
+    if (!v) {
+      syncBase.clear();
+      lastSync = null;
+    }
+    _changed();
+  }
+
+  void setClassroomLink(String examId, Map<String, String>? link) {
+    if (link == null) {
+      classroomLinks.remove(examId);
+    } else {
+      classroomLinks[examId] = link;
+    }
+    _changed();
   }
 
   /// Velilere toplu gönderimde karnesi gönderilenler: sınav → öğrenciler.
@@ -556,7 +666,15 @@ class AppStore extends ChangeNotifier {
     final (tp, lic) = (termPassUntil, license);
     final (inv, ai, tc, bp) = (inviteCode, appliedInvite, thanksCode, bonusProUntil);
     final rt = [...redeemedThanks];
+    final (se, ls, sb) = (syncEnabled, lastSync, Map<String, String>.of(syncBase));
     _apply(probe.toJsonMap());
+    // Eşitleme durumu cihaza aittir. Geri yüklenen veri sonraki eşitlemede
+    // bu cihazın değişikliği sayılır ve öteki cihazlara gider.
+    syncEnabled = se;
+    lastSync = ls;
+    syncBase
+      ..clear()
+      ..addAll(sb);
     // Abonelik, paket ve lisans bu cihaza aittir; yedek dosyasından gelmez.
     proProduct = pp;
     proConfirmedAt = pc;
@@ -633,6 +751,10 @@ class AppStore extends ChangeNotifier {
   void _changed() {
     notifyListeners();
     save();
+    if (syncEnabled && onSyncDue != null) {
+      _syncTimer?.cancel();
+      _syncTimer = Timer(const Duration(seconds: 20), () => onSyncDue?.call());
+    }
   }
 
   /// Listeler dışarıdan toplu değiştirildikten sonra (ör. ortak sınav
