@@ -117,6 +117,9 @@ def cevir(dil, tr):
 def main():
     dil, cikti = sys.argv[1], sys.argv[2]
     tr = json.load(open(os.path.join(HERE, 'masaustu.json'), encoding='utf-8'))
+    if dil == 'tr':  # Türkçe: çeviri yok, ayar olduğu gibi
+        json.dump(dict(tr, dil='tr'), open(cikti, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+        return
     elle = os.path.join(HERE, 'masaustu_ceviri', f'{dil}.json')
     if os.path.exists(elle):
         json.dump(json.load(open(elle, encoding='utf-8')), open(cikti, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
