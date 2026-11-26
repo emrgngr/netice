@@ -35,4 +35,17 @@
       });
     });
   });
+  // Neden Netice? süre hesaplayıcı: elle 1,5 dk, Netice ile 5 sn / kâğıt.
+  var ogr = document.getElementById('c-ogr'), sinav = document.getElementById('c-sinav');
+  if (ogr && sinav) {
+    var fmt = function (n) { return Math.round(n).toLocaleString('tr-TR'); };
+    var calc = function () {
+      var k = Math.max(0, +ogr.value || 0) * Math.max(0, +sinav.value || 0);
+      var saat = k * (90 - 5) / 3600;
+      document.getElementById('c-saat').textContent = fmt(saat);
+      document.getElementById('c-gun').textContent = fmt(saat / 8);
+      document.getElementById('c-kagit').textContent = fmt(k);
+    };
+    ogr.addEventListener('input', calc); sinav.addEventListener('input', calc); calc();
+  }
 })();

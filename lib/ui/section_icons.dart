@@ -23,6 +23,7 @@ enum Section {
   settings,
   help,
   pro,
+  why,
 }
 
 class SectionStyle {
@@ -53,6 +54,7 @@ extension SectionInfo on Section {
     Section.settings => const SectionStyle(Icons.settings_rounded, Color(0xFF94A3B8), Color(0xFF475569)),
     Section.help => const SectionStyle(Icons.help_rounded, Color(0xFF38BDF8), Color(0xFF0369A1)),
     Section.pro => const SectionStyle(Icons.diamond_rounded, Color(0xFFF7D774), Color(0xFFD99A2B)),
+    Section.why => const SectionStyle(Icons.emoji_events_rounded, Color(0xFF10B981), Color(0xFF0F1B3D)),
   };
 
   /// Bölümün kullanıcıya görünen adı.
@@ -73,24 +75,42 @@ extension SectionInfo on Section {
     Section.settings => tr('Ayarlar'),
     Section.help => tr('Yardım'),
     Section.pro => tr('Netice Pro'),
+    Section.why => tr('Neden Netice?'),
   };
 }
 
 /// Bölüm logosu: renk geçişli yuvarlatılmış kare, üstte ince parlama ve
 /// beyaz simge. Her temada aynı görünür (zemin her zaman renkli, simge beyaz).
+/// Bölüm simgesiyle aynı tarzda, serbest simge ve renkli logo.
+class GlossyIcon extends StatelessWidget {
+  final IconData icon;
+  final Color light;
+  final Color deep;
+  final double size;
+  const GlossyIcon(this.icon, this.light, this.deep, {super.key, this.size = 40});
+
+  @override
+  Widget build(BuildContext context) => SectionIcon._custom(SectionStyle(icon, light, deep), size: size);
+}
+
 class SectionIcon extends StatelessWidget {
   final Section section;
   final double size;
 
   /// Seçili olmayan menü satırlarında biraz soluk görünür.
   final bool dim;
-  const SectionIcon(this.section, {super.key, this.size = 40, this.dim = false});
+  final SectionStyle? _style;
+  const SectionIcon(this.section, {super.key, this.size = 40, this.dim = false}) : _style = null;
+  const SectionIcon._custom(SectionStyle style, {required this.size})
+      : section = Section.why,
+        dim = false,
+        _style = style;
 
   @override
   Widget build(BuildContext context) {
-    final s = section.style;
+    final s = _style ?? section.style;
     final r = BorderRadius.circular(size * 0.3);
-    final fg = section == Section.pro ? const Color(0xFF3A2800) : Colors.white;
+    final fg = _style == null && section == Section.pro ? const Color(0xFF3A2800) : Colors.white;
     return Opacity(
       opacity: dim ? 0.82 : 1,
       child: Container(

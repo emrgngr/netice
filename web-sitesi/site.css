@@ -328,3 +328,50 @@ table { min-width: 0; }
 .chip .ikon { width: 22px; height: 22px; filter: none; vertical-align: -6px; margin-right: 6px; }
 .chip:has(.ikon) { display: inline-flex; align-items: center; padding-left: 8px; }
 .band.dark .ikon { filter: drop-shadow(0 6px 14px rgba(0,0,0,.35)); }
+
+/* Neden Netice? sayfası */
+.why-hero { padding-bottom: clamp(48px, 7vw, 88px); }
+.why-hero .wrap { align-items: center; }
+@media (min-width: 980px) { .why-hero .wrap { grid-template-columns: 7fr 5fr; } }
+.why-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.why-stats div { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14); border-radius: 16px; padding: 18px; display: grid; gap: 4px; }
+.why-stats b { font-family: var(--display); font-size: 2.2rem; font-weight: 800; color: #6EE7B7; letter-spacing: -.03em; }
+.why-stats span { color: #C9D3EE; font-size: .92rem; }
+.why-grid .card { transition: transform .2s, box-shadow .2s; }
+.why-grid .card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+.cmp-wrap { box-shadow: var(--shadow); }
+table.cmp { min-width: 640px; }
+.cmp th, .cmp td { vertical-align: middle; }
+.cmp thead th { text-align: center; text-transform: none; letter-spacing: 0; font-family: var(--body); font-size: .85rem; font-weight: 700; line-height: 1.25; }
+.cmp thead th:first-child { text-align: left; }
+.cmp thead th.me { background: var(--mint-fill); color: #fff; font-size: 1rem; font-weight: 800; }
+.cmp thead th.me img { width: 28px; height: 28px; border-radius: 7px; margin: 0 auto 6px; }
+.cmp tbody th { text-align: left; font-weight: 600; font-size: .95rem; color: var(--fg); background: none; text-transform: none; letter-spacing: 0; font-family: var(--body); }
+.cmp td { text-align: center; }
+.cmp td.me { background: color-mix(in srgb, var(--mint) 10%, transparent); }
+.cmp i, .cmp-note i { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; font-size: 0; font-style: normal; vertical-align: middle; }
+.cmp i::before, .cmp-note i::before { font-size: 15px; font-weight: 800; line-height: 1; }
+.cmp i.y, .cmp-note i.y { background: var(--mint-fill); }
+.cmp i.y::before, .cmp-note i.y::before { content: "✓"; color: #fff; }
+.cmp i.p, .cmp-note i.p { background: rgba(242,179,61,.25); }
+.cmp i.p::before, .cmp-note i.p::before { content: "–"; color: #B7791F; }
+.cmp i.n, .cmp-note i.n { background: var(--chip); }
+.cmp i.n::before, .cmp-note i.n::before { content: "×"; color: var(--muted); }
+.cmp-note { margin-top: 16px; font-size: .88rem; }
+.cmp-note .leg { display: inline-flex; align-items: center; gap: 6px; margin-right: 14px; }
+.cmp-note .leg i { width: 20px; height: 20px; }
+.cmp-note .leg i::before { font-size: 12px; }
+.calc { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); align-items: end; }
+.calc label { display: grid; gap: 8px; font-weight: 600; color: var(--band-fg); }
+.calc input { font: inherit; font-size: 1.3rem; font-weight: 700; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.06); color: #fff; width: 100%; }
+.calc-out { grid-column: 1 / -1; display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.calc-out div { background: var(--mint-fill); color: #fff; border-radius: 16px; padding: 18px 20px; display: grid; gap: 2px; }
+.calc-out b { font-family: var(--display); font-size: 2.4rem; font-weight: 800; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.calc-out span { font-weight: 600; opacity: .92; }
+.slogan-band { background: linear-gradient(135deg, #10B981, #047857); color: #fff; border-radius: 24px; padding: clamp(24px, 4vw, 44px); display: grid; gap: 20px; box-shadow: 0 24px 60px -28px rgba(5,150,105,.7); }
+.slogan-band h2 { color: #fff; }
+.slogan-band .chip { background: rgba(255,255,255,.16); color: #fff; }
+.why-teaser { display: grid; gap: 24px; align-items: center; }
+@media (min-width: 900px) { .why-teaser { grid-template-columns: 1fr auto; } }
+.slogan-band .btn.ghost { background: #fff; color: #047857; border-color: #fff; justify-self: start; }
+.slogan-band .eyebrow::before { background: #fff; }
