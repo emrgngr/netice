@@ -391,7 +391,7 @@ class AdSettings {
   /// Kimliksiz görülme/tıklama sayacı açık mı (gizlilik politikasında yazılı).
   final bool stats;
 
-  const AdSettings({this.emptySlotCard = false, this.contactEmail = 'bilgi@neticeoptik.com', this.stats = true});
+  const AdSettings({this.emptySlotCard = false, this.contactEmail = 'info@neticeoptik.com', this.stats = true});
 
   AdSettings copyWith({bool? emptySlotCard, String? contactEmail, bool? stats}) => AdSettings(
     emptySlotCard: emptySlotCard ?? this.emptySlotCard,
@@ -406,7 +406,7 @@ class AdSettings {
     final mail = '${j['iletisim'] ?? ''}'.trim();
     return AdSettings(
       emptySlotCard: j['bosAlanKarti'] == true,
-      contactEmail: mail.contains('@') ? mail : 'bilgi@neticeoptik.com',
+      contactEmail: mail.contains('@') ? mail : 'info@neticeoptik.com',
       stats: j['istatistik'] != false,
     );
   }

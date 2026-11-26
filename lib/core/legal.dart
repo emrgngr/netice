@@ -4,7 +4,7 @@ const appVersion = '1.0.0';
 
 /// Geliştirici iletişim adresi. Mağazaya çıkmadan önce doldurulmalı; boşsa
 /// metinlerde iletişim satırı gösterilmez.
-const contactEmail = 'bilgi@neticeoptik.com';
+const contactEmail = 'info@neticeoptik.com';
 
 /// Mağaza bağlantıları. Uygulama yayımlanınca [storePublished] true yapılır;
 /// o zamana kadar paylaşım metni bağlantısız gider, yıldızlar uygulamada kalır.

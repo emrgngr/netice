@@ -116,7 +116,7 @@ void main() {
               label('Şerit reklamda düğme'),
               clip(AdView(ad: banner, files: [fx('serit_temiz.jpg')], banner: true, onClose: () {}), r: 10),
               label('Boş alanda "Burada reklamınız olsun"'),
-              clip(AdEmptyCard(email: 'bilgi@neticeoptik.com', onClose: () {})),
+              clip(AdEmptyCard(email: 'info@neticeoptik.com', onClose: () {})),
             ],
           ),
         ),
