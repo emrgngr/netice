@@ -27,7 +27,7 @@ void main() {
       (tester) async {
     const lang = String.fromEnvironment('LANG_SHOT', defaultValue: 'tr');
     debugDisableShadows = false;
-    await tester.runAsync(loadFonts);
+    await tester.runAsync(() => loadFonts(lang));
     L10n.use(lang);
     Directory('build/screenshots/$lang').createSync(recursive: true);
     AppStore.proFreeOnThisPlatform = true;

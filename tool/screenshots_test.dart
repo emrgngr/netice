@@ -21,10 +21,24 @@ import 'package:netice/ui/theme.dart';
 import 'package:netice/ui/help_screen.dart';
 import 'package:netice/ui/term_screen.dart';
 
-Future<void> loadFonts() async {
+/// Test ortamında sistem yedek yazı tipi yok: Latin dışı dillerde (lang) uygulama
+/// yazı tipi yerine o dilin Noto yazı tipi yüklenir, yoksa yazılar kutu çıkar.
+Future<void> loadFonts([String lang = 'tr']) async {
+  final noto = switch (lang) {
+    'ar' => ['NotoSansArabic-Regular', 'NotoSansArabic-Bold'],
+    'ru' => ['NotoSans-Regular', 'NotoSans-Bold'],
+    'zh' => ['NotoSansSC-Regular'],
+    'ja' => ['NotoSansJP-Regular'],
+    'ko' => ['NotoSansKR-Regular'],
+    'hi' => ['NotoSansDevanagari-Regular'],
+    _ => null,
+  };
   final loader = FontLoader('PlusJakartaSans');
-  for (final w in ['400Regular', '500Medium', '600SemiBold', '700Bold', '800ExtraBold']) {
-    loader.addFont(Future.value(ByteData.sublistView(File('assets/fonts/PlusJakartaSans_$w.ttf').readAsBytesSync())));
+  final files = noto != null
+      ? [for (final f in noto) 'assets/pdf_fonts/$f.ttf']
+      : [for (final w in ['400Regular', '500Medium', '600SemiBold', '700Bold', '800ExtraBold']) 'assets/fonts/PlusJakartaSans_$w.ttf'];
+  for (final f in files) {
+    loader.addFont(Future.value(ByteData.sublistView(File(f).readAsBytesSync())));
   }
   await loader.load();
   final icons = FontLoader('MaterialIcons');

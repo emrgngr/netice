@@ -11,13 +11,14 @@
   document.querySelectorAll('[data-copy]').forEach(function (b) {
     b.addEventListener('click', function () {
       var text = b.getAttribute('data-copy');
-      var done = function () { b.textContent = 'Kopyalandı'; setTimeout(function () { b.textContent = 'Kopyala'; }, 1800); };
+      var label = b.getAttribute('data-label') || 'Kopyala';
+      var done = function () { b.textContent = b.getAttribute('data-ok') || 'Kopyalandı'; setTimeout(function () { b.textContent = label; }, 1800); };
       var select = function () {
         var code = b.parentElement.querySelector('code');
         if (!code) return;
         var r = document.createRange(); r.selectNodeContents(code);
         var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
-        b.textContent = 'Seçildi, kopyalayın';
+        b.textContent = b.getAttribute('data-sel') || 'Seçildi, kopyalayın';
       };
       try {
         navigator.clipboard.writeText(text).then(done, select);
@@ -38,7 +39,7 @@
   // Neden Netice? süre hesaplayıcı: elle 1,5 dk, Netice ile 5 sn / kâğıt.
   var ogr = document.getElementById('c-ogr'), sinav = document.getElementById('c-sinav');
   if (ogr && sinav) {
-    var fmt = function (n) { return Math.round(n).toLocaleString('tr-TR'); };
+    var fmt = function (n) { return Math.round(n).toLocaleString(document.documentElement.lang || 'tr'); };
     var calc = function () {
       var k = Math.max(0, +ogr.value || 0) * Math.max(0, +sinav.value || 0);
       var saat = k * (90 - 5) / 3600;

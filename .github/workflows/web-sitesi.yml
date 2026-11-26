@@ -1,4 +1,5 @@
-# neticeoptik.com web sitesini (web-sitesi/ klasörü) Cloudflare Pages'e yayınlar.
+# neticeoptik.com web sitesini (web-sitesi/ klasörü) 15 dile çevirip Cloudflare Pages'e yayınlar.
+# Çeviri: tool/site/cevir.py (ANTHROPIC_API_KEY); dil videoları: site-videolari.yml.
 #  - ilk-surum / main dalına giren değişiklik: canlı site (www.neticeoptik.com)
 #  - PR: önizleme adresi (onizleme.neticeoptik.pages.dev), canlı site değişmez
 # Gerekli secret'lar: CLOUDFLARE_API_TOKEN (Cloudflare Pages: Edit), CLOUDFLARE_ACCOUNT_ID.
@@ -10,15 +11,20 @@ on:
     branches: [main, ilk-surum]
     paths:
       - 'web-sitesi/**'
+      - 'tool/site/**'
       - '.github/workflows/web-sitesi.yml'
   pull_request:
     paths:
       - 'web-sitesi/**'
+      - 'tool/site/**'
       - '.github/workflows/web-sitesi.yml'
 
 concurrency:
   group: web-sitesi-${{ github.event_name }}
   cancel-in-progress: false
+
+permissions:
+  contents: write
 
 jobs:
   yayinla:
@@ -34,17 +40,50 @@ jobs:
         with:
           node-version: 22
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install --quiet beautifulsoup4 anthropic
+
+      - name: Dillerin videoları (site-videolari sürümü)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p build/_v build/site/video
+          gh release download site-videolari -D build/_v --clobber 2>/dev/null || echo "Henüz dil videosu yok; Türkçe videolar kalır."
+          for f in build/_v/*; do
+            [ -e "$f" ] || continue
+            b=$(basename "$f"); dil=${b%%_*}; ad=${b#*_}
+            mkdir -p "build/site/video/$dil" && mv "$f" "build/site/video/$dil/$ad"
+          done
+          ls -R build/site/video | head -50
+
+      - name: 15 dile çevir (yalnız değişen cümleler çevrilir)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python3 tool/site/cevir.py web-sitesi build/site
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site-ceviri-bellegi
+          path: build/_site_ceviri
+
       - name: Bağlantılar ve dosyalar yerinde mi?
         run: |
           set -euo pipefail
-          cd web-sitesi
+          cd build/site
           eksik=0
-          for f in *.html; do
-            for yol in $(grep -oE '(href|src)="[^"#:]+"' "$f" | sed -E 's/^(href|src)="([^"]+)"$/\2/' | sed 's/[?#].*//'); do
+          while IFS= read -r f; do
+            d=$(dirname "$f")
+            for yol in $(grep -oE '(href|src|poster)="[^"#:?]+"' "$f" | sed -E 's/^(href|src|poster)="([^"]+)"$/\2/'); do
               [ -z "$yol" ] && continue
-              if [ ! -e "$yol" ]; then echo "::error file=web-sitesi/$f::Eksik dosya: $yol"; eksik=1; fi
+              case "$yol" in /*) hedef=".$yol";; *) hedef="$d/$yol";; esac
+              case "$hedef" in */) hedef="${hedef}index.html";; esac
+              if [ ! -e "$hedef" ]; then echo "::error file=$f::Eksik dosya: $yol"; eksik=1; fi
             done
-          done
+          done < <(find . -name '*.html')
           test "$eksik" = 0
 
       - name: Yayınla
@@ -55,8 +94,7 @@ jobs:
             exit 1
           fi
           if [ "${{ github.event_name }}" = "pull_request" ]; then DAL=onizleme; else DAL=main; fi
-          rm -f web-sitesi/BENIOKU.md
-          npx --yes wrangler@4 pages deploy web-sitesi --project-name=neticeoptik --branch="$DAL" --commit-dirty=true | tee yayin.log
+          npx --yes wrangler@4 pages deploy build/site --project-name=neticeoptik --branch="$DAL" --commit-dirty=true | tee yayin.log
           ADRES=$(grep -oE 'https://[a-zA-Z0-9.-]+\.pages\.dev' yayin.log | tail -n1 || true)
           {
             if [ "$DAL" = main ]; then echo "### Site yayında: https://www.neticeoptik.com"; else echo "### Önizleme: https://onizleme.neticeoptik.pages.dev"; fi

@@ -98,7 +98,10 @@ def _yukle(folder, asset, data):
 def main(folder, ayar='premium.json', on_ek='magaza_tr'):
     os.makedirs(folder, exist_ok=True)
     cfg = json.load(open(ayar if os.path.isabs(ayar) or os.path.exists(ayar) else os.path.join(HERE, ayar), encoding='utf-8'))
-    vid = None
+    # Türkçe dışındaki diller: çok dilli, genç ve enerjik "Liam" sesi (Murat'ın Türkçe aksanı olmasın).
+    dil = cfg.get('dil', 'tr')
+    etiket = SES_ETIKETI if dil == 'tr' else 'erkek_liam'
+    vid = None if dil == 'tr' else (os.environ.get('ELEVENLABS_YABANCI_VOICE_ID') or LIAM)
     # Heyecanlı ve enerjik (kullanıcı 2026-11-25: genç erkek sesi): değişken tonlama, biraz hızlı.
     ayarlar = {'stability': 0.3, 'similarity_boost': 0.8, 'style': 0.6, 'use_speaker_boost': True, 'speed': 1.1}
     for sc in cfg['sahneler']:
@@ -107,7 +110,7 @@ def main(folder, ayar='premium.json', on_ek='magaza_tr'):
         text = sc['metin']
         zaman = 'ses' not in sc  # yeni ayar dosyaları kelime zamanlamasını da ister
         out = os.path.join(folder, sc['kare'] + '.mp3')
-        asset = f"{on_ek}_{SES_ETIKETI}_{sc['kare']}_{hashlib.sha1(text.encode()).hexdigest()[:8]}.mp3"
+        asset = f"{on_ek}_{etiket}_{sc['kare']}_{hashlib.sha1(text.encode()).hexdigest()[:8]}.mp3"
         zasset = asset[:-4] + '.json'
         if _indir(asset, out) and (not zaman or _indir(zasset, os.path.join(folder, sc['kare'] + '.json'))):
             print('hazır:', asset)

@@ -1,0 +1,93 @@
+name: Site dil videoları
+
+# Web sitesinin her dili için iki video hazırlar ve "site-videolari" sürümüne koyar:
+#   <dil>_bilgisayar.mp4/.jpg  seslendirmeli, afiş tarzı bilgisayar tanıtımı (o dilde ekranlar ve anlatım)
+#   <dil>_telefon.mp4/.jpg     o dilin telefon rehber videosu (rehber-videolari sürümünden, web için küçültülmüş)
+# Web sitesi yayını (web-sitesi.yml) bu dosyaları indirip /<dil>/ sayfalarında gösterir.
+# Gerekenler: ANTHROPIC_API_KEY (sahne metinlerinin çevirisi), ELEVENLABS_API_KEY (seslendirme).
+on:
+  workflow_dispatch:
+  push:
+    branches: [ilk-surum, main, 'claude/project-thread-8e3zmi']
+    paths:
+      - 'tool/magaza/masaustu*'
+      - 'tool/magaza/fontlar/**'
+      - 'tool/magaza/genis_ekranlar_test.dart'
+      - '.github/workflows/site-videolari.yml'
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: site-videolari-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  video:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        dil: [en, de, fr, es, it, pt, ru, ar, az, zh, ja, ko, hi, id]
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+      DIL: ${{ matrix.dil }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.50.0
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: |
+          for i in 1 2 3 4 5; do
+            sudo apt-get update -qq && sudo apt-get install -y -qq -o Acquire::Retries=5 ffmpeg libraqm0 >/dev/null && break
+            sleep $((i*20))
+          done
+      - run: pip install --quiet pillow anthropic beautifulsoup4
+      - name: Bilgisayar ekranları (${{ matrix.dil }})
+        run: flutter test tool/magaza/genis_ekranlar_test.dart --dart-define=LANG_SHOT=$DIL
+      - name: Sahne metinlerini çevir
+        run: python3 tool/magaza/masaustu_cevir.py $DIL build/masaustu_$DIL.json
+      - name: Seslendirme
+        run: |
+          B=https://d8j0ntlcm91z4.cloudfront.net/user_3HBbhHFwxHnCS5yFDPNhwCMiEXw
+          mkdir -p build/ses_$DIL
+          curl -sSf --retry 3 -o build/ses_$DIL/muzik.mp3 "$B/$(python3 -c "import json;print(json.load(open('tool/video/muzik.json'))['muzik'])")"
+          curl -sSf --retry 3 -o build/ses_$DIL/acilis.mp3 "$B/$(python3 -c "import json;print(json.load(open('tool/video/muzik.json'))['acilis'])")"
+          python3 tool/magaza/seslendir.py build/ses_$DIL build/masaustu_$DIL.json masaustu_$DIL
+      - name: Video
+        run: python3 tool/magaza/masaustu_video.py build/screenshots/$DIL build/ses_$DIL build/bilgisayar_$DIL.mp4 build/masaustu_$DIL.json
+      - name: Web için küçült ve sürüme koy
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          ffmpeg -nostdin -y -loglevel error -i build/bilgisayar_$DIL.mp4 -vf scale=1280:-2 -c:v libx264 -preset slow -crf 25 -c:a aac -b:a 128k -movflags +faststart out/${DIL}_bilgisayar.mp4
+          ffmpeg -nostdin -y -loglevel error -ss 4.5 -i build/bilgisayar_$DIL.mp4 -frames:v 1 -vf scale=1280:-2 -q:v 4 out/${DIL}_bilgisayar.jpg
+          if gh release download rehber-videolari -p "rehber_${DIL}.mp4" -O build/rehber.mp4 --clobber; then
+            ffmpeg -nostdin -y -loglevel error -i build/rehber.mp4 -vf "scale=-2:960" -c:v libx264 -preset slow -crf 27 -c:a aac -b:a 112k -movflags +faststart out/${DIL}_telefon.mp4
+            ffmpeg -nostdin -y -loglevel error -ss 3 -i build/rehber.mp4 -frames:v 1 -vf "scale=-2:960" -q:v 4 out/${DIL}_telefon.jpg
+          fi
+          ls -la out
+          gh release view site-videolari >/dev/null 2>&1 || gh release create site-videolari --title "Site dil videoları" --notes "site-videolari.yml üretir; web-sitesi.yml kullanır." --latest=false || true
+          for i in 1 2 3; do gh release upload site-videolari out/* --clobber && break; sleep $((i*15)); done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: video-${{ matrix.dil }}
+          path: |
+            out
+            build/masaustu_${{ matrix.dil }}.json
+
+  siteyi-yenile:
+    needs: video
+    if: always() && (github.ref_name == 'ilk-surum' || github.ref_name == 'main')
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - run: gh workflow run web-sitesi.yml --repo ${{ github.repository }} --ref ${{ github.ref_name }}
