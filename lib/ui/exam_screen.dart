@@ -1515,6 +1515,7 @@ Future<void> deleteSheetWithUndo(BuildContext context, Sheet sheet) async {
       .showSnackBar(SnackBar(
         content: Text(tr('Okuma silindi.')),
         duration: const Duration(seconds: 6),
+        persist: false,
         action: SnackBarAction(label: tr('Geri al'), onPressed: () => store.restoreSheet(index, sheet)),
       ))
       .closed

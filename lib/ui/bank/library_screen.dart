@@ -228,6 +228,7 @@ class _QuestionsTabState extends State<QuestionsTab> {
       ..showSnackBar(SnackBar(
         behavior: SnackBarBehavior.floating,
         content: Text(tr('{0} soru silindi.', [removed.length])),
+        persist: false,
         action: SnackBarAction(label: tr('Geri al'), onPressed: () => bank.restoreQuestions(removed)),
       ));
   }
@@ -721,6 +722,7 @@ class _NotesTabState extends State<NotesTab> {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     behavior: SnackBarBehavior.floating,
                     content: Text(tr('{0} not silindi.', [removed.length])),
+                    persist: false,
                     action: SnackBarAction(label: tr('Geri al'), onPressed: () => bank.restoreNotes(removed)),
                   ));
                 },
@@ -913,6 +915,7 @@ class BookletsTab extends StatelessWidget {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         behavior: SnackBarBehavior.floating,
                         content: Text(tr('Kitapçık silindi. Sorular bankada kalır.')),
+                        persist: false,
                         action: SnackBarAction(label: tr('Geri al'), onPressed: () => bank.restoreBooklets(removed)),
                       ));
                     }
