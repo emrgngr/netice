@@ -2770,5 +2770,8 @@
 "Classroom ve Moodle'a not aktarma": "Export des notes vers Classroom et Moodle",
 "Notlar tek dokunuşla Google Classroom'a ya da Moodle not defterine": "Les notes vers Google Classroom ou le carnet de notes Moodle en un geste",
 "Giriş tamamlandı. Netice'ye dönebilirsiniz.": "Connecté. Vous pouvez revenir à Netice.",
-"Giriş iptal edildi.": "Connexion annulée."
+"Giriş iptal edildi.": "Connexion annulée.",
+"Bu ürün Microsoft Store'da henüz açılmadı.": "Ce produit n'est pas encore disponible dans le Microsoft Store.",
+"Windows'ta Pro, Microsoft Store'dan kurulan Netice'den satın alınır. Kurum lisans kodunuz varsa Profil > Kurum lisansı bölümüne girin. Sorularınız için: {0}": "Sous Windows, Pro s'achète dans Netice installé depuis le Microsoft Store. Si vous avez un code de licence d'établissement, saisissez-le dans Profil > Licence d'établissement. Questions : {0}",
+"İnternet bağlantısı yok. Bağlanıp tekrar deneyin.": "Pas de connexion internet. Connectez-vous et réessayez."
 }

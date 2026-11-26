@@ -1692,5 +1692,8 @@
  "Classroom ve Moodle'a not aktarma": "Classroom və Moodle-a qiymət köçürmə",
  "Notlar tek dokunuşla Google Classroom'a ya da Moodle not defterine": "Qiymətlər bir toxunuşla Google Classroom-a və ya Moodle qiymət jurnalına",
  "Giriş tamamlandı. Netice'ye dönebilirsiniz.": "Giriş tamamlandı. Netice-yə qayıda bilərsiniz.",
- "Giriş iptal edildi.": "Giriş ləğv edildi."
+ "Giriş iptal edildi.": "Giriş ləğv edildi.",
+ "Bu ürün Microsoft Store'da henüz açılmadı.": "Bu məhsul hələ Microsoft Store-da açılmayıb.",
+ "Windows'ta Pro, Microsoft Store'dan kurulan Netice'den satın alınır. Kurum lisans kodunuz varsa Profil > Kurum lisansı bölümüne girin. Sorularınız için: {0}": "Windows-da Pro Microsoft Store-dan quraşdırılmış Netice-dən alınır. Kurum lisenziya kodunuz varsa, Profil > Kurum lisenziyası bölməsinə daxil edin. Suallar üçün: {0}",
+ "İnternet bağlantısı yok. Bağlanıp tekrar deneyin.": "İnternet bağlantısı yoxdur. Qoşulub yenidən cəhd edin."
 }
