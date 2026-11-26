@@ -1520,5 +1520,14 @@
  "Marimba": "マリンバ",
  "Melodi seçin (dinlemek için dokunun)": "メロディーを選択（タップで試聴）",
  "Okuma titreşimi": "読み取り時のバイブ",
- "Yumuşak": "やわらか"
+ "Yumuşak": "やわらか",
+ "Bitmesine {0} saat": "残り{0}時間",
+ "Bitmesine {0} gün": "残り{0}日",
+ "Kod kopyalandı: {0}": "コードをコピーしました：{0}",
+ "Telefonunuzla okutun": "スマホで読み取る",
+ "Telefonla aç": "スマホで開く",
+ "Netice reklam alanı": "Netice 広告枠",
+ "Burada reklamınız olsun": "ここに広告を掲載",
+ "Öğretmenlere ve kurumlara ulaşın. Bu alan için bize yazın.": "先生や教育機関に届けましょう。この枠についてお問い合わせください。",
+ "Bize yazın": "お問い合わせ"
 }

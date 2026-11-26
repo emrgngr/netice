@@ -29,6 +29,7 @@ class AdAdmin extends ChangeNotifier {
   bool get hasPin => _pinHash.isNotEmpty;
   String token = '';
   List<Ad> drafts = [];
+  AdSettings settings = const AdSettings();
   bool dirty = false;
   DateTime? lastPublish;
   bool _loaded = false;
@@ -60,6 +61,7 @@ class AdAdmin extends ChangeNotifier {
         _lockedUntil = DateTime.tryParse('${j['kilit'] ?? ''}');
         token = '${j['anahtar'] ?? ''}';
         drafts = Ad.listFromJson(j['taslak']);
+        settings = AdSettings.fromJson(j['ayarlar']);
         dirty = j['degisti'] == true;
         lastPublish = DateTime.tryParse('${j['yayin'] ?? ''}');
       }
@@ -70,6 +72,7 @@ class AdAdmin extends ChangeNotifier {
   Future<void> save() async {
     try {
       await (await _file()).writeAsString(jsonEncode({
+        'ayarlar': settings.toJson(),
         'pin': _pinHash,
         'tuz': _pinSalt,
         'hata': _failed,
@@ -159,6 +162,35 @@ class AdAdmin extends ChangeNotifier {
     save();
   }
 
+  void setSettings(AdSettings s) {
+    settings = s;
+    dirty = true;
+    save();
+  }
+
+  /// Seçilenleri tek seferde açar/kapatır.
+  void setActiveMany(Set<String> ids, bool active) {
+    drafts = [for (final a in drafts) ids.contains(a.id) ? a.copyWith(active: active) : a];
+    dirty = true;
+    save();
+  }
+
+  void removeMany(Set<String> ids) {
+    drafts = drafts.where((a) => !ids.contains(a.id)).toList();
+    dirty = true;
+    save();
+  }
+
+  /// Reklamı kopyalar (taslak olarak, hemen arkasına).
+  Ad duplicate(Ad a) {
+    final copy = a.copyWith(id: newId(), name: '${a.name} (kopya)', draft: true);
+    final i = drafts.indexWhere((d) => d.id == a.id);
+    drafts = [...drafts]..insert(i < 0 ? drafts.length : i + 1, copy);
+    dirty = true;
+    save();
+    return copy;
+  }
+
   void remove(String id) {
     drafts = drafts.where((a) => a.id != id).toList();
     dirty = true;
@@ -193,6 +225,21 @@ class AdAdmin extends ChangeNotifier {
   static const _api = 'https://api.github.com/repos/${AdService.owner}/${AdService.repo}';
 
   /// Yayındaki son listeyi doğrudan depodan okur (önbelleksiz).
+  Future<(List<Ad>, AdSettings)?> fetchPublishedFull() async {
+    try {
+      final r = await http
+          .get(Uri.parse('$_api/contents/${AdService.feedPath}?ref=${AdService.branch}'),
+              headers: token.isEmpty ? {'Accept': 'application/vnd.github.raw+json'} : {..._headers, 'Accept': 'application/vnd.github.raw+json'})
+          .timeout(const Duration(seconds: 15));
+      if (r.statusCode == 404) return (const <Ad>[], const AdSettings());
+      if (r.statusCode != 200) return null;
+      final j = jsonDecode(utf8.decode(r.bodyBytes));
+      return (Ad.listFromJson(j), AdSettings.fromJson(j is Map ? j['ayarlar'] : null));
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<List<Ad>?> fetchPublished() async {
     try {
       final r = await http
@@ -211,9 +258,13 @@ class AdAdmin extends ChangeNotifier {
   Future<bool> syncFromPublished({bool overwrite = false}) async {
     await load();
     if (dirty && !overwrite) return false;
-    final pub = await fetchPublished();
-    if (pub == null) return false;
-    drafts = pub;
+    final full = await fetchPublishedFull();
+    if (full == null) return false;
+    final (pub, set) = full;
+    // Yayınlanmamış taslaklar korunur.
+    final ids = {for (final a in pub) a.id};
+    drafts = [...pub, for (final a in drafts) if (a.draft && !ids.contains(a.id)) a];
+    settings = set;
     dirty = false;
     await save();
     return true;
@@ -280,27 +331,43 @@ class AdAdmin extends ChangeNotifier {
       progress?.call('Hazırlanıyor…');
       await _ensureBranch();
       final out = <Ad>[];
-      for (final (i, a) in drafts.indexed) {
+      final live = [for (final a in drafts) if (!a.draft) a];
+      for (final (i, a) in live.indexed) {
         if (!a.isLocal) {
           out.add(a);
           continue;
         }
-        final f = File(a.media);
-        if (!await f.exists()) throw '"${a.name}" reklamının dosyası bulunamadı.';
-        progress?.call('Yükleniyor ${i + 1}/${drafts.length}: ${a.name}');
-        final ext = a.media.contains('.') ? a.media.substring(a.media.lastIndexOf('.')).toLowerCase() : '';
-        final stamp = DateTime.now().millisecondsSinceEpoch.toRadixString(36);
-        final path = '${AdService.mediaDir}/${a.id}_$stamp$ext';
-        await _put(path, await f.readAsBytes(), 'Reklam dosyası: ${a.name}');
-        out.add(a.copyWith(media: AdService.rawUrl(path)));
+        progress?.call('Yükleniyor ${i + 1}/${live.length}: ${a.name}');
+        Future<String> upload(String src, String n) async {
+          if (src.isEmpty || !Ad.isLocalPath(src)) return src;
+          final f = File(src);
+          if (!await f.exists()) throw '"${a.name}" reklamının dosyası bulunamadı.';
+          final ext = src.contains('.') ? src.substring(src.lastIndexOf('.')).toLowerCase() : '';
+          final stamp = DateTime.now().millisecondsSinceEpoch.toRadixString(36);
+          final path = '${AdService.mediaDir}/${a.id}_${n}_$stamp$ext';
+          await _put(path, await f.readAsBytes(), 'Reklam dosyası: ${a.name}');
+          return AdService.rawUrl(path);
+        }
+
+        var up = a.copyWith(mediaDark: await upload(a.mediaDark, 'gece'), mediaB: await upload(a.mediaB, 'b'));
+        if (a.type == AdType.slider) {
+          final urls = <String>[];
+          for (final (n, src) in a.slides.indexed) {
+            urls.add(await upload(src, '$n'));
+          }
+          up = up.copyWith(slides: urls, media: urls.first);
+        } else {
+          up = up.copyWith(media: await upload(a.media, '0'));
+        }
+        out.add(up);
       }
       progress?.call('Liste yayınlanıyor…');
-      final json = Ad.listToJson(out);
+      final json = Ad.listToJson(out, settings: settings);
       await _put(AdService.feedPath, utf8.encode(json), 'Reklam listesi güncellendi');
 
       // Artık kullanılmayan dosyaları depodan sil.
       progress?.call('Eski dosyalar temizleniyor…');
-      final used = {for (final a in out) a.media};
+      final used = {for (final a in out) ...a.sources, for (final a in out) a.media};
       final l = await http.get(Uri.parse('$_api/contents/${AdService.mediaDir}?ref=${AdService.branch}'), headers: _headers);
       if (l.statusCode == 200) {
         for (final e in (jsonDecode(l.body) as List)) {
@@ -313,14 +380,16 @@ class AdAdmin extends ChangeNotifier {
       }
 
       // Yerel kopyaları yayın adresiyle eşle ki tekrar indirilmesin.
-      for (final (i, a) in drafts.indexed) {
-        if (a.isLocal) {
+      final byId = {for (final a in out) a.id: a};
+      for (final a in live) {
+        for (final src in {...a.sources, a.media}) {
+          if (!Ad.isLocalPath(src)) continue;
           try {
-            await File(a.media).delete();
+            await File(src).delete();
           } catch (_) {}
         }
-        drafts[i] = out[i];
       }
+      drafts = [for (final a in drafts) a.draft ? a : (byId[a.id] ?? a)];
       dirty = false;
       lastPublish = DateTime.now();
       await save();

@@ -41,8 +41,46 @@ void main() {
     expect(back[0].showsOn(AdPage.term), isFalse);
   });
 
+  test('slider reklam: görseller, geçiş ve eski sürüm uyumu', () {
+    const urls = ['https://x/1.jpg', 'https://x/2.jpg', 'https://x/3.jpg'];
+    const ad = Ad(
+      id: 's',
+      type: AdType.slider,
+      media: 'https://x/1.jpg',
+      slides: urls,
+      style: SlideStyle.flip,
+      seconds: 3,
+    );
+    final j = ad.toJson();
+    expect(j['tur'], 'slider');
+    expect(j['dosya'], urls.first); // eski sürümler ilk görseli sabit gösterir
+    final back = Ad.fromJson(jsonDecode(jsonEncode(j)) as Map<String, dynamic>)!;
+    expect(back.type, AdType.slider);
+    expect(back.slides, urls);
+    expect(back.style, SlideStyle.flip);
+    expect(back.seconds, 3);
+    expect(back.sources, urls);
+    // Tek görselli slider sabit görsele döner; bilinmeyen geçiş kaydırmaya.
+    final one = Ad.fromJson({
+      'id': 'a',
+      'tur': 'slider',
+      'dosya': 'https://x/1.jpg',
+      'gorseller': ['https://x/1.jpg'],
+      'gecis': '?',
+    })!;
+    expect(one.type, AdType.image);
+    expect(SlideStyle.byKey('?'), SlideStyle.slide);
+    expect(SlideStyle.values.length, 5);
+  });
+
   test('tarih ve açık/kapalı süzgeci', () {
-    final a = Ad(id: 'a', type: AdType.image, media: 'https://x/a.jpg', start: DateTime(2026, 11, 10), end: DateTime(2026, 11, 20));
+    final a = Ad(
+      id: 'a',
+      type: AdType.image,
+      media: 'https://x/a.jpg',
+      start: DateTime(2026, 11, 10),
+      end: DateTime(2026, 11, 20),
+    );
     expect(a.runningAt(DateTime(2026, 11, 9, 23)), isFalse);
     expect(a.runningAt(DateTime(2026, 11, 10, 8)), isTrue);
     expect(a.runningAt(DateTime(2026, 11, 20, 23, 59)), isTrue);
@@ -54,12 +92,139 @@ void main() {
     final l = Ad.listFromJson({
       'reklamlar': [
         {'id': 'x'},
-        {'id': 'y', 'dosya': 'https://a/b.png', 'sayfalar': ['hepsi', 'olmayan', 'sinav']},
+        {
+          'id': 'y',
+          'dosya': 'https://a/b.png',
+          'sayfalar': ['hepsi', 'olmayan', 'sinav'],
+        },
         'metin',
-      ]
+      ],
     });
     expect(l.single.id, 'y');
     expect(l.single.pages, [AdPage.exam]);
+  });
+
+  test('yeni alanlar: düğme, kod, hedef, saat, sıklık, taslak JSON', () {
+    final a = Ad(
+      id: 'n',
+      type: AdType.image,
+      media: 'https://x/a.jpg',
+      cta: 'Hemen al',
+      code: 'NETICE15',
+      countdown: true,
+      end: DateTime(2026, 12, 5),
+      mediaDark: 'https://x/a_gece.jpg',
+      mediaB: 'https://x/a_b.jpg',
+      languages: const ['tr', 'az'],
+      countries: const ['TR'],
+      institutions: const ['police'],
+      dailyCap: 3,
+      weight: 4,
+      hourFrom: 8,
+      hourTo: 17,
+      weekdays: const [1, 2, 3, 4, 5],
+      draft: true,
+    );
+    final json = Ad.listToJson([a], settings: const AdSettings(emptySlotCard: true));
+    final back = Ad.listFromJson(jsonDecode(json)).single;
+    expect(back.cta, 'Hemen al');
+    expect(back.code, 'NETICE15');
+    expect(back.countdown, isTrue);
+    expect(back.sources, ['https://x/a.jpg', 'https://x/a_gece.jpg', 'https://x/a_b.jpg']);
+    expect(back.hasAB, isTrue);
+    expect(back.languages, ['tr', 'az']);
+    expect(back.countries, ['TR']);
+    expect(back.institutions, ['police']);
+    expect((back.dailyCap, back.weight, back.hourFrom, back.hourTo), (3, 4, 8, 17));
+    expect(back.weekdays, [1, 2, 3, 4, 5]);
+    expect(back.draft, isTrue);
+    expect(AdSettings.fromJson((jsonDecode(json) as Map)['ayarlar']).emptySlotCard, isTrue);
+
+    // Eski kayıtlar varsayılanlarla açılır.
+    final old = Ad.listFromJson({
+      'reklamlar': [
+        {'id': 'o', 'dosya': 'https://x/o.jpg'},
+      ],
+    }).single;
+    expect((old.weight, old.dailyCap, old.hourFrom, old.hourTo, old.draft), (1, 0, 0, 24, false));
+    expect(AdSettings.fromJson(null).emptySlotCard, isFalse);
+  });
+
+  test('hedef kitle, saat aralığı, gün ve taslak süzgeci', () {
+    const base = Ad(id: 'h', type: AdType.image, media: 'https://x/a.jpg');
+    final mon10 = DateTime(2026, 11, 23, 10); // Pazartesi
+    final sat10 = DateTime(2026, 11, 28, 10);
+    expect(base.matches(AdAudience(lang: 'de', now: mon10)), isTrue);
+
+    final t = base.copyWith(languages: ['tr'], countries: ['TR', 'AZ'], institutions: ['school']);
+    expect(t.matches(AdAudience(lang: 'tr', country: 'tr', institution: 'school', now: mon10)), isTrue);
+    expect(t.matches(AdAudience(lang: 'en', country: 'TR', institution: 'school', now: mon10)), isFalse);
+    expect(t.matches(AdAudience(lang: 'tr', country: 'DE', institution: 'school', now: mon10)), isFalse);
+    expect(t.matches(AdAudience(lang: 'tr', country: 'AZ', institution: 'police', now: mon10)), isFalse);
+
+    final work = base.copyWith(hourFrom: 8, hourTo: 17, weekdays: [1, 2, 3, 4, 5]);
+    expect(work.runningAt(mon10), isTrue);
+    expect(work.runningAt(sat10), isFalse);
+    expect(work.runningAt(DateTime(2026, 11, 23, 17)), isFalse);
+    final night = base.copyWith(hourFrom: 22, hourTo: 6);
+    expect(night.runningAt(DateTime(2026, 11, 23, 23)), isTrue);
+    expect(night.runningAt(DateTime(2026, 11, 23, 3)), isTrue);
+    expect(night.runningAt(mon10), isFalse);
+    expect(base.copyWith(draft: true).runningAt(mon10), isFalse);
+  });
+
+  test('öncelik sırası ve geri sayım metni', () {
+    const a = Ad(id: 'a', type: AdType.image, media: 'x', weight: 3);
+    const b = Ad(id: 'b', type: AdType.image, media: 'x', weight: 2);
+    const c = Ad(id: 'c', type: AdType.image, media: 'x');
+    expect(weightedRotation([a, b, c]).map((e) => e.id).join(), 'abcaba');
+    expect(weightedRotation([c]).length, 1);
+
+    final ad = Ad(id: 'g', type: AdType.image, media: 'x', countdown: true, end: DateTime(2026, 11, 30));
+    expect(adCountdownText(ad, DateTime(2026, 11, 20)), isNull); // 7 günden fazla
+    expect(adCountdownText(ad, DateTime(2026, 11, 28, 0)), 'Bitmesine 3 gün');
+    expect(adCountdownText(ad, DateTime(2026, 11, 30, 19)), 'Bitmesine 5 saat');
+    expect(adCountdownText(ad, DateTime(2026, 12, 1, 1)), isNull);
+    expect(adCountdownText(ad.copyWith(countdown: false), DateTime(2026, 11, 30)), isNull);
+  });
+
+  testWidgets('günlük sınır, düğme, kod ve boş alan kartı', (tester) async {
+    final file = File('test/fixtures/ads/kart.jpg');
+    AdService.instance.debugSet(
+      [
+        const Ad(
+          id: 's',
+          type: AdType.image,
+          media: 'https://x/kart.jpg',
+          cta: 'Hemen al',
+          code: 'NETICE15',
+          dailyCap: 1,
+        ),
+      ],
+      {'https://x/kart.jpg': file},
+      settings: const AdSettings(emptySlotCard: true),
+    );
+    final store = AppStore();
+    Widget app(AdPage p) => StoreScope(
+      store: store,
+      child: MaterialApp(
+        home: Scaffold(body: AdSlot.card(p, key: ValueKey(p))),
+      ),
+    );
+    await tester.pumpWidget(app(AdPage.home));
+    expect(find.text('Hemen al'), findsOneWidget);
+    expect(find.text('NETICE15'), findsOneWidget);
+    expect(AdService.instance.seenToday('s'), 1);
+
+    // Günde 1 kez sınırı doldu: başka sayfada artık davet kartı çıkar.
+    await tester.pumpWidget(app(AdPage.exam));
+    expect(find.text('Hemen al'), findsNothing);
+    expect(find.text('Burada reklamınız olsun'), findsOneWidget);
+
+    store.proConfirmedAt = DateTime.now();
+    await tester.pumpWidget(app(AdPage.student));
+    expect(find.text('Burada reklamınız olsun'), findsNothing);
+    AdService.instance.debugSet(const [], const {});
   });
 
   testWidgets('Pro abonesine reklam gösterilmez', (tester) async {
@@ -70,18 +235,20 @@ void main() {
     );
     final store = AppStore();
     Widget app() => StoreScope(
-          store: store,
-          child: const MaterialApp(home: Scaffold(body: AdSlot.card(AdPage.home))),
-        );
+      store: store,
+      child: const MaterialApp(home: Scaffold(body: AdSlot.card(AdPage.home))),
+    );
     await tester.pumpWidget(app());
     expect(find.text('Reklam'), findsOneWidget);
     expect(find.byType(AdSlot), findsOneWidget);
 
     // Başka sayfaya ayrılmış reklam burada görünmez.
-    await tester.pumpWidget(StoreScope(
-      store: store,
-      child: const MaterialApp(home: Scaffold(body: AdSlot.banner(AdPage.home))),
-    ));
+    await tester.pumpWidget(
+      StoreScope(
+        store: store,
+        child: const MaterialApp(home: Scaffold(body: AdSlot.banner(AdPage.home))),
+      ),
+    );
     expect(find.text('Reklam'), findsNothing);
 
     store.proConfirmedAt = DateTime.now();
@@ -117,7 +284,13 @@ void main() {
 
   testWidgets('gizli alan göz düğmesiyle gösterilir', (tester) async {
     final c = TextEditingController(text: '482913');
-    await tester.pumpWidget(MaterialApp(home: Scaffold(body: SecretField(controller: c, label: 'Kod', number: true))));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SecretField(controller: c, label: 'Kod', number: true),
+        ),
+      ),
+    );
     bool obscured() => tester.widget<TextField>(find.byType(TextField)).obscureText;
     expect(obscured(), isTrue);
     await tester.tap(find.byIcon(Icons.visibility_outlined));
@@ -126,17 +299,22 @@ void main() {
   });
 
   testWidgets('gizli hareket: logoya 4 sn içinde 5 dokunuş kod ekranını açar', (tester) async {
-    await tester.pumpWidget(StoreScope(store: AppStore(), child: const MaterialApp(home: SettingsScreen())));
+    await tester.pumpWidget(
+      StoreScope(
+        store: AppStore(),
+        child: const MaterialApp(home: SettingsScreen()),
+      ),
+    );
     await tester.pump();
     final logo = find.byType(NeticeMark);
     await tester.scrollUntilVisible(logo, 400, scrollable: find.byType(Scrollable).first);
     await tester.pump();
     Future<void> taps(int n) => tester.runAsync(() async {
-          for (var i = 0; i < n; i++) {
-            await tester.tap(logo);
-            await Future<void>.delayed(const Duration(milliseconds: 100));
-          }
-        });
+      for (var i = 0; i < n; i++) {
+        await tester.tap(logo);
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      }
+    });
     await taps(4);
     await tester.pump();
     expect(find.byType(AlertDialog), findsNothing);
