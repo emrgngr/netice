@@ -1,6 +1,6 @@
 """Seslendirmeli bilgisayar tanıtım videosu (1920x1080, afiş/gönderi tarzı).
 
-python3 tool/magaza/masaustu_video.py <ekran_klasoru> <ses_klasoru> <cikti.mp4>
+python3 tool/magaza/masaustu_video.py <ekran_klasoru> <ses_klasoru> <cikti.mp4> [ayar.json]
 
 <ekran_klasoru>: masaustu_<ekran>.png (2880x1800) ekran görüntüleri
   (flutter test tool/magaza/genis_ekranlar_test.dart --dart-define=LANG_SHOT=tr).
@@ -48,25 +48,86 @@ def jak(weight, size):
     return ImageFont.truetype(JAKARTA.format(weight), size)
 
 
+DIL = 'tr'
+PDF_FONT = os.path.join(ROOT, 'assets', 'pdf_fonts')
+# Latin dışı yazı sistemleri için Google Fonts'tan (OFL) indirilen yazı tipleri.
+GF = 'https://raw.githubusercontent.com/google/fonts/main/ofl/'
+INDIRILEN = {
+    'oswald': 'oswald/Oswald%5Bwght%5D.ttf',
+    'lalezar': 'lalezar/Lalezar-Regular.ttf',
+    'cairo': 'cairo/Cairo%5Bslnt,wght%5D.ttf',
+    'poppins_black': 'poppins/Poppins-Black.ttf',
+    'poppins_bold': 'poppins/Poppins-Bold.ttf',
+    'sc': 'notosanssc/NotoSansSC%5Bwght%5D.ttf',
+    'jp': 'notosansjp/NotoSansJP%5Bwght%5D.ttf',
+    'kr': 'notosanskr/NotoSansKR%5Bwght%5D.ttf',
+}
+
+
+def indir(ad):
+    import urllib.request
+    kat = os.path.join(os.path.expanduser('~'), '.cache', 'netice-fontlar')
+    os.makedirs(kat, exist_ok=True)
+    yol = os.path.join(kat, os.path.basename(INDIRILEN[ad]).replace('%5B', '[').replace('%5D', ']'))
+    if not os.path.exists(yol):
+        urllib.request.urlretrieve(GF + INDIRILEN[ad], yol)
+    return yol
+
+
+def _yt(yol, size, agirlik=None):
+    f = ImageFont.truetype(yol, size)
+    if agirlik:
+        try:
+            axes = f.get_variation_axes()
+            f.set_variation_by_axes([agirlik if a.get('name', b'') in (b'Weight', 'Weight') else a['default'] for a in axes])
+        except Exception:  # noqa: BLE001
+            try:
+                f.set_variation_by_name('Bold')
+            except Exception:  # noqa: BLE001
+                pass
+    return f
+
+
+def rol(r, size):
+    """Dile göre yazı tipi. r: baslik (afiş), ust (bölüm etiketi), vurgu (italik vurgu), el (el yazısı), govde."""
+    cjk = {'zh': 'sc', 'ja': 'jp', 'ko': 'kr'}.get(DIL)
+    if cjk:
+        return _yt(indir(cjk), size, 900 if r == 'baslik' else 700)
+    if DIL == 'ar':
+        return ImageFont.truetype(indir('lalezar'), size) if r in ('baslik', 'vurgu') else _yt(indir('cairo'), size, 800)
+    if DIL == 'hi':
+        return ImageFont.truetype(indir('poppins_black' if r == 'baslik' else 'poppins_bold'), size)
+    if DIL == 'ru':
+        if r in ('baslik', 'ust'):
+            return _yt(indir('oswald'), size, 700)
+        if r == 'govde':
+            return ImageFont.truetype(os.path.join(PDF_FONT, 'NotoSans-Bold.ttf'), size)
+        return _yt(os.path.join(FDIR, 'Caveat-Variable.ttf'), size, 700)
+    if r == 'baslik' or (r == 'ust' and DIL == 'az'):
+        return ImageFont.truetype(os.path.join(FDIR, 'Anton-Regular.ttf'), size)
+    if r == 'ust':
+        return ImageFont.truetype(os.path.join(FDIR, 'BebasNeue-Regular.ttf'), size)
+    if r == 'vurgu' and DIL != 'az':
+        return ImageFont.truetype(os.path.join(FDIR, 'DMSerifDisplay-Italic.ttf'), size)
+    if r == 'govde':
+        return jak('700Bold', size)
+    return _yt(os.path.join(FDIR, 'Caveat-Variable.ttf'), size, 700)
+
+
 def anton(size):
-    return ImageFont.truetype(os.path.join(FDIR, 'Anton-Regular.ttf'), size)
+    return rol('baslik', size)
 
 
 def bebas(size):
-    return ImageFont.truetype(os.path.join(FDIR, 'BebasNeue-Regular.ttf'), size)
+    return rol('ust', size)
 
 
 def serif(size):
-    return ImageFont.truetype(os.path.join(FDIR, 'DMSerifDisplay-Italic.ttf'), size)
+    return rol('vurgu', size)
 
 
 def el(size):
-    f = ImageFont.truetype(os.path.join(FDIR, 'Caveat-Variable.ttf'), size)
-    try:
-        f.set_variation_by_name('Bold')
-    except Exception:  # noqa: BLE001
-        pass
-    return f
+    return rol('el', size)
 
 
 def ease(t):
@@ -130,7 +191,7 @@ def background():
 
 def outline_number(text):
     """Arkada büyük, içi boş numara (afiş havası)."""
-    f = anton(560)
+    f = ImageFont.truetype(os.path.join(FDIR, 'Anton-Regular.ttf'), 560)
     im = Image.new('RGBA', (W, H), (0, 0, 0, 0))
     d = ImageDraw.Draw(im)
     d.text((-30, H - 610), text, font=f, fill=(0, 0, 0, 0), stroke_width=3, stroke_fill=EMERALD + (46,))
@@ -202,9 +263,8 @@ def kicker(text, icon_key):
     """Bölüm etiketi: simge + aralıklı büyük harf."""
     f = bebas(50)
     probe = ImageDraw.Draw(Image.new('RGB', (10, 10)))
-    tw = 0
-    for ch in text:
-        tw += probe.textlength(ch, font=f) + 4
+    harf_harf = DIL not in ('ar', 'hi', 'zh', 'ja', 'ko')
+    tw = sum(probe.textlength(ch, font=f) + 4 for ch in text) if harf_harf else probe.textlength(text, font=f)
     isz = 86 if icon_key else 0
     im = Image.new('RGBA', (int(tw) + isz + 40, max(isz, 60) + 10), (0, 0, 0, 0))
     if icon_key:
@@ -212,6 +272,9 @@ def kicker(text, icon_key):
     d = ImageDraw.Draw(im)
     x = isz + (20 if isz else 0)
     y = (im.height - 50) // 2 - 2
+    if not harf_harf:
+        d.text((x, y), text, font=f, fill=MINT)
+        return im
     for ch in text:
         d.text((x, y), ch, font=f, fill=MINT)
         x += probe.textlength(ch, font=f) + 4
@@ -219,7 +282,7 @@ def kicker(text, icon_key):
 
 
 def chip(text, icon_key=None, size=34):
-    f = jak('700Bold', size)
+    f = rol('govde', size)
     probe = ImageDraw.Draw(Image.new('RGB', (10, 10)))
     tw = probe.textlength(text, font=f)
     h = size + 34
@@ -462,7 +525,7 @@ class Callout:
 
 # ---------------------------------------------------------------- sahneler
 
-def word_time(sc, audio, word, voice_dur):
+def word_time(sc, audio, word, voice_dur, oran=None):
     """Seslendirmede kelimenin söylendiği an (sn). Kelime zamanı yoksa metindeki yerine göre."""
     text = sc['metin']
     zp = os.path.join(audio, sc['kare'] + '.json')
@@ -475,6 +538,8 @@ def word_time(sc, audio, word, voice_dur):
         if i >= 0 and i < len(starts):
             return starts[i]
     i = kucult(text).find(kucult(word))
+    if i < 0 and oran is not None:
+        return voice_dur * oran
     return voice_dur * max(0, i) / max(1, len(text))
 
 
@@ -501,8 +566,12 @@ class Scene:
             self.bg.alpha_composite(CHROME)
         self.cam = Camera()
         self.callouts = []
-        specs = sc.get('isaret', [])
-        times = [LEAD + word_time(sc, audio, s['kelime'], vdur) for s in specs]
+        specs = [dict(s) for s in sc.get('isaret', [])]
+        if DIL == 'ar':  # Arapça arayüz sağdan sola: hedefler aynalanır
+            for s in specs:
+                x0, y0, x1, y1 = s['hedef']
+                s['hedef'] = [SRC_W - x1, y0, SRC_W - x0, y1]
+        times = [LEAD + word_time(sc, audio, s['kelime'], vdur, s.get('oran')) for s in specs]
         # Her işaret en az ~1,6 sn ekranda kalsın (kelimeler çok yakınsa sonrakini kaydır).
         for i in range(1, len(times)):
             times[i] = max(times[i], times[i - 1] + 1.9)
@@ -529,7 +598,8 @@ class Scene:
         for i, lab in enumerate(sc.get('etiketler', [])):
             key = sc.get('etiket_kelime', sc.get('etiketler'))[i]
             ik = {'giris': ['scan', 'library', 'report']}.get(kind, [None, None, None])[i]
-            self.chips.append((chip(lab, ik), LEAD + word_time(sc, audio, key, vdur)))
+            oran = (sc.get('etiket_oran') or [None] * 3)[i]
+            self.chips.append((chip(lab, ik), LEAD + word_time(sc, audio, key, vdur, oran)))
 
     def frame(self, t):
         f = self.bg.copy()
@@ -597,7 +667,10 @@ def wipe(prev, cur, p):
 
 def main():
     shots, audio, out = sys.argv[1:4]
-    cfg = json.load(open(os.path.join(HERE, 'masaustu.json'), encoding='utf-8'))
+    ayar = sys.argv[4] if len(sys.argv) > 4 else os.path.join(HERE, 'masaustu.json')
+    cfg = json.load(open(ayar, encoding='utf-8'))
+    global DIL
+    DIL = cfg.get('dil', 'tr')
     if os.environ.get('SAHNELER'):  # deneme için yalnız bazı sahneler
         secili = os.environ['SAHNELER'].split(',')
         cfg['sahneler'] = [s for s in cfg['sahneler'] if s['kare'] in secili]
