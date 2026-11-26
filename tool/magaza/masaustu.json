@@ -1,0 +1,117 @@
+{
+ "_not": "Bilgisayar tanıtım videosu (masaustu_video.py). Her sahne: 'metin' seslendirilir (seslendir.py, genç erkek ses). 'baslik' afiş yazısı satırları; 'vurgu' satırı farklı yazı tipiyle yeşil blok üzerinde beyaz yazılır. 'isaret': ekranda hedef [x0,y0,x1,y1] (2880x1800 ekran görüntüsü koordinatı), kısa etiket ve seslendirmede o anı belirleyen 'kelime'.",
+ "sahneler": [
+  {
+   "kare": "giris",
+   "metin": "Netice artık bilgisayarınızda! Optik okuma, soru bankası ve sınav analizi, hepsi tek programda.",
+   "baslik": ["ŞİMDİ", "BİLGİSAYARINIZDA"],
+   "vurgu": 1,
+   "etiketler": ["Optik okuma", "Soru bankası", "Sınav analizi"],
+   "etiket_kelime": ["Optik", "soru bankası", "sınav analizi"]
+  },
+  {
+   "kare": "ana_sayfa",
+   "bolum": "start",
+   "ust": "01 · ANA SAYFA",
+   "baslik": ["KÂĞITTAN", "SONUCA", "saniyeler içinde"],
+   "vurgu": 2,
+   "metin": "Ana sayfadan Kâğıt okut'a tıklayın; taranmış formları ve PDF dosyalarını toplu okutun. Kazandığınız zamanı da hemen burada görürsünüz.",
+   "isaret": [
+    {"hedef": [583, 212, 1123, 393], "etiket": "Tek tıkla okut", "kelime": "Kâğıt okut"},
+    {"hedef": [2282, 432, 2822, 706], "etiket": "Kazandığınız zaman", "kelime": "Kazandığınız"}
+   ]
+  },
+  {
+   "kare": "sonuclar",
+   "bolum": "exam",
+   "ust": "02 · SONUÇLAR",
+   "baslik": ["SONUÇLAR", "anında", "HAZIR"],
+   "vurgu": 1,
+   "metin": "Sonuçlar anında hazır. Ortalama, en yüksek ve en düşük puan bir bakışta. Sınav raporunu ise tek tıkla PDF olarak alın.",
+   "isaret": [
+    {"hedef": [58, 274, 936, 547], "etiket": "Ortalama bir bakışta", "kelime": "Ortalama"},
+    {"hedef": [2095, 12, 2390, 101], "etiket": "PDF rapor", "kelime": "Sınav raporunu"}
+   ]
+  },
+  {
+   "kare": "analiz",
+   "bolum": "report",
+   "ust": "03 · SORU ANALİZİ",
+   "baslik": ["HER SORUYU", "derinlemesine", "ANALİZ"],
+   "vurgu": 1,
+   "metin": "Soru analizi, testin güvenirliğini ve her sorunun güçlüğünü hesaplar. Otomatik değerlendirme ise sonuçları sizin yerinize yorumlar.",
+   "isaret": [
+    {"hedef": [40, 904, 487, 1174], "etiket": "Güvenirlik", "kelime": "güvenirliğini"},
+    {"hedef": [40, 1282, 2840, 1800], "etiket": "Otomatik yorum", "kelime": "Otomatik"}
+   ]
+  },
+  {
+   "kare": "kutuphane",
+   "bolum": "library",
+   "ust": "04 · KÜTÜPHANE",
+   "baslik": ["SORU BANKANIZ", "her zaman", "YANINIZDA"],
+   "vurgu": 1,
+   "metin": "Kütüphanede kendi soru bankanızı kurun. Sorular, konu özetleri ve hap bilgiler tek yerde; zorluk düzeyine göre de süzebilirsiniz.",
+   "isaret": [
+    {"hedef": [576, 130, 2851, 259], "etiket": "Soru · özet · hap bilgi", "kelime": "Sorular"},
+    {"hedef": [562, 403, 1966, 472], "etiket": "Zorluğa göre süz", "kelime": "zorluk"}
+   ]
+  },
+  {
+   "kare": "kitapcik",
+   "bolum": "booklet",
+   "ust": "05 · KİTAPÇIK",
+   "baslik": ["KİTAPÇIĞINIZI", "kendiniz", "HAZIRLAYIN"],
+   "vurgu": 1,
+   "metin": "Sınav kitapçığınızı kendiniz hazırlayın. A'dan H'ye kitapçık türleri, karışık sorular ve şıklar; ister PDF, ister Word.",
+   "isaret": [
+    {"hedef": [744, 420, 1931, 492], "etiket": "A'dan H'ye", "kelime": "A'dan"},
+    {"hedef": [744, 547, 2131, 922], "etiket": "Tek tıkla karıştır", "kelime": "karışık"}
+   ]
+  },
+  {
+   "kare": "veli",
+   "bolum": "parents",
+   "ust": "06 · VELİ GÖNDERİMİ",
+   "baslik": ["VELİLERE", "tek tıkla", "GÖNDERİN"],
+   "vurgu": 1,
+   "metin": "Karneleri velilere toplu gönderin. Hazır mesajla, sırayla WhatsApp'tan; tek tıkla sıradaki veliye geçin.",
+   "isaret": [
+    {"hedef": [32, 144, 2848, 521], "etiket": "Kaç veliye gitti?", "kelime": "toplu"},
+    {"hedef": [76, 374, 491, 477], "etiket": "Sıradaki", "kelime": "sıradaki"}
+   ]
+  },
+  {
+   "kare": "istatistik",
+   "bolum": "compare",
+   "ust": "07 · GENEL İSTATİSTİK",
+   "baslik": ["BÜTÜN", "SINIFLAR", "tek bakışta"],
+   "vurgu": 2,
+   "metin": "Genel istatistikte bütün sınıflar tek bakışta. Genel başarı, medyan, standart sapma ve katılım hep birlikte.",
+   "isaret": [
+    {"hedef": [40, 420, 2840, 757], "etiket": "Genel başarı", "kelime": "Genel başarı"},
+    {"hedef": [40, 862, 2840, 1132], "etiket": "Medyan · sapma · katılım", "kelime": "medyan"}
+   ]
+  },
+  {
+   "kare": "donem",
+   "bolum": "term",
+   "ust": "08 · DÖNEM RAPORU",
+   "baslik": ["DÖNEM NOTU", "ve", "KAZANIM KARNESİ"],
+   "vurgu": 1,
+   "metin": "Dönem raporu, ağırlıklı dönem notunu kendisi hesaplar. Kazanım karnelerini ve takip çizelgesini de tek tıkla hazırlar.",
+   "isaret": [
+    {"hedef": [40, 340, 2840, 420], "etiket": "1. dönem · 2. dönem · tüm yıl", "kelime": "ağırlıklı"},
+    {"hedef": [40, 966, 1390, 1072], "etiket": "Karne ve çizelge", "kelime": "Kazanım karnelerini"}
+   ]
+  },
+  {
+   "kare": "kapanis",
+   "metin": "Netice'yi Windows ve Mac için hemen indirin. On dört gün ücretsiz deneyin; kayıt gerekmez.",
+   "baslik": ["HEMEN", "İNDİRİN"],
+   "vurgu": 1,
+   "etiketler": ["Windows", "Mac", "14 gün ücretsiz"],
+   "etiket_kelime": ["Windows", "Mac", "On dört gün"]
+  }
+ ]
+}

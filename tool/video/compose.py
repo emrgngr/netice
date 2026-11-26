@@ -400,7 +400,7 @@ class Video:
         sw = dr.textlength(step, font=self.step_f) + 28
         sx = 40 if rtl else W - 40 - sw
         dr.rounded_rectangle([sx, 48, sx + sw, 86], 19, fill=EMERALD)
-        dr.text((sx + sw / 2, 67), step, font=self.step_f, fill=NAVY, anchor='mm')
+        dr.text((sx + sw / 2, 67), step, font=self.step_f, fill='white', anchor='mm')  # yeşil üstünde daima beyaz
         done = seg['t0'] + t
         dr.rounded_rectangle([40, 100, W - 40, 104], 2, fill=(255, 255, 255, 40))
         px = 40 + (W - 80) * done / total
@@ -449,7 +449,7 @@ class Video:
                     if len(tg) > 1:
                         bx, by = (x0 - 4, y0 - 4) if not rtl else (x1 + 4, y0 - 4)
                         od.ellipse([bx - 15, by - 15, bx + 15, by + 15], fill=EMERALD + (255,))
-                        od.text((bx, by), str(j + 1), font=self.step_f, fill=NAVY, anchor='mm')
+                        od.text((bx, by), str(j + 1), font=self.step_f, fill=(255, 255, 255, 255), anchor='mm')
             frame.paste(ov, (0, 0), ov)
 
         dr = ImageDraw.Draw(frame)

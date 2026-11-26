@@ -1,6 +1,11 @@
 """Tanıtım videosunun seslendirmelerini ElevenLabs'tan alır (CI'da).
 
-python3 tool/magaza/seslendir.py <ses_klasoru>
+python3 tool/magaza/seslendir.py <ses_klasoru> [ayar.json] [ön_ek]
+
+Ayar verilmezse premium.json ve ön ek "magaza_tr" kullanılır. masaustu.json gibi
+"ses" alanı olmayan sahneler de seslendirilir; bunlar için ElevenLabs'ın kelime
+zamanlamaları da <kare>.json olarak yazılır (ekrandaki okların sesle eş zamanlı
+çıkması için).
 
 premium.json'da "ses" değeri "elevenlabs" olan her sahne için <ses_klasoru>/<kare>.mp3
 yazılır. Ses bir kez üretilir ve "rehber-videolari" sürümüne
@@ -12,6 +17,7 @@ ELEVENLABS_TANITIM_VOICE_ID değişkeni; SECILI_SES; ElevenLabs ses kütüphanes
 Türkçe genç erkek seslerinden reklam/tanıtım için en canlısı; yoksa hazır "Liam"
 (genç, enerjik erkek sesi).
 """
+import base64
 import hashlib
 import json
 import os
@@ -76,38 +82,54 @@ def promo_voice_id():
     return LIAM
 
 
-def main(folder):
+def _indir(asset, out):
+    return subprocess.run(['gh', 'release', 'download', RELEASE, '-p', asset, '-O', out, '--clobber'],
+                          capture_output=True).returncode == 0
+
+
+def _yukle(folder, asset, data):
+    tmp = os.path.join(folder, asset)
+    with open(tmp, 'wb') as f:
+        f.write(data)
+    subprocess.run(['gh', 'release', 'upload', RELEASE, tmp, '--clobber'], check=False)
+    os.remove(tmp)
+
+
+def main(folder, ayar='premium.json', on_ek='magaza_tr'):
     os.makedirs(folder, exist_ok=True)
-    cfg = json.load(open(os.path.join(HERE, 'premium.json'), encoding='utf-8'))
+    cfg = json.load(open(ayar if os.path.isabs(ayar) or os.path.exists(ayar) else os.path.join(HERE, ayar), encoding='utf-8'))
     vid = None
+    # Heyecanlı ve enerjik (kullanıcı 2026-11-25: genç erkek sesi): değişken tonlama, biraz hızlı.
+    ayarlar = {'stability': 0.3, 'similarity_boost': 0.8, 'style': 0.6, 'use_speaker_boost': True, 'speed': 1.1}
     for sc in cfg['sahneler']:
-        if sc['ses'] != 'elevenlabs':
+        if sc.get('ses', 'elevenlabs') != 'elevenlabs':
             continue
         text = sc['metin']
+        zaman = 'ses' not in sc  # yeni ayar dosyaları kelime zamanlamasını da ister
         out = os.path.join(folder, sc['kare'] + '.mp3')
-        asset = f"magaza_tr_{SES_ETIKETI}_{sc['kare']}_{hashlib.sha1(text.encode()).hexdigest()[:8]}.mp3"
-        if subprocess.run(['gh', 'release', 'download', RELEASE, '-p', asset, '-O', out, '--clobber'],
-                          capture_output=True).returncode == 0:
+        asset = f"{on_ek}_{SES_ETIKETI}_{sc['kare']}_{hashlib.sha1(text.encode()).hexdigest()[:8]}.mp3"
+        zasset = asset[:-4] + '.json'
+        if _indir(asset, out) and (not zaman or _indir(zasset, os.path.join(folder, sc['kare'] + '.json'))):
             print('hazır:', asset)
             continue
         if not os.environ.get('ELEVENLABS_API_KEY'):
             sys.exit(f'{asset} yok ve ELEVENLABS_API_KEY tanımlı değil')
         vid = vid or promo_voice_id()
-        data = api(f'/text-to-speech/{vid}?output_format=mp3_44100_128', {
-            'text': text,
-            'model_id': MODEL,
-            # Heyecanlı ve enerjik (kullanıcı 2026-11-25: genç erkek sesi): değişken tonlama, biraz hızlı.
-            'voice_settings': {'stability': 0.3, 'similarity_boost': 0.8, 'style': 0.6, 'use_speaker_boost': True, 'speed': 1.1},
-        })
+        body = {'text': text, 'model_id': MODEL, 'voice_settings': ayarlar}
+        if zaman:
+            r = json.loads(api(f'/text-to-speech/{vid}/with-timestamps?output_format=mp3_44100_128', body))
+            data = base64.b64decode(r['audio_base64'])
+            hiza = json.dumps(r.get('alignment') or r.get('normalized_alignment') or {}, ensure_ascii=False).encode()
+            with open(os.path.join(folder, sc['kare'] + '.json'), 'wb') as f:
+                f.write(hiza)
+            _yukle(folder, zasset, hiza)
+        else:
+            data = api(f'/text-to-speech/{vid}?output_format=mp3_44100_128', body)
         with open(out, 'wb') as f:
             f.write(data)
-        tmp = os.path.join(folder, asset)
-        with open(tmp, 'wb') as f:
-            f.write(data)
-        subprocess.run(['gh', 'release', 'upload', RELEASE, tmp, '--clobber'], check=False)
-        os.remove(tmp)
+        _yukle(folder, asset, data)
         print('üretildi:', asset)
 
 
 if __name__ == '__main__':
-    main(sys.argv[1])
+    main(*sys.argv[1:4])

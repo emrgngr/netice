@@ -154,7 +154,7 @@ def yaz(c, x, y, s, sag=False, orta=False):
         c.drawString(x, y, s)
 
 
-def rozet(c, x, y, n, r=10, renk=EMERALD, yazi=INK):
+def rozet(c, x, y, n, r=10, renk=EMERALD_D, yazi=white):  # yeşil üstünde daima beyaz (kullanıcı kuralı)
     c.setFillColor(white)
     c.circle(x, y, r + 1.6, stroke=0, fill=1)
     c.setFillColor(renk)
