@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:material_ui/material_ui.dart';
 
 import '../bank/bank_store.dart';
@@ -316,15 +317,65 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 10),
           Card(
             clipBehavior: Clip.antiAlias,
-            child: SwitchListTile(
-              secondary: const IconBadge(Icons.notifications_active_outlined, color: NColors.emerald),
-              value: store.scanSound,
-              onChanged: (v) {
-                store.setScanSound(v);
-                if (v) ScanFeedback.success(store);
-              },
-              title: Text(tr('Okuma sesi'), style: const TextStyle(fontWeight: FontWeight.w700)),
-              subtitle: Text(tr('Her kâğıt okununca kısa bir melodi çalar ve telefon hafifçe titrer')),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SwitchListTile(
+                  secondary: const IconBadge(Icons.notifications_active_outlined, color: NColors.emerald),
+                  value: store.scanSound,
+                  onChanged: (v) {
+                    store.setScanSound(v);
+                    if (v) ScanFeedback.play(store.scanMelody);
+                  },
+                  title: Text(tr('Okuma sesi'), style: const TextStyle(fontWeight: FontWeight.w700)),
+                  subtitle: Text(tr('Her kâğıt okununca kısa bir melodi çalar')),
+                ),
+                if (store.scanSound)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          tr('Melodi seçin (dinlemek için dokunun)'),
+                          style: TextStyle(fontSize: 12.5, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            for (final m in scanMelodies) ...[
+                              if (m != scanMelodies.first) const SizedBox(width: 8),
+                              Expanded(
+                                child: _MelodyOption(
+                                  key: Key('melodi_$m'),
+                                  label: scanMelodyName(m),
+                                  selected: store.scanMelody == m,
+                                  onTap: () {
+                                    store.setScanMelody(m);
+                                    ScanFeedback.play(m);
+                                  },
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                if (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS) ...[
+                  const Divider(height: 1),
+                  SwitchListTile(
+                    secondary: const IconBadge(Icons.vibration_rounded, color: NColors.emerald),
+                    value: store.scanVibrate,
+                    onChanged: (v) {
+                      store.setScanVibrate(v);
+                      if (v) ScanFeedback.vibrateSample();
+                    },
+                    title: Text(tr('Okuma titreşimi'), style: const TextStyle(fontWeight: FontWeight.w700)),
+                    subtitle: Text(tr('Her kâğıt okununca telefon hafifçe titrer')),
+                  ),
+                ],
+              ],
             ),
           ),
           // Netice Pro, hesap ve okul bilgileri Profil sekmesinde.
@@ -496,4 +547,46 @@ Future<void> pickLanguage(BuildContext context) async {
   );
   if (picked == null) return;
   store.setLanguage(picked.isEmpty ? null : picked);
+}
+
+/// Okuma melodisi seçeneği: dokununca seçilir ve çalınır.
+class _MelodyOption extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  const _MelodyOption({super.key, required this.label, required this.selected, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final fg = selected ? (dark ? Colors.white : NColors.emerald) : scheme.onSurface;
+    return Material(
+      color: selected ? NColors.emerald.withValues(alpha: dark ? 0.28 : 0.12) : Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: selected ? NColors.emerald : scheme.outlineVariant, width: selected ? 1.6 : 1),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(selected ? Icons.check_circle_rounded : Icons.play_circle_outline_rounded, size: 22, color: selected ? (dark ? const Color(0xFF6EE7B7) : NColors.emerald) : scheme.onSurfaceVariant),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5, color: fg),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

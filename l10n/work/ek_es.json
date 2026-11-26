@@ -1513,5 +1513,12 @@
  "Şık": "Opciones",
  "Okuma sesi": "Sonido de lectura",
  "Her kâğıt okununca kısa bir melodi çalar ve telefon hafifçe titrer": "Suena una melodía corta y el teléfono vibra suavemente tras leer cada hoja",
- "Bu kâğıt zaten okunmuştu; tekrar eklenmedi.": "Esta hoja ya se había leído; no se añadió de nuevo."
+ "Bu kâğıt zaten okunmuştu; tekrar eklenmedi.": "Esta hoja ya se había leído; no se añadió de nuevo.",
+ "Her kâğıt okununca kısa bir melodi çalar": "Suena una melodía corta tras leer cada hoja",
+ "Her kâğıt okununca telefon hafifçe titrer": "El teléfono vibra suavemente tras leer cada hoja",
+ "Kristal": "Cristal",
+ "Marimba": "Marimba",
+ "Melodi seçin (dinlemek için dokunun)": "Elige una melodía (toca para escuchar)",
+ "Okuma titreşimi": "Vibración de lectura",
+ "Yumuşak": "Suave"
 }

@@ -63,7 +63,7 @@ class _ScanScreenState extends State<ScanScreen> {
   /// Okunamayan dosya/sayfa: listeye eklenmez, tek dosyada kısa uyarı.
   void _fail(String source, String message) {
     _failed++;
-    HapticFeedback.heavyImpact();
+    ScanFeedback.failed(StoreScope.of(context));
     if (_batchTotal <= 1) toast(context, '$source: $message');
   }
   bool _busy = false;
@@ -94,7 +94,7 @@ class _ScanScreenState extends State<ScanScreen> {
       final status = store.lastScanStatus;
       if (jpeg != null && status != ScanStatus.duplicate) store.attachSheetImage(sheet, jpeg);
       if (status == ScanStatus.duplicate) {
-        HapticFeedback.selectionClick();
+        ScanFeedback.duplicate(store);
         toast(context, tr('Bu kâğıt zaten okunmuştu; tekrar eklenmedi.'));
         return;
       }

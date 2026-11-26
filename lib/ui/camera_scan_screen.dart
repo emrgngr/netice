@@ -58,7 +58,9 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    ScanFeedback.warmUp();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) ScanFeedback.warmUp(StoreScope.of(context).scanMelody);
+    });
     _start();
   }
 
@@ -171,7 +173,7 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
     final sheet = store.addScan(exam, r);
     final status = store.lastScanStatus;
     if (status == ScanStatus.duplicate) {
-      ScanFeedback.duplicate();
+      ScanFeedback.duplicate(store);
       setState(() {
         _hint = tr('Bu kâğıt zaten okunmuştu · sıradakini koyun');
         _warn = true;

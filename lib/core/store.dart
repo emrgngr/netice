@@ -62,8 +62,14 @@ class AppStore extends ChangeNotifier {
   /// Açılış animasyonunda melodi çalsın mı.
   bool splashSound = true;
 
-  /// Kâğıt okununca kısa onay melodisi (titreşim her zaman).
+  /// Kâğıt okununca kısa onay melodisi.
   bool scanSound = true;
+
+  /// Okuma melodisi: 'kristal', 'marimba' veya 'yumusak'.
+  String scanMelody = 'kristal';
+
+  /// Kâğıt okununca (ya da okunamayınca) telefon titresin mi.
+  bool scanVibrate = true;
 
   /// Görünüm: 'system' (cihaza göre), 'light' (gündüz) veya 'dark' (gece).
   String themeMode = 'system';
@@ -357,6 +363,8 @@ class AppStore extends ChangeNotifier {
         'cloudAuto': cloudAuto,
         'splashSound': splashSound,
         'scanSound': scanSound,
+        'scanMelody': scanMelody,
+        'scanVibrate': scanVibrate,
         'themeMode': themeMode,
         'promoHiddenUntil': promoHiddenUntil?.toIso8601String(),
         if (lastSeenVersion != null) 'lastSeenVersion': lastSeenVersion,
@@ -436,6 +444,8 @@ class AppStore extends ChangeNotifier {
     ratePrompted = j['ratePrompted'] as bool? ?? ratePrompted;
     splashSound = j['splashSound'] as bool? ?? splashSound;
     scanSound = j['scanSound'] as bool? ?? scanSound;
+    scanMelody = j['scanMelody'] as String? ?? scanMelody;
+    scanVibrate = j['scanVibrate'] as bool? ?? scanVibrate;
     final tm = j['themeMode'];
     if (tm == 'system' || tm == 'light' || tm == 'dark') themeMode = tm as String;
     language = j['language'] as String? ?? language;
@@ -486,6 +496,16 @@ class AppStore extends ChangeNotifier {
 
   void setScanSound(bool v) {
     scanSound = v;
+    _changed();
+  }
+
+  void setScanMelody(String v) {
+    scanMelody = v;
+    _changed();
+  }
+
+  void setScanVibrate(bool v) {
+    scanVibrate = v;
     _changed();
   }
 

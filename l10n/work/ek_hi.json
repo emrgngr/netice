@@ -579,5 +579,12 @@
  "Şık": "विकल्प",
  "Okuma sesi": "स्कैन ध्वनि",
  "Her kâğıt okununca kısa bir melodi çalar ve telefon hafifçe titrer": "हर शीट पढ़े जाने पर छोटी धुन बजती है और फ़ोन हल्का कंपन करता है",
- "Bu kâğıt zaten okunmuştu; tekrar eklenmedi.": "यह शीट पहले ही पढ़ी जा चुकी थी; दोबारा नहीं जोड़ी गई।"
+ "Bu kâğıt zaten okunmuştu; tekrar eklenmedi.": "यह शीट पहले ही पढ़ी जा चुकी थी; दोबारा नहीं जोड़ी गई।",
+ "Her kâğıt okununca kısa bir melodi çalar": "हर शीट पढ़ने के बाद छोटी धुन बजती है",
+ "Her kâğıt okununca telefon hafifçe titrer": "हर शीट पढ़ने के बाद फ़ोन हल्का कंपन करता है",
+ "Kristal": "क्रिस्टल",
+ "Marimba": "मारिम्बा",
+ "Melodi seçin (dinlemek için dokunun)": "धुन चुनें (सुनने के लिए टैप करें)",
+ "Okuma titreşimi": "पढ़ने पर कंपन",
+ "Yumuşak": "मुलायम"
 }

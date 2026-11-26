@@ -579,5 +579,12 @@
  "Şık": "선택지",
  "Okuma sesi": "판독 소리",
  "Her kâğıt okununca kısa bir melodi çalar ve telefon hafifçe titrer": "답안지를 읽을 때마다 짧은 멜로디와 가벼운 진동이 납니다",
- "Bu kâğıt zaten okunmuştu; tekrar eklenmedi.": "이 답안지는 이미 읽었으므로 다시 추가하지 않았습니다."
+ "Bu kâğıt zaten okunmuştu; tekrar eklenmedi.": "이 답안지는 이미 읽었으므로 다시 추가하지 않았습니다.",
+ "Her kâğıt okununca kısa bir melodi çalar": "답안지를 읽을 때마다 짧은 멜로디가 재생됩니다",
+ "Her kâğıt okununca telefon hafifçe titrer": "답안지를 읽을 때마다 휴대폰이 살짝 진동합니다",
+ "Kristal": "크리스털",
+ "Marimba": "마림바",
+ "Melodi seçin (dinlemek için dokunun)": "멜로디 선택 (탭하여 듣기)",
+ "Okuma titreşimi": "읽기 진동",
+ "Yumuşak": "부드러움"
 }

@@ -1,9 +1,10 @@
 // Okuma onayı önizlemesi: tarama ekranı üstünde yeşil parlama kareleri.
 //   flutter test tool/okuma_onizleme_test.dart
-// Kareler build/okuma/kare_XX.png; ffmpeg ile okundu.mp3 sesiyle videoya çevrilir.
+// Kareler build/okuma/kare_XX.png; ffmpeg ile okuma_kristal.mp3 sesiyle videoya çevrilir.
 import 'dart:io';
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart' show debugDefaultTargetPlatformOverride;
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
@@ -12,6 +13,7 @@ import 'package:netice/l10n/l10n.dart';
 import 'package:netice/main.dart';
 import 'package:netice/ui/scan_feedback.dart';
 import 'package:netice/ui/scan_screen.dart';
+import 'package:netice/ui/settings_screen.dart';
 import 'package:netice/ui/theme.dart';
 
 import 'screenshots_test.dart' show loadFonts;
@@ -61,5 +63,41 @@ void main() {
     for (var t = 0; t < 8; t++, i++) {
       await kare(i);
     }
+  });
+
+  testWidgets('okuma ayarları', (tester) async {
+    await tester.runAsync(loadFonts);
+    final store = AppStore();
+    await tester.runAsync(() => store.load(dir: Directory.systemTemp.createTempSync('okuma_ayar')));
+    store.onboardingDone = true;
+    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+    for (final dark in [false, true]) {
+      L10n.use('tr');
+      await tester.pumpWidget(const SizedBox());
+      tester.view.physicalSize = const Size(390, 844) * 2;
+      tester.view.devicePixelRatio = 2;
+      await tester.pumpWidget(RepaintBoundary(
+        key: const ValueKey('a'),
+        child: StoreScope(
+          store: store,
+          child: MaterialApp(
+            debugShowCheckedModeBanner: false,
+            theme: dark ? NTheme.dark() : NTheme.light(),
+            home: const SettingsScreen(),
+          ),
+        ),
+      ));
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.text('Okuma titreşimi'), 200, scrollable: find.byType(Scrollable).first);
+      await tester.runAsync(() => Scrollable.ensureVisible(tester.element(find.text('Açılış melodisi')), alignment: 0.15));
+      await tester.pumpAndSettle();
+      await tester.runAsync(() async {
+        final b = tester.renderObject<RenderRepaintBoundary>(find.byKey(const ValueKey('a')));
+        final img = await b.toImage(pixelRatio: 2);
+        final d = await img.toByteData(format: ui.ImageByteFormat.png);
+        File('build/okuma/ayarlar_${dark ? 'gece' : 'gunduz'}.png').writeAsBytesSync(d!.buffer.asUint8List());
+      });
+    }
+    debugDefaultTargetPlatformOverride = null;
   });
 }
