@@ -1,4 +1,5 @@
 import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -8,6 +9,7 @@ import '../core/store.dart';
 import '../core/progress.dart';
 import '../main.dart';
 import 'compare_screen.dart';
+import 'desktop_shell.dart';
 import 'general_stats_screen.dart';
 import 'profile_screen.dart';
 import 'onboarding_screen.dart';
@@ -15,6 +17,7 @@ import 'school_screen.dart';
 import 'settings_screen.dart';
 import 'illustrations.dart';
 import 'help_screen.dart';
+import 'bank/booklet_wizard_screen.dart';
 import 'bank/library_screen.dart';
 import 'rate_share.dart';
 import 'term_screen.dart';
@@ -78,14 +81,24 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     }
     final wide = MediaQuery.sizeOf(context).width >= 900;
-    final body = switch (_tab) {
+    // 5: masaüstü "Sınavlar" çalışma alanı; telefonda yoktur, panoya döner.
+    final tab = (!wide && _tab > 4) ? 0 : _tab;
+    final body = switch (tab) {
       0 => const _Dashboard(),
       1 => const StudentsScreen(embedded: true),
       2 => const LibraryScreen(embedded: true),
       3 => const ProfileScreen(),
+      5 => const DesktopExamsWorkspace(),
       _ => const SettingsScreen(),
     };
-    final page = const [AdPage.home, AdPage.classes, AdPage.help, AdPage.profile, AdPage.settings][_tab.clamp(0, 4)];
+    final page = const [
+      AdPage.home,
+      AdPage.classes,
+      AdPage.help,
+      AdPage.profile,
+      AdPage.settings,
+      AdPage.home,
+    ][tab.clamp(0, 5)];
     final tabs = [
       (Icons.home_outlined, Icons.home_rounded, tr('Ana sayfa')),
       (Icons.groups_outlined, Icons.groups_rounded, tr('Sınıflar')),
@@ -95,49 +108,147 @@ class _HomeScreenState extends State<HomeScreen> {
     ];
 
     if (wide) {
+      void go(int i) => setState(() => _tab = i);
+      void push(Widget w) => Navigator.of(context).push(MaterialPageRoute(builder: (_) => w));
+      var reviewCount = 0;
+      for (final e in store.exams) {
+        reviewCount += store.sheetsOf(e.id).where((s) => s.needsReview).length;
+      }
+      DesktopNavItem item(int i, IconData icon, IconData sel, String label, {int? badge}) => DesktopNavItem(
+        icon: icon,
+        selectedIcon: sel,
+        label: label,
+        selected: tab == i,
+        onTap: () => go(i),
+        badge: badge,
+      );
+      final sidebar = DesktopSidebar(
+        compact: MediaQuery.sizeOf(context).width < 1180,
+        groups: [
+          DesktopNavGroup(tr('Çalışma'), [
+            item(0, Icons.space_dashboard_outlined, Icons.space_dashboard_rounded, tr('Pano')),
+            item(
+              5,
+              Icons.description_outlined,
+              Icons.description_rounded,
+              tr('Sınavlar'),
+              badge: store.exams.isEmpty ? null : store.exams.length,
+            ),
+            DesktopNavItem(
+              icon: Icons.document_scanner_outlined,
+              label: tr('Kâğıt okut'),
+              onTap: () => startScanFlow(context),
+            ),
+            if (reviewCount > 0)
+              DesktopNavItem(
+                icon: Icons.priority_high_rounded,
+                label: tr('Kontrol bekleyen'),
+                badge: reviewCount,
+                warn: true,
+                onTap: () => go(5),
+              ),
+          ]),
+          DesktopNavGroup(tr('Kurum'), [
+            item(1, Icons.groups_outlined, Icons.groups_rounded, tr('Sınıflar ve öğrenciler')),
+            DesktopNavItem(
+              icon: Icons.query_stats_rounded,
+              label: tr('Genel istatistik'),
+              onTap: () => push(const GeneralStatsScreen()),
+            ),
+            DesktopNavItem(
+              icon: Icons.compare_arrows_rounded,
+              label: tr('Sınıf sınıf analiz'),
+              onTap: () => push(const CompareScreen()),
+            ),
+            item(2, Icons.local_library_outlined, Icons.local_library_rounded, tr('Kütüphane')),
+          ]),
+          DesktopNavGroup(tr('Hesap'), [
+            item(3, Icons.person_outline_rounded, Icons.person_rounded, tr('Profil')),
+            item(4, Icons.settings_outlined, Icons.settings_rounded, tr('Ayarlar')),
+            DesktopNavItem(
+              icon: Icons.help_outline_rounded,
+              label: tr('Yardım'),
+              onTap: () => push(const HelpScreen()),
+            ),
+          ]),
+        ],
+      );
       // Masaüstü kısayolları: Ctrl+N yeni sınav, Ctrl+K şube karşılaştırması.
       return CallbackShortcuts(
         bindings: {
-          const SingleActivator(LogicalKeyboardKey.keyN, control: true): () =>
-              Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NewExamScreen())),
-          const SingleActivator(LogicalKeyboardKey.keyK, control: true): () =>
-              Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CompareScreen())),
+          const SingleActivator(LogicalKeyboardKey.keyN, control: true): () => push(const NewExamScreen()),
+          const SingleActivator(LogicalKeyboardKey.keyK, control: true): () => push(const CompareScreen()),
         },
-        child: Focus(autofocus: true, child: Scaffold(
-        body: Row(children: [
-          NavigationRail(
-            selectedIndex: _tab,
-            onDestinationSelected: (i) => setState(() => _tab = i),
-            labelType: NavigationRailLabelType.all,
-            leading: const Padding(
-              padding: EdgeInsets.symmetric(vertical: 20),
-              child: NeticeMark(size: 36),
+        child: Focus(
+          autofocus: true,
+          child: Scaffold(
+            body: Row(
+              children: [
+                sidebar,
+                Expanded(
+                  child: Column(
+                    children: [
+                      Expanded(child: tab == 5 ? body : Watermark(child: body)),
+                      if (tab != 5) AdSlot.banner(page, padding: const EdgeInsets.fromLTRB(16, 6, 16, 10)),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            destinations: [
-              for (final (i, (icon, sel, label)) in tabs.indexed)
-                NavigationRailDestination(
-                    icon: Icon(i == 0 ? Icons.space_dashboard_outlined : icon),
-                    selectedIcon: Icon(i == 0 ? Icons.space_dashboard : sel),
-                    label: Text(i == 0 ? tr('Pano') : label)),
-            ],
           ),
-          VerticalDivider(width: 1, color: Theme.of(context).colorScheme.outlineVariant),
-          Expanded(
-            child: Column(children: [
-              Expanded(child: Watermark(child: body)),
-              AdSlot.banner(page, padding: const EdgeInsets.fromLTRB(16, 6, 16, 10)),
-            ]),
-          ),
-        ]),
-      )));
+        ),
+      );
     }
     return Scaffold(
       body: Watermark(child: body),
-      bottomNavigationBar: Column(mainAxisSize: MainAxisSize.min, children: [
-        AdSlot.banner(page, padding: const EdgeInsets.fromLTRB(14, 6, 14, 6)),
-        _Dock(tabs: tabs, index: _tab, onSelect: (i) => setState(() => _tab = i)),
-      ]),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AdSlot.banner(page, padding: const EdgeInsets.fromLTRB(14, 6, 14, 6)),
+          _Dock(tabs: tabs, index: tab, onSelect: (i) => setState(() => _tab = i)),
+        ],
+      ),
     );
+  }
+}
+
+/// "Okut": tek sınav varsa doğrudan, birden çoksa sorarak okutmayı başlatır;
+/// hiç sınav yoksa yeni sınav ekranını açar.
+Future<void> startScanFlow(BuildContext context) async {
+  final store = StoreScope.of(context);
+  if (store.exams.isEmpty) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NewExamScreen()));
+    return;
+  }
+  Exam? exam = store.exams.first;
+  if (store.exams.length > 1) {
+    exam = await showModalBottomSheet<Exam>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            Padding(
+              padding: EdgeInsets.fromLTRB(20, 0, 20, 8),
+              child: Text(
+                tr('Hangi sınavı okutacaksınız?'),
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+              ),
+            ),
+            for (final e in store.exams)
+              ListTile(
+                title: Text(e.name),
+                subtitle: Text('${e.className} · ${tr('{0} soru', [e.questionCount])}'),
+                onTap: () => Navigator.pop(ctx, e),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+  if (exam != null && context.mounted) {
+    Navigator.of(context).push(scanRoute(exam.id));
   }
 }
 
@@ -154,14 +265,14 @@ class _DashboardState extends State<_Dashboard> {
   bool _selecting = false;
 
   void _toggle(String id) => setState(() {
-        if (!_selected.remove(id)) _selected.add(id);
-        if (_selected.isEmpty) _selecting = false;
-      });
+    if (!_selected.remove(id)) _selected.add(id);
+    if (_selected.isEmpty) _selecting = false;
+  });
 
   void _endSelect() => setState(() {
-        _selecting = false;
-        _selected.clear();
-      });
+    _selecting = false;
+    _selected.clear();
+  });
 
   Future<void> _deleteSelected() async {
     final store = StoreScope.of(context);
@@ -172,7 +283,12 @@ class _DashboardState extends State<_Dashboard> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(ids.length == 1 ? tr('Sınav silinsin mi?') : tr('{0} sınav silinsin mi?', [ids.length])),
-        content: Text(tr('Seçilen sınavlar ve okunan {0} kâğıt silinir. Öğrencileriniz, sınıflarınız ve diğer sınavlarınız olduğu gibi kalır.', [sheetCount])),
+        content: Text(
+          tr(
+            'Seçilen sınavlar ve okunan {0} kâğıt silinir. Öğrencileriniz, sınıflarınız ve diğer sınavlarınız olduğu gibi kalır.',
+            [sheetCount],
+          ),
+        ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr('Vazgeç'))),
           FilledButton.icon(
@@ -191,47 +307,17 @@ class _DashboardState extends State<_Dashboard> {
     messenger.clearSnackBars();
     final done = ids.length == 1 ? tr('Sınav silindi.') : tr('{0} sınav silindi.', [ids.length]);
     final closed = messenger
-        .showSnackBar(SnackBar(
-          content: Text(done),
-          duration: const Duration(seconds: 6),
-          action: SnackBarAction(label: tr('Geri al'), onPressed: () => store.restoreExams(removed)),
-        ))
+        .showSnackBar(
+          SnackBar(
+            content: Text(done),
+            duration: const Duration(seconds: 6),
+            action: SnackBarAction(label: tr('Geri al'), onPressed: () => store.restoreExams(removed)),
+          ),
+        )
         .closed;
     closed.then((reason) {
       if (reason != SnackBarClosedReason.action) store.forgetRemoved();
     });
-  }
-
-  Future<void> _startScan(BuildContext context) async {
-    final store = StoreScope.of(context);
-    if (store.exams.isEmpty) {
-      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NewExamScreen()));
-      return;
-    }
-    Exam? exam = store.exams.first;
-    if (store.exams.length > 1) {
-      exam = await showModalBottomSheet<Exam>(
-        context: context,
-        showDragHandle: true,
-        builder: (ctx) => SafeArea(
-          child: ListView(shrinkWrap: true, children: [
-            Padding(
-              padding: EdgeInsets.fromLTRB(20, 0, 20, 8),
-              child: Text(tr('Hangi sınavı okutacaksınız?'), style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
-            ),
-            for (final e in store.exams)
-              ListTile(
-                title: Text(e.name),
-                subtitle: Text('${e.className} · ${tr('{0} soru', [e.questionCount])}'),
-                onTap: () => Navigator.pop(ctx, e),
-              ),
-          ]),
-        ),
-      );
-    }
-    if (exam != null && context.mounted) {
-      Navigator.of(context).push(scanRoute(exam.id));
-    }
   }
 
   @override
@@ -252,17 +338,19 @@ class _DashboardState extends State<_Dashboard> {
 
     final stats = [
       StatCard(
-          label: tr('Okunan'),
-          value: '${store.readCount}',
-          hint: tr('kâğıt · {0} sınav', [store.exams.length]),
-          icon: Icons.description_outlined,
-          accent: const Color(0xFF6C7FD8)),
+        label: tr('Okunan'),
+        value: '${store.readCount}',
+        hint: tr('kâğıt · {0} sınav', [store.exams.length]),
+        icon: Icons.description_outlined,
+        accent: const Color(0xFF6C7FD8),
+      ),
       StatCard(
-          label: tr('Ortalama'),
-          value: fmt1(avg),
-          hint: tr('100 üzerinden'),
-          icon: Icons.insights_outlined,
-          accent: NColors.emerald),
+        label: tr('Ortalama'),
+        value: fmt1(avg),
+        hint: tr('100 üzerinden'),
+        icon: Icons.insights_outlined,
+        accent: NColors.emerald,
+      ),
       StatCard(
         label: tr('Kontrol'),
         value: '$reviewCount',
@@ -282,243 +370,506 @@ class _DashboardState extends State<_Dashboard> {
     final hour = DateTime.now().hour;
     final greeting = hour < 11 ? tr('Günaydın') : (hour < 18 ? tr('İyi günler') : tr('İyi akşamlar'));
     void newExam() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NewExamScreen()));
-    void openSettings() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsScreen()));
     void openHelp() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const HelpScreen()));
 
-    final hero = HeroPanel(
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          const AppLogo(size: 44),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(greeting, style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500)),
-              Text(tr('Netice'),
-                  style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800, letterSpacing: -0.5)),
-            ]),
-          ),
-          const _ThemeToggle(onDark: true),
-          const SizedBox(width: 6),
-          IconButton.filledTonal(
-            style: IconButton.styleFrom(backgroundColor: Colors.white.withValues(alpha: 0.12), foregroundColor: Colors.white),
-            tooltip: tr('Yeni sınav'),
-            onPressed: newExam,
-            icon: const Icon(Icons.add_rounded),
-          ),
-        ]),
-        const SizedBox(height: 16),
-        const LiveClock(onDark: true),
-        const SizedBox(height: 18),
-        Text(tr('Kâğıttan sonuca, saniyeler içinde.'),
-            style: TextStyle(color: Colors.white.withValues(alpha: 0.92), fontSize: 18, fontWeight: FontWeight.w700)),
-        const SizedBox(height: 4),
-        Text(
-          store.readCount == 0
-              ? tr('İlk sınavınızı okutun; sonuçlar ve analiz kendiliğinden hazırlanır.')
-              : tr('Bu dönem {0} kâğıt okundu, yaklaşık {1} sa {2} dk kazandınız.', [store.readCount, saved.inHours, saved.inMinutes % 60]),
-          style: TextStyle(color: Colors.white.withValues(alpha: 0.65), fontSize: 13, height: 1.4),
-        ),
-        const SizedBox(height: 20),
-        GlowButton(label: tr('Okut'), icon: Icons.document_scanner_outlined, onPressed: () => _startScan(context)),
-        const SizedBox(height: 16),
-        const OfflineNotice(onDark: true),
-      ]),
-    );
-
-    return SafeArea(
-      child: CustomScrollView(slivers: [
-        if (wide)
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(28, 24, 28, 0),
-            sliver: SliverToBoxAdapter(
-              child: Row(children: [
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(greeting, style: t.textTheme.bodyMedium?.copyWith(color: t.colorScheme.onSurface.withValues(alpha: 0.6))),
-                  Text(tr('Pano'), style: t.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800, letterSpacing: -0.5)),
-                ]),
-                const SizedBox(width: 16),
-                // Dar pencerelerde ve uzun çevirilerde düğmeler alt satıra iner.
+    Widget examTile(Exam e) {
+      final rs = store.resultsOf(e);
+      final st = Analysis.examStats(e, rs);
+      final review = store.sheetsOf(e.id).where((s) => s.needsReview).length;
+      final total = store.studentsOf(e.className).length;
+      final picked = _selected.contains(e.id);
+      return Card(
+        clipBehavior: Clip.antiAlias,
+        shape: picked
+            ? RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+                side: const BorderSide(color: NColors.emerald, width: 2),
+              )
+            : null,
+        child: InkWell(
+          onTap: _selecting
+              ? () => _toggle(e.id)
+              : () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => ExamScreen(examId: e.id))),
+          onLongPress: () => setState(() {
+            _selecting = true;
+            _selected.add(e.id);
+          }),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 14, 14),
+            child: Row(
+              children: [
+                Container(
+                  width: 46,
+                  height: 46,
+                  decoration: BoxDecoration(
+                    gradient: picked ? emeraldGradient : inkGradient,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  alignment: Alignment.center,
+                  child: picked
+                      ? const Icon(Icons.check_rounded, color: Colors.white)
+                      : Text(
+                          e.className.isEmpty ? '–' : e.className,
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 13),
+                        ),
+                ),
+                const SizedBox(width: 14),
                 Expanded(
-                  child: Wrap(
-                    alignment: WrapAlignment.end,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    spacing: 8,
-                    runSpacing: 8,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const LiveClock(),
-                      Row(mainAxisSize: MainAxisSize.min, children: [
-                        const _ThemeToggle(),
-                        IconButton(tooltip: tr('Yardım ve SSS'), onPressed: openHelp, icon: const Icon(Icons.help_outline_rounded)),
-                        IconButton(tooltip: tr('Ayarlar'), onPressed: openSettings, icon: const Icon(Icons.settings_outlined)),
-                      ]),
-                      OutlinedButton.icon(
-                        onPressed: () => _startScan(context),
-                        icon: const Icon(Icons.upload_file),
-                        label: Text(tr('PDF / tarama yükle')),
+                      Text(e.name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                      const SizedBox(height: 3),
+                      Text(
+                        '${dmy(e.date)} ${hm(e.date)} · ${tr('{0} soru', [e.questionCount])} · '
+                        '${rs.length}${total > 0 ? '/$total' : ''} okundu',
+                        style: t.textTheme.bodySmall?.copyWith(color: t.colorScheme.onSurface.withValues(alpha: 0.6)),
                       ),
-                      FilledButton.icon(onPressed: newExam, icon: const Icon(Icons.add), label: Text(tr('Yeni sınav'))),
+                      if (review > 0) ...[
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            const Icon(Icons.priority_high_rounded, size: 14, color: NColors.amber),
+                            Text(
+                              tr(' {0} kâğıt kontrol bekliyor', [review]),
+                              style: t.textTheme.bodySmall?.copyWith(color: NColors.amber, fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                      ],
                     ],
                   ),
                 ),
-              ]),
+                if (rs.isNotEmpty)
+                  ScoreRing(value: st.mean / e.rule.maxScore * 100, size: 54)
+                else
+                  Icon(Icons.chevron_right, color: t.colorScheme.onSurface.withValues(alpha: 0.4)),
+              ],
             ),
-          )
-        else
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-            sliver: SliverToBoxAdapter(child: hero),
           ),
-        SliverToBoxAdapter(child: UpdateBanner(padding: EdgeInsets.fromLTRB(wide ? 28 : 16, 12, wide ? 28 : 16, 0))),
-        if (store.hasDemo && AppStore.showDemoNotice)
-          SliverPadding(
-            padding: EdgeInsets.fromLTRB(wide ? 28 : 16, 12, wide ? 28 : 16, 0),
-            sliver: const SliverToBoxAdapter(child: DemoDataCard()),
-          ),
-        SliverPadding(
-          padding: EdgeInsets.fromLTRB(wide ? 28 : 16, wide ? 20 : 16, wide ? 28 : 16, 0),
-          sliver: SliverGrid(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: wide ? 4 : 2,
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
-              mainAxisExtent: wide ? 138 : 136,
+        ),
+      );
+    }
+
+    final examsTitle = SectionTitle(
+      _selecting ? tr('{0} sınav seçildi', [_selected.length]) : tr('Son sınavlar'),
+      trailing: store.exams.isEmpty
+          ? null
+          : _selecting
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextButton(
+                  onPressed: () => setState(() {
+                    if (_selected.length == store.exams.length) {
+                      _selected.clear();
+                    } else {
+                      _selected.addAll(store.exams.map((e) => e.id));
+                    }
+                  }),
+                  child: Text(_selected.length == store.exams.length ? tr('Seçimi kaldır') : tr('Tümünü seç')),
+                ),
+                IconButton(
+                  tooltip: tr('Seçilenleri sil'),
+                  onPressed: _selected.isEmpty ? null : _deleteSelected,
+                  icon: Icon(Icons.delete_outline_rounded, color: _selected.isEmpty ? null : t.colorScheme.error),
+                ),
+                IconButton(tooltip: tr('Vazgeç'), onPressed: _endSelect, icon: const Icon(Icons.close_rounded)),
+              ],
+            )
+          : TextButton.icon(
+              onPressed: () => setState(() => _selecting = true),
+              icon: const Icon(Icons.checklist_rounded, size: 18),
+              label: Text(tr('Seç ve sil')),
             ),
-            delegate: SliverChildListDelegate(stats),
+    );
+    final emptyCard = Card(
+      child: EmptyState(
+        kind: IllustrationKind.exams,
+        title: tr('İlk sınavınızı oluşturun'),
+        message: tr('Cevap anahtarını girin, formları yazdırın ve kâğıtları okutun. Sonuçlar burada listelenir.'),
+        action: FilledButton.icon(
+          onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NewExamScreen())),
+          icon: const Icon(Icons.add_rounded),
+          label: Text(tr('Yeni sınav')),
+        ),
+      ),
+    );
+
+    final hero = HeroPanel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const AppLogo(size: 44),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      greeting,
+                      style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500),
+                    ),
+                    Text(
+                      tr('Netice'),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const _ThemeToggle(onDark: true),
+              const SizedBox(width: 6),
+              IconButton.filledTonal(
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.white.withValues(alpha: 0.12),
+                  foregroundColor: Colors.white,
+                ),
+                tooltip: tr('Yeni sınav'),
+                onPressed: newExam,
+                icon: const Icon(Icons.add_rounded),
+              ),
+            ],
           ),
-        ),
-        if (store.showPromo)
-          SliverPadding(
-            padding: EdgeInsets.fromLTRB(wide ? 28 : 16, 4, wide ? 28 : 16, 4),
-            sliver: const SliverToBoxAdapter(child: PromoCard()),
+          const SizedBox(height: 16),
+          const LiveClock(onDark: true),
+          const SizedBox(height: 18),
+          Text(
+            tr('Kâğıttan sonuca, saniyeler içinde.'),
+            style: TextStyle(color: Colors.white.withValues(alpha: 0.92), fontSize: 18, fontWeight: FontWeight.w700),
           ),
-        SliverPadding(
-          padding: EdgeInsets.symmetric(horizontal: wide ? 28 : 16),
-          sliver: const SliverToBoxAdapter(child: AdSlot.card(AdPage.home)),
-        ),
-        SliverPadding(
-          padding: EdgeInsets.fromLTRB(wide ? 28 : 16, 12, wide ? 28 : 16, 0),
-          sliver: SliverToBoxAdapter(child: _Insights(warnings: earlyWarnings(store))),
-        ),
-        SliverPadding(
-          padding: EdgeInsets.symmetric(horizontal: wide ? 28 : 16),
-          sliver: SliverToBoxAdapter(
-            child: SectionTitle(
-              _selecting ? tr('{0} sınav seçildi', [_selected.length]) : tr('Son sınavlar'),
-              trailing: store.exams.isEmpty
-                  ? null
-                  : _selecting
-                      ? Row(mainAxisSize: MainAxisSize.min, children: [
-                          TextButton(
-                            onPressed: () => setState(() {
-                              if (_selected.length == store.exams.length) {
-                                _selected.clear();
-                              } else {
-                                _selected.addAll(store.exams.map((e) => e.id));
-                              }
-                            }),
-                            child: Text(_selected.length == store.exams.length ? tr('Seçimi kaldır') : tr('Tümünü seç')),
+          const SizedBox(height: 4),
+          Text(
+            store.readCount == 0
+                ? tr('İlk sınavınızı okutun; sonuçlar ve analiz kendiliğinden hazırlanır.')
+                : tr('Bu dönem {0} kâğıt okundu, yaklaşık {1} sa {2} dk kazandınız.', [
+                    store.readCount,
+                    saved.inHours,
+                    saved.inMinutes % 60,
+                  ]),
+            style: TextStyle(color: Colors.white.withValues(alpha: 0.65), fontSize: 13, height: 1.4),
+          ),
+          const SizedBox(height: 20),
+          GlowButton(label: tr('Okut'), icon: Icons.document_scanner_outlined, onPressed: () => startScanFlow(context)),
+          const SizedBox(height: 16),
+          const OfflineNotice(onDark: true),
+        ],
+      ),
+    );
+
+    return SafeArea(
+      child: CustomScrollView(
+        slivers: [
+          if (wide) ...[
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(28, 26, 28, 0),
+              sliver: SliverToBoxAdapter(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            greeting,
+                            style: t.textTheme.headlineMedium?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.6,
+                            ),
                           ),
-                          IconButton(
-                            tooltip: tr('Seçilenleri sil'),
-                            onPressed: _selected.isEmpty ? null : _deleteSelected,
-                            icon: Icon(Icons.delete_outline_rounded, color: _selected.isEmpty ? null : t.colorScheme.error),
+                          const SizedBox(height: 4),
+                          Text(
+                            store.readCount == 0
+                                ? tr('İlk sınavınızı okutun; sonuçlar ve analiz kendiliğinden hazırlanır.')
+                                : tr('Bu dönem {0} kâğıt okundu, yaklaşık {1} sa {2} dk kazandınız.', [
+                                    store.readCount,
+                                    saved.inHours,
+                                    saved.inMinutes % 60,
+                                  ]),
+                            style: t.textTheme.bodyMedium?.copyWith(
+                              color: t.colorScheme.onSurface.withValues(alpha: 0.65),
+                            ),
                           ),
-                          IconButton(tooltip: tr('Vazgeç'), onPressed: _endSelect, icon: const Icon(Icons.close_rounded)),
-                        ])
-                      : TextButton.icon(
-                          onPressed: () => setState(() => _selecting = true),
-                          icon: const Icon(Icons.checklist_rounded, size: 18),
-                          label: Text(tr('Seç ve sil')),
-                        ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    // Dar pencerelerde ve uzun çevirilerde düğmeler alt satıra iner.
+                    Flexible(
+                      child: Wrap(
+                        alignment: WrapAlignment.end,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          const LiveClock(),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const _ThemeToggle(),
+                              IconButton(
+                                tooltip: tr('Yardım ve SSS'),
+                                onPressed: openHelp,
+                                icon: const Icon(Icons.help_outline_rounded),
+                              ),
+                            ],
+                          ),
+                          FilledButton.icon(
+                            onPressed: newExam,
+                            icon: const Icon(Icons.add),
+                            label: Text(tr('Yeni sınav')),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(28, 20, 28, 0),
+              sliver: SliverToBoxAdapter(
+                child: _QuickActions(onScan: () => startScanFlow(context), onNewExam: newExam),
+              ),
+            ),
+          ] else
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              sliver: SliverToBoxAdapter(child: hero),
+            ),
+          SliverToBoxAdapter(child: UpdateBanner(padding: EdgeInsets.fromLTRB(wide ? 28 : 16, 12, wide ? 28 : 16, 0))),
+          if (store.hasDemo && AppStore.showDemoNotice)
+            SliverPadding(
+              padding: EdgeInsets.fromLTRB(wide ? 28 : 16, 12, wide ? 28 : 16, 0),
+              sliver: const SliverToBoxAdapter(child: DemoDataCard()),
+            ),
+          SliverPadding(
+            padding: EdgeInsets.fromLTRB(wide ? 28 : 16, wide ? 20 : 16, wide ? 28 : 16, 0),
+            sliver: SliverGrid(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: wide ? 4 : 2,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                mainAxisExtent: wide ? 138 : 136,
+              ),
+              delegate: SliverChildListDelegate(stats),
             ),
           ),
-        ),
-        if (store.exams.isEmpty)
+          if (store.showPromo)
+            SliverPadding(
+              padding: EdgeInsets.fromLTRB(wide ? 28 : 16, 4, wide ? 28 : 16, 4),
+              sliver: const SliverToBoxAdapter(child: PromoCard()),
+            ),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            sliver: SliverToBoxAdapter(
-              child: Card(
-                child: EmptyState(
-                  kind: IllustrationKind.exams,
-                  title: tr('İlk sınavınızı oluşturun'),
-                  message: tr('Cevap anahtarını girin, formları yazdırın ve kâğıtları okutun. Sonuçlar burada listelenir.'),
-                  action: FilledButton.icon(
-                    onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NewExamScreen())),
-                    icon: const Icon(Icons.add_rounded),
-                    label: Text(tr('Yeni sınav')),
-                  ),
+            padding: EdgeInsets.symmetric(horizontal: wide ? 28 : 16),
+            sliver: const SliverToBoxAdapter(child: AdSlot.card(AdPage.home)),
+          ),
+          if (wide)
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(28, 8, 28, 32),
+              sliver: SliverToBoxAdapter(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          examsTitle,
+                          if (store.exams.isEmpty) emptyCard,
+                          for (final e in store.exams)
+                            Padding(padding: const EdgeInsets.only(bottom: 12), child: examTile(e)),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    SizedBox(
+                      width: 380,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          SectionTitle(tr('Analiz ve raporlar')),
+                          _Insights(warnings: earlyWarnings(store)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else ...[
+            SliverPadding(
+              padding: EdgeInsets.fromLTRB(wide ? 28 : 16, 12, wide ? 28 : 16, 0),
+              sliver: SliverToBoxAdapter(child: _Insights(warnings: earlyWarnings(store))),
+            ),
+            SliverPadding(
+              padding: EdgeInsets.symmetric(horizontal: wide ? 28 : 16),
+              sliver: SliverToBoxAdapter(child: examsTitle),
+            ),
+            if (store.exams.isEmpty)
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                sliver: SliverToBoxAdapter(child: emptyCard),
+              ),
+            SliverPadding(
+              padding: EdgeInsets.fromLTRB(wide ? 28 : 16, 0, wide ? 28 : 16, 32),
+              sliver: SliverList.separated(
+                itemCount: store.exams.length,
+                separatorBuilder: (_, _) => const SizedBox(height: 12),
+                itemBuilder: (context, i) => examTile(store.exams[i]),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Masaüstü panosunun üstündeki büyük kısayol kartları.
+class _QuickActions extends StatelessWidget {
+  final VoidCallback onScan;
+  final VoidCallback onNewExam;
+  const _QuickActions({required this.onScan, required this.onNewExam});
+
+  @override
+  Widget build(BuildContext context) {
+    final items = [
+      (Icons.document_scanner_outlined, tr('Kâğıt okut'), tr('PDF, tarama veya telefondan'), NColors.emerald, onScan),
+      (Icons.add_rounded, tr('Yeni sınav'), tr('Cevap anahtarıyla başlayın'), const Color(0xFF059669), onNewExam),
+      (
+        Icons.menu_book_outlined,
+        tr('Kitapçık hazırla'),
+        tr('Soru bankasından sınav kâğıdı'),
+        const Color(0xFFB7791F),
+        () => BookletWizardScreen.open(context),
+      ),
+      (
+        Icons.compare_arrows_rounded,
+        tr('Sınıf sınıf analiz'),
+        tr('Şubeleri yan yana karşılaştırın'),
+        const Color(0xFF4E5C99),
+        () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CompareScreen())),
+      ),
+    ];
+    return LayoutBuilder(
+      builder: (context, c) {
+        final cols = c.maxWidth >= 860 ? 4 : 2;
+        const gap = 14.0;
+        final w = (c.maxWidth - gap * (cols - 1)) / cols;
+        return Wrap(
+          spacing: gap,
+          runSpacing: gap,
+          children: [
+            for (final (i, (icon, title, sub, color, run)) in items.indexed)
+              SizedBox(
+                width: w,
+                child: _ActionTile(icon: icon, title: title, subtitle: sub, color: color, onTap: run, hero: i == 0),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _ActionTile extends StatefulWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Color color;
+  final VoidCallback onTap;
+  final bool hero;
+  const _ActionTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.color,
+    required this.onTap,
+    this.hero = false,
+  });
+
+  @override
+  State<_ActionTile> createState() => _ActionTileState();
+}
+
+class _ActionTileState extends State<_ActionTile> {
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context);
+    final dark = t.brightness == Brightness.dark;
+    final hero = widget.hero;
+    final fg = hero ? Colors.white : t.colorScheme.onSurface;
+    final sub = hero ? const Color(0xFFB9C3E2) : t.colorScheme.onSurface.withValues(alpha: 0.62);
+    final badgeBg = hero ? NColors.buttonBg(dark) : widget.color.withValues(alpha: dark ? 0.22 : 0.12);
+    final badgeFg = hero ? NColors.buttonFg(dark) : NColors.readable(widget.color, dark: dark);
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hover = true),
+      onExit: (_) => setState(() => _hover = false),
+      child: AnimatedSlide(
+        duration: const Duration(milliseconds: 160),
+        offset: Offset(0, _hover ? -0.03 : 0),
+        child: Material(
+          color: hero ? null : t.cardTheme.color ?? t.colorScheme.surface,
+          borderRadius: hero ? BorderRadius.circular(18) : null,
+          clipBehavior: Clip.antiAlias,
+          shape: hero
+              ? null
+              : RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  side: BorderSide(color: _hover ? widget.color.withValues(alpha: 0.6) : t.colorScheme.outlineVariant),
+                ),
+          child: Ink(
+            decoration: hero ? const BoxDecoration(gradient: inkGradient) : null,
+            child: InkWell(
+              onTap: widget.onTap,
+              child: Padding(
+                padding: const EdgeInsets.all(18),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(color: badgeBg, borderRadius: BorderRadius.circular(14)),
+                      child: Icon(widget.icon, color: badgeFg),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(color: fg, fontWeight: FontWeight.w800, fontSize: 15),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            widget.subtitle,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(color: sub, fontSize: 12.5, height: 1.3),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
-        SliverPadding(
-          padding: EdgeInsets.fromLTRB(wide ? 28 : 16, 0, wide ? 28 : 16, 32),
-          sliver: SliverList.separated(
-            itemCount: store.exams.length,
-            separatorBuilder: (_, _) => const SizedBox(height: 12),
-            itemBuilder: (context, i) {
-              final e = store.exams[i];
-              final rs = store.resultsOf(e);
-              final st = Analysis.examStats(e, rs);
-              final review = store.sheetsOf(e.id).where((s) => s.needsReview).length;
-              final total = store.studentsOf(e.className).length;
-              final picked = _selected.contains(e.id);
-              return Card(
-                clipBehavior: Clip.antiAlias,
-                shape: picked
-                    ? RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20), side: const BorderSide(color: NColors.emerald, width: 2))
-                    : null,
-                child: InkWell(
-                  onTap: _selecting
-                      ? () => _toggle(e.id)
-                      : () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => ExamScreen(examId: e.id))),
-                  onLongPress: () => setState(() {
-                    _selecting = true;
-                    _selected.add(e.id);
-                  }),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 14, 14, 14),
-                    child: Row(children: [
-                      Container(
-                        width: 46,
-                        height: 46,
-                        decoration: BoxDecoration(
-                            gradient: picked ? emeraldGradient : inkGradient, borderRadius: BorderRadius.circular(14)),
-                        alignment: Alignment.center,
-                        child: picked
-                            ? const Icon(Icons.check_rounded, color: Colors.white)
-                            : Text(e.className.isEmpty ? '–' : e.className,
-                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 13)),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Text(e.name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
-                          const SizedBox(height: 3),
-                          Text('${dmy(e.date)} ${hm(e.date)} · ${tr('{0} soru', [e.questionCount])} · '
-                              '${rs.length}${total > 0 ? '/$total' : ''} okundu',
-                              style: t.textTheme.bodySmall?.copyWith(color: t.colorScheme.onSurface.withValues(alpha: 0.6))),
-                          if (review > 0) ...[
-                            const SizedBox(height: 4),
-                            Row(children: [
-                              const Icon(Icons.priority_high_rounded, size: 14, color: NColors.amber),
-                              Text(tr(' {0} kâğıt kontrol bekliyor', [review]),
-                                  style: t.textTheme.bodySmall?.copyWith(color: NColors.amber, fontWeight: FontWeight.w600)),
-                            ]),
-                          ],
-                        ]),
-                      ),
-                      if (rs.isNotEmpty) ScoreRing(value: st.mean / e.rule.maxScore * 100, size: 54)
-                      else Icon(Icons.chevron_right, color: t.colorScheme.onSurface.withValues(alpha: 0.4)),
-                    ]),
-                  ),
-                ),
-              );
-            },
-          ),
         ),
-      ]),
+      ),
     );
   }
 }
@@ -533,130 +884,159 @@ class _Insights extends StatelessWidget {
     final t = Theme.of(context);
     final muted = t.colorScheme.onSurface.withValues(alpha: 0.6);
     final school = StoreScope.of(context).school;
-    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      if (school.isEmpty) ...[
-      Card(
-        clipBehavior: Clip.antiAlias,
-        child: ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-          leading: IconBadge(Icons.account_balance_outlined,
-              color: school.isEmpty ? NColors.amber : NColors.emerald),
-          title: Text(school.isEmpty ? tr('Kurum bilgilerini girin') : school.name,
-              style: const TextStyle(fontWeight: FontWeight.w700)),
-          subtitle: Text(school.isEmpty
-              ? tr('Raporlarda resmi yazı başlığı olarak kullanılır')
-              : [
-                  if (school.district.isNotEmpty || school.province.isNotEmpty)
-                    [school.district, school.province].where((e) => e.isNotEmpty).join(' / '),
-                  if (school.subject.isNotEmpty) school.subject,
-                  school.official ? tr('Resmi başlık açık') : tr('Resmi başlık kapalı'),
-                ].join(' · ')),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SchoolScreen())),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (school.isEmpty) ...[
+          Card(
+            clipBehavior: Clip.antiAlias,
+            child: ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              leading: IconBadge(
+                Icons.account_balance_outlined,
+                color: school.isEmpty ? NColors.amber : NColors.emerald,
+              ),
+              title: Text(
+                school.isEmpty ? tr('Kurum bilgilerini girin') : school.name,
+                style: const TextStyle(fontWeight: FontWeight.w700),
+              ),
+              subtitle: Text(
+                school.isEmpty
+                    ? tr('Raporlarda resmi yazı başlığı olarak kullanılır')
+                    : [
+                        if (school.district.isNotEmpty || school.province.isNotEmpty)
+                          [school.district, school.province].where((e) => e.isNotEmpty).join(' / '),
+                        if (school.subject.isNotEmpty) school.subject,
+                        school.official ? tr('Resmi başlık açık') : tr('Resmi başlık kapalı'),
+                      ].join(' · '),
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SchoolScreen())),
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+        Card(
+          clipBehavior: Clip.antiAlias,
+          child: ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            leading: const IconBadge(Icons.compare_arrows_rounded, color: NColors.emerald),
+            title: Text(tr('Sınıf sınıf analiz'), style: TextStyle(fontWeight: FontWeight.w700)),
+            subtitle: Text(tr('Şubeleri ortalama, yayılım, düzey ve soru soru yan yana görün')),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CompareScreen())),
+          ),
         ),
-      ),
-      const SizedBox(height: 12),
-      ],
-      Card(
-        clipBehavior: Clip.antiAlias,
-        child: ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-          leading: const IconBadge(Icons.compare_arrows_rounded, color: NColors.emerald),
-          title: Text(tr('Sınıf sınıf analiz'), style: TextStyle(fontWeight: FontWeight.w700)),
-          subtitle: Text(tr('Şubeleri ortalama, yayılım, düzey ve soru soru yan yana görün')),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CompareScreen())),
-        ),
-      ),
-      const SizedBox(height: 12),
-      Card(
-        clipBehavior: Clip.antiAlias,
-        child: ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-          leading: const IconBadge(Icons.query_stats_rounded, color: Color(0xFF6C7FD8)),
-          title: Text(tr('Genel istatistik'), style: TextStyle(fontWeight: FontWeight.w700)),
-          subtitle: Text(tr('Tüm sınıflar ve sınava giren tüm öğrenciler bir arada')),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const GeneralStatsScreen())),
-        ),
-      ),
-      const SizedBox(height: 12),
-      Card(
-        clipBehavior: Clip.antiAlias,
-        child: ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-          leading: const IconBadge(Icons.workspace_premium_outlined, color: NColors.ink),
-          title: Text(tr('Dönem raporu'), style: TextStyle(fontWeight: FontWeight.w700)),
-          subtitle: Text(tr('Dönem sonu notu ve öğrenci kazanım karneleri')),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: () async {
-            if (await requirePro(context, ProFeature.termReport) && context.mounted) {
-              Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TermScreen()));
-            }
-          },
-        ),
-      ),
-      if (warnings.isNotEmpty) ...[
         const SizedBox(height: 12),
         Card(
           clipBehavior: Clip.antiAlias,
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 14, 16, 4),
-              child: Row(children: [
-                const IconBadge(Icons.priority_high_rounded, color: NColors.amber),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text(tr('Dikkat gerektiren öğrenciler ({0})', [warnings.length]),
-                        style: const TextStyle(fontWeight: FontWeight.w700)),
-                    Text(tr('Yalnızca size gösterilen bir hatırlatmadır.'), style: TextStyle(color: muted, fontSize: 12)),
-                  ]),
-                ),
-              ]),
-            ),
-            for (final w in warnings.take(4))
-              ListTile(
-                dense: true,
-                title: Text(w.student.fullName, style: const TextStyle(fontWeight: FontWeight.w600)),
-                subtitle: Text('${w.student.className} · ${w.reason}'),
-                trailing: Text(L10n.percent(w.lastPct.round()),
-                    style: const TextStyle(fontWeight: FontWeight.w800, fontFeatures: tabular, color: NColors.coral)),
-                onTap: () => Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (_) => StudentDetailScreen(studentId: w.student.id))),
-              ),
-            if (warnings.length > 4)
-              TextButton(
-                onPressed: () => showModalBottomSheet(
-                  context: context,
-                  showDragHandle: true,
-                  isScrollControlled: true,
-                  builder: (ctx) => SafeArea(
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(ctx).height * 0.75),
-                      child: ListView(shrinkWrap: true, children: [
-                        for (final w in warnings)
-                          ListTile(
-                            title: Text(w.student.fullName),
-                            subtitle: Text('${w.student.className} · ${w.reason}'),
-                            trailing: Text(L10n.percent(w.lastPct.round())),
-                            onTap: () {
-                              Navigator.pop(ctx);
-                              Navigator.of(context).push(
-                                  MaterialPageRoute(builder: (_) => StudentDetailScreen(studentId: w.student.id)));
-                            },
-                          ),
-                      ]),
-                    ),
+          child: ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            leading: const IconBadge(Icons.query_stats_rounded, color: Color(0xFF6C7FD8)),
+            title: Text(tr('Genel istatistik'), style: TextStyle(fontWeight: FontWeight.w700)),
+            subtitle: Text(tr('Tüm sınıflar ve sınava giren tüm öğrenciler bir arada')),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const GeneralStatsScreen())),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Card(
+          clipBehavior: Clip.antiAlias,
+          child: ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            leading: const IconBadge(Icons.workspace_premium_outlined, color: NColors.ink),
+            title: Text(tr('Dönem raporu'), style: TextStyle(fontWeight: FontWeight.w700)),
+            subtitle: Text(tr('Dönem sonu notu ve öğrenci kazanım karneleri')),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () async {
+              if (await requirePro(context, ProFeature.termReport) && context.mounted) {
+                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TermScreen()));
+              }
+            },
+          ),
+        ),
+        if (warnings.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          Card(
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 4),
+                  child: Row(
+                    children: [
+                      const IconBadge(Icons.priority_high_rounded, color: NColors.amber),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              tr('Dikkat gerektiren öğrenciler ({0})', [warnings.length]),
+                              style: const TextStyle(fontWeight: FontWeight.w700),
+                            ),
+                            Text(
+                              tr('Yalnızca size gösterilen bir hatırlatmadır.'),
+                              style: TextStyle(color: muted, fontSize: 12),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                child: Text(tr('Tümünü göster ({0})', [warnings.length])),
-              ),
-            const SizedBox(height: 6),
-          ]),
-        ),
+                for (final w in warnings.take(4))
+                  ListTile(
+                    dense: true,
+                    title: Text(w.student.fullName, style: const TextStyle(fontWeight: FontWeight.w600)),
+                    subtitle: Text('${w.student.className} · ${w.reason}'),
+                    trailing: Text(
+                      L10n.percent(w.lastPct.round()),
+                      style: const TextStyle(fontWeight: FontWeight.w800, fontFeatures: tabular, color: NColors.coral),
+                    ),
+                    onTap: () =>
+                        Navigator.of(context)
+                            .push(MaterialPageRoute(builder: (_) => StudentDetailScreen(studentId: w.student.id))),
+                  ),
+                if (warnings.length > 4)
+                  TextButton(
+                    onPressed: () => showModalBottomSheet(
+                      context: context,
+                      showDragHandle: true,
+                      isScrollControlled: true,
+                      builder: (ctx) => SafeArea(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(ctx).height * 0.75),
+                          child: ListView(
+                            shrinkWrap: true,
+                            children: [
+                              for (final w in warnings)
+                                ListTile(
+                                  title: Text(w.student.fullName),
+                                  subtitle: Text('${w.student.className} · ${w.reason}'),
+                                  trailing: Text(L10n.percent(w.lastPct.round())),
+                                  onTap: () {
+                                    Navigator.pop(ctx);
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(builder: (_) => StudentDetailScreen(studentId: w.student.id)),
+                                    );
+                                  },
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    child: Text(tr('Tümünü göster ({0})', [warnings.length])),
+                  ),
+                const SizedBox(height: 6),
+              ],
+            ),
+          ),
+        ],
       ],
-    ]);
+    );
   }
 }
 
@@ -667,22 +1047,28 @@ class OfflineNotice extends StatelessWidget {
 
   static String get title => tr('Çevrimdışı çalışır · Verileriniz bu cihazda');
   static String get adsLine => tr('Üçüncü taraf reklam yok · Sizi izleyen reklam ağı yok');
-  static String get adsDetail => tr('Netice\'de üçüncü taraf reklam ve reklam ağı yoktur: reklam kimliğiniz okunmaz, hiçbir reklam şirketi sizi izlemez ve bilgileriniz kimseye satılmaz. Zaman zaman gördüğünüz tanıtımlar yalnızca Netice geliştiricisinin kendi uygulamaları, web siteleri ve ürünleri içindir. Netice Pro\'da bu tanıtımlar da gösterilmez.');
-  static String get detail => tr('Netice internet olmadan çalışır. Öğrenci, sınav ve sonuç bilgileriniz yalnızca bu telefonda (veya bilgisayarda), uygulamanın kendi klasöründe saklanır; geliştiriciye ya da başka bir sunucuya gönderilmez.\n\nYalnızca sizin seçtiğiniz durumlarda veri cihazdan çıkar: bir raporu veya yedeği paylaştığınızda ya da Ayarlar > Hesap bölümünden isteğe bağlı Google Drive yedeğini açtığınızda (yedek kendi Google hesabınıza gider).\n\nUygulamayı silmeden önce yedek alın; aksi hâlde veriler telefonla birlikte silinir.');
+  static String get adsDetail => tr(
+    'Netice\'de üçüncü taraf reklam ve reklam ağı yoktur: reklam kimliğiniz okunmaz, hiçbir reklam şirketi sizi izlemez ve bilgileriniz kimseye satılmaz. Zaman zaman gördüğünüz tanıtımlar yalnızca Netice geliştiricisinin kendi uygulamaları, web siteleri ve ürünleri içindir. Netice Pro\'da bu tanıtımlar da gösterilmez.',
+  );
+  static String get detail => tr(
+    'Netice internet olmadan çalışır. Öğrenci, sınav ve sonuç bilgileriniz yalnızca bu telefonda (veya bilgisayarda), uygulamanın kendi klasöründe saklanır; geliştiriciye ya da başka bir sunucuya gönderilmez.\n\nYalnızca sizin seçtiğiniz durumlarda veri cihazdan çıkar: bir raporu veya yedeği paylaştığınızda ya da Ayarlar > Hesap bölümünden isteğe bağlı Google Drive yedeğini açtığınızda (yedek kendi Google hesabınıza gider).\n\nUygulamayı silmeden önce yedek alın; aksi hâlde veriler telefonla birlikte silinir.',
+  );
 
   static void show(BuildContext context) => showDialog<void>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          icon: const Icon(Icons.phonelink_lock_rounded, color: NColors.emerald),
-          title: Text(tr('Verileriniz sizde kalır')),
-          content: SingleChildScrollView(child: Text('$detail\n\n$adsDetail')),
-          actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: Text(tr('Anladım')))],
-        ),
-      );
+    context: context,
+    builder: (ctx) => AlertDialog(
+      icon: const Icon(Icons.phonelink_lock_rounded, color: NColors.emerald),
+      title: Text(tr('Verileriniz sizde kalır')),
+      content: SingleChildScrollView(child: Text('$detail\n\n$adsDetail')),
+      actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: Text(tr('Anladım')))],
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
-    final fg = onDark ? Colors.white.withValues(alpha: 0.85) : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.75);
+    final fg = onDark
+        ? Colors.white.withValues(alpha: 0.85)
+        : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.75);
     return Material(
       color: onDark ? Colors.white.withValues(alpha: 0.08) : NColors.emerald.withValues(alpha: 0.08),
       borderRadius: BorderRadius.circular(12),
@@ -691,18 +1077,29 @@ class OfflineNotice extends StatelessWidget {
         onTap: () => show(context),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-          child: Row(children: [
-            Icon(Icons.wifi_off_rounded, size: 16, color: onDark ? const Color(0xFF7BE0B4) : NColors.emerald),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(title, style: TextStyle(color: fg, fontSize: 12.5, fontWeight: FontWeight.w600)),
-                const SizedBox(height: 2),
-                Text(adsLine, style: TextStyle(color: fg, fontSize: 11.5, fontWeight: FontWeight.w500)),
-              ]),
-            ),
-            Icon(Icons.info_outline_rounded, size: 16, color: fg),
-          ]),
+          child: Row(
+            children: [
+              Icon(Icons.wifi_off_rounded, size: 16, color: onDark ? const Color(0xFF7BE0B4) : NColors.emerald),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(color: fg, fontSize: 12.5, fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      adsLine,
+                      style: TextStyle(color: fg, fontSize: 11.5, fontWeight: FontWeight.w500),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.info_outline_rounded, size: 16, color: fg),
+            ],
+          ),
         ),
       ),
     );
@@ -737,8 +1134,9 @@ class _ThemeToggle extends StatelessWidget {
     if (!onDark) return IconButton(tooltip: tip, onPressed: toggle, icon: icon);
     return IconButton.filledTonal(
       style: IconButton.styleFrom(
-          backgroundColor: Colors.white.withValues(alpha: 0.12),
-          foregroundColor: dark ? const Color(0xFFFCD34D) : Colors.white),
+        backgroundColor: Colors.white.withValues(alpha: 0.12),
+        foregroundColor: dark ? const Color(0xFFFCD34D) : Colors.white,
+      ),
       tooltip: tip,
       onPressed: toggle,
       icon: icon,
@@ -772,7 +1170,11 @@ class _Dock extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(30),
             boxShadow: [
-              BoxShadow(color: NColors.ink.withValues(alpha: dark ? 0.55 : 0.16), blurRadius: 30, offset: const Offset(0, 12)),
+              BoxShadow(
+                color: NColors.ink.withValues(alpha: dark ? 0.55 : 0.16),
+                blurRadius: 30,
+                offset: const Offset(0, 12),
+              ),
               BoxShadow(color: NColors.emerald.withValues(alpha: dark ? 0.10 : 0.06), blurRadius: 40, spreadRadius: -8),
             ],
           ),
@@ -792,86 +1194,104 @@ class _Dock extends StatelessWidget {
                         ? [const Color(0xFF1B2A57).withValues(alpha: 0.94), NColors.darkSurface.withValues(alpha: 0.94)]
                         : [Colors.white.withValues(alpha: 0.96), const Color(0xFFF7F8FB).withValues(alpha: 0.94)],
                   ),
-                  border: Border.all(color: dark ? Colors.white.withValues(alpha: 0.08) : NColors.ink.withValues(alpha: 0.07)),
+                  border: Border.all(
+                    color: dark ? Colors.white.withValues(alpha: 0.08) : NColors.ink.withValues(alpha: 0.07),
+                  ),
                 ),
-                child: LayoutBuilder(builder: (context, c) {
-                  final w = c.maxWidth / tabs.length;
-                  const pillW = 52.0, pillH = 32.0;
-                  return Stack(children: [
-                    // Kayan zümrüt hap.
-                    AnimatedPositioned(
-                      duration: _dur,
-                      curve: _curve,
-                      left: w * index + (w - pillW) / 2,
-                      top: 9,
-                      width: pillW,
-                      height: pillH,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: emeraldGradient,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(color: NColors.emerald.withValues(alpha: dark ? 0.45 : 0.38), blurRadius: 14, offset: const Offset(0, 4)),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Row(children: [
-                      for (final (i, (icon, sel, label)) in tabs.indexed)
-                        Expanded(
-                          child: Semantics(
-                            button: true,
-                            selected: i == index,
-                            label: label,
-                            excludeSemantics: true,
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(22),
-                              splashColor: NColors.emerald.withValues(alpha: 0.12),
-                              highlightColor: Colors.transparent,
-                              onTap: () {
-                                HapticFeedback.selectionClick();
-                                onSelect(i);
-                              },
-                              child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [
-                                const SizedBox(height: 9),
-                                SizedBox(
-                                  height: pillH,
-                                  child: Center(
-                                    child: AnimatedScale(
-                                      duration: _dur,
-                                      curve: _curve,
-                                      scale: i == index ? 1.08 : 1,
-                                      child: Icon(i == index ? sel : icon,
-                                          size: 23, color: i == index ? NColors.ink : muted),
-                                    ),
-                                  ),
+                child: LayoutBuilder(
+                  builder: (context, c) {
+                    final w = c.maxWidth / tabs.length;
+                    const pillW = 52.0, pillH = 32.0;
+                    return Stack(
+                      children: [
+                        // Kayan zümrüt hap.
+                        AnimatedPositioned(
+                          duration: _dur,
+                          curve: _curve,
+                          left: w * index + (w - pillW) / 2,
+                          top: 9,
+                          width: pillW,
+                          height: pillH,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: emeraldGradient,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: NColors.emerald.withValues(alpha: dark ? 0.45 : 0.38),
+                                  blurRadius: 14,
+                                  offset: const Offset(0, 4),
                                 ),
-                                const SizedBox(height: 5),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 2),
-                                  child: FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    child: AnimatedDefaultTextStyle(
-                                      duration: _dur,
-                                      style: TextStyle(
-                                        fontFamily: t.textTheme.labelSmall?.fontFamily,
-                                        fontSize: 11.5,
-                                        height: 1.1,
-                                        letterSpacing: 0.1,
-                                        fontWeight: i == index ? FontWeight.w800 : FontWeight.w600,
-                                        color: i == index ? active : muted,
-                                      ),
-                                      child: Text(label, maxLines: 1, softWrap: false, textScaler: scale),
-                                    ),
-                                  ),
-                                ),
-                              ]),
+                              ],
                             ),
                           ),
                         ),
-                    ]),
-                  ]);
-                }),
+                        Row(
+                          children: [
+                            for (final (i, (icon, sel, label)) in tabs.indexed)
+                              Expanded(
+                                child: Semantics(
+                                  button: true,
+                                  selected: i == index,
+                                  label: label,
+                                  excludeSemantics: true,
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(22),
+                                    splashColor: NColors.emerald.withValues(alpha: 0.12),
+                                    highlightColor: Colors.transparent,
+                                    onTap: () {
+                                      HapticFeedback.selectionClick();
+                                      onSelect(i);
+                                    },
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      children: [
+                                        const SizedBox(height: 9),
+                                        SizedBox(
+                                          height: pillH,
+                                          child: Center(
+                                            child: AnimatedScale(
+                                              duration: _dur,
+                                              curve: _curve,
+                                              scale: i == index ? 1.08 : 1,
+                                              child: Icon(
+                                                i == index ? sel : icon,
+                                                size: 23,
+                                                color: i == index ? NColors.ink : muted,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 5),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 2),
+                                          child: FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            child: AnimatedDefaultTextStyle(
+                                              duration: _dur,
+                                              style: TextStyle(
+                                                fontFamily: t.textTheme.labelSmall?.fontFamily,
+                                                fontSize: 11.5,
+                                                height: 1.1,
+                                                letterSpacing: 0.1,
+                                                fontWeight: i == index ? FontWeight.w800 : FontWeight.w600,
+                                                color: i == index ? active : muted,
+                                              ),
+                                              child: Text(label, maxLines: 1, softWrap: false, textScaler: scale),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ],
+                    );
+                  },
+                ),
               ),
             ),
           ),
@@ -880,7 +1300,6 @@ class _Dock extends StatelessWidget {
     );
   }
 }
-
 
 /// Ana sayfada örnek veriler varken gösterilir; tek dokunuşla silinir.
 class DemoDataCard extends StatelessWidget {
@@ -894,33 +1313,41 @@ class DemoDataCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
-        child: Row(children: [
-          const Icon(Icons.info_outline_rounded, color: NColors.amber),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(tr('Gördüğünüz sınıflar ve sınavlar uygulamayı tanımanız için eklenen örneklerdir.'),
-                style: const TextStyle(height: 1.35)),
-          ),
-          TextButton(
-            onPressed: () async {
-              final ok = await showDialog<bool>(
-                context: context,
-                builder: (ctx) => AlertDialog(
-                  title: Text(tr('Örnek veriler silinsin mi?')),
-                  content: Text(tr('Örnek öğrenciler, örnek sınavlar ve kâğıtları silinir. Sizin eklediğiniz sınıf ve sınavlara dokunulmaz.')),
-                  actions: [
-                    TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr('Vazgeç'))),
-                    FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(tr('Sil'))),
-                  ],
-                ),
-              );
-              if (ok != true || !context.mounted) return;
-              store.clearDemo();
-              toast(context, tr('Örnek veriler silindi.'));
-            },
-            child: Text(tr('Örnekleri sil')),
-          ),
-        ]),
+        child: Row(
+          children: [
+            const Icon(Icons.info_outline_rounded, color: NColors.amber),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                tr('Gördüğünüz sınıflar ve sınavlar uygulamayı tanımanız için eklenen örneklerdir.'),
+                style: const TextStyle(height: 1.35),
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                final ok = await showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: Text(tr('Örnek veriler silinsin mi?')),
+                    content: Text(
+                      tr(
+                        'Örnek öğrenciler, örnek sınavlar ve kâğıtları silinir. Sizin eklediğiniz sınıf ve sınavlara dokunulmaz.',
+                      ),
+                    ),
+                    actions: [
+                      TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr('Vazgeç'))),
+                      FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(tr('Sil'))),
+                    ],
+                  ),
+                );
+                if (ok != true || !context.mounted) return;
+                store.clearDemo();
+                toast(context, tr('Örnek veriler silindi.'));
+              },
+              child: Text(tr('Örnekleri sil')),
+            ),
+          ],
+        ),
       ),
     );
   }
