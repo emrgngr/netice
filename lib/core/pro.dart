@@ -9,6 +9,7 @@ import '../bank/ai_questions.dart';
 import 'campaigns.dart';
 import 'price_increase.dart';
 import 'legal.dart';
+import 'ms_store.dart';
 import 'referral.dart';
 import 'store.dart';
 import '../l10n/l10n.dart';
@@ -159,8 +160,17 @@ class ProService {
   bool get inviteApplied => _store?.appliedInvite != null && _store?.hasSubscription != true;
 
   /// Abonelik mağazası olan platformlar (Mac App Store dahil). Windows'ta
-  /// Pro, sitemizden satılan lisans koduyla açılır.
-  static bool get storeSupported => !salesDisabled && (Platform.isAndroid || Platform.isIOS || Platform.isMacOS);
+  /// Pro, program Microsoft Store'dan kurulduysa Store'dan satın alınır;
+  /// kurulum programıyla kurulan sürümde kurum lisans koduyla açılır.
+  static bool get storeSupported =>
+      !salesDisabled && (Platform.isAndroid || Platform.isIOS || Platform.isMacOS || _msStore);
+
+  /// Windows'ta program Microsoft Store paketinden mi çalışıyor ([attach] belirler).
+  static bool _msStore = false;
+  static bool get msStore => _msStore;
+
+  /// Microsoft Store'da ürün kimliği → Store kimliği (9N…).
+  final _msIds = <String, String>{};
 
   /// Mağaza satışı geçici olarak kapalı derleme (`--dart-define=SATIS_KAPALI=true`).
   /// App Store'un ücretli uygulama anlaşması onaylanana kadar iPhone sürümü
@@ -178,6 +188,11 @@ class ProService {
 
   Future<void> attach(AppStore store) async {
     _store = store;
+    if (Platform.isWindows && !salesDisabled) {
+      _msStore = await MsStore.packaged();
+      if (_msStore) await _syncMsLicenses();
+      return;
+    }
     if (!storeSupported) return;
     try {
       final iap = InAppPurchase.instance;
@@ -196,6 +211,7 @@ class ProService {
     final fallback = plansFor(DateTime.now(), invite: invite, campaign: camp);
     final normal = plansFor(DateTime.now());
     if (!storeSupported) return fallback;
+    if (_msStore) return _msPlans(normal);
     try {
       final iap = InAppPurchase.instance;
       if (!await iap.isAvailable()) return fallback;
@@ -243,6 +259,11 @@ class ProService {
   Future<ProPlan> aiPack() async {
     final f = aiPackFallback();
     if (!storeSupported) return f;
+    if (_msStore) {
+      await _msLoad();
+      final p = _msProducts[aiPackId];
+      return p == null ? f : ProPlan(aiPackId, f.title, p.price, f.note, _msDetails(p));
+    }
     if (_aiPack == null) {
       try {
         final iap = InAppPurchase.instance;
@@ -274,8 +295,9 @@ class ProService {
   Future<String?> buy(ProPlan plan) async {
     if (salesDisabled) return tr('Pro aboneliği yakında App Store\'da.');
     if (!storeSupported) {
-      return tr('Windows sürümünde Pro lisans koduyla açılır. Kod almak için bize yazın: {0}. Kodu Profil > Kurum lisansı bölümüne girin.', [contactEmail]);
+      return tr('Windows\'ta Pro, Microsoft Store\'dan kurulan Netice\'den satın alınır. Kurum lisans kodunuz varsa Profil > Kurum lisansı bölümüne girin. Sorularınız için: {0}', [contactEmail]);
     }
+    if (_msStore) return _msBuy(plan);
     final d = plan.details;
     if (d == null) {
       return tr('Abonelik henüz mağazada açılmadı. Uygulama Google Play\'de yayımlanınca satın alınabilecek.');
@@ -296,8 +318,114 @@ class ProService {
 
   Future<String?> restore() async {
     if (!storeSupported) return tr('Geri yükleme telefonda yapılır.');
+    if (_msStore) {
+      final err = await _syncMsLicenses();
+      return err;
+    }
     try {
       await InAppPurchase.instance.restorePurchases();
+      return null;
+    } catch (e) {
+      return tr('Geri yüklenemedi: {0}', [e]);
+    }
+  }
+
+  // ---------------------------------------------------------------------
+  // Microsoft Store (Windows)
+  // ---------------------------------------------------------------------
+
+  final _msProducts = <String, MsProduct>{};
+
+  Future<void> _msLoad() async {
+    if (_msProducts.isNotEmpty) return;
+    try {
+      for (final p in await MsStore.products().timeout(const Duration(seconds: 12))) {
+        if (!proProductIds.contains(p.token)) continue;
+        _msProducts[p.token] = p;
+        _msIds[p.token] = p.storeId;
+      }
+    } catch (_) {}
+  }
+
+  /// Satın alma düğmesinin taşıdığı ürün bilgisi (fiyat Store'dan).
+  ProductDetails _msDetails(MsProduct p) =>
+      ProductDetails(id: p.token, title: p.title, description: '', price: p.price, rawPrice: 0, currencyCode: '');
+
+  Future<List<ProPlan>> _msPlans(List<ProPlan> normal) async {
+    await _msLoad();
+    String per(String id) => proYearlyIds.contains(id) ? tr('yıl') : tr('3 ay');
+    return [
+      for (final f in normal)
+        if (_msProducts[f.id] != null)
+          ProPlan(f.id, f.title, '${_msProducts[f.id]!.price} / ${per(f.id)}', f.note, _msDetails(_msProducts[f.id]!))
+        else
+          f,
+    ];
+  }
+
+  Future<String?> _msBuy(ProPlan plan) async {
+    await _msLoad();
+    final id = _msIds[plan.id];
+    if (id == null) return tr('Bu ürün Microsoft Store\'da henüz açılmadı.');
+    try {
+      final r = await MsStore.purchase(id);
+      switch (r) {
+        case 'Succeeded':
+        case 'AlreadyPurchased':
+          // Tüketilebilir ürün (dönem/soru paketi) hemen verilir ve Store'a
+          // teslim edildi bildirilir; abonelik lisanstan doğrulanır.
+          if (plan.id == proTermPassId || plan.id == aiPackId) {
+            await _msGrant(plan.id, id);
+          } else {
+            await _syncMsLicenses(purchased: true);
+          }
+          return null;
+        case 'NotPurchased':
+          return null; // Kullanıcı vazgeçti.
+        case 'NetworkError':
+          return tr('İnternet bağlantısı yok. Bağlanıp tekrar deneyin.');
+        default:
+          return tr('Satın alma tamamlanamadı.');
+      }
+    } catch (e) {
+      return tr('Satın alma başlatılamadı: {0}', [e]);
+    }
+  }
+
+  /// Tüketilebilir paketi Store'a teslim edildi bildirir ve verir. Bildirim
+  /// başarısızsa verilmez; bir sonraki açılışta ya da satın almada yeniden denenir.
+  Future<void> _msGrant(String token, String storeId) async {
+    final r = await MsStore.fulfill(storeId);
+    if (r != 'Succeeded') return;
+    if (token == proTermPassId) {
+      _store?.addTermPass(DateTime.now());
+      _events.add(tr('Sınav dönemi paketi etkinleştirildi. Teşekkürler!'));
+    } else {
+      await AiUsage.instance.load();
+      AiUsage.instance.addCredits(aiPackSize);
+      _events.add(tr('{0} soruluk ek paket eklendi. Teşekkürler!', [aiPackSize]));
+    }
+  }
+
+  /// Store lisanslarını okur: etkin abonelik Pro'yu doğrular; teslim
+  /// edilmemiş tüketilebilir ürünler (dönem paketi, soru paketi) burada
+  /// verilir ve Store'a teslim edildi bildirilir. Hata olursa metni döner.
+  Future<String?> _syncMsLicenses({bool purchased = false}) async {
+    try {
+      final list = await MsStore.licenses().timeout(const Duration(seconds: 12));
+      var pro = false;
+      for (final l in list) {
+        if (!l.active || !proProductIds.contains(l.token)) continue;
+        _msIds[l.token] = l.storeId;
+        if (l.token == proTermPassId || l.token == aiPackId) {
+          // Teslim edilmemiş kalmış paket (ör. program satın alma sırasında kapandı).
+          await _msGrant(l.token, l.storeId);
+        } else {
+          _store?.confirmPro(l.token);
+          pro = true;
+        }
+      }
+      if (pro && purchased) _events.add(tr('Netice Pro etkinleştirildi. Teşekkürler!'));
       return null;
     } catch (e) {
       return tr('Geri yüklenemedi: {0}', [e]);

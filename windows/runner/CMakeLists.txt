@@ -34,6 +34,9 @@ target_compile_definitions(${BINARY_NAME} PRIVATE "NOMINMAX")
 # dependencies here.
 target_link_libraries(${BINARY_NAME} PRIVATE flutter flutter_wrapper_app)
 target_link_libraries(${BINARY_NAME} PRIVATE "dwmapi.lib")
+# Microsoft Store satın alma köprüsü (windows/msstore).
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../msstore" "${CMAKE_CURRENT_BINARY_DIR}/msstore")
+target_link_libraries(${BINARY_NAME} PRIVATE netice_msstore)
 target_include_directories(${BINARY_NAME} PRIVATE "${CMAKE_SOURCE_DIR}")
 
 # Run the Flutter tool portions of the build. This must not be removed.
