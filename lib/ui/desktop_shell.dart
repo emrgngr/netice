@@ -9,13 +9,14 @@ import 'exam_screen.dart';
 import 'illustrations.dart';
 import 'new_exam_screen.dart';
 import 'pro_screen.dart';
+import 'section_icons.dart';
 import 'theme.dart';
 import 'widgets.dart';
 
 /// Masaüstü yan menüsündeki bir satır.
 class DesktopNavItem {
-  final IconData icon;
-  final IconData selectedIcon;
+  /// Bölüm logosu ve varsayılan adı buradan gelir.
+  final Section section;
   final String label;
   final bool selected;
   final VoidCallback onTap;
@@ -23,15 +24,14 @@ class DesktopNavItem {
   /// Sağda küçük sayı rozeti (ör. sınav sayısı); [warn] ise sarı.
   final int? badge;
   final bool warn;
-  const DesktopNavItem({
-    required this.icon,
-    IconData? selectedIcon,
-    required this.label,
+  DesktopNavItem({
+    required this.section,
+    String? label,
     required this.onTap,
     this.selected = false,
     this.badge,
     this.warn = false,
-  }) : selectedIcon = selectedIcon ?? icon;
+  }) : label = label ?? section.label;
 }
 
 class DesktopNavGroup {
@@ -177,7 +177,6 @@ class _TileState extends State<_Tile> {
         ? NColors.emerald.withValues(alpha: 0.16)
         : (_hover ? Colors.white.withValues(alpha: 0.06) : Colors.transparent);
     final fg = sel ? Colors.white : DesktopSidebar._text;
-    final iconColor = sel ? const Color(0xFF34D399) : DesktopSidebar._text;
     final badge = it.badge == null || it.badge == 0
         ? null
         : Container(
@@ -209,7 +208,7 @@ class _TileState extends State<_Tile> {
               backgroundColor: it.warn ? NColors.amber : NColors.emerald,
               textColor: it.warn ? const Color(0xFF3A2800) : Colors.white,
               label: Text('${it.badge ?? ''}'),
-              child: Icon(sel ? it.selectedIcon : it.icon, color: iconColor, size: 23),
+              child: SectionIcon(it.section, size: 34, dim: !sel),
             ),
             const SizedBox(height: 5),
             Text(
@@ -227,7 +226,7 @@ class _TileState extends State<_Tile> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
         child: Row(
           children: [
-            Icon(sel ? it.selectedIcon : it.icon, color: iconColor, size: 21),
+            SectionIcon(it.section, size: 30, dim: !sel),
             const SizedBox(width: 13),
             Expanded(
               child: Text(

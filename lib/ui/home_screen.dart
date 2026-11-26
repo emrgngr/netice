@@ -10,6 +10,7 @@ import '../core/progress.dart';
 import '../main.dart';
 import 'compare_screen.dart';
 import 'desktop_shell.dart';
+import 'section_icons.dart';
 import 'general_stats_screen.dart';
 import 'profile_screen.dart';
 import 'onboarding_screen.dart';
@@ -114,62 +115,28 @@ class _HomeScreenState extends State<HomeScreen> {
       for (final e in store.exams) {
         reviewCount += store.sheetsOf(e.id).where((s) => s.needsReview).length;
       }
-      DesktopNavItem item(int i, IconData icon, IconData sel, String label, {int? badge}) => DesktopNavItem(
-        icon: icon,
-        selectedIcon: sel,
-        label: label,
-        selected: tab == i,
-        onTap: () => go(i),
-        badge: badge,
-      );
+      DesktopNavItem item(int i, Section sec, {String? label, int? badge}) =>
+          DesktopNavItem(section: sec, label: label, selected: tab == i, onTap: () => go(i), badge: badge);
       final sidebar = DesktopSidebar(
         compact: MediaQuery.sizeOf(context).width < 1180,
         groups: [
           DesktopNavGroup(tr('Çalışma'), [
-            item(0, Icons.space_dashboard_outlined, Icons.space_dashboard_rounded, tr('Pano')),
-            item(
-              5,
-              Icons.description_outlined,
-              Icons.description_rounded,
-              tr('Sınavlar'),
-              badge: store.exams.isEmpty ? null : store.exams.length,
-            ),
-            DesktopNavItem(
-              icon: Icons.document_scanner_outlined,
-              label: tr('Kâğıt okut'),
-              onTap: () => startScanFlow(context),
-            ),
+            item(0, Section.dashboard),
+            item(5, Section.exams, badge: store.exams.isEmpty ? null : store.exams.length),
+            DesktopNavItem(section: Section.scan, onTap: () => startScanFlow(context)),
             if (reviewCount > 0)
-              DesktopNavItem(
-                icon: Icons.priority_high_rounded,
-                label: tr('Kontrol bekleyen'),
-                badge: reviewCount,
-                warn: true,
-                onTap: () => go(5),
-              ),
+              DesktopNavItem(section: Section.review, badge: reviewCount, warn: true, onTap: () => go(5)),
           ]),
           DesktopNavGroup(tr('Kurum'), [
-            item(1, Icons.groups_outlined, Icons.groups_rounded, tr('Sınıflar ve öğrenciler')),
-            DesktopNavItem(
-              icon: Icons.query_stats_rounded,
-              label: tr('Genel istatistik'),
-              onTap: () => push(const GeneralStatsScreen()),
-            ),
-            DesktopNavItem(
-              icon: Icons.compare_arrows_rounded,
-              label: tr('Sınıf sınıf analiz'),
-              onTap: () => push(const CompareScreen()),
-            ),
-            item(2, Icons.local_library_outlined, Icons.local_library_rounded, tr('Kütüphane')),
+            item(1, Section.classes),
+            DesktopNavItem(section: Section.stats, onTap: () => push(const GeneralStatsScreen())),
+            DesktopNavItem(section: Section.compare, onTap: () => push(const CompareScreen())),
+            item(2, Section.library),
           ]),
           DesktopNavGroup(tr('Hesap'), [
-            item(3, Icons.person_outline_rounded, Icons.person_rounded, tr('Profil')),
-            item(4, Icons.settings_outlined, Icons.settings_rounded, tr('Ayarlar')),
-            DesktopNavItem(
-              icon: Icons.help_outline_rounded,
-              label: tr('Yardım'),
-              onTap: () => push(const HelpScreen()),
-            ),
+            item(3, Section.profile),
+            item(4, Section.settings),
+            DesktopNavItem(section: Section.help, onTap: () => push(const HelpScreen())),
           ]),
         ],
       );
@@ -538,7 +505,15 @@ class _DashboardState extends State<_Dashboard> {
             ],
           ),
           const SizedBox(height: 16),
-          const LiveClock(onDark: true),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              const LiveClock(onDark: true),
+              if (store.adFree || store.inTrial) ProChip(trialDays: store.adFree ? null : store.trialDaysLeft),
+            ],
+          ),
           const SizedBox(height: 18),
           Text(
             tr('Kâğıttan sonuca, saniyeler içinde.'),
@@ -644,6 +619,13 @@ class _DashboardState extends State<_Dashboard> {
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
               sliver: SliverToBoxAdapter(child: hero),
             ),
+          if (!wide)
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              sliver: SliverToBoxAdapter(
+                child: _QuickActions(onScan: () => startScanFlow(context), onNewExam: newExam),
+              ),
+            ),
           SliverToBoxAdapter(child: UpdateBanner(padding: EdgeInsets.fromLTRB(wide ? 28 : 16, 12, wide ? 28 : 16, 0))),
           if (store.hasDemo && AppStore.showDemoNotice)
             SliverPadding(
@@ -706,10 +688,6 @@ class _DashboardState extends State<_Dashboard> {
             )
           else ...[
             SliverPadding(
-              padding: EdgeInsets.fromLTRB(wide ? 28 : 16, 12, wide ? 28 : 16, 0),
-              sliver: SliverToBoxAdapter(child: _Insights(warnings: earlyWarnings(store))),
-            ),
-            SliverPadding(
               padding: EdgeInsets.symmetric(horizontal: wide ? 28 : 16),
               sliver: SliverToBoxAdapter(child: examsTitle),
             ),
@@ -719,11 +697,23 @@ class _DashboardState extends State<_Dashboard> {
                 sliver: SliverToBoxAdapter(child: emptyCard),
               ),
             SliverPadding(
-              padding: EdgeInsets.fromLTRB(wide ? 28 : 16, 0, wide ? 28 : 16, 32),
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
               sliver: SliverList.separated(
                 itemCount: store.exams.length,
                 separatorBuilder: (_, _) => const SizedBox(height: 12),
                 itemBuilder: (context, i) => examTile(store.exams[i]),
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    SectionTitle(tr('Analiz ve raporlar')),
+                    _Insights(warnings: earlyWarnings(store)),
+                  ],
+                ),
               ),
             ),
           ],
@@ -742,25 +732,49 @@ class _QuickActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = [
-      (Icons.document_scanner_outlined, tr('Kâğıt okut'), tr('PDF, tarama veya telefondan'), NColors.emerald, onScan),
-      (Icons.add_rounded, tr('Yeni sınav'), tr('Cevap anahtarıyla başlayın'), const Color(0xFF059669), onNewExam),
+      (Section.scan, tr('Kâğıt okut'), tr('PDF, tarama veya telefondan'), NColors.emerald, onScan),
+      (Section.newExam, tr('Yeni sınav'), tr('Cevap anahtarıyla başlayın'), const Color(0xFF15803D), onNewExam),
       (
-        Icons.menu_book_outlined,
+        Section.booklet,
         tr('Kitapçık hazırla'),
         tr('Soru bankasından sınav kâğıdı'),
-        const Color(0xFFB7791F),
+        const Color(0xFFBE123C),
         () => BookletWizardScreen.open(context),
       ),
       (
-        Icons.compare_arrows_rounded,
+        Section.compare,
         tr('Sınıf sınıf analiz'),
         tr('Şubeleri yan yana karşılaştırın'),
-        const Color(0xFF4E5C99),
+        const Color(0xFF0F766E),
         () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CompareScreen())),
       ),
     ];
     return LayoutBuilder(
       builder: (context, c) {
+        if (c.maxWidth < 600) {
+          // Telefonda: "Okut" zaten üstteki büyük düğmede; burada dört yuvarlak kısayol.
+          final mobile = [
+            items[1],
+            items[2],
+            items[3],
+            (
+              Section.stats,
+              tr('Genel istatistik'),
+              '',
+              const Color(0xFF0E7490),
+              () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const GeneralStatsScreen())),
+            ),
+          ];
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (final (icon, title, _, color, run) in mobile)
+                Expanded(
+                  child: _MiniAction(section: icon, label: title, color: color, onTap: run),
+                ),
+            ],
+          );
+        }
         final cols = c.maxWidth >= 860 ? 4 : 2;
         const gap = 14.0;
         final w = (c.maxWidth - gap * (cols - 1)) / cols;
@@ -771,7 +785,7 @@ class _QuickActions extends StatelessWidget {
             for (final (i, (icon, title, sub, color, run)) in items.indexed)
               SizedBox(
                 width: w,
-                child: _ActionTile(icon: icon, title: title, subtitle: sub, color: color, onTap: run, hero: i == 0),
+                child: _ActionTile(section: icon, title: title, subtitle: sub, color: color, onTap: run, hero: i == 0),
               ),
           ],
         );
@@ -780,15 +794,104 @@ class _QuickActions extends StatelessWidget {
   }
 }
 
+/// Lacivert zemin üstünde altın "PRO" etiketi; denemede kalan gün de yazılır.
+class ProChip extends StatelessWidget {
+  final int? trialDays;
+  const ProChip({super.key, this.trialDays});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(colors: [Color(0xFFF7D774), Color(0xFFE0A93B)]),
+        borderRadius: BorderRadius.circular(99),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.workspace_premium_rounded, size: 13, color: Color(0xFF3A2800)),
+          const SizedBox(width: 4),
+          Text(
+            trialDays == null ? 'PRO' : tr('Pro deneme: {0} gün', [trialDays!]),
+            style: const TextStyle(
+              color: Color(0xFF3A2800),
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Telefon panosundaki yuvarlak kısayol: renkli simge kutusu ve altında adı.
+class _MiniAction extends StatelessWidget {
+  final Section section;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+  const _MiniAction({required this.section, required this.label, required this.color, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context);
+    final dark = t.brightness == Brightness.dark;
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 0),
+        child: Column(
+          children: [
+            Container(
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                color: t.cardTheme.color ?? t.colorScheme.surface,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: t.colorScheme.outlineVariant),
+                boxShadow: [
+                  BoxShadow(
+                    color: color.withValues(alpha: dark ? 0.0 : 0.16),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: Center(child: SectionIcon(section, size: 42)),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 11,
+                height: 1.2,
+                fontWeight: FontWeight.w700,
+                color: t.colorScheme.onSurface.withValues(alpha: 0.85),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _ActionTile extends StatefulWidget {
-  final IconData icon;
+  final Section section;
   final String title;
   final String subtitle;
   final Color color;
   final VoidCallback onTap;
   final bool hero;
   const _ActionTile({
-    required this.icon,
+    required this.section,
     required this.title,
     required this.subtitle,
     required this.color,
@@ -806,12 +909,9 @@ class _ActionTileState extends State<_ActionTile> {
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context);
-    final dark = t.brightness == Brightness.dark;
     final hero = widget.hero;
     final fg = hero ? Colors.white : t.colorScheme.onSurface;
     final sub = hero ? const Color(0xFFB9C3E2) : t.colorScheme.onSurface.withValues(alpha: 0.62);
-    final badgeBg = hero ? NColors.buttonBg(dark) : widget.color.withValues(alpha: dark ? 0.22 : 0.12);
-    final badgeFg = hero ? NColors.buttonFg(dark) : NColors.readable(widget.color, dark: dark);
     return MouseRegion(
       onEnter: (_) => setState(() => _hover = true),
       onExit: (_) => setState(() => _hover = false),
@@ -836,12 +936,7 @@ class _ActionTileState extends State<_ActionTile> {
                 padding: const EdgeInsets.all(18),
                 child: Row(
                   children: [
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(color: badgeBg, borderRadius: BorderRadius.circular(14)),
-                      child: Icon(widget.icon, color: badgeFg),
-                    ),
+                    SectionIcon(widget.section, size: 48),
                     const SizedBox(width: 14),
                     Expanded(
                       child: Column(
@@ -892,10 +987,7 @@ class _Insights extends StatelessWidget {
             clipBehavior: Clip.antiAlias,
             child: ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-              leading: IconBadge(
-                Icons.account_balance_outlined,
-                color: school.isEmpty ? NColors.amber : NColors.emerald,
-              ),
+              leading: const SectionIcon(Section.school, size: 42),
               title: Text(
                 school.isEmpty ? tr('Kurum bilgilerini girin') : school.name,
                 style: const TextStyle(fontWeight: FontWeight.w700),
@@ -920,7 +1012,7 @@ class _Insights extends StatelessWidget {
           clipBehavior: Clip.antiAlias,
           child: ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-            leading: const IconBadge(Icons.compare_arrows_rounded, color: NColors.emerald),
+            leading: const SectionIcon(Section.compare, size: 42),
             title: Text(tr('Sınıf sınıf analiz'), style: TextStyle(fontWeight: FontWeight.w700)),
             subtitle: Text(tr('Şubeleri ortalama, yayılım, düzey ve soru soru yan yana görün')),
             trailing: const Icon(Icons.chevron_right),
@@ -932,7 +1024,7 @@ class _Insights extends StatelessWidget {
           clipBehavior: Clip.antiAlias,
           child: ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-            leading: const IconBadge(Icons.query_stats_rounded, color: Color(0xFF6C7FD8)),
+            leading: const SectionIcon(Section.stats, size: 42),
             title: Text(tr('Genel istatistik'), style: TextStyle(fontWeight: FontWeight.w700)),
             subtitle: Text(tr('Tüm sınıflar ve sınava giren tüm öğrenciler bir arada')),
             trailing: const Icon(Icons.chevron_right),
@@ -944,7 +1036,7 @@ class _Insights extends StatelessWidget {
           clipBehavior: Clip.antiAlias,
           child: ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-            leading: const IconBadge(Icons.workspace_premium_outlined, color: NColors.ink),
+            leading: const SectionIcon(Section.term, size: 42),
             title: Text(tr('Dönem raporu'), style: TextStyle(fontWeight: FontWeight.w700)),
             subtitle: Text(tr('Dönem sonu notu ve öğrenci kazanım karneleri')),
             trailing: const Icon(Icons.chevron_right),
@@ -966,7 +1058,7 @@ class _Insights extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(16, 14, 16, 4),
                   child: Row(
                     children: [
-                      const IconBadge(Icons.priority_high_rounded, color: NColors.amber),
+                      const SectionIcon(Section.review, size: 42),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(

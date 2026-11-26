@@ -1,4 +1,4 @@
-// Masaüstü arayüz önizlemesi: geniş yan menü, pano ve Sınavlar çalışma alanı.
+// Masaüstü ve telefon arayüz önizlemesi: geniş yan menü, pano ve Sınavlar çalışma alanı.
 //   flutter test tool/masaustu_tasarim_test.dart --dart-define=LANG_SHOT=tr
 // Çıktılar build/screenshots/masaustu/<dil>/<pencere>_<tema>_<ekran>.png.
 // Taşma vb. hatalar "SORUNLAR" satırında listelenir (boşsa sorun yok).
@@ -27,7 +27,7 @@ void main() {
     store.hidePromo(const Duration(days: 3650));
     AppStore.showDemoNotice = false;
 
-    const sizes = {'genis': Size(1440, 900), 'dar': Size(1100, 760)};
+    const sizes = {'genis': Size(1440, 900), 'dar': Size(1100, 760), 'telefon': Size(390, 844)};
     final problems = <String>[];
     for (final theme in ['light', 'dark']) {
       store.setThemeMode(theme);
@@ -50,6 +50,10 @@ void main() {
         }
 
         await s('pano');
+        if (sz == 'telefon') {
+          await s('pano_alt', then: () async => tester.drag(find.byType(CustomScrollView).first, const Offset(0, -700)));
+          continue;
+        }
         await s('sinavlar', then: () async => tester.tap(find.text(tr('Sınavlar')).first));
         await s('siniflar', then: () async => tester.tap(find.text(tr('Sınıflar ve öğrenciler')).first));
       }
