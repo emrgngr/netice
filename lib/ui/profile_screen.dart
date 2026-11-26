@@ -12,6 +12,7 @@ import 'license_screen.dart';
 import 'pro_screen.dart';
 import 'school_screen.dart';
 import 'theme.dart';
+import 'why_screen.dart';
 import 'widgets.dart';
 import '../l10n/l10n.dart';
 import '../core/ads.dart';
@@ -112,6 +113,8 @@ class ProfileScreen extends StatelessWidget {
             onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const InviteScreen())),
           ),
         ),
+        const SizedBox(height: 10),
+        const WhyNeticeBanner(),
         SectionTitle(tr('Hesap')),
         const AccountCard(),
         SectionTitle(tr('Kurum')),

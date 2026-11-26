@@ -34,6 +34,7 @@ import 'pro_screen.dart';
 import '../core/pro.dart';
 import 'theme.dart';
 import 'widgets.dart';
+import 'why_screen.dart';
 import '../l10n/l10n.dart';
 import '../core/ads.dart';
 import 'ad_slot.dart';
@@ -137,6 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
             item(3, Section.profile),
             item(4, Section.settings),
             DesktopNavItem(section: Section.help, onTap: () => push(const HelpScreen())),
+            DesktopNavItem(section: Section.why, onTap: () => push(const WhyNeticeScreen())),
           ]),
         ],
       );
@@ -628,6 +630,12 @@ class _DashboardState extends State<_Dashboard> {
               ),
             ),
           SliverToBoxAdapter(child: UpdateBanner(padding: EdgeInsets.fromLTRB(wide ? 28 : 16, 12, wide ? 28 : 16, 0))),
+          // Yeni kullanıcıya (ilk birkaç sınav) "Neden Netice?" karşılaştırması.
+          if (store.exams.length < 3)
+            SliverPadding(
+              padding: EdgeInsets.fromLTRB(wide ? 28 : 16, 12, wide ? 28 : 16, 0),
+              sliver: const SliverToBoxAdapter(child: WhyNeticeBanner()),
+            ),
           if (store.hasDemo && AppStore.showDemoNotice)
             SliverPadding(
               padding: EdgeInsets.fromLTRB(wide ? 28 : 16, 12, wide ? 28 : 16, 0),
