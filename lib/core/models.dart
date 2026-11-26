@@ -646,7 +646,7 @@ enum InstitutionType {
   String get label => switch (this) {
         school => tr('Okul (ilkokul, ortaokul, lise)'),
         university => tr('Üniversite, fakülte, meslek yüksekokulu'),
-        police => tr('Polis Akademisi, PMYO, POMEM'),
+        police => tr('Polis Akademisi'),
         military => tr('Askerî okul, askerî lise, harp okulu, askerî üniversite'),
         course => tr('Kurs, dershane, eğitim merkezi'),
         other => tr('Diğer kurum (şirket, kamu eğitimi)'),

@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:cryptography/dart.dart';
 import 'package:cryptography/cryptography.dart';
 
-/// Kurum lisansı: okul, dershane, POMEM, akademi veya fakülte için bir kod.
+/// Kurum lisansı: okul, dershane, polis akademisi veya fakülte için bir kod.
 ///
 /// Kod internetsiz doğrulanır. Netice yönetimi kodu kendi gizli anahtarıyla
 /// imzalar (bkz. `tool/kurum_lisans.dart` ve `.github/workflows/kurum-lisansi.yml`);
