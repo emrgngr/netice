@@ -144,7 +144,7 @@ class _AdSlotState extends State<AdSlot> {
     if (_shownKey == key) return;
     _shownKey = key;
     _variantB = _ads.useVariantB(ad);
-    _ads.recordImpression(ad);
+    _ads.recordImpression(ad, variantB: _variantB);
     _timer?.cancel();
     if (unique > 1 && ad.type == AdType.image) {
       _timer = Timer(Duration(seconds: ad.seconds), _next);
@@ -177,6 +177,7 @@ class _AdSlotState extends State<AdSlot> {
         loopVideo: list.length == 1,
         onCycle: list.length > 1 ? _next : null,
         onClose: () => _ads.dismiss(widget.page, widget.format),
+        onOpen: () => _ads.recordClick(ad, variantB: _variantB),
       ),
     );
   }
@@ -206,6 +207,9 @@ class AdView extends StatelessWidget {
   final VoidCallback? onCycle;
   final VoidCallback? onClose;
 
+  /// Bağlantı açılınca (tıklama sayacı).
+  final VoidCallback? onOpen;
+
   /// Geri sayım için "şimdi" (önizlemede sabitlenebilir).
   final DateTime? now;
 
@@ -218,11 +222,13 @@ class AdView extends StatelessWidget {
     this.loopVideo = true,
     this.onCycle,
     this.onClose,
+    this.onOpen,
     this.now,
   });
 
   Future<void> _open() async {
     if (ad.link.isEmpty) return;
+    onOpen?.call();
     try {
       await launchUrl(Uri.parse(ad.link), mode: LaunchMode.externalApplication);
     } catch (_) {}

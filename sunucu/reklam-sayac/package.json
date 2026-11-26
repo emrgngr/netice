@@ -1,0 +1,13 @@
+{
+  "name": "netice-reklam-sayac",
+  "private": true,
+  "type": "module",
+  "description": "Netice: kendi tanıtımlarının günlük toplam görülme ve tıklanma sayısını kimliksiz tutan küçük sunucu (Cloudflare Worker).",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "test": "node --test test/*.test.js"
+  },
+  "devDependencies": {
+    "wrangler": "^4.167.0"
+  }
+}

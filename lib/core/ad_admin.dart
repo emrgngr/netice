@@ -71,17 +71,19 @@ class AdAdmin extends ChangeNotifier {
 
   Future<void> save() async {
     try {
-      await (await _file()).writeAsString(jsonEncode({
-        'ayarlar': settings.toJson(),
-        'pin': _pinHash,
-        'tuz': _pinSalt,
-        'hata': _failed,
-        if (_lockedUntil != null) 'kilit': _lockedUntil!.toIso8601String(),
-        'anahtar': token,
-        'taslak': [for (final a in drafts) a.toJson()],
-        'degisti': dirty,
-        if (lastPublish != null) 'yayin': lastPublish!.toIso8601String(),
-      }));
+      await (await _file()).writeAsString(
+        jsonEncode({
+          'ayarlar': settings.toJson(),
+          'pin': _pinHash,
+          'tuz': _pinSalt,
+          'hata': _failed,
+          if (_lockedUntil != null) 'kilit': _lockedUntil!.toIso8601String(),
+          'anahtar': token,
+          'taslak': [for (final a in drafts) a.toJson()],
+          'degisti': dirty,
+          if (lastPublish != null) 'yayin': lastPublish!.toIso8601String(),
+        }),
+      );
     } catch (_) {}
     notifyListeners();
   }
@@ -211,16 +213,18 @@ class AdAdmin extends ChangeNotifier {
   /// Seçilen dosyayı taslak klasörüne yazar.
   Future<String> importBytes(List<int> bytes, String name, String id) async {
     final ext = name.contains('.') ? name.substring(name.lastIndexOf('.')).toLowerCase() : '';
-    final dest = File('${(await mediaDir()).path}${Platform.pathSeparator}${id}_${DateTime.now().millisecondsSinceEpoch}$ext');
+    final dest = File(
+      '${(await mediaDir()).path}${Platform.pathSeparator}${id}_${DateTime.now().millisecondsSinceEpoch}$ext',
+    );
     await dest.writeAsBytes(bytes, flush: true);
     return dest.path;
   }
 
   Map<String, String> get _headers => {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/vnd.github+json',
-        'X-GitHub-Api-Version': '2022-11-28',
-      };
+    'Authorization': 'Bearer $token',
+    'Accept': 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+  };
 
   static const _api = 'https://api.github.com/repos/${AdService.owner}/${AdService.repo}';
 
@@ -228,8 +232,12 @@ class AdAdmin extends ChangeNotifier {
   Future<(List<Ad>, AdSettings)?> fetchPublishedFull() async {
     try {
       final r = await http
-          .get(Uri.parse('$_api/contents/${AdService.feedPath}?ref=${AdService.branch}'),
-              headers: token.isEmpty ? {'Accept': 'application/vnd.github.raw+json'} : {..._headers, 'Accept': 'application/vnd.github.raw+json'})
+          .get(
+            Uri.parse('$_api/contents/${AdService.feedPath}?ref=${AdService.branch}'),
+            headers: token.isEmpty
+                ? {'Accept': 'application/vnd.github.raw+json'}
+                : {..._headers, 'Accept': 'application/vnd.github.raw+json'},
+          )
           .timeout(const Duration(seconds: 15));
       if (r.statusCode == 404) return (const <Ad>[], const AdSettings());
       if (r.statusCode != 200) return null;
@@ -240,11 +248,32 @@ class AdAdmin extends ChangeNotifier {
     }
   }
 
+  /// Sayaç sunucusundan son [days] günün özeti. Yalnız sahibin yayın
+  /// anahtarıyla okunur. Hata varsa (null, açıklama).
+  Future<(Map<String, AdStats>?, String?)> fetchStats(int days) async {
+    if (token.isEmpty) return (null, 'Önce yayın anahtarını girin.');
+    try {
+      final r = await http
+          .get(Uri.parse('${AdService.statsUrl}/ozet?gun=$days'), headers: {'Authorization': 'Bearer $token'})
+          .timeout(const Duration(seconds: 20));
+      if (r.statusCode == 200) return (AdStats.mapFromJson(jsonDecode(utf8.decode(r.bodyBytes))), null);
+      if (r.statusCode == 403) return (null, 'Yayın anahtarı kabul edilmedi. Anahtarın süresi dolmuş olabilir.');
+      if (r.statusCode == 404) return (null, 'Sayaç sunucusu henüz kurulmamış (birkaç dakika sonra deneyin).');
+      return (null, 'Sayaç sunucusu yanıt vermedi (${r.statusCode}).');
+    } catch (_) {
+      return (null, 'İnternete bağlanılamadı.');
+    }
+  }
+
   Future<List<Ad>?> fetchPublished() async {
     try {
       final r = await http
-          .get(Uri.parse('$_api/contents/${AdService.feedPath}?ref=${AdService.branch}'),
-              headers: token.isEmpty ? {'Accept': 'application/vnd.github.raw+json'} : {..._headers, 'Accept': 'application/vnd.github.raw+json'})
+          .get(
+            Uri.parse('$_api/contents/${AdService.feedPath}?ref=${AdService.branch}'),
+            headers: token.isEmpty
+                ? {'Accept': 'application/vnd.github.raw+json'}
+                : {..._headers, 'Accept': 'application/vnd.github.raw+json'},
+          )
           .timeout(const Duration(seconds: 15));
       if (r.statusCode == 404) return const [];
       if (r.statusCode != 200) return null;
@@ -263,7 +292,11 @@ class AdAdmin extends ChangeNotifier {
     final (pub, set) = full;
     // Yayınlanmamış taslaklar korunur.
     final ids = {for (final a in pub) a.id};
-    drafts = [...pub, for (final a in drafts) if (a.draft && !ids.contains(a.id)) a];
+    drafts = [
+      ...pub,
+      for (final a in drafts)
+        if (a.draft && !ids.contains(a.id)) a,
+    ];
     settings = set;
     dirty = false;
     await save();
@@ -278,7 +311,9 @@ class AdAdmin extends ChangeNotifier {
       if (r.statusCode == 401) return 'Anahtar geçersiz ya da süresi dolmuş.';
       if (r.statusCode != 200) return 'GitHub cevap vermedi (${r.statusCode}).';
       final perm = (jsonDecode(r.body) as Map)['permissions'];
-      if (perm is Map && perm['push'] != true) return 'Anahtarın depoya yazma izni yok (Contents: Read and write seçilmeli).';
+      if (perm is Map && perm['push'] != true) {
+        return 'Anahtarın depoya yazma izni yok (Contents: Read and write seçilmeli).';
+      }
       return null;
     } catch (_) {
       return 'İnternet bağlantısı yok.';
@@ -294,8 +329,11 @@ class AdAdmin extends ChangeNotifier {
     final ref = await http.get(Uri.parse('$_api/git/ref/heads/$base'), headers: _headers);
     if (ref.statusCode != 200) throw 'Ana dal bulunamadı (${ref.statusCode}).';
     final sha = ((jsonDecode(ref.body) as Map)['object'] as Map)['sha'];
-    final c = await http.post(Uri.parse('$_api/git/refs'),
-        headers: _headers, body: jsonEncode({'ref': 'refs/heads/${AdService.branch}', 'sha': sha}));
+    final c = await http.post(
+      Uri.parse('$_api/git/refs'),
+      headers: _headers,
+      body: jsonEncode({'ref': 'refs/heads/${AdService.branch}', 'sha': sha}),
+    );
     if (c.statusCode != 201) throw 'Reklam dalı oluşturulamadı (${c.statusCode}).';
   }
 
@@ -309,14 +347,16 @@ class AdAdmin extends ChangeNotifier {
   Future<void> _put(String path, List<int> bytes, String message) async {
     final sha = await _sha(path);
     final r = await http
-        .put(Uri.parse('$_api/contents/$path'),
-            headers: _headers,
-            body: jsonEncode({
-              'message': message,
-              'content': base64Encode(bytes),
-              'branch': AdService.branch,
-              'sha': ?sha,
-            }))
+        .put(
+          Uri.parse('$_api/contents/$path'),
+          headers: _headers,
+          body: jsonEncode({
+            'message': message,
+            'content': base64Encode(bytes),
+            'branch': AdService.branch,
+            'sha': ?sha,
+          }),
+        )
         .timeout(const Duration(minutes: 5));
     if (r.statusCode != 200 && r.statusCode != 201) {
       throw 'Yüklenemedi: $path (${r.statusCode}).';
@@ -331,7 +371,10 @@ class AdAdmin extends ChangeNotifier {
       progress?.call('Hazırlanıyor…');
       await _ensureBranch();
       final out = <Ad>[];
-      final live = [for (final a in drafts) if (!a.draft) a];
+      final live = [
+        for (final a in drafts)
+          if (!a.draft) a,
+      ];
       for (final (i, a) in live.indexed) {
         if (!a.isLocal) {
           out.add(a);
@@ -368,14 +411,19 @@ class AdAdmin extends ChangeNotifier {
       // Artık kullanılmayan dosyaları depodan sil.
       progress?.call('Eski dosyalar temizleniyor…');
       final used = {for (final a in out) ...a.sources, for (final a in out) a.media};
-      final l = await http.get(Uri.parse('$_api/contents/${AdService.mediaDir}?ref=${AdService.branch}'), headers: _headers);
+      final l = await http.get(
+        Uri.parse('$_api/contents/${AdService.mediaDir}?ref=${AdService.branch}'),
+        headers: _headers,
+      );
       if (l.statusCode == 200) {
         for (final e in (jsonDecode(l.body) as List)) {
           final path = '${(e as Map)['path']}';
           if (used.contains(AdService.rawUrl(path))) continue;
-          await http.delete(Uri.parse('$_api/contents/$path'),
-              headers: _headers,
-              body: jsonEncode({'message': 'Eski reklam dosyası silindi', 'sha': e['sha'], 'branch': AdService.branch}));
+          await http.delete(
+            Uri.parse('$_api/contents/$path'),
+            headers: _headers,
+            body: jsonEncode({'message': 'Eski reklam dosyası silindi', 'sha': e['sha'], 'branch': AdService.branch}),
+          );
         }
       }
 

@@ -1,0 +1,81 @@
+# Reklam sayacını (Cloudflare Worker) yayınlar: kendi tanıtımlarının günlük
+# toplam görülme ve tıklanma sayıları, kimliksiz.
+#
+# Soru sunucusuyla aynı GitHub secret'larını kullanır:
+#   CLOUDFLARE_API_TOKEN   Cloudflare "Edit Cloudflare Workers" şablonlu API token
+#   CLOUDFLARE_ACCOUNT_ID  Cloudflare hesap kimliği
+# Secret'lar eklenmemişse iş hata vermeden atlanır.
+name: Reklam sayacı
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, ilk-surum]
+    paths:
+      - 'sunucu/reklam-sayac/**'
+      - '.github/workflows/reklam-sayaci.yml'
+  pull_request:
+    paths:
+      - 'sunucu/reklam-sayac/**'
+
+concurrency:
+  group: reklam-sayaci-${{ github.event_name }}
+  cancel-in-progress: false
+
+jobs:
+  yayinla:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sunucu/reklam-sayac
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm test
+      - name: Derleme denemesi
+        run: npx wrangler deploy --dry-run --outdir dist
+
+      - name: Secret'lar var mı?
+        id: hazir
+        if: github.event_name != 'pull_request'
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::warning::CLOUDFLARE_API_TOKEN ve CLOUDFLARE_ACCOUNT_ID secret'ları eklenmemiş; yayın atlandı."
+            echo "tamam=0" >> "$GITHUB_OUTPUT"
+          else
+            echo "tamam=1" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Yayınla
+        if: steps.hazir.outputs.tamam == '1'
+        run: |
+          set -euo pipefail
+          npx wrangler deploy | tee yayin.log
+          ADRES=$(grep -oE 'https://[a-zA-Z0-9.-]+\.workers\.dev' yayin.log | head -n1 || true)
+          echo "### Reklam sayacı yayında" >> "$GITHUB_STEP_SUMMARY"
+          echo "Adres: \`$ADRES\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "ADRES=$ADRES" >> "$GITHUB_ENV"
+
+      - name: Sayacı dene
+        if: steps.hazir.outputs.tamam == '1' && env.ADRES != ''
+        run: |
+          for i in $(seq 1 20); do
+            if curl -fsS -m 20 "$ADRES/"; then echo; break; fi
+            echo "Adres henüz hazır değil, 30 sn sonra yeniden denenecek ($i/20)"
+            sleep 30
+          done
+          sleep 10
+          # Boş liste: hiçbir şey saymadan uç noktanın çalıştığını dener.
+          KOD=$(curl -sS -m 30 -o cevap.json -w '%{http_code}' -X POST "$ADRES/olay" \
+            -H 'content-type: application/json' -H 'x-netice-app: netice-app-1' --data '{"olaylar":[]}')
+          cat cevap.json; echo
+          test "$KOD" = "200"
+          # Anahtarsız özet isteği reddedilmeli.
+          KOD=$(curl -sS -m 30 -o /dev/null -w '%{http_code}' "$ADRES/ozet")
+          test "$KOD" = "403"
