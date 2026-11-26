@@ -91,7 +91,7 @@ class UpdateService extends ChangeNotifier {
   static String get updateUrl => switch (currentPlatform) {
         'android' => playStoreUrl,
         'ios' => appStoreUrl.isNotEmpty ? appStoreUrl : 'https://apps.apple.com/app/id6838423827',
-        _ => '${websiteUrl.isNotEmpty ? websiteUrl : 'https://neticeoptik.pages.dev'}/indir.html',
+        _ => '$websiteUrl/indir.html',
       };
 
   DateTime? _lastCheck;
