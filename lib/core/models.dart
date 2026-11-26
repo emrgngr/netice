@@ -199,17 +199,69 @@ class ScoringRule {
 }
 
 /// Klasik (açık uçlu) soru: öğretmen elle puanlar.
+/// Ölçütlü (rubrikli) puanlamada bir ölçüt: adı, puanı ve dört düzeyin
+/// açıklamaları (Başlangıç, Gelişmekte, Yeterli, Örnek).
+class RubricCriterion {
+  final String name;
+  final double maxPoints;
+
+  /// Düzey açıklamaları (isteğe bağlı; [levelCount] tane).
+  final List<String> descriptors;
+
+  const RubricCriterion({required this.name, required this.maxPoints, this.descriptors = const []});
+
+  static const levelCount = 4;
+
+  static String levelLabel(int level) => switch (level) {
+        0 => tr('Başlangıç'),
+        1 => tr('Gelişmekte'),
+        2 => tr('Yeterli'),
+        _ => tr('Örnek'),
+      };
+
+  /// [level] düzeyinin puanı (0 = başlangıç … 3 = örnek).
+  double pointsAt(int level) => level < 0 ? 0 : (maxPoints * (level + 1) / levelCount * 100).round() / 100;
+
+  String descriptor(int level) => level >= 0 && level < descriptors.length ? descriptors[level].trim() : '';
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'maxPoints': maxPoints,
+        if (descriptors.any((d) => d.trim().isNotEmpty)) 'descriptors': descriptors,
+      };
+
+  factory RubricCriterion.fromJson(Map<String, dynamic> j) => RubricCriterion(
+        name: j['name'] as String? ?? '',
+        maxPoints: (j['maxPoints'] as num?)?.toDouble() ?? 1,
+        descriptors: (j['descriptors'] as List?)?.cast<String>() ?? const [],
+      );
+}
+
 class OpenQuestion {
   final String label;
   final double maxPoints;
 
   /// Soru bankasından geldiyse bankadaki kimliği.
   final String? bankId;
-  const OpenQuestion({required this.label, required this.maxPoints, this.bankId});
 
-  Map<String, dynamic> toJson() => {'label': label, 'maxPoints': maxPoints, if (bankId != null) 'bankId': bankId};
+  /// Ölçütler (boşsa puan elle yazılır). Doluysa [maxPoints] ölçütlerin toplamıdır.
+  final List<RubricCriterion> rubric;
+
+  const OpenQuestion({required this.label, required this.maxPoints, this.bankId, this.rubric = const []});
+
+  bool get hasRubric => rubric.isNotEmpty;
+
+  Map<String, dynamic> toJson() => {
+        'label': label,
+        'maxPoints': maxPoints,
+        if (bankId != null) 'bankId': bankId,
+        if (rubric.isNotEmpty) 'rubric': [for (final c in rubric) c.toJson()],
+      };
   factory OpenQuestion.fromJson(Map<String, dynamic> j) => OpenQuestion(
-      label: j['label'] as String? ?? '', maxPoints: (j['maxPoints'] as num).toDouble(), bankId: j['bankId'] as String?);
+      label: j['label'] as String? ?? '',
+      maxPoints: (j['maxPoints'] as num).toDouble(),
+      bankId: j['bankId'] as String?,
+      rubric: [for (final c in (j['rubric'] as List?) ?? const []) RubricCriterion.fromJson(c as Map<String, dynamic>)]);
 }
 
 /// Çocuk şablonunun renk teması (kitapçık, cevap kartları, karne, raporlar).
@@ -621,6 +673,10 @@ class Sheet {
   /// Kâğıt çeyrek A4 kısa quiz formuydu (işaretli görüntü buna göre çizilir).
   final bool mini;
 
+  /// Ölçütlü klasik sorularda seçilen düzeyler: klasik soru sırası →
+  /// ölçüt başına düzey (0–3; seçilmemiş −1).
+  final Map<int, List<int>> rubricLevels;
+
   const Sheet({
     required this.examId,
     this.studentId,
@@ -630,12 +686,20 @@ class Sheet {
     this.imageId,
     this.readNumber,
     this.mini = false,
+    this.rubricLevels = const {},
   });
 
   bool get needsReview =>
       studentId == null || answers.any((a) => a.needsReview);
 
-  Sheet copyWith({String? studentId, List<Answer>? answers, List<double?>? openScores, String? imageId}) => Sheet(
+  Sheet copyWith({
+    String? studentId,
+    List<Answer>? answers,
+    List<double?>? openScores,
+    String? imageId,
+    Map<int, List<int>>? rubricLevels,
+  }) =>
+      Sheet(
         examId: examId,
         studentId: studentId ?? this.studentId,
         answers: answers ?? this.answers,
@@ -644,6 +708,7 @@ class Sheet {
         imageId: imageId ?? this.imageId,
         readNumber: readNumber,
         mini: mini,
+        rubricLevels: rubricLevels ?? this.rubricLevels,
       );
 
   Map<String, dynamic> toJson() => {
@@ -655,6 +720,7 @@ class Sheet {
         if (imageId != null) 'imageId': imageId,
         if (readNumber != null) 'readNumber': readNumber,
         if (mini) 'mini': true,
+        if (rubricLevels.isNotEmpty) 'rubricLevels': {for (final e in rubricLevels.entries) '${e.key}': e.value},
       };
 
   factory Sheet.fromJson(Map<String, dynamic> j) => Sheet(
@@ -668,6 +734,10 @@ class Sheet {
         imageId: j['imageId'] as String?,
         readNumber: j['readNumber'] as String?,
         mini: j['mini'] as bool? ?? false,
+        rubricLevels: {
+          for (final e in ((j['rubricLevels'] as Map?) ?? const {}).entries)
+            if (int.tryParse('${e.key}') != null) int.parse('${e.key}'): (e.value as List).cast<int>()
+        },
       );
 }
 

@@ -635,6 +635,20 @@ String reportStamp(DateTime d) =>
     '${_date(d)} ${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
 
 String _date(DateTime d) => L10n.date(d);
+/// Ölçütlü klasik soruların karnedeki satırları: "K1 · İçerik: Yeterli – açıklama".
+List<String> _rubricFeedback(Exam exam, Sheet sheet) => [
+      for (var q = 0; q < exam.openQuestions.length; q++)
+        if (exam.openQuestions[q].hasRubric && sheet.rubricLevels[q] != null)
+          for (var c = 0; c < exam.openQuestions[q].rubric.length && c < sheet.rubricLevels[q]!.length; c++)
+            if (sheet.rubricLevels[q]![c] >= 0)
+              () {
+                final cr = exam.openQuestions[q].rubric[c];
+                final l = sheet.rubricLevels[q]![c];
+                final d = cr.descriptor(l);
+                return '• ${exam.openQuestions[q].label} · ${cr.name}: ${RubricCriterion.levelLabel(l)}${d.isEmpty ? '' : ' – $d'}';
+              }(),
+    ];
+
 String _answer(Answer a) => a.marked.isEmpty ? '–' : a.marked.map(_letter).join('/');
 
 /// Rapor sayfalarının ortak üst/alt bilgisi ve yardımcı parçaları.
@@ -1588,6 +1602,14 @@ Future<Uint8List> buildStudentCardsPdf({
                         child: pw.Text('• $t', style: const pw.TextStyle(fontSize: 8)),
                       ),
                   ]),
+                ),
+            ],
+            if (_rubricFeedback(exam, res.sheet).isNotEmpty) ...[
+              k.title(tr('Ölçütlü geri bildirim'), tr('Klasik soruların ölçütlere göre değerlendirmesi')),
+              for (final line in _rubricFeedback(exam, res.sheet).take(6))
+                pw.Padding(
+                  padding: const pw.EdgeInsets.only(bottom: 2),
+                  child: pw.Text(line, style: const pw.TextStyle(fontSize: 8.5)),
                 ),
             ],
             if (Misconceptions.ofSheet(exam, res.sheet).isNotEmpty) ...[

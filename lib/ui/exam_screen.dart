@@ -42,6 +42,8 @@ import '../omr/form_layout.dart' show MiniFormLayout;
 import 'ad_slot.dart';
 import '../bank/bank_analysis.dart';
 import '../bank/bank_store.dart';
+import '../bank/makeup.dart';
+import 'bank/booklet_wizard_screen.dart';
 import 'bank/bank_analysis_view.dart' show WeakTopicsCard;
 
 class ExamScreen extends StatelessWidget {
@@ -355,6 +357,34 @@ class ExamScreen extends StatelessWidget {
       }
     }
 
+    Future<void> makeup() async {
+      final bank = BankStore.instance;
+      if (Makeup.sourceOf(exam, bank).isEmpty) {
+        return toast(context, tr('Telafi sınavı, soru bankasından hazırlanmış sınavlar için kurulur. Bu sınavın soruları bankada değil.'));
+      }
+      if (!await requirePro(context, ProFeature.makeupExam) || !context.mounted) return;
+      final plan = Makeup.build(exam, bank, used: BankStore.usage(store.exams), seed: DateTime.now().millisecondsSinceEpoch % 100000);
+      final go = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(tr('Eşdeğer telafi sınavı')),
+          content: Text([
+            tr('{0} sorunun {1} tanesi aynı konu, tür ve zorlukta başka bir soruyla değiştirildi.',
+                [plan.fromBank, plan.fromBank - plan.kept - plan.relaxed]),
+            if (plan.relaxed > 0) tr('{0} soru için aynı zorlukta soru yoktu; aynı konudan farklı zorlukta soru seçildi.', [plan.relaxed]),
+            if (plan.kept > 0) tr('{0} sorunun bankada eşdeğeri yok; aynısı bırakıldı. Bu konulara soru ekleyip yeniden deneyebilirsiniz.', [plan.kept]),
+            tr('Kitapçık sihirbazında soruları gözden geçirip basabilirsiniz.'),
+          ].join('\n\n')),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr('Vazgeç'))),
+            FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(tr('Kitapçığa geç'))),
+          ],
+        ),
+      );
+      if (go != true || !context.mounted) return;
+      await BookletWizardScreen.open(context, questionIds: [for (final q in plan.questions) q.id]);
+    }
+
     Future<void> reflection() async {
       if (results.isEmpty) return toast(context, tr('Önce kâğıt okutun.'));
       await ReportPreviewScreen.open(context,
@@ -387,6 +417,7 @@ class ExamScreen extends StatelessWidget {
       _Action(Icons.psychology_outlined, tr('Öğretim önerileri'), () => TeachingScreen.open(context, exam)),
       _Action(Icons.rate_review_outlined, tr('Öğrenci değerlendirme kâğıdı'), reflection),
       _Action(Icons.assignment_ind_outlined, tr('Kişiye özel tekrar testi'), () => openPersonalReview(context, exam)),
+      _Action(Icons.content_copy_rounded, tr('Eşdeğer telafi sınavı'), makeup),
       _Action(Icons.forward_to_inbox_rounded, tr('Velilere toplu gönder'), () => openBulkParentSend(context, exam)),
       _Action(Icons.hub_outlined, exam.isCommon ? tr('Ortak sınav') : tr('Ortak sınav yap'), () => openCommonExamMenu(context, exam)),
     ];

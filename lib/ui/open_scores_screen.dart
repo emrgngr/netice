@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 import '../core/models.dart';
 import '../core/scoring.dart';
 import '../main.dart';
+import 'rubric_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
 import '../l10n/l10n.dart';
@@ -35,6 +36,26 @@ class _OpenScoresScreenState extends State<OpenScoresScreen> {
     final updated = old.copyWith(openScores: scores);
     store.replaceSheet(old, updated);
     _sheets[key] = updated;
+    setState(() {});
+  }
+
+  Future<void> _rubric(Exam exam, String key, int q, String? student) async {
+    final store = StoreScope.of(context);
+    final old = _sheets[key]!;
+    final oq = exam.openQuestions[q];
+    final levels = await scoreWithRubric(context, oq, old.rubricLevels[q] ?? const [], student: student);
+    if (levels == null || !mounted) return;
+    final scores = [
+      for (var i = 0; i < exam.openQuestions.length; i++) i < old.openScores.length ? old.openScores[i] : null
+    ];
+    final any = levels.any((l) => l >= 0);
+    scores[q] = any
+        ? [for (var i = 0; i < oq.rubric.length; i++) oq.rubric[i].pointsAt(levels[i])].fold<double>(0, (a, b) => a + b)
+        : null;
+    final updated = old.copyWith(openScores: scores, rubricLevels: {...old.rubricLevels, q: levels});
+    store.replaceSheet(old, updated);
+    _sheets[key] = updated;
+    _ctrl[key]![q].text = scores[q] == null ? '' : _num(scores[q]!);
     setState(() {});
   }
 
@@ -120,7 +141,16 @@ class _OpenScoresScreenState extends State<OpenScoresScreen> {
                           const SizedBox(height: 10),
                           Wrap(spacing: 8, runSpacing: 8, children: [
                             for (var q = 0; q < exam.openQuestions.length; q++)
-                              SizedBox(
+                              if (exam.openQuestions[q].hasRubric)
+                                OutlinedButton.icon(
+                                  onPressed: () => _rubric(exam, key, q, st?.fullName),
+                                  icon: const Icon(Icons.rule_rounded, size: 18),
+                                  label: Text('${exam.openQuestions[q].label}: '
+                                      '${q < sheet.openScores.length && sheet.openScores[q] != null ? _num(sheet.openScores[q]!) : '–'}'
+                                      '/${_num(exam.openQuestions[q].maxPoints)}'),
+                                )
+                              else
+                                SizedBox(
                                 width: 92,
                                 child: TextField(
                                   controller: _ctrl[key]![q],

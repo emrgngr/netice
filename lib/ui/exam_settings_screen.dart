@@ -2,7 +2,10 @@ import 'package:material_ui/material_ui.dart';
 
 import '../core/models.dart';
 import '../main.dart';
+import '../core/pro.dart';
 import 'key_from_photo.dart';
+import 'pro_screen.dart';
+import 'rubric_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
 import 'template_screen.dart';
@@ -38,6 +41,10 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
   bool get _ownKeys => _exam.bookletKeys.isNotEmpty;
   String? _template;
   late List<(TextEditingController, TextEditingController)> _open;
+
+  /// Klasik soruların ölçütleri ve bankadaki kimlikleri (_open ile aynı sırada).
+  late List<List<RubricCriterion>> _rubrics;
+  late List<String?> _openBank;
   /// B, C, D… kitapçıklarının sıraları (her biri bir kutu).
   final List<TextEditingController> _orders = [];
   late DateTime _date;
@@ -65,6 +72,8 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
       for (final q in _exam.openQuestions)
         (TextEditingController(text: q.label), TextEditingController(text: _num(q.maxPoints)))
     ];
+    _rubrics = [for (final q in _exam.openQuestions) q.rubric];
+    _openBank = [for (final q in _exam.openQuestions) q.bankId];
     for (final o in _exam.bookletOrders) {
       _addOrder(o.map((v) => v + 1).join(', '));
     }
@@ -148,7 +157,11 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
       final m = _parse(_open[i].$2.text);
       if (m == null || m <= 0) return toast(context, tr('{0}. klasik sorunun puanı geçerli değil.', [i + 1]));
       final label = _open[i].$1.text.trim();
-      open.add(OpenQuestion(label: label.isEmpty ? tr('Klasik {0}', [i + 1]) : label, maxPoints: m));
+      open.add(OpenQuestion(
+          label: label.isEmpty ? tr('Klasik {0}', [i + 1]) : label,
+          maxPoints: m,
+          bankId: i < _openBank.length ? _openBank[i] : null,
+          rubric: i < _rubrics.length ? _rubrics[i] : const []));
     }
     final openSum = open.fold(0.0, (a, q) => a + q.maxPoints);
     if (openSum >= max) {
@@ -484,14 +497,39 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
                             width: 90,
                             child: TextField(
                               controller: _open[i].$2,
+                              readOnly: _rubrics[i].isNotEmpty,
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
                               onChanged: (_) => setState(() {}),
                               decoration: InputDecoration(labelText: tr('Puan')),
                             ),
                           ),
                           IconButton(
+                            tooltip: _rubrics[i].isEmpty ? tr('Ölçüt (rubrik) ekle') : tr('Ölçütler: {0}', [_rubrics[i].length]),
+                            onPressed: () async {
+                              if (!await requirePro(context, ProFeature.rubrics) || !context.mounted) return;
+                              final r = await RubricEditor.open(context,
+                                  title: _open[i].$1.text.trim(),
+                                  initial: _rubrics[i],
+                                  suggestedTotal: _parse(_open[i].$2.text) ?? 10);
+                              if (r == null || !mounted) return;
+                              setState(() {
+                                _rubrics[i] = r;
+                                if (r.isNotEmpty) _open[i].$2.text = _num(r.fold(0.0, (a, c) => a + c.maxPoints));
+                              });
+                            },
+                            icon: Badge(
+                              isLabelVisible: _rubrics[i].isNotEmpty,
+                              label: Text('${_rubrics[i].length}'),
+                              child: Icon(Icons.rule_rounded, color: _rubrics[i].isNotEmpty ? NColors.emerald : null),
+                            ),
+                          ),
+                          IconButton(
                             tooltip: tr('Kaldır'),
-                            onPressed: () => setState(() => _open.removeAt(i)),
+                            onPressed: () => setState(() {
+                              _open.removeAt(i);
+                              _rubrics.removeAt(i);
+                              _openBank.removeAt(i);
+                            }),
                             icon: const Icon(Icons.remove_circle_outline),
                           ),
                         ]),
@@ -500,10 +538,14 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: TextButton.icon(
-                        onPressed: () => setState(() => _open.add((
-                              TextEditingController(text: tr('Klasik {0}', [_open.length + 1])),
-                              TextEditingController(text: '10'),
-                            ))),
+                        onPressed: () => setState(() {
+                          _open.add((
+                            TextEditingController(text: tr('Klasik {0}', [_open.length + 1])),
+                            TextEditingController(text: '10'),
+                          ));
+                          _rubrics.add(const []);
+                          _openBank.add(null);
+                        }),
                         icon: const Icon(Icons.add),
                         label: Text(tr('Klasik soru ekle')),
                       ),
