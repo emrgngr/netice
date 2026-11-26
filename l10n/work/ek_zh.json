@@ -1692,5 +1692,8 @@
  "Classroom ve Moodle'a not aktarma": "导出成绩到 Classroom 和 Moodle",
  "Notlar tek dokunuşla Google Classroom'a ya da Moodle not defterine": "一键将成绩发送到 Google Classroom 或 Moodle 成绩册",
  "Giriş tamamlandı. Netice'ye dönebilirsiniz.": "已登录。您可以返回 Netice。",
- "Giriş iptal edildi.": "登录已取消。"
+ "Giriş iptal edildi.": "登录已取消。",
+ "Bu ürün Microsoft Store'da henüz açılmadı.": "该产品尚未在 Microsoft Store 上架。",
+ "Windows'ta Pro, Microsoft Store'dan kurulan Netice'den satın alınır. Kurum lisans kodunuz varsa Profil > Kurum lisansı bölümüne girin. Sorularınız için: {0}": "在 Windows 上，Pro 需在从 Microsoft Store 安装的 Netice 中购买。如有机构许可证代码，请在“个人资料 > 机构许可证”中输入。咨询：{0}",
+ "İnternet bağlantısı yok. Bağlanıp tekrar deneyin.": "没有网络连接。请连接后重试。"
 }
