@@ -186,6 +186,10 @@ class BookletPlan {
           points: testPoints[i],
           outcomeCode: _code(testMaster[i]),
           bankId: testMaster[i].parent?.id ?? testMaster[i].id,
+          misconceptions: {
+            for (var c = 0; c < testMaster[i].misconceptions.length; c++)
+              if (testMaster[i].misconceptionOf(c).isNotEmpty) c: testMaster[i].misconceptionOf(c)
+          },
         ),
     ];
     final orders = <List<int>>[];

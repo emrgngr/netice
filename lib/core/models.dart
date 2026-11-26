@@ -39,6 +39,13 @@ class Student {
   /// aktarırken öğrenciyi kesin eşleştirmek için kullanılır.
   final String email;
 
+  /// Velinin konuştuğu dil (uygulama dil kodu: 'ar', 'de'…). Boşsa karne
+  /// uygulamanın dilinde hazırlanır.
+  final String parentLanguage;
+
+  /// Öğrencinin kişisel hedefi: başarı yüzdesi (0–100); yoksa null.
+  final double? goal;
+
   const Student({
     required this.id,
     required this.firstName,
@@ -47,9 +54,20 @@ class Student {
     required this.className,
     this.parentPhone = '',
     this.email = '',
+    this.parentLanguage = '',
+    this.goal,
   });
 
-  Student copyWith({String? number, String? className, String? parentPhone, String? email}) => Student(
+  Student copyWith({
+    String? number,
+    String? className,
+    String? parentPhone,
+    String? email,
+    String? parentLanguage,
+    double? goal,
+    bool clearGoal = false,
+  }) =>
+      Student(
         id: id,
         firstName: firstName,
         lastName: lastName,
@@ -57,6 +75,8 @@ class Student {
         className: className ?? this.className,
         parentPhone: parentPhone ?? this.parentPhone,
         email: email ?? this.email,
+        parentLanguage: parentLanguage ?? this.parentLanguage,
+        goal: clearGoal ? null : (goal ?? this.goal),
       );
 
   /// Çince ve Japonca adlar arasında boşluk bırakılmaz (王伟).
@@ -71,6 +91,8 @@ class Student {
         'className': className,
         if (parentPhone.isNotEmpty) 'parentPhone': parentPhone,
         if (email.isNotEmpty) 'email': email,
+        if (parentLanguage.isNotEmpty) 'parentLanguage': parentLanguage,
+        if (goal != null) 'goal': goal,
       };
 
   factory Student.fromJson(Map<String, dynamic> j) => Student(
@@ -81,6 +103,8 @@ class Student {
         className: j['className'] as String,
         parentPhone: j['parentPhone'] as String? ?? '',
         email: j['email'] as String? ?? '',
+        parentLanguage: j['parentLanguage'] as String? ?? '',
+        goal: (j['goal'] as num?)?.toDouble(),
       );
 }
 
@@ -97,6 +121,9 @@ class Question {
   /// Soru bankasından geldiyse bankadaki kimliği (analizler için).
   final String? bankId;
 
+  /// Yanlış şıkların yakaladığı kavram yanılgıları (A sırasındaki şık → yanılgı).
+  final Map<int, String> misconceptions;
+
   const Question({
     required this.no,
     required this.correct,
@@ -104,9 +131,13 @@ class Question {
     this.cancelled = false,
     this.outcomeCode,
     this.bankId,
+    this.misconceptions = const {},
   });
 
-  Question copyWith({Set<int>? correct, double? points, bool? cancelled, String? outcomeCode}) =>
+  /// [choice] şıkkının yanılgısı (doğru şıksa ya da yazılmamışsa boş).
+  String misconceptionOf(int choice) => correct.contains(choice) ? '' : (misconceptions[choice] ?? '').trim();
+
+  Question copyWith({Set<int>? correct, double? points, bool? cancelled, String? outcomeCode, Map<int, String>? misconceptions}) =>
       Question(
         no: no,
         correct: correct ?? this.correct,
@@ -114,6 +145,7 @@ class Question {
         cancelled: cancelled ?? this.cancelled,
         outcomeCode: outcomeCode ?? this.outcomeCode,
         bankId: bankId,
+        misconceptions: misconceptions ?? this.misconceptions,
       );
 
   Map<String, dynamic> toJson() => {
@@ -123,6 +155,8 @@ class Question {
         'cancelled': cancelled,
         'outcomeCode': outcomeCode,
         if (bankId != null) 'bankId': bankId,
+        if (misconceptions.values.any((m) => m.trim().isNotEmpty))
+          'misconceptions': {for (final e in misconceptions.entries) if (e.value.trim().isNotEmpty) '${e.key}': e.value},
       };
 
   factory Question.fromJson(Map<String, dynamic> j) => Question(
@@ -132,6 +166,10 @@ class Question {
         cancelled: j['cancelled'] as bool? ?? false,
         outcomeCode: j['outcomeCode'] as String?,
         bankId: j['bankId'] as String?,
+        misconceptions: {
+          for (final e in ((j['misconceptions'] as Map?) ?? const {}).entries)
+            if (int.tryParse('${e.key}') != null) int.parse('${e.key}'): '${e.value}'
+        },
       );
 }
 
@@ -161,17 +199,69 @@ class ScoringRule {
 }
 
 /// Klasik (açık uçlu) soru: öğretmen elle puanlar.
+/// Ölçütlü (rubrikli) puanlamada bir ölçüt: adı, puanı ve dört düzeyin
+/// açıklamaları (Başlangıç, Gelişmekte, Yeterli, Örnek).
+class RubricCriterion {
+  final String name;
+  final double maxPoints;
+
+  /// Düzey açıklamaları (isteğe bağlı; [levelCount] tane).
+  final List<String> descriptors;
+
+  const RubricCriterion({required this.name, required this.maxPoints, this.descriptors = const []});
+
+  static const levelCount = 4;
+
+  static String levelLabel(int level) => switch (level) {
+        0 => tr('Başlangıç'),
+        1 => tr('Gelişmekte'),
+        2 => tr('Yeterli'),
+        _ => tr('Örnek'),
+      };
+
+  /// [level] düzeyinin puanı (0 = başlangıç … 3 = örnek).
+  double pointsAt(int level) => level < 0 ? 0 : (maxPoints * (level + 1) / levelCount * 100).round() / 100;
+
+  String descriptor(int level) => level >= 0 && level < descriptors.length ? descriptors[level].trim() : '';
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'maxPoints': maxPoints,
+        if (descriptors.any((d) => d.trim().isNotEmpty)) 'descriptors': descriptors,
+      };
+
+  factory RubricCriterion.fromJson(Map<String, dynamic> j) => RubricCriterion(
+        name: j['name'] as String? ?? '',
+        maxPoints: (j['maxPoints'] as num?)?.toDouble() ?? 1,
+        descriptors: (j['descriptors'] as List?)?.cast<String>() ?? const [],
+      );
+}
+
 class OpenQuestion {
   final String label;
   final double maxPoints;
 
   /// Soru bankasından geldiyse bankadaki kimliği.
   final String? bankId;
-  const OpenQuestion({required this.label, required this.maxPoints, this.bankId});
 
-  Map<String, dynamic> toJson() => {'label': label, 'maxPoints': maxPoints, if (bankId != null) 'bankId': bankId};
+  /// Ölçütler (boşsa puan elle yazılır). Doluysa [maxPoints] ölçütlerin toplamıdır.
+  final List<RubricCriterion> rubric;
+
+  const OpenQuestion({required this.label, required this.maxPoints, this.bankId, this.rubric = const []});
+
+  bool get hasRubric => rubric.isNotEmpty;
+
+  Map<String, dynamic> toJson() => {
+        'label': label,
+        'maxPoints': maxPoints,
+        if (bankId != null) 'bankId': bankId,
+        if (rubric.isNotEmpty) 'rubric': [for (final c in rubric) c.toJson()],
+      };
   factory OpenQuestion.fromJson(Map<String, dynamic> j) => OpenQuestion(
-      label: j['label'] as String? ?? '', maxPoints: (j['maxPoints'] as num).toDouble(), bankId: j['bankId'] as String?);
+      label: j['label'] as String? ?? '',
+      maxPoints: (j['maxPoints'] as num).toDouble(),
+      bankId: j['bankId'] as String?,
+      rubric: [for (final c in (j['rubric'] as List?) ?? const []) RubricCriterion.fromJson(c as Map<String, dynamic>)]);
 }
 
 /// Çocuk şablonunun renk teması (kitapçık, cevap kartları, karne, raporlar).
@@ -366,6 +456,9 @@ class Exam {
           cancelled: questions[order[i]].cancelled,
           outcomeCode: questions[order[i]].outcomeCode,
           bankId: questions[order[i]].bankId,
+          misconceptions: {
+            for (final e in questions[order[i]].misconceptions.entries) printedChoice(booklet, order[i], e.key): e.value
+          },
         ),
     ];
   }
@@ -580,6 +673,10 @@ class Sheet {
   /// Kâğıt çeyrek A4 kısa quiz formuydu (işaretli görüntü buna göre çizilir).
   final bool mini;
 
+  /// Ölçütlü klasik sorularda seçilen düzeyler: klasik soru sırası →
+  /// ölçüt başına düzey (0–3; seçilmemiş −1).
+  final Map<int, List<int>> rubricLevels;
+
   const Sheet({
     required this.examId,
     this.studentId,
@@ -589,12 +686,20 @@ class Sheet {
     this.imageId,
     this.readNumber,
     this.mini = false,
+    this.rubricLevels = const {},
   });
 
   bool get needsReview =>
       studentId == null || answers.any((a) => a.needsReview);
 
-  Sheet copyWith({String? studentId, List<Answer>? answers, List<double?>? openScores, String? imageId}) => Sheet(
+  Sheet copyWith({
+    String? studentId,
+    List<Answer>? answers,
+    List<double?>? openScores,
+    String? imageId,
+    Map<int, List<int>>? rubricLevels,
+  }) =>
+      Sheet(
         examId: examId,
         studentId: studentId ?? this.studentId,
         answers: answers ?? this.answers,
@@ -603,6 +708,7 @@ class Sheet {
         imageId: imageId ?? this.imageId,
         readNumber: readNumber,
         mini: mini,
+        rubricLevels: rubricLevels ?? this.rubricLevels,
       );
 
   Map<String, dynamic> toJson() => {
@@ -614,6 +720,7 @@ class Sheet {
         if (imageId != null) 'imageId': imageId,
         if (readNumber != null) 'readNumber': readNumber,
         if (mini) 'mini': true,
+        if (rubricLevels.isNotEmpty) 'rubricLevels': {for (final e in rubricLevels.entries) '${e.key}': e.value},
       };
 
   factory Sheet.fromJson(Map<String, dynamic> j) => Sheet(
@@ -627,6 +734,10 @@ class Sheet {
         imageId: j['imageId'] as String?,
         readNumber: j['readNumber'] as String?,
         mini: j['mini'] as bool? ?? false,
+        rubricLevels: {
+          for (final e in ((j['rubricLevels'] as Map?) ?? const {}).entries)
+            if (int.tryParse('${e.key}') != null) int.parse('${e.key}'): (e.value as List).cast<int>()
+        },
       );
 }
 

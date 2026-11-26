@@ -12,6 +12,7 @@ import '../main.dart';
 import '../reports/pdf_documents.dart';
 import 'report_preview_screen.dart';
 import 'illustrations.dart';
+import 'mastery_screen.dart';
 import 'pro_screen.dart';
 import '../core/pro.dart';
 import 'theme.dart';
@@ -281,6 +282,11 @@ class _TermScreenState extends State<TermScreen> {
                       onPressed: trackingPdf,
                       icon: const Icon(Icons.grid_on_rounded),
                       label: Text(tr('Kazanım takip çizelgesi')),
+                    ),
+                    FilledButton.tonalIcon(
+                      onPressed: () => MasteryScreen.open(context, _class!),
+                      icon: const Icon(Icons.military_tech_outlined),
+                      label: Text(tr('Ustalık takibi')),
                     ),
                     OutlinedButton.icon(
                       onPressed: excel,

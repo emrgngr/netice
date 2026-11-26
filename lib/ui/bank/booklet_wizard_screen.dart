@@ -5,6 +5,7 @@ import 'package:printing/printing.dart';
 
 import '../../bank/bank_models.dart';
 import '../../bank/bank_store.dart';
+import '../../bank/blueprint.dart';
 import '../../bank/booklet_builder.dart';
 import '../../core/models.dart';
 import '../../core/pro.dart';
@@ -20,6 +21,7 @@ import '../pro_screen.dart';
 import '../theme.dart';
 import '../widgets.dart';
 import 'bank_widgets.dart';
+import 'blueprint_view.dart';
 import 'library_screen.dart';
 
 /// Soru kitapçığı sihirbazı: soruları seç → görünüm → kitapçık ve puan → önizle.
@@ -153,6 +155,19 @@ class _BookletWizardScreenState extends State<BookletWizardScreen> {
         mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         message: tr('"{0}" kitapçığı (Word)', [_displayName]));
   }
+
+  /// Sınav öncesi soru kontrolü (seçili sorular ve şu anki kitapçık ayarlarıyla).
+  List<QualityIssue> _issues() {
+    final qs = _questions;
+    if (qs.isEmpty) return const [];
+    try {
+      return QualityCheck.run(BookletPlan.build(qs, _collect()));
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  int _warnings() => _issues().where((i) => i.warning).length;
 
   Future<void> _pick() async {
     final r = await Navigator.of(context).push<List<String>>(MaterialPageRoute(builder: (_) => QuestionPickerScreen(selected: _ids)));
@@ -429,6 +444,19 @@ class _BookletWizardScreenState extends State<BookletWizardScreen> {
             Wrap(spacing: 10, runSpacing: 10, children: [
               FilledButton.icon(onPressed: _pick, icon: const Icon(Icons.checklist_rounded), label: Text(tr('Bankadan seç'))),
               FilledButton.tonalIcon(onPressed: _auto, icon: const Icon(Icons.auto_awesome_rounded), label: Text(tr('Otomatik seç'))),
+              if (qs.isNotEmpty) ...[
+                OutlinedButton.icon(
+                  onPressed: () => showBlueprintSheet(context, qs),
+                  icon: const Icon(Icons.table_chart_outlined),
+                  label: Text(tr('Belirtke tablosu')),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () => showQualitySheet(context, _issues()),
+                  icon: Icon(_warnings() > 0 ? Icons.warning_amber_rounded : Icons.fact_check_outlined,
+                      color: _warnings() > 0 ? NColors.coral : null),
+                  label: Text(_warnings() > 0 ? tr('Soru kontrolü ({0})', [_warnings()]) : tr('Soru kontrolü')),
+                ),
+              ],
               if (qs.isNotEmpty)
                 TextButton.icon(
                   onPressed: () => setState(() {
@@ -774,7 +802,21 @@ class _BookletWizardScreenState extends State<BookletWizardScreen> {
 
   Widget _previewStep(ThemeData t) {
     final count = _o.bookletCount;
+    final issues = _issues();
+    final warn = issues.where((i) => i.warning).length;
     return Column(children: [
+      if (issues.isNotEmpty)
+        Material(
+          color: (warn > 0 ? NColors.coral : NColors.amber).withValues(alpha: 0.12),
+          child: ListTile(
+            dense: true,
+            leading: Icon(warn > 0 ? Icons.warning_amber_rounded : Icons.info_outline_rounded, color: warn > 0 ? NColors.coral : NColors.amber),
+            title: Text(warn > 0
+                ? tr('Soru kontrolü {0} uyarı buldu', [warn])
+                : tr('Soru kontrolünde {0} öneri var', [issues.length])),
+            trailing: TextButton(onPressed: () => showQualitySheet(context, issues), child: Text(tr('Göster'))),
+          ),
+        ),
       if (count > 1)
         SizedBox(
           height: 52,
@@ -980,7 +1022,7 @@ class AutoPickSheet extends StatefulWidget {
 class _AutoPickSheetState extends State<AutoPickSheet> {
   int _count = 20;
   int _easy = 30, _medium = 50;
-  bool _balance = true, _unused = true, _optical = true;
+  bool _balance = true, _unused = true, _optical = true, _levels = false;
   BankFilter _f = const BankFilter();
 
   int get _hard => 100 - _easy - _medium;
@@ -1055,6 +1097,20 @@ class _AutoPickSheetState extends State<AutoPickSheet> {
               ),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
+                title: Row(children: [
+                  Flexible(child: Text(tr('Düşünme düzeylerini dengele'))),
+                  const SizedBox(width: 6),
+                  const ProBadge(),
+                ]),
+                subtitle: Text(tr('Hatırlamadan analize kadar her düzeyden soru seçer (belirtke tablosu)')),
+                value: _levels,
+                onChanged: (v) async {
+                  if (v && !await requirePro(context, ProFeature.balancedBlueprint)) return;
+                  if (mounted) setState(() => _levels = v);
+                },
+              ),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
                 title: Text(tr('Daha önce sorulmamışları öne al')),
                 value: _unused,
                 onChanged: (v) => setState(() => _unused = v),
@@ -1087,6 +1143,7 @@ class _AutoPickSheetState extends State<AutoPickSheet> {
                               mediumPct: _medium,
                               hardPct: _hard,
                               balanceTopics: _balance,
+                              balanceLevels: _levels,
                               preferUnused: _unused,
                               opticalOnly: _optical,
                               seed: DateTime.now().millisecondsSinceEpoch % 100000,

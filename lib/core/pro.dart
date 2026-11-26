@@ -35,6 +35,15 @@ enum ProFeature {
   wordExport('Word\'e aktarma', 'Kitapçığı düzenlenebilir Word (.docx) belgesi olarak kaydedin'),
   lanSync('Wi-Fi ile eşitleme', 'Aynı ağdaki öğretmenlerle internetsiz, dosyasız sonuç toplama'),
   bulkParent('Velilere toplu gönderim', 'Bütün sınıfın karnelerini sırayla, hazır mesajla gönderin'),
+  balancedBlueprint('Dengeli belirtke tablosu', 'Otomatik seçim soruları konulara ve düşünme düzeylerine dengeli dağıtır'),
+  misconceptions('Kavram yanılgısı teşhisi', 'Yanlış şıklardan sınıfın ve her öğrencinin yanılgılarını bulur'),
+  parentLanguage('Velinin dilinde karne', 'Karneyi velinin konuştuğu dilde hazırlar ve gönderir (15 dil)'),
+  studyGroups('Otomatik çalışma grupları', 'Destek, pekiştirme ve zenginleştirme grupları; her gruba çalışma planı'),
+  mastery('Ustalık takibi', 'Öğrenilen kazanımları izler, unutulmadan hatırlatma testi önerir'),
+  rubrics('Ölçütlü (rubrikli) puanlama', 'Klasik soruları ölçüt ölçüt puanlayın, öğrenciye ölçütlü geri bildirim verin'),
+  makeupExam('Eşdeğer telafi sınavı', 'Soru bankasından aynı konu ve zorlukta ikinci bir sınav kurar'),
+  similarAnswers('Benzer yanlış uyarısı', 'Aynı yanlışları yapan öğrenci çiftlerini yalnız öğretmene gösterir'),
+  transferFile('Öğrenci devir dosyası', 'Yıl sonunda her öğrencinin bütün yılı tek PDF; yeni öğretmene devredilir'),
   aiQuestions('Nottan soru üretme', 'Yapay zekâ ders notunuzdan soru önerir · Pro\'da ayda 50, Pro + Yapay Zekâ\'da ayda 300 soru'),
   noAds('Pro\'da hiç reklam yok', 'Kendi tanıtımlarımız da gösterilmez. Ücretsiz sürümde de üçüncü taraf reklam yok.');
 

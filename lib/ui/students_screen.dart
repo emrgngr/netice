@@ -11,6 +11,7 @@ import '../core/models.dart';
 import '../main.dart';
 import 'student_detail_screen.dart';
 import 'theme.dart';
+import 'transfer_ui.dart';
 import 'illustrations.dart';
 import 'widgets.dart';
 import '../l10n/l10n.dart';
@@ -137,6 +138,8 @@ class _StudentsScreenState extends State<StudentsScreen> {
     final cls = TextEditingController(text: existing?.className ?? _class ?? store.classNames.firstOrNull ?? '');
     final phone = TextEditingController(text: existing?.parentPhone ?? '');
     final mail = TextEditingController(text: existing?.email ?? '');
+    final goal = TextEditingController(text: existing?.goal == null ? '' : '${existing!.goal!.round()}');
+    var lang = existing?.parentLanguage ?? '';
     final result = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -179,6 +182,30 @@ class _StudentsScreenState extends State<StudentsScreen> {
                       labelText: tr('Öğrenci e-postası (isteğe bağlı)'),
                       helperText: tr('Google Classroom ve Moodle\'a not aktarırken öğrenciyi kesin eşleştirir.'),
                       helperMaxLines: 2)),
+              const SizedBox(height: 10),
+              StatefulBuilder(
+                builder: (ctx, setLang) => DropdownButtonFormField<String>(
+                  initialValue: lang,
+                  isExpanded: true,
+                  decoration: InputDecoration(
+                      labelText: tr('Velinin dili'),
+                      helperText: tr('Karne ve veli mesajı bu dilde hazırlanır.'),
+                      prefixIcon: const Icon(Icons.translate_rounded)),
+                  items: [
+                    DropdownMenuItem(value: '', child: Text(tr('Uygulamanın dili'))),
+                    for (final l in AppLanguage.all) DropdownMenuItem(value: l.code, child: Text('${l.flag}  ${l.name}')),
+                  ],
+                  onChanged: (v) => setLang(() => lang = v ?? ''),
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(controller: goal, keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                      labelText: tr('Kişisel hedef % (isteğe bağlı)'),
+                      hintText: tr('ör. 75'),
+                      helperText: tr('Karnede ve gelişim grafiğinde hedef çizgisi olarak görünür.'),
+                      helperMaxLines: 2,
+                      prefixIcon: const Icon(Icons.flag_outlined))),
             ]),
           ),
         ),
@@ -214,6 +241,11 @@ class _StudentsScreenState extends State<StudentsScreen> {
       className: className,
       parentPhone: phone.text.trim(),
       email: mail.text.trim(),
+      parentLanguage: lang,
+      goal: (() {
+        final g = double.tryParse(goal.text.trim().replaceAll(',', '.').replaceAll('%', ''));
+        return g?.clamp(1, 100).toDouble();
+      })(),
     );
     if (existing == null) {
       store.addStudents([st]);
@@ -259,6 +291,15 @@ class _StudentsScreenState extends State<StudentsScreen> {
             for (final c in classes)
               ChoiceChip(label: Text('$c (${store.studentsOf(c).length})'), selected: c == current, onSelected: (_) => setState(() => _class = c)),
           ]),
+        if (current != null && list.isNotEmpty)
+          Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: TextButton.icon(
+              onPressed: () => openTransferFile(context, current),
+              icon: const Icon(Icons.drive_file_move_outline),
+              label: Text(tr('Sınıfın devir dosyası')),
+            ),
+          ),
         const SizedBox(height: 12),
         TextField(
           decoration: InputDecoration(prefixIcon: Icon(Icons.search), hintText: tr('Ad ya da numara ara')),

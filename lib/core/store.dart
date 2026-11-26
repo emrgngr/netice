@@ -831,6 +831,10 @@ class AppStore extends ChangeNotifier {
       final i = students.indexWhere((x) => x.className == s.className && x.number == s.number);
       if (i >= 0 && students[i].parentPhone != s.parentPhone) students[i] = students[i].copyWith(parentPhone: s.parentPhone);
     }
+    for (final s in list.where((s) => s.parentLanguage.isNotEmpty && s.number.isNotEmpty)) {
+      final i = students.indexWhere((x) => x.className == s.className && x.number == s.number);
+      if (i >= 0) students[i] = students[i].copyWith(parentLanguage: s.parentLanguage);
+    }
     students.addAll(list.where((s) => s.number.isEmpty
         ? !names.contains('${s.className}|${s.fullName.toLowerCase()}')
         : !existing.contains('${s.className}|${s.number}')));

@@ -27,6 +27,9 @@ class BankStore extends ChangeNotifier {
   final List<BankNote> notes = [];
   final List<Booklet> booklets = [];
 
+  /// İçe aktarılmış kazanım listeleri (müfredat).
+  final List<OutcomeList> outcomeLists = [];
+
   /// Son kullanılan etiket değerleri (yeni soru eklerken önerilir).
   String lastSubject = '';
   String lastGrade = '';
@@ -64,6 +67,7 @@ class BankStore extends ChangeNotifier {
     questions.clear();
     notes.clear();
     booklets.clear();
+    outcomeLists.clear();
     final f = _file!;
     if (await f.exists()) {
       try {
@@ -86,6 +90,7 @@ class BankStore extends ChangeNotifier {
         'questions': questions.map((q) => q.toJson()).toList(),
         'notes': notes.map((n) => n.toJson()).toList(),
         'booklets': booklets.map((b) => b.toJson()).toList(),
+        if (outcomeLists.isNotEmpty) 'outcomeLists': outcomeLists.map((l) => l.toJson()).toList(),
         'lastSubject': lastSubject,
         'lastGrade': lastGrade,
         'lastTopic': lastTopic,
@@ -95,6 +100,7 @@ class BankStore extends ChangeNotifier {
     questions.addAll([for (final e in (j['questions'] as List? ?? [])) BankQuestion.fromJson((e as Map).cast<String, dynamic>())]);
     notes.addAll([for (final e in (j['notes'] as List? ?? [])) BankNote.fromJson((e as Map).cast<String, dynamic>())]);
     booklets.addAll([for (final e in (j['booklets'] as List? ?? [])) Booklet.fromJson((e as Map).cast<String, dynamic>())]);
+    outcomeLists.addAll([for (final e in (j['outcomeLists'] as List? ?? [])) OutcomeList.fromJson((e as Map).cast<String, dynamic>())]);
     lastSubject = j['lastSubject'] as String? ?? '';
     lastGrade = j['lastGrade'] as String? ?? '';
     lastTopic = j['lastTopic'] as String? ?? '';
@@ -391,7 +397,20 @@ class BankStore extends ChangeNotifier {
   List<String> outcomesOf([String? subject]) => _distinct([
         ...questions.where((q) => subject == null || subject.isEmpty || q.subject == subject).map((q) => q.outcome),
         ...notes.where((n) => subject == null || subject.isEmpty || n.subject == subject).map((n) => n.outcome),
+        for (final l in outcomeLists)
+          if (subject == null || subject.isEmpty || l.subject.isEmpty || l.subject.toLowerCase() == subject.toLowerCase()) ...l.labels,
       ]);
+
+  void upsertOutcomeList(OutcomeList l) {
+    final i = outcomeLists.indexWhere((x) => x.id == l.id);
+    i < 0 ? outcomeLists.add(l) : outcomeLists[i] = l;
+    _changed();
+  }
+
+  void deleteOutcomeList(String id) {
+    outcomeLists.removeWhere((l) => l.id == id);
+    _changed();
+  }
   List<String> get tags => _distinct([...questions.expand((q) => q.tags), ...notes.expand((n) => n.tags)]);
 
   // ———————————————————————————— Sınavlarla bağlantı
@@ -431,14 +450,21 @@ class BankStore extends ChangeNotifier {
     final byDiff = {for (final d in Difficulty.values) d: candidates.where((q) => q.difficulty == d).toList()};
     final picked = <BankQuestion>[];
     final topicCount = <String, int>{};
+    final levelCount = <CognitiveLevel, int>{};
 
     BankQuestion? take(List<BankQuestion> from) {
       if (from.isEmpty) return null;
       var best = 0;
-      if (p.balanceTopics) {
+      if (p.balanceTopics || p.balanceLevels) {
         var bestScore = 1 << 30;
         for (var i = 0; i < from.length; i++) {
-          final s = (topicCount[from[i].topicLabel] ?? 0) * 1000 + (p.preferUnused ? (used[from[i].id] ?? 0) : 0) * 10 + i ~/ 50;
+          final q = from[i];
+          // Düzeyi belirtilmemiş soru, dengeleme açıkken en sona kalır.
+          final level = !p.balanceLevels ? 0 : (q.cognitive == CognitiveLevel.none ? 50 : (levelCount[q.cognitive] ?? 0));
+          final s = (p.balanceTopics ? (topicCount[q.topicLabel] ?? 0) : 0) * 100000 +
+              level * 1000 +
+              (p.preferUnused ? (used[q.id] ?? 0) : 0) * 10 +
+              i ~/ 50;
           if (s < bestScore) {
             bestScore = s;
             best = i;
@@ -447,6 +473,7 @@ class BankStore extends ChangeNotifier {
       }
       final q = from.removeAt(best);
       topicCount[q.topicLabel] = (topicCount[q.topicLabel] ?? 0) + 1;
+      levelCount[q.cognitive] = (levelCount[q.cognitive] ?? 0) + 1;
       return q;
     }
 
@@ -610,6 +637,7 @@ class BankStore extends ChangeNotifier {
     questions.clear();
     notes.clear();
     booklets.clear();
+    outcomeLists.clear();
     lastSubject = lastGrade = lastTopic = '';
     _memImages.clear();
     final d = _dir;

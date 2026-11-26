@@ -82,6 +82,30 @@ class L10n {
 }
 
 /// Metni etkin dile çevirir. Yer tutucular {0}, {1}… [args] ile doldurulur.
+/// [code] dilinde (boşsa ya da aynıysa olduğu gibi) çalıştırır ve dili geri
+/// alır. Velinin dilinde karne ve mesaj hazırlamak için.
+Future<T> inLanguage<T>(String? code, Future<T> Function() run) async {
+  final prev = L10n.code;
+  if (code == null || code.isEmpty || code == prev || !AppLanguage.all.any((l) => l.code == code)) return run();
+  L10n.use(code);
+  try {
+    return await run();
+  } finally {
+    L10n.use(prev);
+  }
+}
+
+T inLanguageSync<T>(String? code, T Function() run) {
+  final prev = L10n.code;
+  if (code == null || code.isEmpty || code == prev || !AppLanguage.all.any((l) => l.code == code)) return run();
+  L10n.use(code);
+  try {
+    return run();
+  } finally {
+    L10n.use(prev);
+  }
+}
+
 String tr(String source, [List<Object?> args = const []]) {
   var s = L10n.lookup(source);
   for (var i = 0; i < args.length; i++) {

@@ -45,6 +45,7 @@ class BankExcel {
     };
     if (exact.containsKey(h)) return exact[h];
     bool any(List<String> keys) => keys.any(h.startsWith);
+    if (any(['dusunme', 'bilissel', 'bloom', 'cognitive', 'denkniveau', 'taksonomi', 'taxonomy'])) return 'cognitive';
     if (any(['ders', 'subject', 'brans', 'fach', 'asignatura', 'predmet', 'materia', 'matiere', 'fenn'])) return 'subject';
     if (any(['sinif', 'duzey', 'seviye', 'grade', 'klasse', 'level', 'nivel', 'classe', 'sinf'])) return 'grade';
     if (any(['konu', 'topic', 'thema', 'tema', 'unite', 'mavzu', 'movzu'])) return 'topic';
@@ -163,6 +164,7 @@ class BankExcel {
             topic: v('topic'),
             outcome: v('outcome'),
             difficulty: Difficulty.parse(v('difficulty')),
+            cognitive: CognitiveLevel.parse(v('cognitive')),
             type: type,
             text: text,
             choices: type == QuestionType.multiple ? choices : const [],
@@ -263,6 +265,7 @@ class BankExcel {
         tr('Çözüm'),
         tr('Etiketler'),
         tr('Puan'),
+        tr('Düşünme düzeyi (Hatırlama…Yaratma)'),
       ];
 
   static List<String> get noteHeaders => [
@@ -303,6 +306,7 @@ class BankExcel {
         q.solution,
         q.tags.join(', '),
         q.points.toString(),
+        q.cognitive == CognitiveLevel.none ? '' : q.cognitive.label,
       ];
 
   static List<String> noteRow(BankNote n) => [
@@ -326,16 +330,16 @@ class BankExcel {
               tr('Fizik'), '9', tr('Kuvvet ve hareket'), 'F.9.2.1', tr('Kolay'), tr('Test'),
               tr('Net kuvvet sıfır olan bir cisim için aşağıdakilerden hangisi kesinlikle doğrudur?'),
               tr('Duruyordur'), tr('Hızlanıyordur'), tr('Hızı değişmez'), tr('Yavaşlıyordur'), tr('Yön değiştiriyordur'),
-              'C', tr('Newton\'un 1. yasası: net kuvvet sıfırsa hız sabittir.'), tr('çıkmış soru'), '5',
+              'C', tr('Newton\'un 1. yasası: net kuvvet sıfırsa hız sabittir.'), tr('çıkmış soru'), '5', tr('Anlama'),
             ],
             [
               tr('Fizik'), '9', tr('Kuvvet ve hareket'), '', tr('Orta'), tr('DY'),
-              tr('Sürtünme kuvveti her zaman harekete zıt yöndedir.'), '', '', '', '', '', tr('D'), '', '', '5',
+              tr('Sürtünme kuvveti her zaman harekete zıt yöndedir.'), '', '', '', '', '', tr('D'), '', '', '5', tr('Hatırlama'),
             ],
             [
               tr('Fizik'), '9', tr('Enerji'), '', tr('Zor'), tr('Klasik'),
               tr('Serbest bırakılan bir cismin mekanik enerjisinin korunduğunu bir örnekle açıklayınız.'),
-              '', '', '', '', '', tr('Potansiyel enerji kinetik enerjiye dönüşür, toplam sabit kalır.'), '', '', '10',
+              '', '', '', '', '', tr('Potansiyel enerji kinetik enerjiye dönüşür, toplam sabit kalır.'), '', '', '10', tr('Değerlendirme'),
             ],
           ]
         ),

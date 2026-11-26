@@ -66,7 +66,7 @@ class _ParentSendScreenState extends State<ParentSendScreen> {
     final store = StoreScope.of(context);
     final n = whatsappNumber(st.parentPhone, country: L10n.code);
     if (n == null) return toast(context, tr('Veli telefonu geçersiz. Öğrenciyi düzenleyip ülke koduyla yazın (ör. +90 532…).'));
-    final text = parentMessage(store, exam, st, r, mean, withSummary: true);
+    final text = inLanguageSync(st.parentLanguage, () => parentMessage(store, exam, st, r, mean, withSummary: true));
     final uri = Uri.parse('https://wa.me/$n?text=${Uri.encodeComponent(text)}');
     final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!mounted) return;
@@ -174,6 +174,8 @@ class _ParentSendScreenState extends State<ParentSendScreen> {
                   subtitle: Text([
                     '${tr('Puan')} ${fmt1(r.score)}',
                     if (st.parentPhone.trim().isNotEmpty) st.parentPhone.trim(),
+                    if (st.parentLanguage.isNotEmpty && st.parentLanguage != L10n.code)
+                      '${AppLanguage.byCode(st.parentLanguage).flag} ${AppLanguage.byCode(st.parentLanguage).name}',
                   ].join(' · ')),
                   trailing: Row(mainAxisSize: MainAxisSize.min, children: [
                     if (st.parentPhone.trim().isNotEmpty)

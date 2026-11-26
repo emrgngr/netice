@@ -38,13 +38,17 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
     for (var i = 0; i < (_q.choices.isNotEmpty ? _q.choices.length : _q.choiceCount); i++)
       TextEditingController(text: i < _q.choices.length ? _q.choices[i] : ''),
   ];
+  late final List<TextEditingController> _mis = [
+    for (var i = 0; i < 5; i++) TextEditingController(text: i < _q.misconceptions.length ? _q.misconceptions[i] : ''),
+  ];
+  late bool _showMis = _q.misconceptions.any((m) => m.trim().isNotEmpty);
   late final List<TextEditingController> _items = [for (final t in _q.items) TextEditingController(text: t)];
   late List<int> _keys = [for (var i = 0; i < _q.items.length; i++) i < _q.itemKeys.length ? _q.itemKeys[i] : -1];
   bool _dirty = false;
 
   @override
   void dispose() {
-    for (final c in [_text, _answer, _solution, _subject, _grade, _topic, _outcome, _tags, _source, _points, ..._choices, ..._items]) {
+    for (final c in [_text, _answer, _solution, _subject, _grade, _topic, _outcome, _tags, _source, _points, ..._choices, ..._items, ..._mis]) {
       c.dispose();
     }
     super.dispose();
@@ -80,6 +84,12 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
       },
       items: items,
       itemKeys: ty.grouped ? keys : const [],
+      misconceptions: ty == QuestionType.multiple
+          ? (() {
+              final m = [for (var i = 0; i < _choices.length; i++) _q.correct.contains(i) ? '' : _mis[i].text.trim()];
+              return m.any((t) => t.isNotEmpty) ? m : const <String>[];
+            })()
+          : const <String>[],
       answerText: _answer.text.trim(),
       solution: _solution.text.trim(),
       subject: _subject.text.trim(),
@@ -295,6 +305,27 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
           selected: {_q.difficulty},
           onSelectionChanged: (s) => _set(_q.copyWith(difficulty: s.first)),
         ),
+      ),
+      _card(
+        icon: Icons.psychology_alt_outlined,
+        title: tr('Düşünme düzeyi'),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Wrap(spacing: 6, runSpacing: 6, children: [
+            for (final l in CognitiveLevel.levels)
+              ChoiceChip(
+                label: Text(l.label),
+                selected: _q.cognitive == l,
+                onSelected: (on) => _set(_q.copyWith(cognitive: on ? l : CognitiveLevel.none)),
+              ),
+          ]),
+          const SizedBox(height: 8),
+          Text(
+            _q.cognitive == CognitiveLevel.none
+                ? tr('İsteğe bağlı. Belirtke tablosu, sınavın ezber mi yorum mu ağırlıklı olduğunu bununla gösterir.')
+                : _q.cognitive.hint,
+            style: TextStyle(fontSize: 12.5, color: t.colorScheme.onSurface.withValues(alpha: 0.65)),
+          ),
+        ]),
       ),
       _card(
         icon: Icons.account_tree_outlined,
@@ -518,7 +549,7 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
             Text(tr('Doğru şıkkın harfine dokunun. Şıklar görseldeyse metin kutularını boş bırakın.'),
                 style: TextStyle(fontSize: 12.5, color: t.colorScheme.onSurface.withValues(alpha: 0.6))),
             const SizedBox(height: 10),
-            for (var i = 0; i < _choices.length; i++)
+            for (var i = 0; i < _choices.length; i++) ...[
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Row(children: [
@@ -534,6 +565,30 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
                   ),
                 ]),
               ),
+              if (_showMis && !_q.correct.contains(i))
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(start: 50, bottom: 10),
+                  child: TextField(
+                    controller: _mis[i],
+                    onChanged: (_) => _dirty = true,
+                    textCapitalization: TextCapitalization.sentences,
+                    style: const TextStyle(fontSize: 13.5),
+                    decoration: InputDecoration(
+                      isDense: true,
+                      prefixIcon: const Icon(Icons.psychology_outlined, size: 18, color: NColors.amber),
+                      hintText: tr('{0} şıkkını seçen hangi yanılgıda? Ör: Paydaları topluyor', [letter(i)]),
+                    ),
+                  ),
+                ),
+            ],
+            const SizedBox(height: 4),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              value: _showMis,
+              onChanged: (v) => setState(() => _showMis = v),
+              title: Text(tr('Kavram yanılgılarını yaz')),
+              subtitle: Text(tr('Her yanlış şıkkın hangi yanılgıyı yakaladığını yazın; raporlar "kaç öğrenci bu yanılgıda" diye gösterir.')),
+            ),
           ]),
         );
       case QuestionType.trueFalse:

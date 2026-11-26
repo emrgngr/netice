@@ -102,6 +102,68 @@ enum QuestionType {
   bool get hasItems => grouped || this == QuestionType.ordering;
 }
 
+/// Sorunun ölçtüğü düşünme düzeyi (yenilenmiş Bloom sınıflaması).
+/// Belirtke tablosu ve dengeli kitapçık seçiminde kullanılır.
+enum CognitiveLevel {
+  none,
+  remember,
+  understand,
+  apply,
+  analyze,
+  evaluate,
+  create;
+
+  String get label => switch (this) {
+        CognitiveLevel.none => tr('Belirtilmemiş'),
+        CognitiveLevel.remember => tr('Hatırlama'),
+        CognitiveLevel.understand => tr('Anlama'),
+        CognitiveLevel.apply => tr('Uygulama'),
+        CognitiveLevel.analyze => tr('Analiz'),
+        CognitiveLevel.evaluate => tr('Değerlendirme'),
+        CognitiveLevel.create => tr('Yaratma'),
+      };
+
+  /// Kısa açıklama (soru düzenleyicide yardım).
+  String get hint => switch (this) {
+        CognitiveLevel.none => '',
+        CognitiveLevel.remember => tr('Bilgiyi tanıma, hatırlama, tanımlama'),
+        CognitiveLevel.understand => tr('Açıklama, örnek verme, yorumlama, sınıflama'),
+        CognitiveLevel.apply => tr('Bilgiyi yeni bir durumda kullanma, problem çözme'),
+        CognitiveLevel.analyze => tr('Parçalara ayırma, ilişki kurma, karşılaştırma'),
+        CognitiveLevel.evaluate => tr('Ölçüte göre yargılama, gerekçelendirme'),
+        CognitiveLevel.create => tr('Yeni bir ürün, plan ya da çözüm ortaya koyma'),
+      };
+
+  /// Üst düzey düşünme (analiz ve üstü).
+  bool get higher => index >= CognitiveLevel.analyze.index;
+
+  /// Belirtke tablosunun sütunları (belirtilmemiş hariç).
+  static List<CognitiveLevel> get levels => values.where((l) => l != none).toList();
+
+  /// Excel / metin içinden düzey: "hatırlama", "remember", "1"…
+  static CognitiveLevel parse(String? s) {
+    final t = (s ?? '').trim().toLowerCase();
+    if (t.isEmpty) return none;
+    final n = int.tryParse(t);
+    if (n != null) return n >= 1 && n <= 6 ? values[n] : none;
+    for (final l in levels) {
+      if (l.name == t || l.label.toLowerCase() == t) return l;
+    }
+    const pre = {
+      'hat': remember, 'bil': remember, 'rem': remember, 'kno': remember,
+      'anl': understand, 'kav': understand, 'und': understand, 'com': understand,
+      'uyg': apply, 'app': apply,
+      'ana': analyze, 'çöz': analyze,
+      'değ': evaluate, 'deg': evaluate, 'eva': evaluate,
+      'yar': create, 'sen': create, 'cre': create, 'syn': create,
+    };
+    for (final e in pre.entries) {
+      if (t.startsWith(e.key)) return e.value;
+    }
+    return none;
+  }
+}
+
 String _letter(int i) => String.fromCharCode(65 + i);
 
 /// Öncül / sıralama maddesinin etiketi: I, II, III (çocukta 1, 2, 3).
@@ -132,6 +194,13 @@ class BankQuestion {
   final String outcome;
   final Difficulty difficulty;
   final QuestionType type;
+
+  /// Ölçtüğü düşünme düzeyi (belirtke tablosu için).
+  final CognitiveLevel cognitive;
+
+  /// Çoktan seçmelide her yanlış şıkkın yakaladığı kavram yanılgısı
+  /// (şık sırasıyla; doğru şıkta ve yanılgı yazılmamışsa boş).
+  final List<String> misconceptions;
 
   /// Soru kökü (yazılı soru). Görselli sorularda boş olabilir.
   final String text;
@@ -191,6 +260,8 @@ class BankQuestion {
     this.outcome = '',
     this.difficulty = Difficulty.medium,
     this.type = QuestionType.multiple,
+    this.cognitive = CognitiveLevel.none,
+    this.misconceptions = const [],
     this.text = '',
     this.choices = const [],
     this.choiceCount = 5,
@@ -238,6 +309,10 @@ class BankQuestion {
 
   /// Konu yoksa kazanım, o da yoksa ders: analizde kullanılan başlık.
   String get topicLabel => topic.trim().isNotEmpty ? topic.trim() : (outcome.trim().isNotEmpty ? outcome.trim() : subject.trim());
+
+  /// [choice]. şıkkın kavram yanılgısı (yoksa boş).
+  String misconceptionOf(int choice) =>
+      choice >= 0 && choice < misconceptions.length && !correct.contains(choice) ? misconceptions[choice].trim() : '';
 
   /// Kısa cevap gösterimi: "C", "Doğru", "A/C" ya da cevap metni.
   String get answerLabel => switch (type) {
@@ -362,6 +437,8 @@ class BankQuestion {
     String? outcome,
     Difficulty? difficulty,
     QuestionType? type,
+    CognitiveLevel? cognitive,
+    List<String>? misconceptions,
     String? text,
     List<String>? choices,
     int? choiceCount,
@@ -389,6 +466,8 @@ class BankQuestion {
         outcome: outcome ?? this.outcome,
         difficulty: difficulty ?? this.difficulty,
         type: type ?? this.type,
+        cognitive: cognitive ?? this.cognitive,
+        misconceptions: misconceptions ?? this.misconceptions,
         text: text ?? this.text,
         choices: choices ?? this.choices,
         choiceCount: choiceCount ?? this.choiceCount,
@@ -416,6 +495,8 @@ class BankQuestion {
         if (outcome.isNotEmpty) 'outcome': outcome,
         'difficulty': difficulty.name,
         'type': type.name,
+        if (cognitive != CognitiveLevel.none) 'cognitive': cognitive.name,
+        if (misconceptions.any((m) => m.trim().isNotEmpty)) 'misconceptions': misconceptions,
         if (text.isNotEmpty) 'text': text,
         if (choices.isNotEmpty) 'choices': choices,
         'choiceCount': choiceCount,
@@ -443,6 +524,8 @@ class BankQuestion {
         outcome: j['outcome'] as String? ?? '',
         difficulty: Difficulty.values.asNameMap()[j['difficulty']] ?? Difficulty.medium,
         type: QuestionType.values.asNameMap()[j['type']] ?? QuestionType.multiple,
+        cognitive: CognitiveLevel.values.asNameMap()[j['cognitive']] ?? CognitiveLevel.none,
+        misconceptions: (j['misconceptions'] as List?)?.cast<String>() ?? const [],
         text: j['text'] as String? ?? '',
         choices: (j['choices'] as List?)?.cast<String>() ?? const [],
         choiceCount: j['choiceCount'] as int? ?? 5,
@@ -1082,9 +1165,14 @@ class AutoPick {
 
   /// Yalnız optik formla okunabilen sorular (çoktan seçmeli, D/Y).
   final bool opticalOnly;
+
+  /// Düşünme düzeylerine dengeli dağıt (belirtke tablosu); düzeyi
+  /// belirtilmiş sorular arasında her düzeyden yakın sayıda seçilir.
+  final bool balanceLevels;
   final int seed;
 
   const AutoPick({
+    this.balanceLevels = false,
     this.count = 20,
     this.easyPct = 30,
     this.mediumPct = 50,
@@ -1094,4 +1182,95 @@ class AutoPick {
     this.opticalOnly = false,
     this.seed = 1,
   });
+}
+
+/// Hazır kazanım listesi (müfredat): MEB, Cambridge, Common Core gibi bir
+/// programdan içe aktarılan kod ve açıklamalar. Soru ve sınav etiketlerinde
+/// öneri olarak çıkar.
+class OutcomeList {
+  final String id;
+  final String name;
+  final String subject;
+  final String grade;
+
+  /// (kod, açıklama) çiftleri; kod boş olabilir.
+  final List<(String, String)> items;
+  final DateTime created;
+
+  const OutcomeList({
+    required this.id,
+    required this.name,
+    this.subject = '',
+    this.grade = '',
+    this.items = const [],
+    required this.created,
+  });
+
+  /// Etikette kullanılan biçim: "M.5.1.2 Kesirleri karşılaştırır".
+  static String labelOf((String, String) e) => [e.$1.trim(), e.$2.trim()].where((s) => s.isNotEmpty).join(' ');
+
+  List<String> get labels => [for (final e in items) labelOf(e)];
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        if (subject.isNotEmpty) 'subject': subject,
+        if (grade.isNotEmpty) 'grade': grade,
+        'items': [
+          for (final e in items) [e.$1, e.$2]
+        ],
+        'created': created.toIso8601String(),
+      };
+
+  factory OutcomeList.fromJson(Map<String, dynamic> j) => OutcomeList(
+        id: j['id'] as String,
+        name: j['name'] as String? ?? '',
+        subject: j['subject'] as String? ?? '',
+        grade: j['grade'] as String? ?? '',
+        items: [
+          for (final e in (j['items'] as List? ?? const []))
+            if (e is List && e.length >= 2) ('${e[0]}', '${e[1]}')
+        ],
+        created: DateTime.tryParse(j['created'] as String? ?? '') ?? DateTime.now(),
+      );
+
+  /// Satır satır metinden liste: "KOD açıklama", "KOD (sekme) açıklama" ya da
+  /// yalnız açıklama. Kod, içinde nokta ya da rakam olan ilk sözcüktür.
+  static List<(String, String)> parseLines(String text) {
+    final out = <(String, String)>[];
+    final code = RegExp(r'^\s*([A-Za-zÇĞİÖŞÜçğıöşü]{0,6}[.\-]?\d+(?:[.\-][0-9A-Za-z]+)+)[\s:.)\-–]+(.+)$');
+    for (final raw in text.split(RegExp(r'\r?\n'))) {
+      final line = raw.trim();
+      if (line.isEmpty) continue;
+      final tab = line.split('\t');
+      if (tab.length >= 2 && tab[0].trim().length <= 24) {
+        out.add((tab[0].trim(), tab.sublist(1).join(' ').trim()));
+        continue;
+      }
+      final m = code.firstMatch(line);
+      out.add(m == null ? ('', line) : (m.group(1)!.trim(), m.group(2)!.trim()));
+    }
+    return out;
+  }
+
+  /// Tablo satırlarından liste: "kod" ve "kazanım/açıklama" sütunları aranır;
+  /// bulunamazsa ilk iki sütun.
+  static List<(String, String)> parseRows(List<List<String>> rows) {
+    if (rows.isEmpty) return const [];
+    String n(String s) => s.toLowerCase().replaceAll(RegExp(r'[^a-zçğıöşü]'), '');
+    final head = rows.first.map(n).toList();
+    var ic = head.indexWhere((h) => h.startsWith('kod') || h == 'code' || h.startsWith('kodu') || h == 'no');
+    var it = head.indexWhere((h) => h.startsWith('kazan') || h.startsWith('açıkla') || h.startsWith('acikla') || h.startsWith('outcome') || h.startsWith('descr') || h.startsWith('standard') || h.startsWith('objective'));
+    var data = rows.skip(1);
+    if (ic < 0 && it < 0) {
+      data = rows;
+      ic = rows.first.length >= 2 ? 0 : -1;
+      it = rows.first.length >= 2 ? 1 : 0;
+    }
+    return [
+      for (final r in data)
+        if ((it >= 0 && it < r.length && r[it].trim().isNotEmpty) || (ic >= 0 && ic < r.length && r[ic].trim().isNotEmpty))
+          (ic >= 0 && ic < r.length ? r[ic].trim() : '', it >= 0 && it < r.length ? r[it].trim() : ''),
+    ];
+  }
 }
