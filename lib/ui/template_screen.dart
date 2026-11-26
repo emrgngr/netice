@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
@@ -6,8 +8,10 @@ import 'package:material_ui/material_ui.dart';
 
 import '../main.dart';
 import '../omr/form_layout.dart' show Pt;
+import '../omr/grid_detect.dart';
 import '../omr/omr_reader.dart';
 import '../omr/template.dart';
+import 'common_exam_ui.dart' show shareOrSaveFile;
 import 'theme.dart';
 import 'widgets.dart';
 import '../l10n/l10n.dart';
@@ -21,7 +25,13 @@ class TemplatesScreen extends StatelessWidget {
     final store = StoreScope.of(context);
     final muted = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6);
     return Scaffold(
-      appBar: AppBar(title: Text(tr('Başka firma formları'))),
+      appBar: AppBar(title: Text(tr('Başka firma formları')), actions: [
+        IconButton(
+          tooltip: tr('Şablon dosyası aç'),
+          onPressed: () => importTemplateFile(context),
+          icon: const Icon(Icons.file_open_outlined),
+        ),
+      ]),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TemplateEditorScreen())),
         icon: const Icon(Icons.add_rounded),
@@ -29,7 +39,12 @@ class TemplatesScreen extends StatelessWidget {
       ),
       body: ListView(padding: const EdgeInsets.fromLTRB(20, 8, 20, 100), children: [
         Text(
-          tr('Okulunuzda yayınevi ya da başka bir firmanın optik formu kullanılıyorsa, boş (veya dolu) bir formun fotoğrafından şablon oluşturun. Sonra Sınav ayarları > Form türü bölümünden bu şablonu seçin.'),
+          tr('Okulunuzda yayınevi ya da başka bir firmanın optik formu kullanılıyorsa, boş (veya dolu) bir formun fotoğrafını ya da taramasını seçin. Netice formdaki cevap dairelerini, öğrenci numarasını ve kitapçık türünü kendisi bulur; siz yalnızca kontrol edersiniz. Sonra Sınav ayarları > Form türü bölümünden bu şablonu seçin.'),
+          style: TextStyle(color: muted),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          tr('Bir öğretmenin hazırladığı şablonu dosya olarak diğer öğretmenlere gönderebilirsiniz; aynı formu bir daha tanıtmak gerekmez.'),
           style: TextStyle(color: muted),
         ),
         const SizedBox(height: 16),
@@ -41,7 +56,8 @@ class TemplatesScreen extends StatelessWidget {
               child: ListTile(
                 leading: const Icon(Icons.grid_on_rounded, color: NColors.emerald),
                 title: Text(t.name, style: const TextStyle(fontWeight: FontWeight.w700)),
-                subtitle: Text(tr('{0} soru · {1} şık{2}', [t.questionCount, t.choiceCount, t.number == null ? tr(' · numara bloğu yok') : tr(' · {0} haneli numara', [t.number!.digits])])),
+                subtitle: Text(tr('{0} soru · {1} şık{2}', [t.questionCount, t.choiceCount, t.number == null ? tr(' · numara bloğu yok') : tr(' · {0} haneli numara', [t.number!.digits])]) +
+                    (t.booklet == null ? '' : tr(' · {0} kitapçık', [t.booklet!.count]))),
                 trailing: const Icon(Icons.chevron_right_rounded),
                 onTap: () => Navigator.of(context)
                     .push(MaterialPageRoute(builder: (_) => TemplateEditorScreen(template: t))),
@@ -50,6 +66,24 @@ class TemplatesScreen extends StatelessWidget {
       ]),
     );
   }
+}
+
+/// Başka öğretmenden gelen şablon dosyasını açar ve kaydeder.
+Future<void> importTemplateFile(BuildContext context) async {
+  final store = StoreScope.of(context);
+  Uint8List? bytes;
+  try {
+    final files = await FilePicker.pickFiles(dialogTitle: tr('Şablon dosyasını seçin'), type: FileType.any);
+    if (files.isNotEmpty) bytes = await files.first.readAsBytes();
+  } catch (_) {}
+  if (bytes == null || !context.mounted) return;
+  FormTemplate? t;
+  try {
+    t = FormTemplate.fromShareJson(jsonDecode(utf8.decode(bytes)));
+  } catch (_) {}
+  if (t == null) return toast(context, tr('Bu dosya bir Netice şablonu değil.'));
+  store.saveTemplate(t);
+  toast(context, tr('"{0}" şablonu eklendi.', [t.name]));
 }
 
 /// Basit boş durum notu.
@@ -69,7 +103,7 @@ class EmptyNote extends StatelessWidget {
       );
 }
 
-enum _Tap { none, blockFirst, blockLast, numberFirst, numberLast }
+enum _Tap { none, blockFirst, blockLast, numberFirst, numberLast, bookletFirst, bookletLast }
 
 /// Şablon düzenleyici: formun fotoğrafı düzleştirilir, öğretmen her bloğun
 /// ilk ve son dairesine dokunur; aradaki daireler hesaplanır ve üstüne çizilir.
@@ -98,6 +132,7 @@ class _TemplateEditorScreenState extends State<TemplateEditorScreen> {
   ({int start, int count, int choices, bool rows})? _pendingBlock;
   int? _replaceIndex;
   int _pendingDigits = 6;
+  int _pendingBooklets = 2;
   Pt? _firstTap;
   OmrResult? _test;
 
@@ -153,6 +188,112 @@ class _TemplateEditorScreenState extends State<TemplateEditorScreen> {
         toast(context, tr('Kâğıdın kenarları bulunamadı; görüntünün tamamı sayfa sayıldı. En iyi sonuç için kâğıdı koyu bir zemine koyup tamamı görünecek şekilde çekin.'));
       }
     });
+    // Yeni şablonda daireleri hemen kendisi bulsun.
+    if (_t.blocks.isEmpty && _gray != null) await _autoDetect();
+  }
+
+  /// Formdaki daire ızgaralarını kendiliğinden bulur ve şablona yazar.
+  Future<void> _autoDetect() async {
+    final g = _gray, c = _corners;
+    if (g == null || c == null) return;
+    setState(() => _busy = true);
+    final d = await compute(_detect, (g, c, _t.aspect));
+    if (!mounted) return;
+    setState(() {
+      _busy = false;
+      _tap = _Tap.none;
+      _test = null;
+      if (!d.isEmpty) _t = d.applyTo(_t);
+    });
+    if (d.blocks.isEmpty) {
+      toast(context, tr('Cevap daireleri kendiliğinden bulunamadı. Daha net, düz bir fotoğraf deneyin ya da blokları elle işaretleyin.'));
+      return;
+    }
+    final parts = [
+      tr('{0} soru ({1} blok)', [d.questionCount, d.blocks.length]),
+      if (d.number != null) tr('{0} haneli numara', [d.number!.digits]),
+      if (d.booklet != null) tr('{0} kitapçık türü', [d.booklet!.count]),
+    ];
+    toast(context, tr('Bulundu: {0}. Renkli halkaların dairelerin üstünde olduğunu kontrol edin.', [parts.join(', ')]));
+  }
+
+  Future<void> _editStart(int i) async {
+    final b = _t.blocks[i];
+    final start = TextEditingController(text: '${b.start}');
+    var choices = b.choices;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, set) => AlertDialog(
+          title: Text(tr('Bloğu düzenle')),
+          content: Column(mainAxisSize: MainAxisSize.min, children: [
+            Text(tr('Formda bu bloğun ilk sorusunun numarası kaç?')),
+            const SizedBox(height: 12),
+            TextField(
+              controller: start,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(labelText: tr('İlk soru no')),
+            ),
+            const SizedBox(height: 12),
+            Text(tr('{0} soru · {1} şık', [b.count, choices])),
+          ]),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr('Vazgeç'))),
+            FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(tr('Kaydet'))),
+          ],
+        ),
+      ),
+    );
+    if (ok != true || !mounted) return;
+    final s = int.tryParse(start.text);
+    if (s == null || s < 1) return toast(context, tr('Soru numaralarını kontrol edin.'));
+    final blocks = [..._t.blocks];
+    blocks[i] = TemplateBlock(start: s, count: b.count, choices: b.choices, first: b.first, last: b.last, rows: b.rows);
+    blocks.sort((a, b) => a.start.compareTo(b.start));
+    setState(() {
+      _t = _t.copyWith(blocks: blocks);
+      _test = null;
+    });
+  }
+
+  Future<void> _addBooklet() async {
+    var count = _t.booklet?.count ?? 2;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, set) => AlertDialog(
+          title: Text(tr('Kitapçık türü alanı')),
+          content: Column(mainAxisSize: MainAxisSize.min, children: [
+            Text(tr('Formda kaç kitapçık dairesi var (A, B, C…)?')),
+            const SizedBox(height: 12),
+            SegmentedButton<int>(
+              segments: [for (final n in const [2, 3, 4, 5, 6]) ButtonSegment(value: n, label: Text('$n'))],
+              selected: {count},
+              onSelectionChanged: (v) => set(() => count = v.first),
+            ),
+          ]),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr('Vazgeç'))),
+            FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(tr('Daireleri işaretle'))),
+          ],
+        ),
+      ),
+    );
+    if (ok != true || !mounted) return;
+    setState(() {
+      _pendingBooklets = count;
+      _tap = _Tap.bookletFirst;
+      _firstTap = null;
+    });
+  }
+
+  Future<void> _share() async {
+    final name = _name.text.trim().isEmpty ? _t.name : _name.text.trim();
+    final file = name.replaceAll(RegExp(r'[^\wğüşıöçĞÜŞİÖÇ -]'), '').trim().replaceAll(' ', '_');
+    await shareOrSaveFile(context,
+        fileName: '${file.isEmpty ? 'sablon' : file}.netice-sablon.json',
+        text: jsonEncode(_t.copyWith(name: name).toShareJson()),
+        message: tr('Netice optik form şablonu: {0}. Netice\'de Ayarlar > Başka firma formları > Şablon dosyası aç ile ekleyin.', [name]));
   }
 
   Future<void> _addBlock({int? replace}) async {
@@ -258,9 +399,20 @@ class _TemplateEditorScreenState extends State<TemplateEditorScreen> {
     switch (_tap) {
       case _Tap.blockFirst:
       case _Tap.numberFirst:
+      case _Tap.bookletFirst:
         setState(() {
           _firstTap = p;
-          _tap = _tap == _Tap.blockFirst ? _Tap.blockLast : _Tap.numberLast;
+          _tap = switch (_tap) {
+            _Tap.blockFirst => _Tap.blockLast,
+            _Tap.numberFirst => _Tap.numberLast,
+            _ => _Tap.bookletLast,
+          };
+        });
+      case _Tap.bookletLast:
+        setState(() {
+          _t = _t.copyWith(booklet: BookletBlock(count: _pendingBooklets, first: _firstTap!, last: p));
+          _tap = _Tap.none;
+          _test = null;
         });
       case _Tap.blockLast:
         final b = _pendingBlock!;
@@ -296,6 +448,8 @@ class _TemplateEditorScreenState extends State<TemplateEditorScreen> {
           tr('{0}. sorunun {1} şıkkının ortasına dokunun', [_pendingBlock!.start + _pendingBlock!.count - 1, String.fromCharCode(64 + _pendingBlock!.choices)]),
         _Tap.numberFirst => tr('Numaranın ilk basamağındaki 0 dairesine dokunun'),
         _Tap.numberLast => tr('Numaranın son basamağındaki 9 dairesine dokunun'),
+        _Tap.bookletFirst => tr('Kitapçık türü A dairesine dokunun'),
+        _Tap.bookletLast => tr('Son kitapçık dairesine ({0}) dokunun', [String.fromCharCode(64 + _pendingBooklets)]),
         _Tap.none => '',
       };
 
@@ -310,7 +464,11 @@ class _TemplateEditorScreenState extends State<TemplateEditorScreen> {
       _test = r;
     });
     final marked = r.questions.where((q) => q.answer.marked.isNotEmpty).length;
-    toast(context, tr('{0} soruda işaret bulundu{1}.', [marked, r.studentNumber == null ? '' : ' · numara ${int.parse(r.studentNumber!)}']));
+    toast(context, tr('{0} soruda işaret bulundu{1}.', [
+      marked,
+      (r.studentNumber == null ? '' : ' · numara ${int.parse(r.studentNumber!)}') +
+          (r.booklet == null ? '' : ' · ${tr('kitapçık')} ${String.fromCharCode(65 + r.booklet!)}')
+    ]));
   }
 
   void _save() {
@@ -351,6 +509,8 @@ class _TemplateEditorScreenState extends State<TemplateEditorScreen> {
       appBar: AppBar(
         title: Text(editing ? tr('Şablonu düzenle') : tr('Yeni şablon')),
         actions: [
+          if (_t.blocks.isNotEmpty)
+            IconButton(tooltip: tr('Diğer öğretmenlere gönder'), onPressed: _share, icon: const Icon(Icons.ios_share_rounded)),
           if (editing) IconButton(tooltip: tr('Sil'), onPressed: _delete, icon: const Icon(Icons.delete_outline_rounded)),
           Padding(
             padding: const EdgeInsets.only(right: 8),
@@ -366,7 +526,7 @@ class _TemplateEditorScreenState extends State<TemplateEditorScreen> {
             decoration: InputDecoration(labelText: tr('Şablon adı'), hintText: tr('Örn. X Yayınları 40 soruluk form')),
           ),
           const SizedBox(height: 12),
-          Text(tr('1. Formun fotoğrafını seçin. Kâğıdı koyu bir zemine koyun, dört kenarı görünsün. 2. Her soru bloğu için ilk ve son daireye dokunun. 3. Dolu bir formla "Dene"ye basıp sonucu kontrol edin.'),
+          Text(tr('1. Formun fotoğrafını ya da taramasını seçin. Kâğıdı koyu bir zemine koyun, dört kenarı görünsün. 2. Netice cevap dairelerini, numarayı ve kitapçık türünü kendisi bulur; renkli halkalar dairelerin üstünde mi bakın. Yanlış bulunan bloğu kaldırıp elle işaretleyebilirsiniz. 3. Dolu bir formla "Dene"ye basıp sonucu kontrol edin.'),
               style: TextStyle(color: muted)),
           const SizedBox(height: 12),
           Wrap(spacing: 8, runSpacing: 8, children: [
@@ -381,6 +541,12 @@ class _TemplateEditorScreenState extends State<TemplateEditorScreen> {
                 icon: const Icon(Icons.photo_camera_outlined),
                 label: Text(tr('Fotoğraf çek')),
               ),
+            if (_page != null)
+              OutlinedButton.icon(
+                onPressed: _busy ? null : _autoDetect,
+                icon: const Icon(Icons.auto_awesome_rounded),
+                label: Text(tr('Daireleri otomatik bul')),
+              ),
           ]),
           SectionTitle(tr('Cevap blokları')),
           if (_t.blocks.isEmpty) Text(tr('Henüz blok yok.'), style: TextStyle(color: muted)),
@@ -394,6 +560,7 @@ class _TemplateEditorScreenState extends State<TemplateEditorScreen> {
                     child: Text('${i + 1}', style: TextStyle(color: _blockColor(i), fontWeight: FontWeight.w800))),
                 title: Text(tr('Soru {0}–{1}', [b.start, b.start + b.count - 1])),
                 subtitle: Text(tr('{0} şık · {1}', [b.choices, b.rows ? tr('yan yana') : tr('alt alta')])),
+                onTap: () => _editStart(i),
                 trailing: Row(mainAxisSize: MainAxisSize.min, children: [
                   IconButton(
                     tooltip: tr('Yeniden işaretle'),
@@ -435,6 +602,28 @@ class _TemplateEditorScreenState extends State<TemplateEditorScreen> {
             onPressed: _page == null || _busy ? null : _addNumber,
             icon: const Icon(Icons.pin_outlined),
             label: Text(_t.number == null ? tr('Numara bloğu ekle') : tr('Numara bloğunu yeniden işaretle')),
+          ),
+          SectionTitle(tr('Kitapçık türü')),
+          if (_t.booklet != null)
+            Card(
+              child: ListTile(
+                dense: true,
+                leading: const Icon(Icons.menu_book_outlined, color: Color(0xFFA855F7)),
+                title: Text(tr('{0} kitapçık türü (A–{1})', [_t.booklet!.count, String.fromCharCode(64 + _t.booklet!.count)])),
+                trailing: IconButton(
+                  tooltip: tr('Kaldır'),
+                  onPressed: () => setState(() => _t = _t.copyWith(clearBooklet: true)),
+                  icon: const Icon(Icons.close_rounded),
+                ),
+              ),
+            )
+          else
+            Text(tr('Formda kitapçık türü (A/B) daireleri varsa ekleyin; öğrencinin işaretlediği kitapçık kendiliğinden okunur.'), style: TextStyle(color: muted)),
+          const SizedBox(height: 4),
+          OutlinedButton.icon(
+            onPressed: _page == null || _busy ? null : _addBooklet,
+            icon: const Icon(Icons.menu_book_outlined),
+            label: Text(_t.booklet == null ? tr('Kitapçık alanı ekle') : tr('Kitapçık alanını yeniden işaretle')),
           ),
           const SizedBox(height: 16),
           FilledButton.icon(
@@ -585,6 +774,18 @@ class _TemplatePainter extends CustomPainter {
         }
       }
     }
+    final bb = t.booklet;
+    if (bb != null) {
+      final ring = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.6
+        ..color = const Color(0xFFA855F7);
+      for (var i = 0; i < bb.count; i++) {
+        final p = at(bb.bubble(i));
+        canvas.drawCircle(p, bb.radius * k, ring);
+        if (test?.booklet == i) canvas.drawCircle(p, bb.radius * k * 0.8, Paint()..color = NColors.emerald.withValues(alpha: 0.55));
+      }
+    }
     if (pending != null) {
       final p = at(pending!);
       final paint = Paint()
@@ -614,6 +815,11 @@ class _TemplatePainter extends CustomPainter {
   }
   final page = rectifyPage(g, corners, aspect: aspect, width: 1000);
   return (g, corners, Uint8List.fromList(img.encodePng(page)), found);
+}
+
+DetectedForm _detect((GrayImage, List<Pt>, double) input) {
+  final (g, c, aspect) = input;
+  return detectFormGrids(g, c, aspect: aspect);
 }
 
 OmrResult _testRead((GrayImage, List<Pt>, FormTemplate) input) {

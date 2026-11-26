@@ -22,12 +22,16 @@ class FormTemplate {
   final List<TemplateBlock> blocks;
   final NumberBlock? number;
 
+  /// Kitapçık türü daireleri (A, B, C…); yoksa null.
+  final BookletBlock? booklet;
+
   const FormTemplate({
     required this.id,
     required this.name,
     this.aspect = 297 / 210,
     this.blocks = const [],
     this.number,
+    this.booklet,
   });
 
   static const width = 1000.0;
@@ -39,13 +43,22 @@ class FormTemplate {
   /// Şablonun en fazla şık sayısı.
   int get choiceCount => blocks.fold(0, (m, b) => math.max(m, b.choices));
 
-  FormTemplate copyWith({String? name, double? aspect, List<TemplateBlock>? blocks, NumberBlock? number, bool clearNumber = false}) =>
+  FormTemplate copyWith(
+          {String? id,
+          String? name,
+          double? aspect,
+          List<TemplateBlock>? blocks,
+          NumberBlock? number,
+          bool clearNumber = false,
+          BookletBlock? booklet,
+          bool clearBooklet = false}) =>
       FormTemplate(
-        id: id,
+        id: id ?? this.id,
         name: name ?? this.name,
         aspect: aspect ?? this.aspect,
         blocks: blocks ?? this.blocks,
         number: clearNumber ? null : (number ?? this.number),
+        booklet: clearBooklet ? null : (booklet ?? this.booklet),
       );
 
   Map<String, dynamic> toJson() => {
@@ -54,6 +67,7 @@ class FormTemplate {
         'aspect': aspect,
         'blocks': blocks.map((b) => b.toJson()).toList(),
         if (number != null) 'number': number!.toJson(),
+        if (booklet != null) 'booklet': booklet!.toJson(),
       };
 
   factory FormTemplate.fromJson(Map<String, dynamic> j) => FormTemplate(
@@ -62,7 +76,52 @@ class FormTemplate {
         aspect: (j['aspect'] as num?)?.toDouble() ?? 297 / 210,
         blocks: [for (final b in (j['blocks'] as List?) ?? const []) TemplateBlock.fromJson(b as Map<String, dynamic>)],
         number: j['number'] == null ? null : NumberBlock.fromJson(j['number'] as Map<String, dynamic>),
+        booklet: j['booklet'] == null ? null : BookletBlock.fromJson(j['booklet'] as Map<String, dynamic>),
       );
+
+  /// Paylaşım dosyası (başka öğretmene gönderilen şablon).
+  static const fileKind = 'netice-sablon';
+
+  Map<String, dynamic> toShareJson() => {'kind': fileKind, 'version': 1, 'template': toJson()};
+
+  /// Paylaşım dosyasını okur; yeni bir kimlik verir. Geçersizse null.
+  static FormTemplate? fromShareJson(Object? j) {
+    try {
+      final m = (j as Map).cast<String, dynamic>();
+      final t = m['kind'] == fileKind ? (m['template'] as Map).cast<String, dynamic>() : m;
+      final tpl = FormTemplate.fromJson({...t, 'id': 'tpl_${DateTime.now().microsecondsSinceEpoch.toRadixString(36)}'});
+      if (tpl.blocks.isEmpty) return null;
+      return tpl;
+    } catch (_) {
+      return null;
+    }
+  }
+}
+
+/// Kitapçık türü daireleri: tek sıra (yan yana ya da alt alta) A, B, C…
+class BookletBlock {
+  final int count;
+
+  /// A ve son harfin merkezleri.
+  final Pt first, last;
+
+  const BookletBlock({required this.count, required this.first, required this.last});
+
+  Pt bubble(int k) {
+    final f = count <= 1 ? 0.0 : k / (count - 1);
+    return Pt(first.x + (last.x - first.x) * f, first.y + (last.y - first.y) * f);
+  }
+
+  double get radius {
+    if (count <= 1) return 7;
+    final d = math.sqrt(math.pow(last.x - first.x, 2) + math.pow(last.y - first.y, 2)) / (count - 1);
+    return d * 0.36;
+  }
+
+  Map<String, dynamic> toJson() => {'count': count, 'first': [first.x, first.y], 'last': [last.x, last.y]};
+
+  factory BookletBlock.fromJson(Map<String, dynamic> j) =>
+      BookletBlock(count: j['count'] as int, first: _pt(j['first']), last: _pt(j['last']));
 }
 
 /// Bir cevap bloğu: art arda gelen sorular, düzenli bir ızgarada.
@@ -392,12 +451,28 @@ class TemplateReader {
         questionCount, (_) => const OmrQuestion(Answer.blank(), []));
     for (final b in template.blocks) {
       final r = b.radius;
+      final raw = <int, List<double>>{};
       for (var q = 0; q < b.count; q++) {
         final idx = b.start - 1 + q;
         if (idx < 0 || idx >= questionCount) continue;
-        final fills = [for (var c = 0; c < math.min(b.choices, choiceCount); c++) fillAt(b.bubble(q, c), r)];
-        answers[idx] = OmrQuestion(helper.classify(fills), fills);
+        raw[idx] = [for (var c = 0; c < math.min(b.choices, choiceCount); c++) fillAt(b.bubble(q, c), r)];
       }
+      // İçinde harf basılı dairelerde boş daire de biraz koyu görünür: bloğun
+      // boş daire düzeyini (alt çeyrek) taban sayıp ondan ölç.
+      final base = _baseline([for (final f in raw.values) ...f]);
+      for (final e in raw.entries) {
+        final fills = _rebase(e.value, base);
+        answers[e.key] = OmrQuestion(helper.classify(fills), fills);
+      }
+    }
+
+    int? booklet;
+    final bb = template.booklet;
+    if (bb != null && bb.count >= 2) {
+      final raw = [for (var k = 0; k < bb.count; k++) fillAt(bb.bubble(k), bb.radius)];
+      final fills = _rebase(raw, raw.reduce(math.min));
+      final a = helper.classify(fills);
+      if (a.state == MarkState.filled) booklet = a.marked.first;
     }
 
     String? number;
@@ -406,8 +481,12 @@ class TemplateReader {
     if (nb != null) {
       final digits = StringBuffer();
       var ok = true;
+      final rawDigits = [
+        for (var d = 0; d < nb.digits; d++) [for (var v = 0; v < 10; v++) fillAt(nb.bubble(d, v), nb.radius)]
+      ];
+      final base = _baseline([for (final f in rawDigits) ...f]);
       for (var d = 0; d < nb.digits; d++) {
-        final fills = [for (var v = 0; v < 10; v++) fillAt(nb.bubble(d, v), nb.radius)];
+        final fills = _rebase(rawDigits[d], base);
         final order = [for (var v = 0; v < 10; v++) v]..sort((x, y) => fills[y].compareTo(fills[x]));
         final best = fills[order[0]], second = fills[order[1]];
         if (best >= 0.25 && best - second >= 0.18 && second < thresholds.empty + 0.05) {
@@ -432,7 +511,21 @@ class TemplateReader {
       studentNumber: number,
       numberPattern: pattern,
       markers: page,
+      booklet: booklet,
     );
+  }
+
+  /// Boş dairelerin dolulukta görünen düzeyi: değerlerin alt çeyreği.
+  static double _baseline(List<double> v) {
+    if (v.length < 4) return 0;
+    final s = [...v]..sort();
+    return s[s.length ~/ 4];
+  }
+
+  static List<double> _rebase(List<double> f, double base) {
+    if (base < 0.04) return f;
+    final b = math.min(base, 0.6);
+    return [for (final x in f) ((x - b) / (1 - b)).clamp(0.0, 1.0)];
   }
 
   /// Kâğıt yan ya da ters çekildiyse köşe sırasını düzeltir: dört olası yönün
