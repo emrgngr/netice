@@ -26,8 +26,8 @@ String get downloadSignature => tr('\n\n— Netice ile hazırlandı. Siz de dene
 /// son kullanıcı lisans sözleşmesi (App Store'un da kabul ettiği metin).
 const termsUrl = 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
 
-/// Tanıtım sayfasının adresi (yayımlanınca doldurulur).
-const websiteUrl = '';
+/// Tanıtım sayfasının adresi.
+const websiteUrl = 'https://www.neticeoptik.com';
 
 String get shareText => tr('Optik kâğıtları telefonla okutup puan, analiz ve karneyi saniyeler içinde hazırlayan Netice\'yi kullanıyorum, sana da öneririm. Çevrimdışı çalışıyor, veriler telefonda kalıyor.\n\nİndir: {0}', [downloadUrl]);
 
