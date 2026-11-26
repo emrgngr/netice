@@ -277,7 +277,8 @@ class _DashboardState extends State<_Dashboard> {
         .showSnackBar(
           SnackBar(
             content: Text(done),
-            duration: const Duration(seconds: 6),
+            duration: const Duration(seconds: 3),
+            persist: false,
             action: SnackBarAction(label: tr('Geri al'), onPressed: () => store.restoreExams(removed)),
           ),
         )
