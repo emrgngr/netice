@@ -1349,7 +1349,7 @@ class _Dock extends StatelessWidget {
                                               child: Icon(
                                                 i == index ? sel : icon,
                                                 size: 23,
-                                                color: i == index ? NColors.ink : muted,
+                                                color: i == index ? NColors.onGreen : muted,
                                               ),
                                             ),
                                           ),

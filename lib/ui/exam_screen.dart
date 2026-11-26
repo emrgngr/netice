@@ -629,7 +629,7 @@ class _ResultsTab extends StatelessWidget {
                 ),
                 child: Text('${i + 1}',
                     style: t.textTheme.titleSmall?.copyWith(
-                        fontFeatures: tabular, fontWeight: FontWeight.w800, color: i < 3 ? NColors.ink : null)),
+                        fontFeatures: tabular, fontWeight: FontWeight.w800, color: i < 3 ? NColors.onGreen : null)),
               ),
               title: Text(students[sorted[i].sheet.studentId]?.fullName ?? tr('Eşleşmeyen kâğıt'),
                   style: TextStyle(
