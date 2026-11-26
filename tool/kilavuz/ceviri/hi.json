@@ -346,5 +346,15 @@
  "Genel istatistik": "सामान्य आँकड़े",
  "PDF rapor": "PDF रिपोर्ट",
  "Dönem": "सत्र",
- "Genel başarı": "कुल सफलता"
+ "Genel başarı": "कुल सफलता",
+ "Gökkuşağı, Orman, Deniz ya da Uzay. Seçtiğiniz tema cevap kartlarına, karnelere ve belgelere de geçer.": "इंद्रधनुष, जंगल, समुद्र या अंतरिक्ष। चुनी गई थीम उत्तर कार्ड, रिपोर्ट कार्ड और प्रमाणपत्रों पर भी लागू होती है।",
+ "İsimli cevap kartlarını sınav ekranındaki \"Form yazdır\" ile basın. 1–2. sınıflar için \"Büyük kart\" seçeneği A4'e iki kart ve iri daireler basar.": "परीक्षा स्क्रीन पर \"फ़ॉर्म प्रिंट करें\" से नाम वाले उत्तर कार्ड छापें। कक्षा 1–2 के लिए \"बड़ा कार्ड\" विकल्प A4 पर दो कार्ड बड़े गोलों के साथ छापता है।",
+ "Çocuk karnesi ve tebrik belgesi": "बच्चों का रिपोर्ट कार्ड और प्रमाणपत्र",
+ "Çocuk şablonuyla hazırlanan sınavların raporları renkli ve yıldızlıdır. Kâğıtları okuttuktan sonra Analiz sekmesini açın.": "बच्चों के टेम्पलेट से बनी परीक्षाओं की रिपोर्ट रंगीन और सितारों वाली होती है। शीट स्कैन करने के बाद विश्लेषण टैब खोलें।",
+ "Yıldızlar, soru soru doğru ve yanlışlar, sınıf ortalaması ve gelişim grafiği. Sıra ve T puanı gösterilmez.": "सितारे, प्रश्न-दर-प्रश्न सही और गलत, कक्षा का औसत और प्रगति चार्ट। रैंक और T अंक नहीं दिखते।",
+ "Her öğrenciye renkli bir belge: yüksek başarıda Başarı Belgesi, diğerlerinde Gayret Belgesi.": "हर विद्यार्थी के लिए रंगीन प्रमाणपत्र: अच्छे अंकों पर सफलता प्रमाणपत्र, बाकी को मेहनत प्रमाणपत्र।",
+ "Sınıf ortalaması, yıldız dağılımı, soru soru sınıf başarısı ve sınıfın gelişimi.": "कक्षा का औसत, सितारों का बँटवारा, प्रश्न-दर-प्रश्न कक्षा की सफलता और कक्षा की प्रगति।",
+ "Başka bir sınavda da çocuk raporlarını Sınav ayarları > Rapor görünümü bölümünden açabilirsiniz. Dönemin bütün sınavları çocuk görünümündeyse dönem karnesi de çocuk görünümünde çıkar.": "किसी और परीक्षा के लिए भी परीक्षा सेटिंग > रिपोर्ट का रूप में बच्चों की रिपोर्ट चालू कर सकते हैं। सत्र की सभी परीक्षाएँ बच्चों के रूप में हों तो सत्र रिपोर्ट कार्ड भी वैसा ही बनता है।",
+ "Renk teması": "रंग थीम",
+ "Tebrik belgeleri": "बधाई प्रमाणपत्र"
 }

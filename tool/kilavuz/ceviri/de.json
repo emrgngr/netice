@@ -348,5 +348,15 @@
  "Genel istatistik": "Gesamtstatistik",
  "PDF rapor": "PDF-Bericht",
  "Dönem": "Halbjahr",
- "Genel başarı": "Gesamterfolg"
+ "Genel başarı": "Gesamterfolg",
+ "Gökkuşağı, Orman, Deniz ya da Uzay. Seçtiğiniz tema cevap kartlarına, karnelere ve belgelere de geçer.": "Regenbogen, Wald, Meer oder Weltraum. Das gewählte Thema gilt auch für Antwortkarten, Zeugnisse und Urkunden.",
+ "İsimli cevap kartlarını sınav ekranındaki \"Form yazdır\" ile basın. 1–2. sınıflar için \"Büyük kart\" seçeneği A4'e iki kart ve iri daireler basar.": "Drucken Sie Namenskarten über „Formulare drucken“ im Testbildschirm. Für Klasse 1–2 druckt die Option „Große Karte“ zwei Karten pro A4-Seite mit großen Kreisen.",
+ "Çocuk karnesi ve tebrik belgesi": "Kinderzeugnis und Urkunde",
+ "Çocuk şablonuyla hazırlanan sınavların raporları renkli ve yıldızlıdır. Kâğıtları okuttuktan sonra Analiz sekmesini açın.": "Berichte zu Tests mit der Kindervorlage sind bunt und mit Sternen. Öffnen Sie nach dem Scannen den Reiter Analyse.",
+ "Yıldızlar, soru soru doğru ve yanlışlar, sınıf ortalaması ve gelişim grafiği. Sıra ve T puanı gösterilmez.": "Sterne, richtige und falsche Antworten je Frage, Klassendurchschnitt und Lernverlauf. Rang und T-Wert werden nicht gezeigt.",
+ "Her öğrenciye renkli bir belge: yüksek başarıda Başarı Belgesi, diğerlerinde Gayret Belgesi.": "Eine bunte Urkunde für jedes Kind: bei hoher Leistung „Urkunde für tolle Leistung“, sonst „Urkunde für großen Fleiß“.",
+ "Sınıf ortalaması, yıldız dağılımı, soru soru sınıf başarısı ve sınıfın gelişimi.": "Klassendurchschnitt, Sterneverteilung, Erfolg je Frage und Entwicklung der Klasse.",
+ "Başka bir sınavda da çocuk raporlarını Sınav ayarları > Rapor görünümü bölümünden açabilirsiniz. Dönemin bütün sınavları çocuk görünümündeyse dönem karnesi de çocuk görünümünde çıkar.": "Für jeden anderen Test schalten Sie kindgerechte Berichte unter Testeinstellungen > Berichtsstil ein. Sind alle Tests im Halbjahr in Kinderansicht, gilt das auch für das Halbjahreszeugnis.",
+ "Renk teması": "Farbthema",
+ "Tebrik belgeleri": "Urkunden"
 }

@@ -348,5 +348,15 @@
  "Genel istatistik": "General statistics",
  "PDF rapor": "PDF report",
  "Dönem": "Term",
- "Genel başarı": "Overall success"
+ "Genel başarı": "Overall success",
+ "Gökkuşağı, Orman, Deniz ya da Uzay. Seçtiğiniz tema cevap kartlarına, karnelere ve belgelere de geçer.": "Rainbow, Forest, Ocean or Space. The theme you choose also carries over to answer cards, report cards and certificates.",
+ "İsimli cevap kartlarını sınav ekranındaki \"Form yazdır\" ile basın. 1–2. sınıflar için \"Büyük kart\" seçeneği A4'e iki kart ve iri daireler basar.": "Print named answer cards with \"Print forms\" on the exam screen. For grades 1–2, the \"Large card\" option prints two cards per A4 page with big bubbles.",
+ "Çocuk karnesi ve tebrik belgesi": "Child report card and certificate",
+ "Çocuk şablonuyla hazırlanan sınavların raporları renkli ve yıldızlıdır. Kâğıtları okuttuktan sonra Analiz sekmesini açın.": "Reports for exams made with the children's template are colourful and use stars. After scanning the sheets, open the Analysis tab.",
+ "Yıldızlar, soru soru doğru ve yanlışlar, sınıf ortalaması ve gelişim grafiği. Sıra ve T puanı gösterilmez.": "Stars, right and wrong answers question by question, the class average and a progress chart. Rank and T-score are not shown.",
+ "Her öğrenciye renkli bir belge: yüksek başarıda Başarı Belgesi, diğerlerinde Gayret Belgesi.": "A colourful certificate for every student: a Certificate of Achievement for high scores, a Certificate of Effort for the rest.",
+ "Sınıf ortalaması, yıldız dağılımı, soru soru sınıf başarısı ve sınıfın gelişimi.": "Class average, star chart, class success per question and how the class is progressing.",
+ "Başka bir sınavda da çocuk raporlarını Sınav ayarları > Rapor görünümü bölümünden açabilirsiniz. Dönemin bütün sınavları çocuk görünümündeyse dönem karnesi de çocuk görünümünde çıkar.": "You can turn on child-friendly reports for any other exam under Exam settings > Report style. If every exam in the term uses the child view, the term report card does too.",
+ "Renk teması": "Colour theme",
+ "Tebrik belgeleri": "Certificates"
 }
