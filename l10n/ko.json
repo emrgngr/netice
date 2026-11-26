@@ -2632,5 +2632,9 @@
 "Şablon dosyasını seçin": "템플릿 파일 선택",
 "Netice formdaki cevap dairelerini, öğrenci numarasını ve kitapçık türünü kendisi bulur. Renkli halkalar dairelerin üstündeyse doğru bulunmuştur; soru numarası farklıysa bloğa dokunup ilk soru numarasını değiştirin.": "Netice가 답안지의 답안 동그라미, 학생 번호, 문제지 유형을 스스로 찾습니다. 색 고리가 동그라미 위에 있으면 올바르게 찾은 것입니다. 문항 번호가 다르면 블록을 눌러 첫 문항 번호를 바꾸세요.",
 "Yanlış bulunan bloğu kaldırıp \"Cevap bloğu ekle\" ile elle işaretleyin: ilk sorunun A şıkkına, sonra son sorunun son şıkkına dokunun.": "잘못 찾은 블록은 지우고 \"답안 블록 추가\"로 직접 표시하세요. 첫 문항의 A 보기, 이어서 마지막 문항의 마지막 보기를 누릅니다.",
-"Şablonu paylaş düğmesiyle diğer öğretmenlere gönderin; onlar \"Şablon dosyası aç\" ile ekler, formu yeniden tanıtmaları gerekmez.": "공유 버튼으로 템플릿을 다른 교사에게 보내세요. \"템플릿 파일 열기\"로 추가하면 답안지를 다시 설정할 필요가 없습니다."
+"Şablonu paylaş düğmesiyle diğer öğretmenlere gönderin; onlar \"Şablon dosyası aç\" ile ekler, formu yeniden tanıtmaları gerekmez.": "공유 버튼으로 템플릿을 다른 교사에게 보내세요. \"템플릿 파일 열기\"로 추가하면 답안지를 다시 설정할 필요가 없습니다.",
+"Her yayınevinin formunu ayrı uygulamayla okumayın; kendi sınavınızı, kendi formunuzla okuyun.": "출판사마다 다른 앱을 쓰지 마세요. 내 시험을 내 답안지로 판독하세요.",
+"Evet. Profil > Kurum bilgileri ekranında kurum türünü seçin (üniversite, Polis Akademisi, askerî okul, kurs…). Başlık, amir ve öğretmen unvanları ile grup adı (sınıf, bölük, takım, grup) buna göre gelir; hepsini değiştirebilirsiniz. Başka ülkelerde \"Türkiye resmi yazı biçimi\"ni kapatın.": "네. 프로필 > 기관 정보에서 기관 유형(대학교, 경찰대학, 군 학교, 학원…)을 선택하세요. 머리글, 기관장·교사 직함, 집단 이름(반, 분반, 중대, 소대, 그룹)이 이에 맞춰지며 모두 바꿀 수 있습니다. 다른 국가에서는 \"튀르키예 공문서 형식\"을 끄세요.",
+"Okul, polis akademisi, askerî okul, üniversite, kurs: raporlar kurumunuzun başlığı ve imza alanıyla çıkar.": "학교, 경찰대학, 군사학교, 대학교, 학원: 보고서에 기관의 머리글과 서명란이 들어갑니다.",
+"Polis Akademisi": "경찰대학"
 }

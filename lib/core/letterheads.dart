@@ -30,8 +30,6 @@ class HeaderPreset {
             HeaderPreset(tr('Özel okul (Millî Eğitim Müdürlüğüne bağlı)'), local: true, name: 'Özel Bilgi Koleji'),
           ],
         InstitutionType.police => [
-            HeaderPreset(tr('Polis Meslek Eğitim Merkezi (POMEM)'),
-                parent: 'Polis Akademisi Başkanlığı', name: 'Ankara Polis Meslek Eğitim Merkezi Müdürlüğü'),
             HeaderPreset(tr('Polis Meslek Yüksekokulu (PMYO)'),
                 parent: 'Polis Akademisi Başkanlığı', name: 'Ankara Polis Meslek Yüksekokulu Müdürlüğü'),
             HeaderPreset(tr('Polis Akademisi fakülte / enstitü'),

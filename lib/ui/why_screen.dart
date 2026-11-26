@@ -61,7 +61,7 @@ List<(IconData, Color, Color, String, String)> whyReasons() => [
     const Color(0xFFF59E0B),
     const Color(0xFFB45309),
     tr('Her kurumun resmi diliyle'),
-    tr('Okul, polis akademisi, askerî okul, POMEM, üniversite, kurs: raporlar kurumunuzun başlığı ve imza alanıyla çıkar.',
+    tr('Okul, polis akademisi, askerî okul, üniversite, kurs: raporlar kurumunuzun başlığı ve imza alanıyla çıkar.',
     ),
   ),
   (
@@ -135,6 +135,8 @@ class WhyNeticeScreen extends StatelessWidget {
                 _ReasonGrid(columns: w >= 1100 ? 4 : (w >= 640 ? 2 : 1)),
                 SectionTitle(tr('Benzer uygulamalarla karşılaştırma')),
                 const _CompareTable(),
+                const SizedBox(height: 12),
+                const _OwnFormCallout(),
                 if (!ProService.salesDisabled) ...[SectionTitle(tr('Fiyat karşılaştırması')), const _PriceCard()],
                 const SizedBox(height: 20),
                 const _SloganBand(),
@@ -638,6 +640,34 @@ class WhyNeticeBanner extends StatelessWidget {
         trailing: const Icon(Icons.chevron_right),
         onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const WhyNeticeScreen())),
       ),
+    );
+  }
+}
+
+/// Yayınevi uygulamalarına karşı ana mesaj.
+class _OwnFormCallout extends StatelessWidget {
+  const _OwnFormCallout();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: NColors.emerald.withValues(alpha: t.brightness == Brightness.dark ? 0.14 : 0.08),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: NColors.emerald.withValues(alpha: 0.35)),
+      ),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        const GlossyIcon(Icons.assignment_turned_in_rounded, Color(0xFF34D399), Color(0xFF047857), size: 40),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Text(
+            tr('Her yayınevinin formunu ayrı uygulamayla okumayın; kendi sınavınızı, kendi formunuzla okuyun.'),
+            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15.5, height: 1.35),
+          ),
+        ),
+      ]),
     );
   }
 }
