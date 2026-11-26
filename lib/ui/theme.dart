@@ -2,6 +2,8 @@ import 'dart:math' as math;
 
 import 'package:material_ui/material_ui.dart';
 
+import 'swipe_back.dart';
+
 /// Netice tasarım dili: tek vurgu rengi, anlamlı renkler, sakin yüzeyler.
 class NColors {
   static const ink = Color(0xFF0F1B3D); // derin lacivert-mürekkep
@@ -189,8 +191,11 @@ class NTheme {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         ),
       ),
+      // Telefonda (Android ve iPhone) sayfanın her yerinden soldan sağa
+      // kaydırınca önceki sayfaya dönülür.
       pageTransitionsTheme: const PageTransitionsTheme(builders: {
-        TargetPlatform.android: FadeForwardsPageTransitionsBuilder(),
+        TargetPlatform.android: SwipeBackPageTransitionsBuilder(),
+        TargetPlatform.iOS: SwipeBackPageTransitionsBuilder(),
         TargetPlatform.windows: FadeForwardsPageTransitionsBuilder(),
         TargetPlatform.linux: FadeForwardsPageTransitionsBuilder(),
       }),
