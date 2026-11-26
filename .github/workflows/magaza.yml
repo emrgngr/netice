@@ -5,7 +5,7 @@ name: Mağaza görselleri
 on:
   workflow_dispatch:
   push:
-    branches: [ilk-surum, main, 'claude/magaza*', 'claude/project-thread-c1557n', 'claude/project-thread-f0ew5u']
+    branches: [ilk-surum, main, 'claude/magaza*', 'claude/project-thread-c1557n', 'claude/project-thread-f0ew5u', 'claude/project-thread-8e3zmi']
     paths: ['tool/magaza/**', 'tool/brand/**', 'tool/screenshots_test.dart', '.github/workflows/magaza.yml']
 
 permissions:
@@ -67,6 +67,15 @@ jobs:
           done
           python3 tool/magaza/seslendir.py build/premium_ses
           python3 tool/magaza/premium.py build/magaza/video build/premium_ses build/magaza/tanitim_videosu_seslendirmeli.mp4
+      - name: Seslendirmeli bilgisayar tanıtım videosu (afiş tarzı, oklu)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+        run: |
+          mkdir -p build/masaustu_ses
+          cp build/muzik.mp3 build/acilis.mp3 build/masaustu_ses/
+          python3 tool/magaza/seslendir.py build/masaustu_ses masaustu.json masaustu_tr
+          python3 tool/magaza/masaustu_video.py build/screenshots/tr build/masaustu_ses build/magaza/masaustu_tanitim_sesli_tr.mp4
       - uses: actions/upload-artifact@v4
         with:
           name: Netice-Magaza
@@ -79,7 +88,7 @@ jobs:
             build/magaza/masaustu_tanitim_*.mp4
       - name: Videoları magaza-ciktilari dalına koy
         run: |
-          mkdir -p /tmp/cikti && cp -r build/magaza/tanitim_videosu.mp4 build/magaza/tanitim_videosu_seslendirmeli.mp4 build/magaza/masaustu_tanitim_tr.mp4 build/magaza/masaustu_tanitim_en.mp4 build/magaza/telefon build/magaza/kapak_1024x500.png build/magaza/simge_512.png /tmp/cikti/
+          mkdir -p /tmp/cikti && cp -r build/magaza/tanitim_videosu.mp4 build/magaza/tanitim_videosu_seslendirmeli.mp4 build/magaza/masaustu_tanitim_tr.mp4 build/magaza/masaustu_tanitim_en.mp4 build/magaza/masaustu_tanitim_sesli_tr.mp4 build/magaza/telefon build/magaza/kapak_1024x500.png build/magaza/simge_512.png /tmp/cikti/
           cd /tmp/cikti
           git init -q -b magaza-ciktilari
           git config user.name "github-actions"
