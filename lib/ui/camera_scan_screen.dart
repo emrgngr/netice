@@ -252,7 +252,7 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
                 text: tr('Seri mod açık'),
               ),
               const SizedBox(width: 8),
-              _Pill(text: '$read${total > 0 ? ' / $total' : ''} okundu'),
+              _Pill(text: tr('{0} okundu', ['$read${total > 0 ? ' / $total' : ''}'])),
             ]),
           ),
           // Kamera
@@ -330,7 +330,7 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
                   ),
                   onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => ScanScreen(examId: exam.id))),
                   icon: Icon(review > 0 ? Icons.priority_high_rounded : Icons.photo_library_outlined),
-                  label: Text(review > 0 ? 'Kontrol ($review)' : tr('Galeriden')),
+                  label: Text(review > 0 ? 'Kontrol ($review)' : tr('Galeri / PDF')),
                 ),
               ),
               const SizedBox(width: 12),

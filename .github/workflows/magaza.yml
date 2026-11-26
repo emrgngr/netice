@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
   push:
     branches: [ilk-surum, main, 'claude/magaza*', 'claude/project-thread-c1557n', 'claude/project-thread-f0ew5u']
-    paths: ['tool/magaza/**', 'tool/screenshots_test.dart', '.github/workflows/magaza.yml']
+    paths: ['tool/magaza/**', 'tool/brand/**', 'tool/screenshots_test.dart', '.github/workflows/magaza.yml']
 
 permissions:
   contents: write
