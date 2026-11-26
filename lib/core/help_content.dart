@@ -68,10 +68,11 @@ List<GuideSection> get guideSections => <GuideSection>[
   GuideSection(tr('Form yazdırma'), 'print', [
     GuideTopic(tr('Başka firma formu (yayınevi formu) kullanma'), [
       tr('Ayarlar > "Başka firma formları" > "Yeni şablon"a dokunun ve formun fotoğrafını seçin. Kâğıdı koyu bir zemine koyun; dört kenarı görünsün.'),
-      tr('"Cevap bloğu ekle" ile her soru sütununu tanımlayın: ilk sorunun A şıkkına, sonra son sorunun son şıkkına dokunun. Aradaki daireler kendiliğinden çizilir.'),
-      tr('Öğrenci numarası bölümü varsa "Numara bloğu ekle" ile ilk basamağın 0\'ına ve son basamağın 9\'una dokunun.'),
+      tr('Netice formdaki cevap dairelerini, öğrenci numarasını ve kitapçık türünü kendisi bulur. Renkli halkalar dairelerin üstündeyse doğru bulunmuştur; soru numarası farklıysa bloğa dokunup ilk soru numarasını değiştirin.'),
+      tr('Yanlış bulunan bloğu kaldırıp "Cevap bloğu ekle" ile elle işaretleyin: ilk sorunun A şıkkına, sonra son sorunun son şıkkına dokunun.'),
       tr('Dolu bir formun fotoğrafıyla "Bu fotoğrafla dene"ye basın; yeşil daireler doğru yerlerdeyse kaydedin.'),
       tr('Sınav ayarları > "Form türü"nden şablonu seçin. Okutma, Netice formundaki gibi çalışır.'),
+      tr('Şablonu paylaş düğmesiyle diğer öğretmenlere gönderin; onlar "Şablon dosyası aç" ile ekler, formu yeniden tanıtmaları gerekmez.'),
     ], tip: tr('Netice formu köşe kareleri sayesinde daha hızlı ve güvenilir okunur; mümkünse Netice formunu basın.')),
     GuideTopic(tr('Optik formu yazdırın'), [
       tr('Sınav ekranında "Form yazdır"a dokunun.'),
