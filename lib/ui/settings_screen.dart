@@ -13,6 +13,7 @@ import 'logo.dart';
 import 'onboarding_screen.dart';
 import 'rate_share.dart';
 import 'help_screen.dart';
+import 'scan_feedback.dart';
 import 'theme.dart';
 import 'widgets.dart';
 import 'template_screen.dart';
@@ -310,6 +311,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onChanged: store.setSplashSound,
               title: Text(tr('Açılış melodisi'), style: const TextStyle(fontWeight: FontWeight.w700)),
               subtitle: Text(tr('Uygulama açılırken kısa bir melodi çalar')),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Card(
+            clipBehavior: Clip.antiAlias,
+            child: SwitchListTile(
+              secondary: const IconBadge(Icons.notifications_active_outlined, color: NColors.emerald),
+              value: store.scanSound,
+              onChanged: (v) {
+                store.setScanSound(v);
+                if (v) ScanFeedback.success(store);
+              },
+              title: Text(tr('Okuma sesi'), style: const TextStyle(fontWeight: FontWeight.w700)),
+              subtitle: Text(tr('Her kâğıt okununca kısa bir melodi çalar ve telefon hafifçe titrer')),
             ),
           ),
           // Netice Pro, hesap ve okul bilgileri Profil sekmesinde.

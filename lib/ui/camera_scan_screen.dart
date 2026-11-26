@@ -14,6 +14,7 @@ import '../omr/omr_reader.dart';
 import '../omr/sheet_reader.dart';
 import '../omr/kid_layout.dart';
 import '../omr/serial_scanner.dart';
+import 'scan_feedback.dart';
 import 'exam_screen.dart';
 import 'review_screen.dart' show unmatchedLabel;
 import 'scan_screen.dart';
@@ -55,6 +56,7 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    ScanFeedback.warmUp();
     _start();
   }
 
@@ -166,7 +168,7 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
     final sheet = store.addScan(exam, r);
     final status = store.lastScanStatus;
     if (status == ScanStatus.duplicate) {
-      HapticFeedback.lightImpact();
+      ScanFeedback.duplicate();
       setState(() {
         _hint = tr('Bu kâğıt zaten okunmuştu · sıradakini koyun');
         _warn = true;
@@ -186,8 +188,7 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
     if (status == ScanStatus.conflict) {
       toast(context, tr('Bu numarayla farklı cevaplı bir kâğıt zaten okunmuştu. Yeni kâğıt "Kontrol" listesine alındı; kimin olduğunu oradan seçin.'));
     }
-    HapticFeedback.mediumImpact();
-    SystemSound.play(SystemSoundType.click);
+    ScanFeedback.success(store);
     setState(() {
       _lastSheet = sheet;
       _sessionCount++;
