@@ -76,6 +76,7 @@ Future<Uint8List> buildBookletPdf(
 }) async {
   final o = plan.options;
   final kids = o.kids;
+  if (kids) useKidTheme(o.kidTheme);
   final baseTheme = await pdfTheme(school.fontFamily);
   final theme = kids ? await kidPdfTheme(school.fontFamily) : baseTheme;
   final doc = pw.Document(title: o.title.isEmpty ? tr('Soru kitapçığı') : o.title, author: 'Netice', theme: theme);
@@ -349,7 +350,7 @@ Future<Uint8List> buildBookletPdf(
       pw.Container(
         padding: const pw.EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: pw.BoxDecoration(
-          gradient: const pw.LinearGradient(colors: [kidYellow, kidPink, kidBlue]),
+          gradient: pw.LinearGradient(colors: [kidYellow, kidPink, kidBlue]),
           borderRadius: pw.BorderRadius.circular(16),
         ),
         child: pw.Row(children: [
@@ -373,7 +374,7 @@ Future<Uint8List> buildBookletPdf(
             decoration: pw.BoxDecoration(color: PdfColors.white, borderRadius: pw.BorderRadius.circular(10)),
             child: pw.Column(children: [
               pw.Text('$n', style: pw.TextStyle(fontSize: 15, fontWeight: pw.FontWeight.bold, color: kidRose)),
-              pw.Text(tr('soru'), style: const pw.TextStyle(fontSize: 8, color: kidRose)),
+              pw.Text(tr('soru'), style: pw.TextStyle(fontSize: 8, color: kidRose)),
             ]),
           ),
         ]),
@@ -560,7 +561,7 @@ Future<Uint8List> buildBookletPdf(
               child: pw.Container(
                 height: 4,
                 decoration: pw.BoxDecoration(
-                  gradient: const pw.LinearGradient(colors: [kidPink, kidBlue, kidYellow, kidPink]),
+                  gradient: pw.LinearGradient(colors: [kidPink, kidBlue, kidYellow, kidPink]),
                   borderRadius: pw.BorderRadius.circular(2),
                 ),
               ),

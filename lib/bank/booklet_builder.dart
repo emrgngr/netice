@@ -204,6 +204,7 @@ class BookletPlan {
       bookletChoiceOrders: anyChoice ? choiceOrders : const [],
       kidForm: kidBox,
       kidReports: options.kids,
+      kidTheme: options.kidTheme,
       openQuestions: [
         for (var i = 0; i < openMaster.length; i++)
           OpenQuestion(label: _openLabel(openMaster[i], i), maxPoints: openPoints[i], bankId: openMaster[i].id),

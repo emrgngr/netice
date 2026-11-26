@@ -3,6 +3,7 @@
 // Bütün içerik cihazda durur; görseller ayrı dosyalarda, burada yalnız
 // kimlikleri tutulur (bkz. BankStore).
 
+import '../core/models.dart';
 import '../l10n/l10n.dart';
 
 /// Sorunun zorluk derecesi.
@@ -516,6 +517,9 @@ class BookletOptions {
 
   bool get kids => style == BookletStyle.kids;
 
+  /// Çocuk şablonunun renk teması.
+  final KidTheme kidTheme;
+
   const BookletOptions({
     this.title = '',
     this.subtitle = '',
@@ -551,6 +555,7 @@ class BookletOptions {
     this.wrongsPerCorrect = 0,
     this.seed = 1,
     this.style = BookletStyle.classic,
+    this.kidTheme = KidTheme.rainbow,
   });
 
   static String defaultInstructions() => tr(
@@ -591,6 +596,7 @@ class BookletOptions {
     int? wrongsPerCorrect,
     int? seed,
     BookletStyle? style,
+    KidTheme? kidTheme,
   }) =>
       BookletOptions(
         title: title ?? this.title,
@@ -627,6 +633,7 @@ class BookletOptions {
         wrongsPerCorrect: wrongsPerCorrect ?? this.wrongsPerCorrect,
         seed: seed ?? this.seed,
         style: style ?? this.style,
+        kidTheme: kidTheme ?? this.kidTheme,
       );
 
   Map<String, dynamic> toJson() => {
@@ -664,6 +671,7 @@ class BookletOptions {
         'wrongsPerCorrect': wrongsPerCorrect,
         'seed': seed,
         if (style != BookletStyle.classic) 'style': style.name,
+        if (kidTheme != KidTheme.rainbow) 'kidTheme': kidTheme.name,
       };
 
   factory BookletOptions.fromJson(Map<String, dynamic> j) {
@@ -704,6 +712,7 @@ class BookletOptions {
       wrongsPerCorrect: v('wrongsPerCorrect', d.wrongsPerCorrect),
       seed: v('seed', d.seed),
       style: BookletStyle.values.asNameMap()[j['style']] ?? d.style,
+      kidTheme: KidTheme.byName(j['kidTheme']),
     );
   }
 }

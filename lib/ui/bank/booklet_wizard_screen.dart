@@ -542,6 +542,13 @@ class _BookletWizardScreenState extends State<BookletWizardScreen> {
           ],
         ]),
         if (kids) ...[
+          const SizedBox(height: 14),
+          Text(tr('Renk teması'), style: const TextStyle(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 8),
+          Wrap(spacing: 10, runSpacing: 10, children: [
+            for (final th in KidTheme.values)
+              _KidThemeChip(theme: th, selected: _o.kidTheme == th, onTap: () => _setO(_o.copyWith(kidTheme: th))),
+          ]),
           const SizedBox(height: 10),
           Text(
             testCount > KidLayout.maxQuestions
@@ -1204,4 +1211,63 @@ class _MiniPagePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_MiniPagePainter old) => old.kids != kids;
+}
+
+
+/// Çocuk şablonu renk teması seçimi: üç renkli şerit ve adı.
+class _KidThemeChip extends StatelessWidget {
+  final KidTheme theme;
+  final bool selected;
+  final VoidCallback onTap;
+  const _KidThemeChip({required this.theme, required this.selected, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context);
+    final accent = Color(theme.accent);
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: theme.label,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          width: 118,
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: t.colorScheme.surface,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: selected ? accent : t.dividerColor, width: selected ? 2.2 : 1),
+          ),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Container(
+              height: 30,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(colors: [for (final c in theme.gradient) Color(c)]),
+                borderRadius: BorderRadius.circular(9),
+              ),
+              alignment: Alignment.centerLeft,
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              child: Row(children: [
+                for (final c in theme.badges.take(4))
+                  Container(
+                    width: 11,
+                    height: 11,
+                    margin: const EdgeInsets.only(right: 3),
+                    decoration: BoxDecoration(color: Color(c), shape: BoxShape.circle),
+                  ),
+              ]),
+            ),
+            const SizedBox(height: 6),
+            Row(children: [
+              if (selected) ...[Icon(Icons.check_circle_rounded, size: 16, color: accent), const SizedBox(width: 4)],
+              Expanded(child: Text(theme.label, style: const TextStyle(fontWeight: FontWeight.w700))),
+            ]),
+          ]),
+        ),
+      ),
+    );
+  }
 }

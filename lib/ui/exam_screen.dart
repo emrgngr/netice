@@ -17,6 +17,7 @@ import '../core/models.dart';
 import '../core/report.dart';
 import '../core/scoring.dart';
 import '../main.dart';
+import '../reports/kid_reports_pdf.dart';
 import '../reports/pdf_documents.dart';
 import 'review_screen.dart';
 import 'camera_scan_screen.dart';
@@ -81,6 +82,7 @@ class ExamScreen extends StatelessWidget {
       final cls = store.studentsOf(exam.className);
       var copies = 10;
       var alternate = true;
+      var bigCards = false;
       var picked = allClasses.any((c) => store.studentsOf(c).isNotEmpty) ? 'named' : 'blank';
       final choice = await showModalBottomSheet<String>(
         context: context,
@@ -147,6 +149,14 @@ class ExamScreen extends StatelessWidget {
                       onChanged: (v) => setSheet(() => alternate = v),
                       title: Text(tr('Kitapçıkları sırayla {0} dağıt', [[for (var b = 0; b < exam.bookletCount; b++) Exam.bookletLetter(b)].join(', ')])),
                       subtitle: Text(tr('Kapalıysa öğrenci kitapçığını formda kendisi işaretler')),
+                    ),
+                  if (exam.kidForm)
+                    SwitchListTile(
+                      secondary: const Icon(Icons.zoom_in_rounded),
+                      value: bigCards,
+                      onChanged: (v) => setSheet(() => bigCards = v),
+                      title: Text(tr('Büyük kart (A4\'e 2 kart)')),
+                      subtitle: Text(tr('1–2. sınıflar için iri daireler; kapalıysa A4\'e 4 kart basılır')),
                     ),
                   ListTile(
                     leading: const Icon(Icons.description_outlined),
@@ -239,14 +249,14 @@ class ExamScreen extends StatelessWidget {
             context,
             title: tr('Öğrenci formları'),
             fileName: '${name}_optik_form.pdf',
-            build: () => buildClassFormsPdf(groups, school: store.reportSchool, alternateBooklets: alternate),
+            build: () => buildClassFormsPdf(groups, school: store.reportSchool, alternateBooklets: alternate, bigCards: bigCards),
           );
         case 'blank':
           await ReportPreviewScreen.open(
             context,
             title: tr('Boş optik form ({0} adet)', [copies]),
             fileName: '${name}_bos_form_$copies.pdf',
-            build: () => buildFormsPdf(exam, const [], blankCopies: copies, school: store.reportSchool),
+            build: () => buildFormsPdf(exam, const [], blankCopies: copies, school: store.reportSchool, bigCards: bigCards),
           );
         case 'mini':
           await ReportPreviewScreen.open(
@@ -288,6 +298,15 @@ class ExamScreen extends StatelessWidget {
     Future<void> studentCards() async {
       if (results.isEmpty) return toast(context, tr('Karne için önce kâğıt okutun.'));
       await openCardsPreview(context, exam);
+    }
+
+    Future<void> certificates() async {
+      if (results.isEmpty) return toast(context, tr('Belge için önce kâğıt okutun.'));
+      if (!await requirePro(context, ProFeature.studentCards) || !context.mounted) return;
+      await ReportPreviewScreen.open(context,
+          title: tr('Tebrik belgeleri'),
+          fileName: '${_safe(exam.name)}_tebrik_belgeleri.pdf',
+          build: () => buildKidCertificatesPdf(exam: exam, results: results, students: store.studentById, school: store.reportSchool));
     }
 
     Future<void> excel() async {
@@ -350,6 +369,7 @@ class ExamScreen extends StatelessWidget {
         }),
       _Action(Icons.picture_as_pdf_outlined, tr('Sınav raporu'), pdfReport),
       _Action(Icons.badge_outlined, tr('Öğrenci karnesi'), studentCards),
+      if (exam.kidStyle) _Action(Icons.workspace_premium_outlined, tr('Tebrik belgeleri'), certificates),
       _Action(Icons.table_view_outlined, tr('Excel'), excel),
       _Action(Icons.school_outlined, tr('e-Okul listesi'), eokul),
       _Action(Icons.label_outline, tr('Sonuç etiketi'), labels),

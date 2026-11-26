@@ -123,15 +123,19 @@ pw.TextDirection get _dir => L10n.rtl ? pw.TextDirection.rtl : pw.TextDirection.
 /// Sınavda birden çok kitapçık varsa ve [alternateBooklets] açıksa isimli
 /// formlar sırayla A, B, C… olarak basılır (kitapçık dairesi dolu gelir).
 Future<Uint8List> buildFormsPdf(Exam exam, List<Student> students,
-        {int blankCopies = 1, SchoolInfo school = const SchoolInfo(), bool alternateBooklets = false}) =>
-    buildClassFormsPdf([(exam, students)], blankCopies: blankCopies, school: school, alternateBooklets: alternateBooklets);
+        {int blankCopies = 1, SchoolInfo school = const SchoolInfo(), bool alternateBooklets = false, bool bigCards = false}) =>
+    buildClassFormsPdf([(exam, students)],
+        blankCopies: blankCopies, school: school, alternateBooklets: alternateBooklets, bigCards: bigCards);
 
 /// Birden çok şubenin isimli formlarını tek PDF'te basar; her şube kendi
 /// sınavıyla (makine kodu) basılır. Kitapçıklar her şubede A'dan başlar.
 Future<Uint8List> buildClassFormsPdf(List<(Exam, List<Student>)> groups,
-    {int blankCopies = 1, SchoolInfo school = const SchoolInfo(), bool alternateBooklets = false}) async {
-  // Çocuk (ilkokul) sınavları: köşedeki kutunun isimli kartları (A4'e 4 kart).
-  if (groups.every((g) => g.$1.kidForm)) return buildKidCardsPdf(groups, blankCopies: blankCopies, school: school);
+    {int blankCopies = 1, SchoolInfo school = const SchoolInfo(), bool alternateBooklets = false, bool bigCards = false}) async {
+  // Çocuk (ilkokul) sınavları: köşedeki kutunun isimli kartları (A4'e 4 ya da
+  // büyük kartta 2 kart).
+  if (groups.every((g) => g.$1.kidForm)) {
+    return buildKidCardsPdf(groups, blankCopies: blankCopies, school: school, perPage: bigCards ? 2 : 4);
+  }
   final fonts = await _Fonts.load();
   final first = groups.first.$1;
   final doc = pw.Document(theme: fonts.theme, title: tr('{0} · optik form', [first.name]), author: tr('Netice'));
@@ -1991,6 +1995,10 @@ Future<Uint8List> buildTermGradesPdf(TermReport t, {SchoolInfo school = const Sc
 /// Dönem kazanım karnesi: her öğrenciye bir sayfa; dönemdeki sınavları,
 /// gelişim grafiği ve kazanım bazında birikimli başarısı.
 Future<Uint8List> buildTermCardsPdf(TermReport t, {SchoolInfo school = const SchoolInfo(), String? onlyStudentId}) async {
+  // Dönemin bütün sınavları çocuk görünümündeyse çocuk dönem karnesi.
+  if (t.exams.isNotEmpty && t.exams.every((e) => e.exam.kidStyle)) {
+    return buildKidTermCardsPdf(t, school: school, onlyStudentId: onlyStudentId);
+  }
   final fonts = await _Fonts.load(school.fontFamily);
   final k = _termKit(t, school, tr('Dönem Kazanım Karnesi'), everyPage: true);
   final doc = pw.Document(
