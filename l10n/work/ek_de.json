@@ -1513,5 +1513,12 @@
  "Şık": "Antworten",
  "Okuma sesi": "Scan-Ton",
  "Her kâğıt okununca kısa bir melodi çalar ve telefon hafifçe titrer": "Nach jedem gelesenen Bogen ertönt eine kurze Melodie und das Handy vibriert leicht",
- "Bu kâğıt zaten okunmuştu; tekrar eklenmedi.": "Dieser Bogen wurde bereits gelesen und nicht erneut hinzugefügt."
+ "Bu kâğıt zaten okunmuştu; tekrar eklenmedi.": "Dieser Bogen wurde bereits gelesen und nicht erneut hinzugefügt.",
+ "Her kâğıt okununca kısa bir melodi çalar": "Nach jedem gelesenen Bogen ertönt eine kurze Melodie",
+ "Her kâğıt okununca telefon hafifçe titrer": "Nach jedem gelesenen Bogen vibriert das Handy leicht",
+ "Kristal": "Kristall",
+ "Marimba": "Marimba",
+ "Melodi seçin (dinlemek için dokunun)": "Melodie wählen (zum Anhören tippen)",
+ "Okuma titreşimi": "Vibration beim Lesen",
+ "Yumuşak": "Sanft"
 }

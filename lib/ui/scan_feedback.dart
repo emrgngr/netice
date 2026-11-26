@@ -4,32 +4,43 @@ import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../core/store.dart';
+import '../l10n/l10n.dart';
 
-/// Kâğıt okununca verilen onay: kısa "kristal" melodi ve hafif titreşim.
-/// Melodi Ayarlar > Ses > Okuma sesi ile kapatılabilir; titreşim kalır.
+/// Okuma melodileri: anahtar, kullanıcıya görünen ad ve ses dosyası.
+const scanMelodies = <String>['kristal', 'marimba', 'yumusak'];
+
+String scanMelodyName(String key) => switch (key) {
+  'marimba' => tr('Marimba'),
+  'yumusak' => tr('Yumuşak'),
+  _ => tr('Kristal'),
+};
+
+/// Kâğıt okununca verilen onay: seçilen kısa melodi ve hafif titreşim.
+/// Ayarlar > Ses bölümünden melodi seçilir; ses ve titreşim ayrı ayrı
+/// açılıp kapatılabilir.
 class ScanFeedback {
   static AudioPlayer? _player;
-  static bool _ready = false;
+  static String? _loaded;
+
+  static String _asset(String key) => 'sounds/okuma_${scanMelodies.contains(key) ? key : 'kristal'}.mp3';
 
   /// Okutma ekranı açılırken çağrılır: ilk okumada gecikme olmasın.
-  static Future<void> warmUp() async {
-    if (_ready) return;
+  static Future<void> warmUp([String melody = 'kristal']) async {
+    if (_loaded == melody) return;
     try {
       final p = _player ??= AudioPlayer();
       await p.setReleaseMode(ReleaseMode.stop);
       await p.setPlayerMode(PlayerMode.lowLatency);
-      await p.setSource(AssetSource('sounds/okundu.mp3'));
+      await p.setSource(AssetSource(_asset(melody)));
       await p.setVolume(0.7);
-      _ready = true;
+      _loaded = melody;
     } catch (_) {}
   }
 
-  /// Başarılı okuma: hafif titreşim + melodi.
-  static Future<void> success(AppStore store) async {
-    HapticFeedback.lightImpact();
-    if (!store.scanSound) return;
+  /// Melodiyi çalar (ayarlarda önizleme için de kullanılır).
+  static Future<void> play(String melody) async {
     try {
-      if (!_ready) await warmUp();
+      if (_loaded != melody) await warmUp(melody);
       final p = _player;
       if (p == null) return;
       await p.stop();
@@ -39,8 +50,24 @@ class ScanFeedback {
     }
   }
 
+  /// Başarılı okuma: hafif titreşim + melodi (ayarlara göre).
+  static Future<void> success(AppStore store) async {
+    if (store.scanVibrate) HapticFeedback.lightImpact();
+    if (store.scanSound) await play(store.scanMelody);
+  }
+
   /// Aynı kâğıt yeniden okutuldu: yalnız çok hafif bir titreşim.
-  static void duplicate() => HapticFeedback.selectionClick();
+  static void duplicate(AppStore store) {
+    if (store.scanVibrate) HapticFeedback.selectionClick();
+  }
+
+  /// Ayarlarda titreşim açılınca örnek titreşim.
+  static void vibrateSample() => HapticFeedback.lightImpact();
+
+  /// Kâğıt okunamadı: belirgin bir titreşim.
+  static void failed(AppStore store) {
+    if (store.scanVibrate) HapticFeedback.heavyImpact();
+  }
 }
 
 /// Başarılı okumada ekranın kenarlarında yeşil bir parlama ve ortada

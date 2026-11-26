@@ -579,5 +579,12 @@
  "Şık": "Pilihan",
  "Okuma sesi": "Suara pindai",
  "Her kâğıt okununca kısa bir melodi çalar ve telefon hafifçe titrer": "Memutar melodi singkat dan bergetar ringan setiap lembar terbaca",
- "Bu kâğıt zaten okunmuştu; tekrar eklenmedi.": "Lembar ini sudah dibaca; tidak ditambahkan lagi."
+ "Bu kâğıt zaten okunmuştu; tekrar eklenmedi.": "Lembar ini sudah dibaca; tidak ditambahkan lagi.",
+ "Her kâğıt okununca kısa bir melodi çalar": "Memutar melodi singkat setiap lembar terbaca",
+ "Her kâğıt okununca telefon hafifçe titrer": "Ponsel bergetar ringan setiap lembar terbaca",
+ "Kristal": "Kristal",
+ "Marimba": "Marimba",
+ "Melodi seçin (dinlemek için dokunun)": "Pilih melodi (ketuk untuk mendengar)",
+ "Okuma titreşimi": "Getaran pemindaian",
+ "Yumuşak": "Lembut"
 }

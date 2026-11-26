@@ -1513,5 +1513,12 @@
  "Şık": "Варианты",
  "Okuma sesi": "Звук сканирования",
  "Her kâğıt okununca kısa bir melodi çalar ve telefon hafifçe titrer": "После каждого бланка звучит короткая мелодия и телефон слегка вибрирует",
- "Bu kâğıt zaten okunmuştu; tekrar eklenmedi.": "Этот бланк уже был прочитан; повторно не добавлен."
+ "Bu kâğıt zaten okunmuştu; tekrar eklenmedi.": "Этот бланк уже был прочитан; повторно не добавлен.",
+ "Her kâğıt okununca kısa bir melodi çalar": "После каждого бланка звучит короткая мелодия",
+ "Her kâğıt okununca telefon hafifçe titrer": "После каждого бланка телефон слегка вибрирует",
+ "Kristal": "Кристалл",
+ "Marimba": "Маримба",
+ "Melodi seçin (dinlemek için dokunun)": "Выберите мелодию (нажмите, чтобы прослушать)",
+ "Okuma titreşimi": "Вибрация при чтении",
+ "Yumuşak": "Мягкая"
 }

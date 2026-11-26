@@ -1513,5 +1513,12 @@
  "Şık": "選択肢",
  "Okuma sesi": "読み取り音",
  "Her kâğıt okununca kısa bir melodi çalar ve telefon hafifçe titrer": "用紙を読み取るたびに短いメロディーが鳴り、軽く振動します",
- "Bu kâğıt zaten okunmuştu; tekrar eklenmedi.": "この用紙はすでに読み取り済みのため、追加しませんでした。"
+ "Bu kâğıt zaten okunmuştu; tekrar eklenmedi.": "この用紙はすでに読み取り済みのため、追加しませんでした。",
+ "Her kâğıt okununca kısa bir melodi çalar": "用紙を読み取るたびに短いメロディーが鳴ります",
+ "Her kâğıt okununca telefon hafifçe titrer": "用紙を読み取るたびに軽く振動します",
+ "Kristal": "クリスタル",
+ "Marimba": "マリンバ",
+ "Melodi seçin (dinlemek için dokunun)": "メロディーを選択（タップで試聴）",
+ "Okuma titreşimi": "読み取り時のバイブ",
+ "Yumuşak": "やわらか"
 }
