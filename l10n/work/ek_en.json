@@ -1416,5 +1416,22 @@
  "Sitemizden yeni kurulum dosyasını indirin. Verileriniz olduğu gibi kalır.": "Download the new installer from our website. Your data stays as it is.",
  "Sürüm {0}": "Version {0}",
  "Uygulama yeni sürüm çıktığında size haber verir; yenilikleri bu pencerede görürsünüz.": "The app now tells you when a new version is out; you'll see what's new in this window.",
- "Yeni sürüm hazır: {0}": "New version available: {0}"
+ "Yeni sürüm hazır: {0}": "New version available: {0}",
+ "Analiz ve raporlar": "Analysis and reports",
+ "Bu hafta": "This week",
+ "Cevap anahtarıyla başlayın": "Start with an answer key",
+ "Deneme süreniz: {0} gün kaldı": "Trial: {0} days left",
+ "Eşleşen sınav yok": "No matching exams",
+ "Gelişmiş grafikler, dönem raporu ve reklamsız kullanım.": "Advanced charts, term report and ad-free use.",
+ "Henüz sınav yok": "No exams yet",
+ "Kitapçık hazırla": "Build a booklet",
+ "Kontrol bekleyen": "Needs review",
+ "Kâğıt okut": "Scan sheets",
+ "Optik okuma ve analiz": "Optical reading and analysis",
+ "PDF, tarama veya telefondan": "PDF, scanner or phone",
+ "Soru bankasından sınav kâğıdı": "Exam paper from the question bank",
+ "Sınavlarda ara…": "Search exams…",
+ "Çalışma": "Work",
+ "Şubeleri yan yana karşılaştırın": "Compare classes side by side",
+ "Pro deneme: {0} gün": "Pro trial: {0} days"
 }
