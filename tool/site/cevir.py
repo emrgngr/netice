@@ -189,14 +189,15 @@ def etiketler(s):
 # ------------------------------------------------------------------ çeviri belleği
 
 def bellek_yukle(dil, kat):
+    """Sürümdeki bellek + depodaki elle düzeltmeler (depodaki kazanır)."""
     b = {}
-    yol = os.path.join(BELLEK, f'{dil}.json')
-    if os.path.exists(yol):
-        b.update(json.load(open(yol, encoding='utf-8')))
     if kat:
         hedef = os.path.join(kat, f'site_ceviri_{dil}.json')
         if os.path.exists(hedef):
             b.update(json.load(open(hedef, encoding='utf-8')))
+    yol = os.path.join(BELLEK, f'{dil}.json')
+    if os.path.exists(yol):
+        b.update(json.load(open(yol, encoding='utf-8')))
     return b
 
 
