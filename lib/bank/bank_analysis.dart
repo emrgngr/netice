@@ -52,12 +52,14 @@ class BankAnalysis {
   static Map<String, BankItemStat> itemStats(Iterable<(Exam, List<Result>)> data) {
     final out = <String, BankItemStat>{};
     for (final (exam, results) in data) {
+      // Eşleştirme gibi gruplu sorularda birkaç satır aynı banka sorusudur.
+      final counted = <String>{};
       for (var i = 0; i < exam.questions.length; i++) {
         final q = exam.questions[i];
         final id = q.bankId;
         if (id == null || q.cancelled) continue;
         final s = out.putIfAbsent(id, () => BankItemStat(id));
-        s.exams++;
+        if (counted.add(id)) s.exams++;
         for (final r in results) {
           if (i >= r.outcomes.length) continue;
           s.answered++;

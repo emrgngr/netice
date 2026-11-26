@@ -187,6 +187,192 @@ Future<Uint8List> buildBookletPdf(
           ),
       ]);
 
+  // Öncüller (I, II, III) ya da sıralanacak adımlar.
+  // [numbers]: çocuk sıralama sorusunda 1, 2, 3; öncüller her zaman I, II, III
+  // (şıklar "Yalnız I" gibi onlara gönderme yapar).
+  pw.Widget premises(List<String> items, {bool numbers = false}) => pw.Padding(
+        padding: const pw.EdgeInsets.only(top: 3, bottom: 1),
+        child: pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
+          for (var i = 0; i < items.length; i++)
+            pw.Padding(
+              padding: pw.EdgeInsets.only(top: kids ? 3 : 1.5),
+              child: pw.Row(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
+                pw.SizedBox(
+                  width: fs * (kids ? 2.1 : 1.8),
+                  child: kids
+                      ? pw.Container(
+                          width: fs * (numbers ? 1.4 : 1.75),
+                          height: fs * 1.4,
+                          alignment: pw.Alignment.center,
+                          decoration: pw.BoxDecoration(color: kidYellow, borderRadius: pw.BorderRadius.circular(4)),
+                          child: pw.Text(itemLabel(i, kids: numbers),
+                              style: pw.TextStyle(fontSize: fs * 0.7, fontWeight: pw.FontWeight.bold, color: kidInk)),
+                        )
+                      : pw.Text('${itemLabel(i)}.', style: pw.TextStyle(fontSize: fs, fontWeight: pw.FontWeight.bold)),
+                ),
+                pw.Expanded(child: pw.Text(items[i], style: pw.TextStyle(fontSize: fs, color: kids ? kidInk : null))),
+              ]),
+            ),
+        ]),
+      );
+
+  pw.Widget numberBadge(int no) => kids
+      ? pw.Container(
+          width: fs * 1.6,
+          height: fs * 1.6,
+          alignment: pw.Alignment.center,
+          decoration: pw.BoxDecoration(shape: pw.BoxShape.circle, color: kidBadgeColors[(no - 1) % kidBadgeColors.length]),
+          child: pw.Text('$no', style: pw.TextStyle(fontSize: fs * 0.78, fontWeight: pw.FontWeight.bold, color: PdfColors.white)),
+        )
+      : pw.Text('$no.', style: pw.TextStyle(fontSize: fs, fontWeight: pw.FontWeight.bold, color: _ink));
+
+  pw.Widget answerTag(String t) => pw.Container(
+        margin: const pw.EdgeInsets.only(left: 4),
+        padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+        decoration: pw.BoxDecoration(color: const PdfColor.fromInt(0xFFE7F8F0), borderRadius: pw.BorderRadius.circular(3)),
+        child: pw.Text(t, style: pw.TextStyle(fontSize: fs - 1.5, fontWeight: pw.FontWeight.bold, color: const PdfColor.fromInt(0xFF047857))),
+      );
+
+  /// Eşleştirme, doğru/yanlış tablosu ve kelime havuzu: ortak yönerge bir kez,
+  /// maddeler kitapçık numaralarıyla.
+  _Block groupBlock(List<PrintedQuestion> ps, {bool withAnswer = false}) => _Block((width, maxH) {
+        final g = ps.first.question.parent!;
+        final textStyle = pw.TextStyle(fontSize: fs, color: kids ? kidInk : null);
+        final numW = kids ? fs * 2.3 : fs * 2.0;
+        final total = ps.fold(0.0, (a, p) => a + p.points);
+        final range = ps.length == 1 ? '${ps.first.no}' : '${ps.first.no}–${ps.last.no}';
+        final pointsText = o.showPoints ? ' (${tr('{0} puan', [_fmt(total)])})' : '';
+        final instruction = g.text.trim().isNotEmpty
+            ? g.text.trim()
+            : switch (g.type) {
+                QuestionType.matching => tr('Maddeleri uygun seçenekle eşleştiriniz.'),
+                QuestionType.trueFalseTable => tr('İfadeler doğru mu, yanlış mı? İşaretleyiniz.'),
+                _ => tr('Boşlukları kutudaki sözcüklerle doldurunuz.'),
+              };
+        String letterOf(PrintedQuestion p) => p.printedCorrect.isEmpty ? '–' : _letter(p.printedCorrect.first);
+
+        pw.Widget optionsBox() => pw.Container(
+              width: width,
+              margin: const pw.EdgeInsets.only(top: 4, bottom: 4),
+              padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+              decoration: pw.BoxDecoration(
+                color: kids ? kidSoftBlue : _soft,
+                border: pw.Border.all(color: kids ? const PdfColor.fromInt(0xFFD6E2F7) : _line, width: 0.8),
+                borderRadius: pw.BorderRadius.circular(kids ? 8 : 3),
+              ),
+              child: pw.Wrap(spacing: fs * 1.2, runSpacing: 3, children: [
+                for (var i = 0; i < ps.first.choices.length; i++)
+                  pw.RichText(
+                    text: pw.TextSpan(children: [
+                      pw.TextSpan(text: '${_letter(i)}) ', style: textStyle.copyWith(fontWeight: pw.FontWeight.bold)),
+                      pw.TextSpan(text: ps.first.choices[i], style: textStyle),
+                    ]),
+                  ),
+              ]),
+            );
+
+        pw.Widget itemRow(PrintedQuestion p, pw.Widget body, {pw.Widget? trailing}) => pw.Padding(
+              padding: pw.EdgeInsets.only(top: kids ? 4 : 2.5),
+              child: pw.Row(crossAxisAlignment: pw.CrossAxisAlignment.center, children: [
+                pw.SizedBox(width: numW, child: pw.Align(alignment: pw.Alignment.centerLeft, child: numberBadge(p.no))),
+                pw.Expanded(child: body),
+                ?trailing,
+              ]),
+            );
+
+        pw.Widget circle(String t, {bool on = false}) => pw.Container(
+              width: fs * 1.35,
+              height: fs * 1.35,
+              margin: const pw.EdgeInsets.symmetric(horizontal: 3),
+              alignment: pw.Alignment.center,
+              decoration: pw.BoxDecoration(
+                shape: pw.BoxShape.circle,
+                color: on ? const PdfColor.fromInt(0xFF10B981) : null,
+                border: pw.Border.all(color: on ? const PdfColor.fromInt(0xFF10B981) : (kids ? kidLine : _line), width: 1.1),
+              ),
+              child: pw.Text(t,
+                  style: pw.TextStyle(fontSize: fs * 0.58, fontWeight: pw.FontWeight.bold, color: on ? PdfColors.white : _muted)),
+            );
+
+        final body = <pw.Widget>[];
+        switch (g.type) {
+          case QuestionType.matching:
+            body.add(optionsBox());
+            for (final p in ps) {
+              body.add(itemRow(
+                p,
+                pw.Text(p.question.text, style: textStyle),
+                trailing: withAnswer
+                    ? answerTag(letterOf(p))
+                    : pw.Container(
+                        width: fs * 2.2,
+                        height: fs * 1.4,
+                        margin: const pw.EdgeInsets.only(left: 4),
+                        decoration: pw.BoxDecoration(
+                          border: pw.Border.all(color: kids ? kidLine : _line, width: 0.8),
+                          borderRadius: pw.BorderRadius.circular(3),
+                        ),
+                      ),
+              ));
+            }
+          case QuestionType.trueFalseTable:
+            body.add(pw.Padding(
+              padding: const pw.EdgeInsets.only(top: 3),
+              child: pw.Row(children: [
+                pw.Spacer(),
+                pw.SizedBox(width: fs * 1.35 + 6, child: pw.Center(child: pw.Text(tr('D'), style: textStyle.copyWith(fontWeight: pw.FontWeight.bold, fontSize: fs * 0.8)))),
+                pw.SizedBox(width: fs * 1.35 + 6, child: pw.Center(child: pw.Text(tr('Y'), style: textStyle.copyWith(fontWeight: pw.FontWeight.bold, fontSize: fs * 0.8)))),
+              ]),
+            ));
+            for (final p in ps) {
+              final yes = p.printedCorrect.contains(0);
+              body.add(itemRow(
+                p,
+                pw.Text(p.question.text, style: textStyle),
+                trailing: pw.Row(children: [
+                  circle(tr('D'), on: withAnswer && yes),
+                  circle(tr('Y'), on: withAnswer && !yes),
+                ]),
+              ));
+            }
+          default:
+            body.add(optionsBox());
+            for (final p in ps) {
+              final t = p.question.text;
+              final blank = RegExp(r'_{2,}|\.{4,}|…+');
+              final shown = blank.hasMatch(t) ? t.replaceFirst(blank, ' __________ ') : '$t __________';
+              body.add(itemRow(p, pw.Text(shown, style: textStyle), trailing: withAnswer ? answerTag(letterOf(p)) : null));
+            }
+        }
+        return pw.Container(
+          padding: pw.EdgeInsets.only(bottom: o.questionRule ? 6 : 2, top: 2),
+          decoration: o.questionRule
+              ? const pw.BoxDecoration(border: pw.Border(bottom: pw.BorderSide(color: _line, width: 0.5)))
+              : null,
+          child: pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
+            pw.RichText(
+              text: pw.TextSpan(children: [
+                pw.TextSpan(text: '$range. ', style: pw.TextStyle(fontSize: fs, fontWeight: pw.FontWeight.bold, color: kids ? kidInk : _ink)),
+                pw.TextSpan(text: instruction, style: textStyle.copyWith(lineSpacing: fs * 0.2)),
+                if (pointsText.isNotEmpty) pw.TextSpan(text: pointsText, style: pw.TextStyle(fontSize: fs - 1.5, color: _muted)),
+              ]),
+            ),
+            if (g.imageId != null) imageBox(g.imageId, width, math.max(80, maxH - 120)),
+            ...body,
+            if (withAnswer && g.solution.trim().isNotEmpty)
+              pw.Padding(
+                padding: const pw.EdgeInsets.only(top: 3),
+                child: pw.Text(g.solution.trim(), style: pw.TextStyle(fontSize: fs - 1, color: _ink)),
+              ),
+            if (o.showTopic && g.topicLabel.isNotEmpty)
+              pw.Padding(
+                padding: const pw.EdgeInsets.only(top: 2),
+                child: pw.Text(g.topicLabel, style: pw.TextStyle(fontSize: fs - 3, color: _muted, fontStyle: pw.FontStyle.italic)),
+              ),
+          ]),
+        );
+      });
+
   _Block questionBlock(PrintedQuestion p, {bool open = false, bool withAnswer = false}) => _Block((width, maxH) {
         final q = p.question;
         final numW = kids ? fs * 2.5 : fs * 2.0;
@@ -219,6 +405,7 @@ Future<Uint8List> buildBookletPdf(
                     ]),
                   ),
                 if (q.imageId != null) imageBox(q.imageId, inner, math.max(80, maxH - 60)),
+                if (q.items.isNotEmpty) premises(q.items, numbers: kids && q.parent?.type == QuestionType.ordering),
                 if (!open) choicesBox(p, inner),
                 if (open && !withAnswer) answerLines(q.type == QuestionType.fill ? 1 : q.answerLines.clamp(0, 30)),
                 if (withAnswer) ...[
@@ -644,10 +831,20 @@ Future<Uint8List> buildBookletPdf(
     }
     final sections = o.sectionHeaders && runs.toSet().length > 1 && runs.length == runs.toSet().length;
     String? current;
-    for (final p in v.test) {
+    for (var i = 0; i < v.test.length; i++) {
+      final p = v.test[i];
       if (sections && p.question.subject != current) {
         current = p.question.subject;
         out.add(sectionBlock(current.isEmpty ? tr('Diğer') : current));
+      }
+      final g = p.question.parent;
+      if (g != null && g.type.grouped) {
+        final members = [p];
+        while (i + 1 < v.test.length && v.test[i + 1].question.parent == g) {
+          members.add(v.test[++i]);
+        }
+        out.add(groupBlock(members, withAnswer: answers));
+        continue;
       }
       out.add(questionBlock(p, withAnswer: answers));
     }

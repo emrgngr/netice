@@ -18,7 +18,7 @@ export const LANGUAGES = {
 export const DIFFICULTIES = ["mixed", "easy", "medium", "hard"];
 
 // Soru türleri: çoktan seçmeli, doğru/yanlış, boşluk doldurma, klasik (açık uçlu).
-export const TYPES = ["multiple", "true_false", "fill", "open"];
+export const TYPES = ["multiple", "true_false", "fill", "open", "matching", "tf_table", "word_bank", "ordering"];
 
 export const LIMITS = {
   maxQuestions: 20,
@@ -101,7 +101,11 @@ Write questions that a teacher could put on a real classroom exam. The requested
 - "true_false": a single clear statement that is either true or false (no "choices"). "correct_index" is 0 if the statement is TRUE, 1 if it is FALSE. Mix true and false statements about evenly; a false statement must be false because of one specific, checkable error, not vague wording.
 - "fill": a sentence from the note's content with one key term replaced by "_____" (exactly one blank). "answer" is the missing term (1–4 words); add acceptable alternatives after " / " if any.
 - "open": a short-answer or essay question (explain, compare, calculate, give an example). "answer" is a model answer a teacher can grade against (2–5 sentences or the main points).
-For "true_false", "fill" and "open": "choices" is an empty array and "correct_index" is -1 except for true_false as above. For "multiple": "answer" is an empty string.
+- "matching": "text" is a short instruction; "items" are 3–6 short prompts (left column) and "choices" are 3–5 short options (right column, at most 5, may include one extra distractor); "item_keys" gives, for each item, the 0-based index of its matching choice. Each choice is used at most once.
+- "tf_table": "text" is a short instruction; "items" are 3–6 independent statements about the note, mixing true and false about evenly; "item_keys" is 0 for a TRUE statement and 1 for a FALSE one.
+- "word_bank": "text" is a short instruction; "items" are 3–6 sentences from the note, each with exactly one key term replaced by "_____"; "choices" is the word bank (3–5 single words or short terms, each used at most once, may include one extra distractor); "item_keys" gives the 0-based index of the word for each sentence.
+- "ordering": "text" asks for the correct order (e.g. of steps, stages, events or a process); "items" are 3–6 steps written in the CORRECT order; "choices" is empty and "item_keys" is empty (the app shuffles them and builds the choices).
+For "true_false", "fill" and "open": "choices" is an empty array and "correct_index" is -1 except for true_false as above. For "multiple": "answer" is an empty string. For every type except the four above, "items" and "item_keys" are empty arrays; for those four, "correct_index" is -1 and "answer" is an empty string.
 
 Rules:
 - Every question must be answerable from the note's content (text and images). Do not test facts the note does not cover.
@@ -152,7 +156,16 @@ export function buildContent(req) {
   if (n.text) text += `<note>\n${n.text}\n</note>\n\n`;
   if (n.images.length) text += `The note also has ${n.images.length} image(s) above (pages, photos or figures from the teacher's material).\n\n`;
   if (req.avoid.length) text += `Avoid (already in the bank):\n${req.avoid.map((s) => `- ${s}`).join("\n")}\n\n`;
-  const typeNames = { multiple: `multiple choice (exactly ${req.choices} choices each)`, true_false: "true/false", fill: "fill in the blank", open: "open-ended (short answer / essay)" };
+  const typeNames = {
+    multiple: `multiple choice (exactly ${req.choices} choices each)`,
+    true_false: "true/false",
+    fill: "fill in the blank",
+    open: "open-ended (short answer / essay)",
+    matching: "matching (items to options)",
+    tf_table: "true/false table (several statements)",
+    word_bank: "fill in the blanks from a word bank",
+    ordering: "put the steps in the correct order",
+  };
   const kinds =
     req.types.length === 1
       ? `All questions are of type "${req.types[0]}" — ${typeNames[req.types[0]]}.`
@@ -176,7 +189,7 @@ export function outputSchema() {
         items: {
           type: "object",
           additionalProperties: false,
-          required: ["type", "text", "topic", "choices", "correct_index", "answer", "difficulty", "solution"],
+          required: ["type", "text", "topic", "choices", "correct_index", "answer", "items", "item_keys", "difficulty", "solution"],
           properties: {
             type: { type: "string", enum: TYPES },
             text: { type: "string" },
@@ -184,6 +197,8 @@ export function outputSchema() {
             choices: { type: "array", items: { type: "string" } },
             correct_index: { type: "integer" },
             answer: { type: "string" },
+            items: { type: "array", items: { type: "string" } },
+            item_keys: { type: "array", items: { type: "integer" } },
             difficulty: { type: "string", enum: ["easy", "medium", "hard"] },
             solution: { type: "string" },
           },
@@ -207,8 +222,30 @@ export function cleanOutput(parsed, req) {
     let choices = [];
     let correct = -1;
     let answer = "";
+    let items = [];
+    let itemKeys = [];
     const idx = Number.isInteger(q?.correct_index) ? q.correct_index : -1;
-    if (type === "multiple") {
+    const rawItems = (Array.isArray(q?.items) ? q.items : []).map((c) => str(c, 600).replace(LETTER_PREFIX, ""));
+    const rawKeys = Array.isArray(q?.item_keys) ? q.item_keys : [];
+    if (type === "matching" || type === "word_bank" || type === "tf_table") {
+      if (rawItems.length < 2 || rawItems.length > 8 || rawItems.some((c) => !c)) continue;
+      if (rawKeys.length !== rawItems.length || !rawKeys.every(Number.isInteger)) continue;
+      if (type === "tf_table") {
+        if (!rawKeys.every((k) => k === 0 || k === 1)) continue;
+      } else {
+        choices = (Array.isArray(q?.choices) ? q.choices : []).map((c) => str(c, 300).replace(LETTER_PREFIX, ""));
+        if (choices.length < 2 || choices.length > 5 || choices.some((c) => !c)) continue;
+        if (new Set(choices.map((c) => c.toLowerCase())).size !== choices.length) continue;
+        if (!rawKeys.every((k) => k >= 0 && k < choices.length)) continue;
+        if (type === "word_bank" && !rawItems.every((t) => /_{3,}|…{2,}|\.{4,}/.test(t))) continue;
+      }
+      items = rawItems;
+      itemKeys = rawKeys;
+    } else if (type === "ordering") {
+      if (rawItems.length < 3 || rawItems.length > 6 || rawItems.some((c) => !c)) continue;
+      if (new Set(rawItems.map((c) => c.toLowerCase())).size !== rawItems.length) continue;
+      items = rawItems;
+    } else if (type === "multiple") {
       choices = (Array.isArray(q?.choices) ? q.choices : []).map((c) => str(c, 1000).replace(LETTER_PREFIX, ""));
       if (choices.length !== req.choices || choices.some((c) => !c)) continue;
       if (idx < 0 || idx >= choices.length) continue;
@@ -232,6 +269,8 @@ export function cleanOutput(parsed, req) {
       choices,
       correct,
       answer,
+      items,
+      item_keys: itemKeys,
       difficulty: ["easy", "medium", "hard"].includes(q.difficulty) ? q.difficulty : "medium",
       solution: str(q?.solution, 2000),
     });

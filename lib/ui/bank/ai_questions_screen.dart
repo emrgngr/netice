@@ -573,6 +573,11 @@ class _DraftCard extends StatelessWidget {
                       style: t.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w800, letterSpacing: 0.6, color: t.colorScheme.primary)),
                 ),
               SelectableText(q.text, style: t.textTheme.bodyLarge?.copyWith(height: 1.45)),
+              for (var i = 0; i < q.items.length; i++)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text('${i + 1}. ${q.items[i]}', style: t.textTheme.bodyMedium?.copyWith(height: 1.35)),
+                ),
               const SizedBox(height: 8),
               for (var i = 0; i < q.choices.length; i++)
                 Padding(
@@ -601,7 +606,7 @@ class _DraftCard extends StatelessWidget {
                     ),
                   ]),
                 ),
-              if (!q.type.optical || q.type == QuestionType.trueFalse) ...[
+              if (!q.type.optical || q.type == QuestionType.trueFalse || q.type.hasItems) ...[
                 const SizedBox(height: 4),
                 Container(
                   width: double.infinity,

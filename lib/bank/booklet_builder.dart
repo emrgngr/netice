@@ -88,7 +88,9 @@ class BookletPlan {
   /// [questions] seçilen sorular (öğretmenin sırasıyla).
   factory BookletPlan.build(List<BankQuestion> questions, BookletOptions o) {
     final sorted = BankStore.sortQuestions(questions, o.order, seed: o.seed);
-    final test = sorted.where((q) => q.type.optical).toList();
+    // Eşleştirme, tablo ve kelime havuzu her maddesiyle ayrı optik satır olur;
+    // sıralama sorusunun şıkları burada üretilir.
+    final test = [for (final q in sorted.where((q) => q.type.optical)) ...q.expanded(kids: o.kids)];
     final open = sorted.where((q) => !q.type.optical).toList();
     // Çocuk şablonunda şık sayısı soruların kendisinden gelir (genellikle 3: A, B, C).
     final choiceCount = o.kids
@@ -117,19 +119,30 @@ class BookletPlan {
       final rnd = math.Random(o.seed * 7919 + b * 104729);
       var order = List.generate(test.length, (i) => i);
       if (b > 0 && o.shuffleQuestions) {
+        // Bir grubun maddeleri (eşleştirme vb.) birlikte ve kendi sırasıyla kalır.
+        final units = <List<int>>[];
+        for (final i in order) {
+          final g = test[i].parent;
+          if (g != null && g.type.grouped && units.isNotEmpty && test[units.last.last].parent == g) {
+            units.last.add(i);
+          } else {
+            units.add([i]);
+          }
+        }
         if (o.shuffleWithinSections) {
           // Her dersin soruları kendi bölümünde karışır.
-          final groups = <String, List<int>>{};
-          for (final i in order) {
-            groups.putIfAbsent(test[i].subject, () => []).add(i);
+          final groups = <String, List<List<int>>>{};
+          for (final u in units) {
+            groups.putIfAbsent(test[u.first].subject, () => []).add(u);
           }
-          order = [for (final g in groups.values) ...(g..shuffle(rnd))];
+          order = [for (final g in groups.values) ...(g..shuffle(rnd)).expand((u) => u)];
         } else {
-          order.shuffle(rnd);
+          order = (units..shuffle(rnd)).expand((u) => u).toList();
         }
-        // Karışım A ile aynı çıktıysa (az soru) bir kaydır.
-        if (order.length > 1 && List.generate(order.length, (i) => i).toString() == order.toString()) {
-          order = [...order.sublist(1), order.first];
+        // Karışım A ile aynı çıktıysa (az soru) bir birim kaydır.
+        if (units.length > 1 && List.generate(order.length, (i) => i).toString() == order.toString()) {
+          final first = order.takeWhile((i) => units.first.contains(i)).length;
+          order = [...order.sublist(first), ...order.sublist(0, first)];
         }
       }
       final printed = <PrintedQuestion>[];
@@ -172,7 +185,7 @@ class BookletPlan {
           correct: testMaster[i].correct,
           points: testPoints[i],
           outcomeCode: _code(testMaster[i]),
-          bankId: testMaster[i].id,
+          bankId: testMaster[i].parent?.id ?? testMaster[i].id,
         ),
     ];
     final orders = <List<int>>[];

@@ -281,6 +281,10 @@ class BankExcel {
         QuestionType.trueFalse => tr('DY'),
         QuestionType.fill => tr('Boşluk'),
         QuestionType.open => tr('Klasik'),
+        QuestionType.matching => tr('Eşleştirme'),
+        QuestionType.trueFalseTable => tr('DY tablosu'),
+        QuestionType.wordBank => tr('Kelime havuzu'),
+        QuestionType.ordering => tr('Sıralama'),
       };
 
   static List<String> questionRow(BankQuestion q) => [
@@ -290,7 +294,8 @@ class BankExcel {
         q.outcome,
         q.difficulty.label,
         _typeCell(q.type),
-        q.text,
+        // Madde listeli türlerde maddeler metnin altına numaralı yazılır.
+        q.items.isEmpty ? q.text : [q.text, for (var i = 0; i < q.items.length; i++) '${i + 1}) ${q.items[i]}'].join('\n').trim(),
         for (var i = 0; i < 5; i++) i < q.choices.length ? q.choices[i] : '',
         q.type.optical
             ? (q.type == QuestionType.trueFalse ? (q.correct.contains(1) ? tr('Y') : tr('D')) : q.answerLabel)

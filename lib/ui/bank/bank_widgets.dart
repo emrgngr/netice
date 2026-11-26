@@ -25,6 +25,10 @@ IconData typeIcon(QuestionType t) => switch (t) {
       QuestionType.trueFalse => Icons.rule_rounded,
       QuestionType.fill => Icons.short_text_rounded,
       QuestionType.open => Icons.edit_note_rounded,
+      QuestionType.matching => Icons.compare_arrows_rounded,
+      QuestionType.trueFalseTable => Icons.fact_check_rounded,
+      QuestionType.wordBank => Icons.space_bar_rounded,
+      QuestionType.ordering => Icons.format_list_numbered_rounded,
     };
 
 /// Küçük renkli etiket.

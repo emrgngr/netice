@@ -411,7 +411,7 @@ class _CropImportScreenState extends State<CropImportScreen> {
       if (_questions) ...[
         const SizedBox(height: 4),
         Wrap(spacing: 6, runSpacing: 6, children: [
-          for (final ty in QuestionType.values)
+          for (final ty in QuestionType.values.where((t) => !t.hasItems))
             ChoiceChip(
               label: Text(ty.label),
               selected: _type == ty,
