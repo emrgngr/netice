@@ -41,6 +41,25 @@ void main() {
     expect(back[0].showsOn(AdPage.term), isFalse);
   });
 
+  test('slider reklam: görseller, geçiş ve eski sürüm uyumu', () {
+    const urls = ['https://x/1.jpg', 'https://x/2.jpg', 'https://x/3.jpg'];
+    const ad = Ad(id: 's', type: AdType.slider, media: 'https://x/1.jpg', slides: urls, style: SlideStyle.flip, seconds: 3);
+    final j = ad.toJson();
+    expect(j['tur'], 'slider');
+    expect(j['dosya'], urls.first); // eski sürümler ilk görseli sabit gösterir
+    final back = Ad.fromJson(jsonDecode(jsonEncode(j)) as Map<String, dynamic>)!;
+    expect(back.type, AdType.slider);
+    expect(back.slides, urls);
+    expect(back.style, SlideStyle.flip);
+    expect(back.seconds, 3);
+    expect(back.sources, urls);
+    // Tek görselli slider sabit görsele döner; bilinmeyen geçiş kaydırmaya.
+    final one = Ad.fromJson({'id': 'a', 'tur': 'slider', 'dosya': 'https://x/1.jpg', 'gorseller': ['https://x/1.jpg'], 'gecis': '?'})!;
+    expect(one.type, AdType.image);
+    expect(SlideStyle.byKey('?'), SlideStyle.slide);
+    expect(SlideStyle.values.length, 5);
+  });
+
   test('tarih ve açık/kapalı süzgeci', () {
     final a = Ad(id: 'a', type: AdType.image, media: 'https://x/a.jpg', start: DateTime(2026, 11, 10), end: DateTime(2026, 11, 20));
     expect(a.runningAt(DateTime(2026, 11, 9, 23)), isFalse);

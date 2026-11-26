@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../core/ad_admin.dart';
 import '../core/ads.dart';
+import 'ad_slot.dart';
 import 'theme.dart';
 import 'widgets.dart';
 
@@ -194,7 +195,7 @@ class _AdAdminScreenState extends State<AdAdminScreen> {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
           child: FilledButton.icon(
-            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52), backgroundColor: NColors.emerald),
+            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52), backgroundColor: NColors.emerald, foregroundColor: Colors.white),
             onPressed: _admin.dirty ? _publish : null,
             icon: const Icon(Icons.campaign_rounded),
             label: Text(_admin.dirty ? 'Değişiklikleri yayınla' : 'Her şey yayında'),
@@ -271,7 +272,7 @@ class _AdAdminScreenState extends State<AdAdminScreen> {
                       Text(a.name.isEmpty ? 'Adsız reklam' : a.name,
                           maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w700)),
                       Text(
-                        '${a.type == AdType.video ? 'Video' : 'Görsel'} · ${a.format == AdFormat.card ? 'Kart' : 'Şerit'} · '
+                        '${switch (a.type) { AdType.video => 'Video', AdType.slider => 'Slider (${a.slides.length} görsel, ${a.style.label.toLowerCase()})', AdType.image => 'Sabit görsel' }} · ${a.format == AdFormat.card ? 'Kart' : 'Şerit'} · '
                         '${a.allPages ? 'Tüm sayfalar' : a.pages.map((p) => p.label).join(', ')}',
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -382,7 +383,214 @@ class _AdEditScreenState extends State<AdEditScreen> {
   late DateTime? _start = widget.ad?.start;
   late DateTime? _end = widget.ad?.end;
   late int _seconds = widget.ad?.seconds ?? 8;
+  late List<String> _slides = [...?widget.ad?.slides];
+  late SlideStyle _style = widget.ad?.style ?? SlideStyle.slide;
   bool _loading = false;
+
+  static const maxSlides = 10;
+
+  void _setType(AdType t) => setState(() {
+        if (t == AdType.slider && _type != AdType.slider) {
+          _seconds = 3;
+          if (_slides.isEmpty && _media != null && _type == AdType.image) _slides = [_media!];
+        } else if (t != AdType.slider && _type == AdType.slider) {
+          _seconds = 8;
+        }
+        _type = t;
+      });
+
+  /// Slider'a birden çok görsel ekler.
+  Future<void> _addSlides() async {
+    final files = await FilePicker.pickFiles(
+      dialogTitle: 'Slider görsellerini seçin (birden çok seçebilirsiniz)',
+      type: FileType.custom,
+      allowedExtensions: ['jpg', 'jpeg', 'png', 'webp'],
+    );
+    if (files.isEmpty) return;
+    setState(() => _loading = true);
+    try {
+      for (final f in files) {
+        if (_slides.length >= maxSlides) {
+          if (mounted) toast(context, 'Bir slider\'da en çok $maxSlides görsel olabilir.');
+          break;
+        }
+        final bytes = await f.readAsBytes();
+        if (bytes.length > AdAdmin.maxImageBytes) {
+          if (mounted) toast(context, '${f.name} çok büyük (en çok 5 MB).');
+          continue;
+        }
+        final path = await AdAdmin.instance.importBytes(bytes, f.name, '${_id}_s');
+        _slides = [..._slides, path];
+        if (_name.text.trim().isEmpty) {
+          _name.text = f.name.contains('.') ? f.name.substring(0, f.name.lastIndexOf('.')) : f.name;
+        }
+      }
+    } catch (e) {
+      if (mounted) toast(context, 'Dosya okunamadı: $e');
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Widget _srcImage(String src) {
+    final f = AdService.instance.fileOf(src);
+    if (f != null && f.existsSync()) return Image.file(f, fit: BoxFit.cover);
+    if (!Ad.isLocalPath(src)) return Image.network(src, fit: BoxFit.cover, errorBuilder: (_, _, _) => const SizedBox());
+    return Container(color: NColors.ink.withValues(alpha: 0.08));
+  }
+
+  /// Geçiş örneği için renkli örnek kareler (görsel yokken).
+  static List<Widget> get _demoItems => [
+        for (final (i, c) in [(1, NColors.emerald), (2, NColors.amber), (3, NColors.ink)])
+          Container(
+            decoration: BoxDecoration(gradient: LinearGradient(colors: [c, Color.lerp(c, Colors.white, 0.35)!])),
+            alignment: Alignment.center,
+            child: Text('$i', style: const TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w800)),
+          ),
+      ];
+
+  List<Widget> get _sliderItems => _slides.length >= 2 ? [for (final s in _slides) _srcImage(s)] : _demoItems;
+
+  Widget _sliderEditor(Color muted) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(_format == AdFormat.card ? 18 : 10),
+          child: AspectRatio(
+            aspectRatio: _format == AdFormat.card ? 16 / 9 : 5,
+            child: _loading
+                ? const Center(child: CircularProgressIndicator())
+                : AdSlider(
+                    key: ValueKey('onizleme/${_style.key}/$_seconds/${_slides.length}'),
+                    items: _sliderItems,
+                    style: _style,
+                    seconds: _seconds,
+                  ),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          _slides.length < 2
+              ? 'En az 2 görsel ekleyin (en çok $maxSlides). Görseller seçtiğiniz sırayla, $_seconds saniyede bir değişir.'
+              : '${_slides.length} görsel · $_seconds saniyede bir değişir',
+          style: TextStyle(color: muted, fontSize: 12),
+        ),
+        const SizedBox(height: 10),
+        SizedBox(
+          height: 74,
+          child: ListView(scrollDirection: Axis.horizontal, children: [
+            for (final (i, src) in _slides.indexed)
+              Padding(
+                padding: const EdgeInsetsDirectional.only(end: 8),
+                child: Stack(children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: SizedBox(width: 110, height: 74, child: _srcImage(src)),
+                  ),
+                  PositionedDirectional(
+                    start: 4,
+                    top: 4,
+                    child: CircleAvatar(
+                      radius: 10,
+                      backgroundColor: Colors.black54,
+                      child: Text('${i + 1}', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700)),
+                    ),
+                  ),
+                  PositionedDirectional(
+                    end: 2,
+                    top: 2,
+                    child: InkResponse(
+                      onTap: () => setState(() => _slides = [..._slides]..removeAt(i)),
+                      child: const CircleAvatar(radius: 11, backgroundColor: Colors.black54, child: Icon(Icons.close_rounded, size: 14, color: Colors.white)),
+                    ),
+                  ),
+                  if (i > 0)
+                    PositionedDirectional(
+                      start: 2,
+                      bottom: 2,
+                      child: InkResponse(
+                        onTap: () => setState(() {
+                          final l = [..._slides];
+                          final x = l.removeAt(i);
+                          l.insert(i - 1, x);
+                          _slides = l;
+                        }),
+                        child: const CircleAvatar(radius: 11, backgroundColor: Colors.black54, child: Icon(Icons.arrow_back_rounded, size: 14, color: Colors.white)),
+                      ),
+                    ),
+                ]),
+              ),
+            if (_slides.length < maxSlides)
+              InkWell(
+                borderRadius: BorderRadius.circular(10),
+                onTap: _loading ? null : _addSlides,
+                child: Ink(
+                  width: 110,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: muted.withValues(alpha: 0.4)),
+                  ),
+                  child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                    Icon(Icons.add_photo_alternate_outlined, color: muted),
+                    const SizedBox(height: 4),
+                    Text('Görsel ekle', style: TextStyle(color: muted, fontSize: 12, fontWeight: FontWeight.w600)),
+                  ]),
+                ),
+              ),
+          ]),
+        ),
+        const SizedBox(height: 14),
+        const Text('Geçiş çeşidi', style: TextStyle(fontWeight: FontWeight.w700)),
+        const SizedBox(height: 8),
+        LayoutBuilder(builder: (context, c) {
+          final w = ((c.maxWidth - 16) / 3).clamp(96.0, 160.0);
+          return Wrap(spacing: 8, runSpacing: 8, children: [
+            for (final st in SlideStyle.values)
+              InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () => setState(() => _style = st),
+                child: Container(
+                  width: w,
+                  padding: const EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: st == _style ? NColors.emerald.withValues(alpha: 0.12) : null,
+                    border: Border.all(
+                        color: st == _style ? NColors.emerald : muted.withValues(alpha: 0.3), width: st == _style ? 2 : 1),
+                  ),
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: AspectRatio(
+                        aspectRatio: 16 / 9,
+                        child: AdSlider(key: ValueKey('ornek/${st.key}'), items: _demoItems, style: st, seconds: 2, dots: false),
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Row(children: [
+                      if (st == _style) const Icon(Icons.check_circle_rounded, size: 15, color: NColors.emerald),
+                      if (st == _style) const SizedBox(width: 3),
+                      Expanded(
+                        child: Text(st.label,
+                            maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5)),
+                      ),
+                    ]),
+                  ]),
+                ),
+              ),
+          ]);
+        }),
+        const SizedBox(height: 6),
+        Text(_style.detail, style: TextStyle(color: muted, fontSize: 12)),
+        const SizedBox(height: 10),
+        Text('Her görsel $_seconds saniye kalsın', style: const TextStyle(fontWeight: FontWeight.w700)),
+        Slider(
+          value: _seconds.toDouble().clamp(2, 10),
+          min: 2,
+          max: 10,
+          divisions: 8,
+          label: '$_seconds sn',
+          onChanged: (v) => setState(() => _seconds = v.round()),
+        ),
+      ]);
 
   Future<void> _pick(AdType type) async {
     final exts = type == AdType.video ? ['mp4', 'mov', 'm4v'] : ['jpg', 'jpeg', 'png', 'webp', 'gif'];
@@ -433,6 +641,14 @@ class _AdEditScreenState extends State<AdEditScreen> {
   }
 
   void _save() {
+    if (_type == AdType.slider) {
+      if (_slides.length < 2) {
+        toast(context, 'Slider için en az 2 görsel ekleyin.');
+        return;
+      }
+      _media = _slides.first;
+      _url.clear();
+    }
     final url = _url.text.trim();
     String? media = _media;
     var type = _type;
@@ -469,13 +685,15 @@ class _AdEditScreenState extends State<AdEditScreen> {
       start: _start,
       end: _end,
       seconds: _seconds,
+      slides: type == AdType.slider ? _slides : const [],
+      style: _style,
     ));
   }
 
   @override
   Widget build(BuildContext context) {
     final muted = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6);
-    final preview = _media == null
+    final preview = _media == null || _type == AdType.slider || (Ad.isVideoPath(_media!) != (_type == AdType.video))
         ? null
         : Ad(id: _id, type: _type, media: _media!, format: _format);
     return Scaffold(
@@ -489,7 +707,30 @@ class _AdEditScreenState extends State<AdEditScreen> {
         ],
       ),
       body: ListView(padding: const EdgeInsets.fromLTRB(16, 8, 16, 40), children: [
-        SectionTitle('1. Görsel ya da video'),
+        SectionTitle('1. Reklam türü'),
+        SegmentedButton<AdType>(
+          showSelectedIcon: false,
+          segments: const [
+            ButtonSegment(value: AdType.image, icon: Icon(Icons.image_outlined), label: Text('Sabit')),
+            ButtonSegment(value: AdType.slider, icon: Icon(Icons.view_carousel_outlined), label: Text('Slider')),
+            ButtonSegment(value: AdType.video, icon: Icon(Icons.movie_outlined), label: Text('Video')),
+          ],
+          selected: {_type},
+          onSelectionChanged: (s) => _setType(s.first),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          switch (_type) {
+            AdType.image => 'Tek görsel, sabit durur.',
+            AdType.slider => 'Birden çok görsel, seçtiğiniz geçişle sırayla değişir.',
+            AdType.video => 'Sessiz başlayan video; kullanıcı isterse sesi açar.',
+          },
+          style: TextStyle(color: muted, fontSize: 12),
+        ),
+        const SizedBox(height: 12),
+        if (_type == AdType.slider)
+          _sliderEditor(muted)
+        else ...[
         ClipRRect(
           borderRadius: BorderRadius.circular(_format == AdFormat.card ? 18 : 10),
           child: AspectRatio(
@@ -505,23 +746,11 @@ class _AdEditScreenState extends State<AdEditScreen> {
           ),
         ),
         const SizedBox(height: 10),
-        Row(children: [
-          Expanded(
-            child: OutlinedButton.icon(
-              onPressed: _loading ? null : () => _pick(AdType.image),
-              icon: const Icon(Icons.image_outlined),
-              label: const Text('Görsel seç'),
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: OutlinedButton.icon(
-              onPressed: _loading ? null : () => _pick(AdType.video),
-              icon: const Icon(Icons.movie_outlined),
-              label: const Text('Video seç'),
-            ),
-          ),
-        ]),
+        OutlinedButton.icon(
+          onPressed: _loading ? null : () => _pick(_type),
+          icon: Icon(_type == AdType.video ? Icons.movie_outlined : Icons.image_outlined),
+          label: Text(_type == AdType.video ? 'Video seç' : 'Görsel seç'),
+        ),
         const SizedBox(height: 6),
         Text(
           'Görsel en çok 5 MB (JPG/PNG), video en çok 40 MB (MP4, kısa ve sessiz izlenebilir olmalı; '
@@ -537,6 +766,7 @@ class _AdEditScreenState extends State<AdEditScreen> {
             border: OutlineInputBorder(),
           ),
         ),
+        ],
         SectionTitle('2. Bilgiler'),
         TextField(
           controller: _name,

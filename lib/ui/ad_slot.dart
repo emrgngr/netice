@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:material_ui/material_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -58,7 +59,7 @@ class _AdSlotState extends State<AdSlot> {
 
   List<Ad> _eligible() {
     final list = _ads.adsFor(widget.page, widget.format);
-    if (!adVideoSupported) return list.where((a) => a.type == AdType.image).toList();
+    if (!adVideoSupported) return list.where((a) => a.type != AdType.video).toList();
     return list;
   }
 
@@ -93,12 +94,21 @@ class _AdSlotState extends State<AdSlot> {
     final ad = list[_index % list.length];
     _schedule(ad, list.length);
     final banner = widget.format == AdFormat.banner;
-    final file = _ads.fileFor(ad)!;
+    final files = _ads.filesFor(ad)!;
+    final file = files.first;
 
-    final media = ad.type == AdType.video
-        ? _AdVideo(key: ValueKey('${ad.id}${file.path}'), file: file, loop: list.length == 1, onEnd: _next)
-        : Image.file(file, key: ValueKey(file.path), fit: BoxFit.cover, gaplessPlayback: true,
-            errorBuilder: (_, _, _) => const SizedBox.shrink());
+    final media = switch (ad.type) {
+      AdType.video => _AdVideo(key: ValueKey('${ad.id}${file.path}'), file: file, loop: list.length == 1, onEnd: _next),
+      AdType.slider => AdSlider.files(
+          files,
+          key: ValueKey('${ad.id}/${ad.style.key}/${files.length}'),
+          style: ad.style,
+          seconds: ad.seconds,
+          onCycle: list.length > 1 ? _next : null,
+        ),
+      AdType.image => Image.file(file, key: ValueKey(file.path), fit: BoxFit.cover, gaplessPlayback: true,
+          errorBuilder: (_, _, _) => const SizedBox.shrink()),
+    };
 
     final box = AspectRatio(
       aspectRatio: banner ? 5 : 16 / 9,
@@ -178,6 +188,167 @@ class AdBannerBar extends StatelessWidget {
         top: false,
         child: AdSlot.banner(page, padding: const EdgeInsets.fromLTRB(12, 6, 12, 8)),
       );
+}
+
+/// Birden çok görseli [seconds] saniyede bir, seçilen geçişle değiştiren slider.
+/// Son görselden sonra [onCycle] çağrılır (başka reklam varsa ona geçilir),
+/// yoksa başa döner.
+class AdSlider extends StatefulWidget {
+  final List<Widget> items;
+  final SlideStyle style;
+  final int seconds;
+  final VoidCallback? onCycle;
+  final bool dots;
+  const AdSlider({super.key, required this.items, required this.style, this.seconds = 3, this.onCycle, this.dots = true});
+
+  AdSlider.files(List<File> files,
+      {Key? key, required SlideStyle style, int seconds = 3, VoidCallback? onCycle, bool dots = true})
+      : this(
+          key: key,
+          items: [
+            for (final f in files)
+              Image.file(f, fit: BoxFit.cover, gaplessPlayback: true, errorBuilder: (_, _, _) => const SizedBox.shrink()),
+          ],
+          style: style,
+          seconds: seconds,
+          onCycle: onCycle,
+          dots: dots,
+        );
+
+  @override
+  State<AdSlider> createState() => _AdSliderState();
+}
+
+class _AdSliderState extends State<AdSlider> with SingleTickerProviderStateMixin {
+  int _i = 0;
+  int? _prev;
+  Timer? _timer;
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: Duration(milliseconds: widget.style == SlideStyle.flip ? 700 : 600),
+  )..addStatusListener((st) {
+      if (st == AnimationStatus.completed && mounted) setState(() => _prev = null);
+    });
+
+  @override
+  void initState() {
+    super.initState();
+    _start();
+  }
+
+  @override
+  void didUpdateWidget(AdSlider old) {
+    super.didUpdateWidget(old);
+    if (old.seconds != widget.seconds || old.items.length != widget.items.length) {
+      _i = _i % widget.items.length;
+      _prev = null;
+      _start();
+    }
+  }
+
+  void _start() {
+    _timer?.cancel();
+    if (widget.items.length < 2) return;
+    _timer = Timer.periodic(Duration(seconds: widget.seconds.clamp(2, 60)), (_) {
+      if (!mounted || !TickerMode.valuesOf(context).enabled) return;
+      if (_i == widget.items.length - 1 && widget.onCycle != null) {
+        _timer?.cancel();
+        widget.onCycle!();
+        return;
+      }
+      setState(() {
+        _prev = _i;
+        _i = (_i + 1) % widget.items.length;
+      });
+      _c.forward(from: 0);
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _c.dispose();
+    super.dispose();
+  }
+
+  Widget _item(int k) => KeyedSubtree(key: ValueKey(k), child: SizedBox.expand(child: widget.items[k]));
+
+  /// Geçişin [t] (0→1) anındaki görünümü.
+  List<Widget> _frame(double t, Widget out, Widget inc) {
+    Widget flip(Widget w, double angle) => Transform(
+          alignment: Alignment.center,
+          transform: Matrix4.identity()
+            ..setEntry(3, 2, 0.0015)
+            ..rotateY(angle),
+          child: w,
+        );
+    switch (widget.style) {
+      case SlideStyle.slide:
+        return [
+          FractionalTranslation(translation: Offset(-t, 0), child: out),
+          FractionalTranslation(translation: Offset(1 - t, 0), child: inc),
+        ];
+      case SlideStyle.vertical:
+        return [
+          FractionalTranslation(translation: Offset(0, -t), child: out),
+          FractionalTranslation(translation: Offset(0, 1 - t), child: inc),
+        ];
+      case SlideStyle.fade:
+        return [out, Opacity(opacity: t, child: inc)];
+      case SlideStyle.zoom:
+        return [
+          out,
+          Opacity(opacity: t, child: Transform.scale(scale: 1.18 - 0.18 * t, child: inc)),
+        ];
+      case SlideStyle.flip:
+        return [
+          Container(color: Colors.black.withValues(alpha: 0.08)),
+          if (t < 0.5) flip(out, -t * math.pi) else flip(inc, (1 - t) * math.pi),
+        ];
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final n = widget.items.length;
+    if (n == 0) return const SizedBox.shrink();
+    final i = _i % n;
+    return Stack(fit: StackFit.expand, children: [
+      ClipRect(
+        child: AnimatedBuilder(
+          animation: _c,
+          builder: (_, _) {
+            final prev = _prev;
+            if (prev == null || !_c.isAnimating) return Stack(fit: StackFit.expand, children: [_item(i)]);
+            final t = Curves.easeInOutCubic.transform(_c.value);
+            return Stack(fit: StackFit.expand, children: _frame(t, _item(prev % n), _item(i)));
+          },
+        ),
+      ),
+      if (widget.dots && n > 1)
+        PositionedDirectional(
+          bottom: 6,
+          start: 0,
+          end: 0,
+          child: IgnorePointer(
+            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              for (var k = 0; k < n; k++)
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  margin: const EdgeInsets.symmetric(horizontal: 2.5),
+                  width: k == i ? 16 : 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: k == i ? 0.95 : 0.55),
+                    borderRadius: BorderRadius.circular(3),
+                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 3)],
+                  ),
+                ),
+            ]),
+          ),
+        ),
+    ]);
+  }
 }
 
 /// Sessiz, kendiliğinden başlayan video. Ses düğmesiyle açılır; sayfa

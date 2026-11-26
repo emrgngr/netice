@@ -285,14 +285,27 @@ class AdAdmin extends ChangeNotifier {
           out.add(a);
           continue;
         }
-        final f = File(a.media);
-        if (!await f.exists()) throw '"${a.name}" reklamının dosyası bulunamadı.';
         progress?.call('Yükleniyor ${i + 1}/${drafts.length}: ${a.name}');
-        final ext = a.media.contains('.') ? a.media.substring(a.media.lastIndexOf('.')).toLowerCase() : '';
-        final stamp = DateTime.now().millisecondsSinceEpoch.toRadixString(36);
-        final path = '${AdService.mediaDir}/${a.id}_$stamp$ext';
-        await _put(path, await f.readAsBytes(), 'Reklam dosyası: ${a.name}');
-        out.add(a.copyWith(media: AdService.rawUrl(path)));
+        Future<String> upload(String src, int n) async {
+          if (!Ad.isLocalPath(src)) return src;
+          final f = File(src);
+          if (!await f.exists()) throw '"${a.name}" reklamının dosyası bulunamadı.';
+          final ext = src.contains('.') ? src.substring(src.lastIndexOf('.')).toLowerCase() : '';
+          final stamp = DateTime.now().millisecondsSinceEpoch.toRadixString(36);
+          final path = '${AdService.mediaDir}/${a.id}_${n}_$stamp$ext';
+          await _put(path, await f.readAsBytes(), 'Reklam dosyası: ${a.name}');
+          return AdService.rawUrl(path);
+        }
+
+        if (a.type == AdType.slider) {
+          final urls = <String>[];
+          for (final (n, src) in a.slides.indexed) {
+            urls.add(await upload(src, n));
+          }
+          out.add(a.copyWith(slides: urls, media: urls.first));
+        } else {
+          out.add(a.copyWith(media: await upload(a.media, 0)));
+        }
       }
       progress?.call('Liste yayınlanıyor…');
       final json = Ad.listToJson(out);
@@ -300,7 +313,7 @@ class AdAdmin extends ChangeNotifier {
 
       // Artık kullanılmayan dosyaları depodan sil.
       progress?.call('Eski dosyalar temizleniyor…');
-      final used = {for (final a in out) a.media};
+      final used = {for (final a in out) ...a.sources, for (final a in out) a.media};
       final l = await http.get(Uri.parse('$_api/contents/${AdService.mediaDir}?ref=${AdService.branch}'), headers: _headers);
       if (l.statusCode == 200) {
         for (final e in (jsonDecode(l.body) as List)) {
@@ -314,9 +327,10 @@ class AdAdmin extends ChangeNotifier {
 
       // Yerel kopyaları yayın adresiyle eşle ki tekrar indirilmesin.
       for (final (i, a) in drafts.indexed) {
-        if (a.isLocal) {
+        for (final src in {...a.sources, a.media}) {
+          if (!Ad.isLocalPath(src)) continue;
           try {
-            await File(a.media).delete();
+            await File(src).delete();
           } catch (_) {}
         }
         drafts[i] = out[i];

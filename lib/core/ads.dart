@@ -13,7 +13,24 @@ import 'package:path_provider/path_provider.dart';
 /// içindeki görsel/videoları indirir, cihazda saklar; internet yokken son
 /// indirilenler gösterilir. Liste uygulamadaki "Reklam yönetimi" ekranından
 /// düzenlenip yayınlanır (bkz. AdAdmin).
-enum AdType { image, video }
+/// Sabit görsel, slider (birden çok görsel sırayla değişir) ya da video.
+enum AdType { image, slider, video }
+
+/// Slider geçiş çeşitleri.
+enum SlideStyle {
+  slide('kaydir', 'Kaydırma', 'Görseller sağdan sola kayar'),
+  fade('sol', 'Yumuşak geçiş', 'Görsel solarak yenisine dönüşür'),
+  zoom('yakinlas', 'Yakınlaşma', 'Hafif yakınlaşarak yenisi belirir'),
+  flip('cevir', 'Kart çevirme', 'Görsel kart gibi dönerek değişir'),
+  vertical('dikey', 'Dikey kayma', 'Görseller aşağıdan yukarı kayar');
+
+  final String key;
+  final String label;
+  final String detail;
+  const SlideStyle(this.key, this.label, this.detail);
+
+  static SlideStyle byKey(String? k) => values.where((v) => v.key == k).firstOrNull ?? SlideStyle.slide;
+}
 
 /// Şerit: sayfanın altında ince bant (önerilen 1200×240).
 /// Kart: sayfa içinde büyük kutu (önerilen 1280×720).
@@ -60,7 +77,12 @@ class Ad {
   final DateTime? end;
 
   /// Görselin ekranda kalma süresi (saniye); birden çok reklam dönüşümlü gösterilir.
+  /// Slider'da her görselin süresidir (varsayılan 3 sn).
   final int seconds;
+
+  /// Slider görselleri (sırayla). Diğer türlerde boştur.
+  final List<String> slides;
+  final SlideStyle style;
 
   const Ad({
     required this.id,
@@ -74,9 +96,15 @@ class Ad {
     this.start,
     this.end,
     this.seconds = 8,
+    this.slides = const [],
+    this.style = SlideStyle.slide,
   });
 
-  bool get isLocal => !media.startsWith('https://');
+  static bool isLocalPath(String s) => !s.startsWith('https://');
+
+  /// Gösterim için gereken tüm dosyalar.
+  List<String> get sources => type == AdType.slider && slides.isNotEmpty ? slides : [media];
+  bool get isLocal => sources.any(isLocalPath);
   bool get allPages => pages.isEmpty;
 
   bool showsOn(AdPage p) => pages.isEmpty || pages.contains(p);
@@ -102,6 +130,8 @@ class Ad {
     bool clearStart = false,
     bool clearEnd = false,
     int? seconds,
+    List<String>? slides,
+    SlideStyle? style,
   }) =>
       Ad(
         id: id,
@@ -115,6 +145,8 @@ class Ad {
         start: clearStart ? null : (start ?? this.start),
         end: clearEnd ? null : (end ?? this.end),
         seconds: seconds ?? this.seconds,
+        slides: slides ?? this.slides,
+        style: style ?? this.style,
       );
 
   static String _d(DateTime d) =>
@@ -123,8 +155,11 @@ class Ad {
   Map<String, dynamic> toJson() => {
         'id': id,
         'ad': name,
-        'tur': type == AdType.video ? 'video' : 'gorsel',
-        'dosya': media,
+        'tur': switch (type) { AdType.video => 'video', AdType.slider => 'slider', AdType.image => 'gorsel' },
+        // Eski sürümler slider'ı ilk görseliyle sabit reklam olarak gösterir.
+        'dosya': type == AdType.slider && slides.isNotEmpty ? slides.first : media,
+        if (type == AdType.slider) 'gorseller': slides,
+        if (type == AdType.slider) 'gecis': style.key,
         'baglanti': link,
         'bicim': format == AdFormat.banner ? 'serit' : 'kart',
         'sayfalar': pages.isEmpty ? ['hepsi'] : [for (final p in pages) p.key],
@@ -142,10 +177,19 @@ class Ad {
       for (final k in (j['sayfalar'] as List? ?? const [])) ?AdPage.byKey('$k'),
     ];
     DateTime? date(Object? v) => v == null ? null : DateTime.tryParse('$v');
+    final slides = [
+      for (final e in (j['gorseller'] as List? ?? const []))
+        if ('$e'.trim().isNotEmpty) '$e'.trim(),
+    ];
+    final type = switch ('${j['tur']}') {
+      'video' => AdType.video,
+      'slider' when slides.length > 1 => AdType.slider,
+      _ => AdType.image,
+    };
     return Ad(
       id: id,
       name: '${j['ad'] ?? ''}',
-      type: '${j['tur']}' == 'video' ? AdType.video : AdType.image,
+      type: type,
       media: media,
       link: '${j['baglanti'] ?? ''}'.trim(),
       format: '${j['bicim']}' == 'serit' ? AdFormat.banner : AdFormat.card,
@@ -153,7 +197,9 @@ class Ad {
       active: j['aktif'] != false,
       start: date(j['baslangic']),
       end: date(j['bitis']),
-      seconds: ((j['sure'] as num?) ?? 8).toInt().clamp(3, 60),
+      seconds: ((j['sure'] as num?) ?? (type == AdType.slider ? 3 : 8)).toInt().clamp(2, 60),
+      slides: type == AdType.slider ? slides : const [],
+      style: SlideStyle.byKey(j['gecis'] as String?),
     );
   }
 
@@ -230,14 +276,27 @@ class AdService extends ChangeNotifier {
 
   bool isDismissed(AdPage page, AdFormat f) => dismissed.contains('${page.key}/${f.name}');
 
-  File? fileFor(Ad ad) => ad.isLocal ? File(ad.media) : _files[ad.media];
+  File? fileFor(Ad ad) => fileOf(ad.sources.first);
+
+  File? fileOf(String src) => Ad.isLocalPath(src) ? File(src) : _files[src];
+
+  /// Reklamın tüm dosyaları hazırsa listesi, değilse null.
+  List<File>? filesFor(Ad ad) {
+    final out = <File>[];
+    for (final s in ad.sources) {
+      final f = fileOf(s);
+      if (f == null || !f.existsSync()) return null;
+      out.add(f);
+    }
+    return out;
+  }
 
   /// Sayfada şimdi gösterilecek reklamlar (dosyası hazır olanlar).
   List<Ad> adsFor(AdPage page, AdFormat format) {
     final now = DateTime.now();
     return [
       for (final a in preview ?? ads)
-        if (a.format == format && a.showsOn(page) && a.runningAt(now) && (fileFor(a)?.existsSync() ?? false)) a,
+        if (a.format == format && a.showsOn(page) && a.runningAt(now) && filesFor(a) != null) a,
     ];
   }
 
@@ -316,27 +375,29 @@ class AdService extends ChangeNotifier {
     if (!await media.exists()) await media.create();
     final wanted = <String>{};
     for (final a in ads) {
-      if (a.isLocal) continue;
-      final f = File('${media.path}${Platform.pathSeparator}${_fileName(a.media)}');
-      wanted.add(f.path);
-      if (await f.exists()) {
-        if (_files[a.media]?.path != f.path) {
-          _files[a.media] = f;
-          notifyListeners();
+      for (final src in a.sources) {
+        if (Ad.isLocalPath(src)) continue;
+        final f = File('${media.path}${Platform.pathSeparator}${_fileName(src)}');
+        wanted.add(f.path);
+        if (await f.exists()) {
+          if (_files[src]?.path != f.path) {
+            _files[src] = f;
+            notifyListeners();
+          }
+          continue;
         }
-        continue;
+        if (!download || !a.runningAt(DateTime.now())) continue;
+        try {
+          final r = await http.get(Uri.parse(src)).timeout(const Duration(minutes: 3));
+          if (r.statusCode == 200 && r.bodyBytes.isNotEmpty) {
+            final tmp = File('${f.path}.part');
+            await tmp.writeAsBytes(r.bodyBytes, flush: true);
+            await tmp.rename(f.path);
+            _files[src] = f;
+            notifyListeners();
+          }
+        } catch (_) {}
       }
-      if (!download || !a.runningAt(DateTime.now())) continue;
-      try {
-        final r = await http.get(Uri.parse(a.media)).timeout(const Duration(minutes: 3));
-        if (r.statusCode == 200 && r.bodyBytes.isNotEmpty) {
-          final tmp = File('${f.path}.part');
-          await tmp.writeAsBytes(r.bodyBytes, flush: true);
-          await tmp.rename(f.path);
-          _files[a.media] = f;
-          notifyListeners();
-        }
-      } catch (_) {}
     }
     if (download) {
       await for (final e in media.list()) {
