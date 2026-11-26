@@ -62,6 +62,9 @@ class AppStore extends ChangeNotifier {
   /// Açılış animasyonunda melodi çalsın mı.
   bool splashSound = true;
 
+  /// Kâğıt okununca kısa onay melodisi (titreşim her zaman).
+  bool scanSound = true;
+
   /// Görünüm: 'system' (cihaza göre), 'light' (gündüz) veya 'dark' (gece).
   String themeMode = 'system';
 
@@ -353,6 +356,7 @@ class AppStore extends ChangeNotifier {
         'lastCloudBackup': lastCloudBackup?.toIso8601String(),
         'cloudAuto': cloudAuto,
         'splashSound': splashSound,
+        'scanSound': scanSound,
         'themeMode': themeMode,
         'promoHiddenUntil': promoHiddenUntil?.toIso8601String(),
         if (lastSeenVersion != null) 'lastSeenVersion': lastSeenVersion,
@@ -431,6 +435,7 @@ class AppStore extends ChangeNotifier {
     dismissedUpdate = j['dismissedUpdate'] as String? ?? dismissedUpdate;
     ratePrompted = j['ratePrompted'] as bool? ?? ratePrompted;
     splashSound = j['splashSound'] as bool? ?? splashSound;
+    scanSound = j['scanSound'] as bool? ?? scanSound;
     final tm = j['themeMode'];
     if (tm == 'system' || tm == 'light' || tm == 'dark') themeMode = tm as String;
     language = j['language'] as String? ?? language;
@@ -476,6 +481,11 @@ class AppStore extends ChangeNotifier {
 
   void setSplashSound(bool v) {
     splashSound = v;
+    _changed();
+  }
+
+  void setScanSound(bool v) {
+    scanSound = v;
     _changed();
   }
 

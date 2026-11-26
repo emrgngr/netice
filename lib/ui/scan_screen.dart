@@ -17,6 +17,7 @@ import '../omr/form_raster.dart';
 import '../omr/omr_reader.dart';
 import '../omr/sheet_reader.dart';
 import 'review_screen.dart' show unmatchedLabel;
+import 'scan_feedback.dart';
 import 'theme.dart';
 import 'widgets.dart';
 import '../l10n/l10n.dart';
@@ -88,8 +89,7 @@ class _ScanScreenState extends State<ScanScreen> {
       if (sheet.examId != exam.id) {
         toast(context, tr('Bu kâğıt "{0}" sınavına ait; oraya kaydedildi.', [store.examById(sheet.examId)?.name]));
       }
-      HapticFeedback.lightImpact();
-      SystemSound.play(SystemSoundType.click);
+      ScanFeedback.success(store);
       setState(() => _entries.insert(0, _ScanEntry(source, sheet: sheet)));
     } on OmrException catch (e) {
       setState(() => _entries.insert(0, _ScanEntry(source, error: tr(e.message))));

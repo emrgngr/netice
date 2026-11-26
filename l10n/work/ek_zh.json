@@ -1510,5 +1510,7 @@
  "Öğrenci boşluğa yazar; öğretmen puanlar.": "学生在空格中书写；由教师评分。",
  "İfadeler": "陈述",
  "İfadeler doğru mu, yanlış mı? İşaretleyiniz.": "判断下列陈述是对还是错。",
- "Şık": "选项"
+ "Şık": "选项",
+ "Okuma sesi": "读卡提示音",
+ "Her kâğıt okununca kısa bir melodi çalar ve telefon hafifçe titrer": "每读取一张答题卡，播放简短提示音并轻微振动"
 }
