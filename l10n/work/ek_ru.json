@@ -1439,5 +1439,22 @@
  "Sitemizden yeni kurulum dosyasını indirin. Verileriniz olduğu gibi kalır.": "Скачайте новый установщик с нашего сайта. Ваши данные сохранятся.",
  "Sürüm {0}": "Версия {0}",
  "Uygulama yeni sürüm çıktığında size haber verir; yenilikleri bu pencerede görürsünüz.": "Теперь приложение сообщает о выходе новой версии; что нового — вы увидите в этом окне.",
- "Yeni sürüm hazır: {0}": "Доступна новая версия: {0}"
+ "Yeni sürüm hazır: {0}": "Доступна новая версия: {0}",
+ "Analiz ve raporlar": "Анализ и отчёты",
+ "Bu hafta": "Эта неделя",
+ "Cevap anahtarıyla başlayın": "Начните с ключа ответов",
+ "Deneme süreniz: {0} gün kaldı": "Пробный период: осталось {0} дн.",
+ "Eşleşen sınav yok": "Нет подходящих экзаменов",
+ "Gelişmiş grafikler, dönem raporu ve reklamsız kullanım.": "Расширенные графики, отчёт за четверть и без рекламы.",
+ "Henüz sınav yok": "Экзаменов пока нет",
+ "Kitapçık hazırla": "Составить буклет",
+ "Kontrol bekleyen": "Требует проверки",
+ "Kâğıt okut": "Сканировать бланки",
+ "Optik okuma ve analiz": "Оптическое чтение и анализ",
+ "PDF, tarama veya telefondan": "PDF, сканер или телефон",
+ "Soru bankasından sınav kâğıdı": "Экзамен из банка вопросов",
+ "Sınavlarda ara…": "Поиск экзаменов…",
+ "Çalışma": "Работа",
+ "Şubeleri yan yana karşılaştırın": "Сравните классы рядом",
+ "Pro deneme: {0} gün": "Pro пробный: {0} дн."
 }
