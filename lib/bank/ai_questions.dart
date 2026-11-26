@@ -65,6 +65,10 @@ const aiTypeNames = {
   QuestionType.trueFalse: 'true_false',
   QuestionType.fill: 'fill',
   QuestionType.open: 'open',
+  QuestionType.matching: 'matching',
+  QuestionType.trueFalseTable: 'tf_table',
+  QuestionType.wordBank: 'word_bank',
+  QuestionType.ordering: 'ordering',
 };
 
 class AiResult {
@@ -274,14 +278,21 @@ AiResult parseAiResponse(Map<String, dynamic> j, BankNote note, BankStore store,
   for (final raw in (j['questions'] as List?) ?? const []) {
     if (raw is! Map) continue;
     final type = aiTypeNames.entries.where((e) => e.value == raw['type']).firstOrNull?.key ?? QuestionType.multiple;
-    final choices = type == QuestionType.multiple ? [for (final c in (raw['choices'] as List?) ?? const []) '$c'] : <String>[];
+    final withChoices = type == QuestionType.multiple || type == QuestionType.matching || type == QuestionType.wordBank;
+    final choices = withChoices ? [for (final c in (raw['choices'] as List?) ?? const []) '$c'] : <String>[];
     final correct = (raw['correct'] as num?)?.toInt() ?? -1;
     final text = '${raw['text'] ?? ''}'.trim();
     final answer = '${raw['answer'] ?? ''}'.trim();
+    final items = type.hasItems ? [for (final c in (raw['items'] as List?) ?? const []) '$c'.trim()] : <String>[];
+    final keys = type.grouped ? [for (final k in (raw['item_keys'] as List?) ?? const []) (k as num).toInt()] : <int>[];
     if (text.isEmpty) continue;
     final ok = switch (type) {
       QuestionType.multiple => choices.length >= 2 && correct >= 0 && correct < choices.length,
       QuestionType.trueFalse => correct == 0 || correct == 1,
+      QuestionType.matching || QuestionType.wordBank =>
+        items.length >= 2 && keys.length == items.length && choices.length >= 2 && choices.length <= 5 && keys.every((k) => k >= 0 && k < choices.length),
+      QuestionType.trueFalseTable => items.length >= 2 && keys.length == items.length && keys.every((k) => k == 0 || k == 1),
+      QuestionType.ordering => items.length >= 3,
       _ => answer.isNotEmpty,
     };
     if (!ok) continue;
@@ -302,9 +313,16 @@ AiResult parseAiResponse(Map<String, dynamic> j, BankNote note, BankStore store,
       type: type,
       text: text,
       choices: choices,
-      choiceCount: type == QuestionType.multiple ? choices.length : (type == QuestionType.trueFalse ? 2 : 5),
-      correct: type.optical ? {correct} : const {},
+      choiceCount: switch (type) {
+        QuestionType.multiple || QuestionType.matching || QuestionType.wordBank => choices.length,
+        QuestionType.trueFalse || QuestionType.trueFalseTable => 2,
+        QuestionType.ordering => 4,
+        _ => 5,
+      },
+      correct: type == QuestionType.multiple || type == QuestionType.trueFalse ? {correct} : const {},
       answerText: type.optical ? '' : answer,
+      items: items,
+      itemKeys: keys,
       solution: '${raw['solution'] ?? ''}'.trim(),
       tags: [...note.tags.where((x) => x != tag), tag],
       source: note.displayTitle,

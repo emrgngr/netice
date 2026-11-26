@@ -385,7 +385,7 @@ class _BookletWizardScreenState extends State<BookletWizardScreen> {
   Widget _questionsStep(ThemeData t) {
     final qs = _questions;
     final counts = [for (final d in Difficulty.values) qs.where((q) => q.difficulty == d).length];
-    final optical = qs.where((q) => q.type.optical).length;
+    final optical = qs.fold(0, (a, q) => a + q.opticalRows);
     final topics = qs.map((q) => q.topicLabel.toLowerCase()).where((s) => s.isNotEmpty).toSet().length;
     final incomplete = qs.where((q) => !q.complete).length;
     final muted = t.colorScheme.onSurface.withValues(alpha: 0.6);
@@ -526,7 +526,7 @@ class _BookletWizardScreenState extends State<BookletWizardScreen> {
   Widget _layoutStep(ThemeData t) {
     final store = StoreScope.of(context);
     final kids = _o.kids;
-    final testCount = _questions.where((q) => q.type.optical).length;
+    final testCount = _questions.fold(0, (a, q) => a + q.opticalRows);
     return _page([
       _section(Icons.palette_outlined, tr('Şablon'), [
         Row(children: [

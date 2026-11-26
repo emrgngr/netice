@@ -97,3 +97,29 @@ test("çocuk (ilkokul) dili isteği istemde ek kurallar olarak yer alır", () =>
   assert.equal(adult.kids, false);
   assert.doesNotMatch(buildContent(adult).at(-1).text, /primary-school children/);
 });
+
+test("yeni soru türleri: eşleştirme, D/Y tablosu, kelime havuzu, sıralama", () => {
+  const r = parseRequest({ count: 9, types: ["matching", "tf_table", "word_bank", "ordering"], note });
+  assert.deepEqual(r.types, ["matching", "tf_table", "word_bank", "ordering"]);
+  const base = { topic: "", correct_index: -1, answer: "", difficulty: "easy", solution: "" };
+  const out = cleanOutput(
+    {
+      note_problem: "",
+      questions: [
+        { ...base, type: "matching", text: "Eşleştiriniz.", items: ["Kök", "Yaprak", "Çiçek"], choices: ["Su alır", "Besin üretir", "Tohum oluşturur"], item_keys: [0, 1, 2] },
+        { ...base, type: "matching", text: "Hatalı anahtar", items: ["a", "b"], choices: ["x", "y"], item_keys: [0, 4] },
+        { ...base, type: "tf_table", text: "D/Y", items: ["Bitkiler su ister.", "Taş canlıdır."], choices: [], item_keys: [0, 1] },
+        { ...base, type: "tf_table", text: "Bozuk", items: ["a", "b"], choices: [], item_keys: [0, 2] },
+        { ...base, type: "word_bank", text: "Doldurunuz.", items: ["Bitki _____ ile su alır.", "Yaprak _____ üretir."], choices: ["kök", "besin", "taş"], item_keys: [0, 1] },
+        { ...base, type: "word_bank", text: "Boşluksuz", items: ["Bitki su alır.", "x _____"], choices: ["a", "b"], item_keys: [0, 1] },
+        { ...base, type: "ordering", text: "Sıralayınız.", items: ["1. Tohum ekilir", "Çimlenir", "Fide olur", "Çiçek açar"], choices: [], item_keys: [] },
+        { ...base, type: "ordering", text: "Kısa", items: ["a", "b"], choices: [], item_keys: [] },
+      ],
+    },
+    r,
+  );
+  assert.deepEqual(out.questions.map((q) => q.type), ["matching", "tf_table", "word_bank", "ordering"]);
+  assert.deepEqual(out.questions[0].item_keys, [0, 1, 2]);
+  assert.deepEqual(out.questions[1].item_keys, [0, 1]);
+  assert.equal(out.questions[3].items[0], "Tohum ekilir");
+});

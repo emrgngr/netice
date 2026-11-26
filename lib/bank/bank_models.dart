@@ -3,6 +3,8 @@
 // Bütün içerik cihazda durur; görseller ayrı dosyalarda, burada yalnız
 // kimlikleri tutulur (bkz. BankStore).
 
+import 'dart:math' as math;
+
 import '../core/models.dart';
 import '../l10n/l10n.dart';
 
@@ -46,20 +48,78 @@ enum QuestionType {
   fill,
 
   /// Klasik / açık uçlu (öğretmen puanlar).
-  open;
+  open,
+
+  /// Eşleştirme: soldaki her madde sağdaki seçeneklerden biriyle eşleşir;
+  /// her madde optik formda ayrı bir satırdır.
+  matching,
+
+  /// Doğru / yanlış tablosu: birkaç ifade, her biri formda ayrı satır (A = D, B = Y).
+  trueFalseTable,
+
+  /// Kelime havuzlu boşluk doldurma: her cümledeki boşluk havuzdaki bir
+  /// sözcükle doldurulur; her cümle formda ayrı satırdır.
+  wordBank,
+
+  /// Sıralama: olaylar / adımlar doğru sıraya konur; şıklar (I–III–II…)
+  /// kitapçıkta otomatik üretilir.
+  ordering;
 
   String get label => switch (this) {
         QuestionType.multiple => tr('Çoktan seçmeli'),
         QuestionType.trueFalse => tr('Doğru / Yanlış'),
         QuestionType.fill => tr('Boşluk doldurma'),
         QuestionType.open => tr('Klasik (açık uçlu)'),
+        QuestionType.matching => tr('Eşleştirme'),
+        QuestionType.trueFalseTable => tr('Doğru / Yanlış tablosu'),
+        QuestionType.wordBank => tr('Kelime havuzlu boşluk'),
+        QuestionType.ordering => tr('Sıralama'),
+      };
+
+  /// Türün kısa açıklaması ve kullanıldığı sınavlar.
+  String get hint => switch (this) {
+        QuestionType.multiple => tr('Tek doğru cevaplı test sorusu. Öncül (I, II, III) de eklenebilir.'),
+        QuestionType.trueFalse => tr('Tek ifade; öğrenci Doğru ya da Yanlış işaretler.'),
+        QuestionType.fill => tr('Öğrenci boşluğa yazar; öğretmen puanlar.'),
+        QuestionType.open => tr('Kısa ya da uzun yazılı cevap; öğretmen puanlar.'),
+        QuestionType.matching =>
+          tr('Maddeleri seçeneklerle eşleştirme. TIMSS, İngiltere KS2 ve MEB yazılılarında yaygın. Her madde optik formda ayrı satır.'),
+        QuestionType.trueFalseTable =>
+          tr('Birkaç ifade için Doğru / Yanlış. TIMSS ve PISA\'daki karmaşık çoktan seçmeli ve ABD\'deki eşleştirme tablosu biçimi.'),
+        QuestionType.wordBank =>
+          tr('Cümlelerdeki boşluklar sözcük havuzundan doldurulur. Dil sınavlarında (Cambridge, KS2) yaygın. Her cümle ayrı satır.'),
+        QuestionType.ordering =>
+          tr('Olayları ya da adımları sıraya koyma. PIRLS okuma ve LGS sorularında yaygın. Şıklar otomatik üretilir.'),
       };
 
   /// Optik formda okunabilir mi?
-  bool get optical => this == QuestionType.multiple || this == QuestionType.trueFalse;
+  bool get optical => this != QuestionType.fill && this != QuestionType.open;
+
+  /// Kitapçıkta birden çok optik satıra açılan türler.
+  bool get grouped => this == QuestionType.matching || this == QuestionType.trueFalseTable || this == QuestionType.wordBank;
+
+  /// Madde listesi olan türler.
+  bool get hasItems => grouped || this == QuestionType.ordering;
 }
 
 String _letter(int i) => String.fromCharCode(65 + i);
+
+/// Öncül / sıralama maddesinin etiketi: I, II, III (çocukta 1, 2, 3).
+String itemLabel(int i, {bool kids = false}) => kids ? '${i + 1}' : romanNumeral(i + 1);
+
+/// 1 → I, 4 → IV… (öncül ve sıralama etiketleri).
+String romanNumeral(int n) {
+  const v = [10, 9, 5, 4, 1];
+  const r = ['X', 'IX', 'V', 'IV', 'I'];
+  final b = StringBuffer();
+  for (var i = 0; i < v.length; i++) {
+    while (n >= v[i]) {
+      b.write(r[i]);
+      n -= v[i];
+    }
+  }
+  return b.toString();
+}
 
 /// Bankadaki bir soru.
 class BankQuestion {
@@ -107,6 +167,18 @@ class BankQuestion {
   /// Klasik sorularda kâğıtta bırakılacak cevap satırı sayısı.
   final int answerLines;
 
+  /// Madde listesi: eşleştirmede sol sütun, tabloda ifadeler, kelime
+  /// havuzunda cümleler, sıralamada doğru sıradaki adımlar. Çoktan seçmelide
+  /// öncüller (I, II, III).
+  final List<String> items;
+
+  /// Her maddenin doğru seçeneği (eşleştirme/havuz: 0 = A; tablo: 0 = D, 1 = Y).
+  final List<int> itemKeys;
+
+  /// Kitapçıkta bir grup sorudan türetilmiş madde ise grubun kendisi.
+  /// (Kaydedilmez.)
+  final BankQuestion? parent;
+
   final bool favorite;
   final DateTime created;
   final DateTime updated;
@@ -131,20 +203,38 @@ class BankQuestion {
     this.source = '',
     this.points = 1,
     this.answerLines = 4,
+    this.items = const [],
+    this.itemKeys = const [],
+    this.parent,
     this.favorite = false,
     required this.created,
     required this.updated,
   });
 
   /// Şık sayısı (yazılı şıklar varsa onların sayısı).
-  int get optionCount => type == QuestionType.trueFalse ? 2 : (choices.isNotEmpty ? choices.length : choiceCount);
+  int get optionCount => type == QuestionType.trueFalse || type == QuestionType.trueFalseTable
+      ? 2
+      : (choices.isNotEmpty ? choices.length : choiceCount);
+
+  /// Sıralama sorusunda kitapçıkta üretilecek şık sayısı (adım sayısının
+  /// izin verdiği kadar).
+  int get orderingChoices {
+    var f = 1;
+    for (var i = 2; i <= items.length; i++) {
+      f *= i;
+    }
+    return math.min(choiceCount.clamp(2, 5), f);
+  }
+
+  /// Optik formda kaç satır tutar?
+  int get opticalRows => type.grouped ? items.length : (type.optical ? 1 : 0);
 
   bool get hasImage => imageId != null;
   bool get hasSolution => solution.trim().isNotEmpty || solutionImageId != null;
 
   /// Şıklar yazıyla verilmiş mi (karıştırılabilir mi)?
   /// (Şıklar görselin içindeyse karıştırılamaz.)
-  bool get shufflableChoices => type == QuestionType.multiple && choices.length >= 2;
+  bool get shufflableChoices => type == QuestionType.multiple && parent == null && choices.length >= 2;
 
   /// Konu yoksa kazanım, o da yoksa ders: analizde kullanılan başlık.
   String get topicLabel => topic.trim().isNotEmpty ? topic.trim() : (outcome.trim().isNotEmpty ? outcome.trim() : subject.trim());
@@ -153,18 +243,117 @@ class BankQuestion {
   String get answerLabel => switch (type) {
         QuestionType.trueFalse => correct.contains(1) ? tr('Yanlış') : tr('Doğru'),
         QuestionType.multiple => correct.isEmpty ? '–' : (correct.toList()..sort()).map(_letter).join('/'),
+        QuestionType.matching || QuestionType.wordBank => [
+            for (var i = 0; i < items.length; i++) '${i + 1}-${i < itemKeys.length && itemKeys[i] >= 0 ? _letter(itemKeys[i]) : '?'}'
+          ].join(' '),
+        QuestionType.trueFalseTable => [
+            for (var i = 0; i < items.length; i++)
+              '${i + 1}-${i < itemKeys.length && itemKeys[i] == 1 ? tr('Y') : tr('D')}'
+          ].join(' '),
+        QuestionType.ordering => [for (var i = 1; i <= items.length; i++) '$i'].join('-'),
         _ => answerText.trim().isEmpty ? '–' : answerText.trim(),
       };
 
   /// Bütün alanları içinde arama için tek satır.
   String get searchText =>
-      [subject, grade, topic, outcome, text, ...choices, answerText, solution, ...tags, source].join(' ').toLowerCase();
+      [subject, grade, topic, outcome, text, ...choices, ...items, answerText, solution, ...tags, source].join(' ').toLowerCase();
 
   /// Bu soru kullanılabilir durumda mı (çoktan seçmelide cevap seçilmiş mi)?
   bool get complete => switch (type) {
         QuestionType.multiple || QuestionType.trueFalse => correct.isNotEmpty && (text.trim().isNotEmpty || imageId != null),
+        QuestionType.matching || QuestionType.wordBank => items.where((t) => t.trim().isNotEmpty).length >= 2 &&
+            choices.where((t) => t.trim().isNotEmpty).length >= 2 &&
+            itemKeys.length == items.length &&
+            itemKeys.every((k) => k >= 0 && k < choices.length),
+        QuestionType.trueFalseTable => items.where((t) => t.trim().isNotEmpty).length >= 2 &&
+            itemKeys.length == items.length &&
+            itemKeys.every((k) => k == 0 || k == 1),
+        QuestionType.ordering => items.where((t) => t.trim().isNotEmpty).length >= 3,
         _ => text.trim().isNotEmpty || imageId != null,
       };
+
+  /// Kitapçıkta optik satırlara açılmış hali: grup türlerinde her madde ayrı
+  /// bir soru, sıralamada şıkları üretilmiş tek soru; diğerleri kendisi.
+  /// [kids]: sıralama etiketleri I, II, III yerine 1, 2, 3.
+  List<BankQuestion> expanded({bool kids = false}) {
+    if (type.grouped) {
+      final n = items.length;
+      return [
+        for (var i = 0; i < n; i++)
+          BankQuestion(
+            id: '$id#${i + 1}',
+            subject: subject,
+            grade: grade,
+            topic: topic,
+            outcome: outcome,
+            difficulty: difficulty,
+            type: type == QuestionType.trueFalseTable ? QuestionType.trueFalse : QuestionType.multiple,
+            text: items[i],
+            choices: type == QuestionType.trueFalseTable ? const [] : choices,
+            choiceCount: type == QuestionType.trueFalseTable ? 2 : choices.length,
+            correct: {if (i < itemKeys.length && itemKeys[i] >= 0) itemKeys[i]},
+            points: points,
+            parent: this,
+            created: created,
+            updated: updated,
+          ),
+      ];
+    }
+    if (type == QuestionType.ordering) {
+      final steps = [for (final t in items) if (t.trim().isNotEmpty) t.trim()];
+      final n = steps.length;
+      final rnd = math.Random(id.hashCode);
+      // Adımlar karışık basılır ve I, II, III… diye adlandırılır.
+      var shown = List.generate(n, (i) => i);
+      for (var t = 0; t < 10 && shown.asMap().entries.every((e) => e.key == e.value); t++) {
+        shown.shuffle(rnd);
+      }
+      // Doğru dizi: doğru sıradaki adımların basılı etiketleri.
+      List<int> labelsOf(List<int> order) => [for (final step in order) shown.indexOf(step)];
+      final right = labelsOf(List.generate(n, (i) => i));
+      final options = <String>{right.join(',')};
+      final want = orderingChoices.clamp(2, 5);
+      var guard = 0;
+      while (options.length < want && guard++ < 500) {
+        // Çeldiriciler: doğru diziden bir-iki yer değiştirmeyle (inandırıcı).
+        final c = [...right];
+        final swaps = 1 + rnd.nextInt(2);
+        for (var k = 0; k < swaps; k++) {
+          final a = rnd.nextInt(n), b = rnd.nextInt(n);
+          final t = c[a];
+          c[a] = c[b];
+          c[b] = t;
+        }
+        options.add(c.join(','));
+      }
+      final list = options.toList()..shuffle(rnd);
+      String fmt(String o) => o.split(',').map((x) => itemLabel(int.parse(x), kids: kids)).join(' – ');
+      return [
+        BankQuestion(
+          id: id,
+          subject: subject,
+          grade: grade,
+          topic: topic,
+          outcome: outcome,
+          difficulty: difficulty,
+          type: QuestionType.multiple,
+          text: text,
+          imageId: imageId,
+          items: [for (final s in shown) steps[s]],
+          choices: [for (final o in list) fmt(o)],
+          choiceCount: list.length,
+          correct: {list.indexOf(right.join(','))},
+          solution: solution,
+          solutionImageId: solutionImageId,
+          points: points,
+          parent: this,
+          created: created,
+          updated: updated,
+        ),
+      ];
+    }
+    return [this];
+  }
 
   BankQuestion copyWith({
     String? subject,
@@ -187,6 +376,8 @@ class BankQuestion {
     String? source,
     double? points,
     int? answerLines,
+    List<String>? items,
+    List<int>? itemKeys,
     bool? favorite,
     DateTime? updated,
   }) =>
@@ -210,6 +401,8 @@ class BankQuestion {
         source: source ?? this.source,
         points: points ?? this.points,
         answerLines: answerLines ?? this.answerLines,
+        items: items ?? this.items,
+        itemKeys: itemKeys ?? this.itemKeys,
         favorite: favorite ?? this.favorite,
         created: created,
         updated: updated ?? DateTime.now(),
@@ -235,6 +428,8 @@ class BankQuestion {
         if (source.isNotEmpty) 'source': source,
         'points': points,
         'answerLines': answerLines,
+        if (items.isNotEmpty) 'items': items,
+        if (itemKeys.isNotEmpty) 'itemKeys': itemKeys,
         if (favorite) 'favorite': true,
         'created': created.toIso8601String(),
         'updated': updated.toIso8601String(),
@@ -260,6 +455,8 @@ class BankQuestion {
         source: j['source'] as String? ?? '',
         points: (j['points'] as num?)?.toDouble() ?? 1,
         answerLines: j['answerLines'] as int? ?? 4,
+        items: (j['items'] as List?)?.cast<String>() ?? const [],
+        itemKeys: (j['itemKeys'] as List?)?.cast<int>() ?? const [],
         favorite: j['favorite'] as bool? ?? false,
         created: DateTime.tryParse(j['created'] as String? ?? '') ?? DateTime.now(),
         updated: DateTime.tryParse(j['updated'] as String? ?? '') ?? DateTime.now(),

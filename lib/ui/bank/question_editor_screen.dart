@@ -38,11 +38,13 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
     for (var i = 0; i < (_q.choices.isNotEmpty ? _q.choices.length : _q.choiceCount); i++)
       TextEditingController(text: i < _q.choices.length ? _q.choices[i] : ''),
   ];
+  late final List<TextEditingController> _items = [for (final t in _q.items) TextEditingController(text: t)];
+  late List<int> _keys = [for (var i = 0; i < _q.items.length; i++) i < _q.itemKeys.length ? _q.itemKeys[i] : -1];
   bool _dirty = false;
 
   @override
   void dispose() {
-    for (final c in [_text, _answer, _solution, _subject, _grade, _topic, _outcome, _tags, _source, _points, ..._choices]) {
+    for (final c in [_text, _answer, _solution, _subject, _grade, _topic, _outcome, _tags, _source, _points, ..._choices, ..._items]) {
       c.dispose();
     }
     super.dispose();
@@ -56,10 +58,28 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
   BankQuestion _collect() {
     final texts = [for (final c in _choices) c.text.trim()];
     final hasText = texts.any((t) => t.isNotEmpty);
+    final ty = _q.type;
+    final withChoices = ty == QuestionType.multiple || ty == QuestionType.matching || ty == QuestionType.wordBank;
+    // Boş maddeler atılır; cevapları da onlarla birlikte.
+    final items = <String>[], keys = <int>[];
+    if (ty.hasItems || ty == QuestionType.multiple) {
+      for (var i = 0; i < _items.length; i++) {
+        final t = _items[i].text.trim();
+        if (t.isEmpty) continue;
+        items.add(t);
+        keys.add(i < _keys.length ? _keys[i] : -1);
+      }
+    }
     return _q.copyWith(
       text: _text.text.trim(),
-      choices: _q.type == QuestionType.multiple && hasText ? texts : const [],
-      choiceCount: _q.type == QuestionType.multiple ? _choices.length : 2,
+      choices: withChoices && hasText ? texts : const [],
+      choiceCount: switch (ty) {
+        QuestionType.multiple || QuestionType.matching || QuestionType.wordBank => _choices.length,
+        QuestionType.ordering => _q.choiceCount.clamp(2, 5),
+        _ => 2,
+      },
+      items: items,
+      itemKeys: ty.grouped ? keys : const [],
       answerText: _answer.text.trim(),
       solution: _solution.text.trim(),
       subject: _subject.text.trim(),
@@ -74,8 +94,18 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
 
   Future<void> _save({bool another = false}) async {
     final q = _collect();
-    if (q.text.isEmpty && q.imageId == null) return toast(context, tr('Soru metnini yazın ya da bir görsel ekleyin.'));
-    if (q.type.optical && q.correct.isEmpty) return toast(context, tr('Doğru cevabı işaretleyin.'));
+    if (q.type.grouped) {
+      if (q.items.length < 2) return toast(context, tr('En az iki madde yazın.'));
+      if (q.type != QuestionType.trueFalseTable && q.choices.where((c) => c.isNotEmpty).length < 2) {
+        return toast(context, tr('En az iki seçenek yazın.'));
+      }
+      if (!q.complete) return toast(context, tr('Her maddenin doğru cevabını seçin.'));
+    } else if (q.type == QuestionType.ordering) {
+      if (q.items.length < 3) return toast(context, tr('Sıralama için en az üç adım yazın.'));
+    } else {
+      if (q.text.isEmpty && q.imageId == null) return toast(context, tr('Soru metnini yazın ya da bir görsel ekleyin.'));
+      if (q.type.optical && q.correct.isEmpty) return toast(context, tr('Doğru cevabı işaretleyin.'));
+    }
     bank.upsertQuestion(q);
     _dirty = false;
     if (!mounted) return;
@@ -97,7 +127,51 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
   void _setType(QuestionType t) {
     var q = _q.copyWith(type: t);
     if (t == QuestionType.trueFalse) q = q.copyWith(correct: q.correct.where((c) => c < 2).toSet());
+    if (t == QuestionType.ordering && q.choiceCount > 4) q = q.copyWith(choiceCount: 4);
+    // Madde listeli türlerde birkaç boş satırla başlanır.
+    final want = switch (t) {
+      QuestionType.ordering => 4,
+      QuestionType.matching || QuestionType.wordBank || QuestionType.trueFalseTable => 4,
+      _ => 0,
+    };
+    while (_items.length < want) {
+      _items.add(TextEditingController());
+    }
+    if (t == QuestionType.trueFalseTable) _keys = [for (final k in _keys) k == 1 ? 1 : 0];
+    _syncKeys();
     _set(q);
+  }
+
+  void _syncKeys() {
+    while (_keys.length < _items.length) {
+      _keys.add(_q.type == QuestionType.trueFalseTable ? 0 : -1);
+    }
+    if (_keys.length > _items.length) _keys = _keys.sublist(0, _items.length);
+  }
+
+  void _addItem() {
+    if (_items.length >= 10) return;
+    setState(() {
+      _items.add(TextEditingController());
+      _syncKeys();
+      _dirty = true;
+    });
+  }
+
+  void _removeItem(int i) {
+    setState(() {
+      _items.removeAt(i).dispose();
+      if (i < _keys.length) _keys.removeAt(i);
+      _dirty = true;
+    });
+  }
+
+  void _setKey(int i, int k) {
+    _syncKeys();
+    setState(() {
+      _keys[i] = k;
+      _dirty = true;
+    });
   }
 
   void _toggleCorrect(int i) {
@@ -165,14 +239,18 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
       _card(
         icon: Icons.category_outlined,
         title: tr('Soru türü'),
-        child: Wrap(spacing: 8, runSpacing: 8, children: [
-          for (final ty in QuestionType.values)
-            ChoiceChip(
-              avatar: Icon(typeIcon(ty), size: 18),
-              label: Text(ty.label),
-              selected: _q.type == ty,
-              onSelected: (_) => _setType(ty),
-            ),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Wrap(spacing: 8, runSpacing: 8, children: [
+            for (final ty in QuestionType.values)
+              ChoiceChip(
+                avatar: Icon(typeIcon(ty), size: 18),
+                label: Text(ty.label),
+                selected: _q.type == ty,
+                onSelected: (_) => _setType(ty),
+              ),
+          ]),
+          const SizedBox(height: 10),
+          Text(_q.type.hint, style: TextStyle(fontSize: 12.5, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.65))),
         ]),
       ),
       _card(
@@ -186,16 +264,23 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
             textCapitalization: TextCapitalization.sentences,
             onChanged: (_) => _dirty = true,
             decoration: InputDecoration(
-              hintText: _q.type == QuestionType.fill
-                  ? tr('Boşluğu ____ ile gösterin. Ör: Türkiye\'nin başkenti ____ şehridir.')
-                  : tr('Soru kökünü yazın (görsel eklediyseniz boş bırakabilirsiniz)'),
+              hintText: switch (_q.type) {
+                QuestionType.fill => tr('Boşluğu ____ ile gösterin. Ör: Türkiye\'nin başkenti ____ şehridir.'),
+                QuestionType.matching => tr('Yönerge (boşsa: Maddeleri uygun seçenekle eşleştiriniz.)'),
+                QuestionType.trueFalseTable => tr('Yönerge (boşsa: İfadeler doğru mu, yanlış mı? İşaretleyiniz.)'),
+                QuestionType.wordBank => tr('Yönerge (boşsa: Boşlukları kutudaki sözcüklerle doldurunuz.)'),
+                QuestionType.ordering => tr('Soru kökü. Ör: Bir bitkinin büyüme adımlarının doğru sıralaması hangisidir?'),
+                _ => tr('Soru kökünü yazın (görsel eklediyseniz boş bırakabilirsiniz)'),
+              },
             ),
           ),
           const SizedBox(height: 12),
           _imageRow(_q.imageId, onPick: () => _pickImage(), onRemove: () => _set(_q.copyWith(clearImage: true))),
         ]),
       ),
-      _answerCard(t),
+      if (_q.type == QuestionType.matching || _q.type == QuestionType.wordBank) _choicesCard(t, wordBank: _q.type == QuestionType.wordBank),
+      if (_q.type.hasItems || _q.type == QuestionType.multiple) _itemsCard(t),
+      if (!_q.type.hasItems) _answerCard(t),
     ];
     final side = <Widget>[
       _card(
@@ -316,6 +401,108 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
     );
   }
 
+  Widget _choicesCard(ThemeData t, {required bool wordBank}) => _card(
+        icon: wordBank ? Icons.inventory_2_outlined : Icons.list_alt_rounded,
+        title: wordBank ? tr('Sözcük havuzu') : tr('Seçenekler (sağ sütun)'),
+        trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+          IconButton(tooltip: tr('Şık sil'), onPressed: _choices.length > 2 ? _removeChoice : null, icon: const Icon(Icons.remove_circle_outline)),
+          Text('${_choices.length}', style: t.textTheme.titleMedium?.copyWith(fontFeatures: tabular)),
+          IconButton(tooltip: tr('Şık ekle'), onPressed: _choices.length < 5 ? _addChoice : null, icon: const Icon(Icons.add_circle_outline)),
+        ]),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Text(tr('En çok 5 seçenek (optik formda A–E). Seçenek sayısı maddelerden fazla olabilir.'),
+              style: TextStyle(fontSize: 12.5, color: t.colorScheme.onSurface.withValues(alpha: 0.6))),
+          const SizedBox(height: 10),
+          for (var i = 0; i < _choices.length; i++)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(children: [
+                SizedBox(width: 28, child: Text(letter(i), style: t.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800))),
+                Expanded(
+                  child: TextField(
+                    controller: _choices[i],
+                    onChanged: (_) => setState(() => _dirty = true),
+                    decoration: InputDecoration(isDense: true, hintText: wordBank ? tr('Sözcük') : tr('{0} seçeneği', [letter(i)])),
+                  ),
+                ),
+              ]),
+            ),
+        ]),
+      );
+
+  Widget _itemsCard(ThemeData t) {
+    final ty = _q.type;
+    _syncKeys();
+    final (icon, title, help) = switch (ty) {
+      QuestionType.matching => (Icons.compare_arrows_rounded, tr('Maddeler (sol sütun)'), tr('Her maddenin karşısında eşleştiği seçeneği seçin.')),
+      QuestionType.trueFalseTable => (Icons.fact_check_rounded, tr('İfadeler'), tr('Her ifade için Doğru ya da Yanlış seçin.')),
+      QuestionType.wordBank =>
+        (Icons.space_bar_rounded, tr('Cümleler'), tr('Boşluğu ____ ile gösterin ve gelecek sözcüğü seçin.')),
+      QuestionType.ordering => (Icons.format_list_numbered_rounded, tr('Adımlar (doğru sırayla)'),
+          tr('Adımları doğru sırayla yazın. Kitapçıkta karışık basılır, şıklar otomatik üretilir.')),
+      _ => (Icons.format_list_numbered_rounded, tr('Öncüller (isteğe bağlı)'), tr('I, II, III diye basılır. Ör: "Yalnız I", "I ve III" gibi şıklarla kullanılır.')),
+    };
+    final options = [for (var i = 0; i < _choices.length; i++) i];
+    return _card(
+      icon: icon,
+      title: title,
+      trailing: IconButton(tooltip: tr('Madde ekle'), onPressed: _items.length < 10 ? _addItem : null, icon: const Icon(Icons.add_circle_outline)),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Text(help, style: TextStyle(fontSize: 12.5, color: t.colorScheme.onSurface.withValues(alpha: 0.6))),
+        const SizedBox(height: 10),
+        for (var i = 0; i < _items.length; i++)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Row(children: [
+              SizedBox(
+                width: 34,
+                child: Text(ty == QuestionType.multiple ? itemLabel(i) : '${i + 1}.',
+                    style: t.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+              ),
+              Expanded(
+                child: TextField(
+                  controller: _items[i],
+                  onChanged: (_) => _dirty = true,
+                  textCapitalization: TextCapitalization.sentences,
+                  decoration: InputDecoration(isDense: true, hintText: tr('{0}. madde', [i + 1])),
+                ),
+              ),
+              if (ty == QuestionType.matching || ty == QuestionType.wordBank) ...[
+                const SizedBox(width: 8),
+                DropdownButton<int>(
+                  value: options.contains(_keys[i]) ? _keys[i] : null,
+                  hint: Text(tr('Cevap')),
+                  items: [for (final k in options) DropdownMenuItem(value: k, child: Text(letter(k)))],
+                  onChanged: (k) => k == null ? null : _setKey(i, k),
+                ),
+              ],
+              if (ty == QuestionType.trueFalseTable) ...[
+                const SizedBox(width: 8),
+                SegmentedButton<int>(
+                  showSelectedIcon: false,
+                  segments: [ButtonSegment(value: 0, label: Text(tr('D'))), ButtonSegment(value: 1, label: Text(tr('Y')))],
+                  selected: {_keys[i] == 1 ? 1 : 0},
+                  onSelectionChanged: (s) => _setKey(i, s.first),
+                ),
+              ],
+              IconButton(tooltip: tr('Sil'), onPressed: () => _removeItem(i), icon: const Icon(Icons.close_rounded, size: 20)),
+            ]),
+          ),
+        if (ty == QuestionType.ordering) ...[
+          const SizedBox(height: 6),
+          Text(tr('Kitapçıktaki şık sayısı'), style: t.textTheme.labelLarge),
+          NumberStepper(
+            value: _q.choiceCount.clamp(2, 5),
+            min: 2,
+            max: 5,
+            semanticLabel: tr('Şık'),
+            onChanged: (v) => _set(_q.copyWith(choiceCount: v)),
+          ),
+        ],
+      ]),
+    );
+  }
+
   Widget _answerCard(ThemeData t) {
     switch (_q.type) {
       case QuestionType.multiple:
@@ -401,6 +588,8 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
             ),
           ]),
         );
+      case QuestionType.matching || QuestionType.trueFalseTable || QuestionType.wordBank || QuestionType.ordering:
+        return const SizedBox.shrink();
     }
   }
 
