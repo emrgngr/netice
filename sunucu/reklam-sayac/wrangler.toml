@@ -1,0 +1,21 @@
+# Netice reklam sayacı (Cloudflare Worker).
+# Yayın: .github/workflows/reklam-sayaci.yml (GitHub Actions) yapar.
+# Yalnız tanıtımların günlük toplam görülme/tıklanma sayıları tutulur;
+# cihaz kimliği, IP adresi ya da kişisel bilgi saklanmaz.
+name = "netice-reklam-sayac"
+main = "src/index.js"
+compatibility_date = "2026-11-01"
+
+[vars]
+# İstatistikleri yalnız bu GitHub hesabının yayın anahtarı okuyabilir.
+OWNER = "emrgngr"
+# Kötüye kullanıma karşı: bir günde sayılacak en fazla olay.
+DAILY_LIMIT = "2000000"
+
+[[durable_objects.bindings]]
+name = "SAYAC"
+class_name = "Sayac"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Sayac"]

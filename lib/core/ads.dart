@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -167,10 +168,10 @@ class Ad {
 
   /// İndirilmesi gereken tüm dosyalar (gece ve B görseli dahil).
   List<String> get sources => [
-        ...mainSources,
-        if (type == AdType.image && mediaDark.isNotEmpty) mediaDark,
-        if (type == AdType.image && mediaB.isNotEmpty) mediaB,
-      ];
+    ...mainSources,
+    if (type == AdType.image && mediaDark.isNotEmpty) mediaDark,
+    if (type == AdType.image && mediaB.isNotEmpty) mediaB,
+  ];
   bool get isLocal => sources.any(isLocalPath);
   bool get allPages => pages.isEmpty;
   bool get hasAB => type == AdType.image && mediaB.isNotEmpty;
@@ -238,82 +239,83 @@ class Ad {
     int? hourTo,
     List<int>? weekdays,
     bool? draft,
-  }) =>
-      Ad(
-        id: id ?? this.id,
-        name: name ?? this.name,
-        type: type ?? this.type,
-        media: media ?? this.media,
-        link: link ?? this.link,
-        format: format ?? this.format,
-        pages: pages ?? this.pages,
-        active: active ?? this.active,
-        start: clearStart ? null : (start ?? this.start),
-        end: clearEnd ? null : (end ?? this.end),
-        seconds: seconds ?? this.seconds,
-        slides: slides ?? this.slides,
-        style: style ?? this.style,
-        cta: cta ?? this.cta,
-        code: code ?? this.code,
-        countdown: countdown ?? this.countdown,
-        mediaDark: mediaDark ?? this.mediaDark,
-        mediaB: mediaB ?? this.mediaB,
-        languages: languages ?? this.languages,
-        countries: countries ?? this.countries,
-        institutions: institutions ?? this.institutions,
-        dailyCap: dailyCap ?? this.dailyCap,
-        weight: weight ?? this.weight,
-        hourFrom: hourFrom ?? this.hourFrom,
-        hourTo: hourTo ?? this.hourTo,
-        weekdays: weekdays ?? this.weekdays,
-        draft: draft ?? this.draft,
-      );
+  }) => Ad(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    type: type ?? this.type,
+    media: media ?? this.media,
+    link: link ?? this.link,
+    format: format ?? this.format,
+    pages: pages ?? this.pages,
+    active: active ?? this.active,
+    start: clearStart ? null : (start ?? this.start),
+    end: clearEnd ? null : (end ?? this.end),
+    seconds: seconds ?? this.seconds,
+    slides: slides ?? this.slides,
+    style: style ?? this.style,
+    cta: cta ?? this.cta,
+    code: code ?? this.code,
+    countdown: countdown ?? this.countdown,
+    mediaDark: mediaDark ?? this.mediaDark,
+    mediaB: mediaB ?? this.mediaB,
+    languages: languages ?? this.languages,
+    countries: countries ?? this.countries,
+    institutions: institutions ?? this.institutions,
+    dailyCap: dailyCap ?? this.dailyCap,
+    weight: weight ?? this.weight,
+    hourFrom: hourFrom ?? this.hourFrom,
+    hourTo: hourTo ?? this.hourTo,
+    weekdays: weekdays ?? this.weekdays,
+    draft: draft ?? this.draft,
+  );
 
   static String _d(DateTime d) =>
       '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'ad': name,
-        'tur': switch (type) { AdType.video => 'video', AdType.slider => 'slider', AdType.image => 'gorsel' },
-        // Eski sürümler slider'ı ilk görseliyle sabit reklam olarak gösterir.
-        'dosya': type == AdType.slider && slides.isNotEmpty ? slides.first : media,
-        if (type == AdType.slider) 'gorseller': slides,
-        if (type == AdType.slider) 'gecis': style.key,
-        'baglanti': link,
-        'bicim': format == AdFormat.banner ? 'serit' : 'kart',
-        'sayfalar': pages.isEmpty ? ['hepsi'] : [for (final p in pages) p.key],
-        'aktif': active,
-        'baslangic': ?(start == null ? null : _d(start!)),
-        'bitis': ?(end == null ? null : _d(end!)),
-        'sure': seconds,
-        if (cta.isNotEmpty) 'dugme': cta,
-        if (code.isNotEmpty) 'kod': code,
-        if (countdown) 'geriSayim': true,
-        if (mediaDark.isNotEmpty) 'geceDosya': mediaDark,
-        if (mediaB.isNotEmpty) 'dosyaB': mediaB,
-        if (languages.isNotEmpty) 'diller': languages,
-        if (countries.isNotEmpty) 'ulkeler': countries,
-        if (institutions.isNotEmpty) 'kurumlar': institutions,
-        if (dailyCap > 0) 'gunlukSinir': dailyCap,
-        if (weight != 1) 'oncelik': weight,
-        if (hourFrom > 0 || hourTo < 24) 'saat': [hourFrom, hourTo],
-        if (weekdays.isNotEmpty) 'gunler': weekdays,
-        if (draft) 'taslak': true,
-      };
+    'id': id,
+    'ad': name,
+    'tur': switch (type) {
+      AdType.video => 'video',
+      AdType.slider => 'slider',
+      AdType.image => 'gorsel',
+    },
+    // Eski sürümler slider'ı ilk görseliyle sabit reklam olarak gösterir.
+    'dosya': type == AdType.slider && slides.isNotEmpty ? slides.first : media,
+    if (type == AdType.slider) 'gorseller': slides,
+    if (type == AdType.slider) 'gecis': style.key,
+    'baglanti': link,
+    'bicim': format == AdFormat.banner ? 'serit' : 'kart',
+    'sayfalar': pages.isEmpty ? ['hepsi'] : [for (final p in pages) p.key],
+    'aktif': active,
+    'baslangic': ?(start == null ? null : _d(start!)),
+    'bitis': ?(end == null ? null : _d(end!)),
+    'sure': seconds,
+    if (cta.isNotEmpty) 'dugme': cta,
+    if (code.isNotEmpty) 'kod': code,
+    if (countdown) 'geriSayim': true,
+    if (mediaDark.isNotEmpty) 'geceDosya': mediaDark,
+    if (mediaB.isNotEmpty) 'dosyaB': mediaB,
+    if (languages.isNotEmpty) 'diller': languages,
+    if (countries.isNotEmpty) 'ulkeler': countries,
+    if (institutions.isNotEmpty) 'kurumlar': institutions,
+    if (dailyCap > 0) 'gunlukSinir': dailyCap,
+    if (weight != 1) 'oncelik': weight,
+    if (hourFrom > 0 || hourTo < 24) 'saat': [hourFrom, hourTo],
+    if (weekdays.isNotEmpty) 'gunler': weekdays,
+    if (draft) 'taslak': true,
+  };
 
   static Ad? fromJson(Map<String, dynamic> j) {
     final media = '${j['dosya'] ?? ''}'.trim();
     final id = '${j['id'] ?? ''}'.trim();
     if (media.isEmpty || id.isEmpty) return null;
-    final pages = <AdPage>[
-      for (final k in (j['sayfalar'] as List? ?? const [])) ?AdPage.byKey('$k'),
-    ];
+    final pages = <AdPage>[for (final k in (j['sayfalar'] as List? ?? const [])) ?AdPage.byKey('$k')];
     DateTime? date(Object? v) => v == null ? null : DateTime.tryParse('$v');
     List<String> strs(Object? v) => [
-          for (final e in (v is List ? v : const []))
-            if ('$e'.trim().isNotEmpty) '$e'.trim(),
-        ];
+      for (final e in (v is List ? v : const []))
+        if ('$e'.trim().isNotEmpty) '$e'.trim(),
+    ];
     final slides = strs(j['gorseller']);
     final type = switch ('${j['tur']}') {
       'video' => AdType.video,
@@ -386,9 +388,18 @@ class AdSettings {
   /// O kartta açılacak iletişim e-postası.
   final String contactEmail;
 
-  const AdSettings({this.emptySlotCard = false, this.contactEmail = 'bilgi@neticeoptik.com'});
+  /// Kimliksiz görülme/tıklama sayacı açık mı (gizlilik politikasında yazılı).
+  final bool stats;
 
-  Map<String, dynamic> toJson() => {'bosAlanKarti': emptySlotCard, 'iletisim': contactEmail};
+  const AdSettings({this.emptySlotCard = false, this.contactEmail = 'bilgi@neticeoptik.com', this.stats = true});
+
+  AdSettings copyWith({bool? emptySlotCard, String? contactEmail, bool? stats}) => AdSettings(
+    emptySlotCard: emptySlotCard ?? this.emptySlotCard,
+    contactEmail: contactEmail ?? this.contactEmail,
+    stats: stats ?? this.stats,
+  );
+
+  Map<String, dynamic> toJson() => {'bosAlanKarti': emptySlotCard, 'iletisim': contactEmail, 'istatistik': stats};
 
   factory AdSettings.fromJson(Object? j) {
     if (j is! Map) return const AdSettings();
@@ -396,6 +407,7 @@ class AdSettings {
     return AdSettings(
       emptySlotCard: j['bosAlanKarti'] == true,
       contactEmail: mail.contains('@') ? mail : 'bilgi@neticeoptik.com',
+      stats: j['istatistik'] != false,
     );
   }
 }
@@ -432,6 +444,7 @@ class AdService extends ChangeNotifier {
     ads = list;
     this.settings = settings;
     _seen.clear();
+    _pending.clear();
     _files
       ..clear()
       ..addAll(files);
@@ -515,7 +528,83 @@ class AdService extends ChangeNotifier {
   /// Toplam gösterim (A/B sırası için).
   int seenTotal(String id) => _seen['toplam/$id'] ?? 0;
 
-  void recordImpression(Ad ad) {
+  // ---- Kimliksiz sayaç: yalnız (gün, reklam, A/B, tür, adet) toplamları,
+  // birkaç dakikada bir toplu gönderilir. Cihaz kimliği gönderilmez. ----
+
+  /// Sayaç sunucusu (sunucu/reklam-sayac).
+  static const statsUrl = String.fromEnvironment(
+    'REKLAM_SAYAC_URL',
+    defaultValue: 'https://netice-reklam-sayac.bilgi-7ff.workers.dev',
+  );
+
+  final Map<String, int> _pending = {};
+  Timer? _flushTimer;
+
+  /// Testler için: gönderilmeyi bekleyen sayılar.
+  @visibleForTesting
+  Map<String, int> get pendingStats => Map.unmodifiable(_pending);
+
+  static String _utcDay() => DateTime.now().toUtc().toIso8601String().substring(0, 10);
+
+  void _count(Ad ad, bool b, String kind) {
+    // Yönetici önizlemesi ve yayınlanmamış reklamlar sayılmaz.
+    if (preview != null || ad.isLocal || !settings.stats) return;
+    final k = '${_utcDay()}|${ad.id}|${b ? 'b' : 'a'}|$kind';
+    if (_pending.length >= 400 && !_pending.containsKey(k)) return;
+    _pending[k] = (_pending[k] ?? 0) + 1;
+    if (_debug) return;
+    if (_pending.values.fold(0, (a, n) => a + n) >= 50) {
+      flushStats();
+    } else {
+      _flushTimer ??= Timer(const Duration(minutes: 3), flushStats);
+    }
+  }
+
+  /// Tıklama (bağlantı açıldı).
+  void recordClick(Ad ad, {bool variantB = false}) => _count(ad, variantB, 't');
+
+  bool _flushing = false;
+
+  /// Bekleyen sayıları gönderir; başarısızsa sonra yeniden denenir.
+  Future<void> flushStats() async {
+    _flushTimer?.cancel();
+    _flushTimer = null;
+    if (_flushing || _pending.isEmpty || _debug) return;
+    _flushing = true;
+    final batch = Map.of(_pending);
+    try {
+      final body = jsonEncode({
+        'olaylar': [
+          for (final e in batch.entries.take(200))
+            () {
+              final p = e.key.split('|');
+              return {'gun': p[0], 'reklam': p[1], 'surum': p[2], 'tur': p[3], 'n': e.value};
+            }(),
+        ],
+      });
+      final r = await http
+          .post(
+            Uri.parse('$statsUrl/olay'),
+            headers: {'content-type': 'application/json', 'x-netice-app': 'netice-app-1'},
+            body: body,
+          )
+          .timeout(const Duration(seconds: 20));
+      if (r.statusCode == 200 || r.statusCode == 400) {
+        for (final e in batch.entries.take(200)) {
+          final left = (_pending[e.key] ?? 0) - e.value;
+          left > 0 ? _pending[e.key] = left : _pending.remove(e.key);
+        }
+      }
+    } catch (_) {
+      // İnternet yoksa sonra.
+    } finally {
+      _flushing = false;
+      if (_pending.isNotEmpty) _flushTimer ??= Timer(const Duration(minutes: 10), flushStats);
+    }
+  }
+
+  void recordImpression(Ad ad, {bool variantB = false}) {
+    _count(ad, variantB, 'g');
     final k = '${_today()}/${ad.id}';
     _seen[k] = (_seen[k] ?? 0) + 1;
     _seen['toplam/${ad.id}'] = seenTotal(ad.id) + 1;
@@ -562,6 +651,7 @@ class AdService extends ChangeNotifier {
 
   /// Önbellekteki listeyi açar; bir saatten eskiyse internetten tazeler.
   Future<void> refresh({bool force = false}) async {
+    if (_pending.isNotEmpty) unawaited(flushStats());
     if (_busy || _debug) return;
     _busy = true;
     try {
@@ -665,4 +755,65 @@ class AdService extends ChangeNotifier {
       }
     }
   }
+}
+
+/// Bir görselin (A ya da B) görülme ve tıklama toplamı.
+class AdCounts {
+  final int views;
+  final int clicks;
+  const AdCounts([this.views = 0, this.clicks = 0]);
+
+  /// Tıklama oranı (0–1).
+  double get rate => views == 0 ? 0 : clicks / views;
+  AdCounts operator +(AdCounts o) => AdCounts(views + o.views, clicks + o.clicks);
+
+  factory AdCounts.fromJson(Object? j) =>
+      j is Map ? AdCounts((j['g'] as num?)?.toInt() ?? 0, (j['t'] as num?)?.toInt() ?? 0) : const AdCounts();
+}
+
+/// Sayaç sunucusundan gelen bir reklamın özeti.
+class AdStats {
+  final AdCounts a;
+  final AdCounts b;
+
+  /// Gün (YYYY-MM-DD) → toplam.
+  final Map<String, AdCounts> daily;
+  const AdStats({this.a = const AdCounts(), this.b = const AdCounts(), this.daily = const {}});
+
+  AdCounts get total => a + b;
+
+  factory AdStats.fromJson(Object? j) {
+    if (j is! Map) return const AdStats();
+    final d = j['gunluk'];
+    return AdStats(
+      a: AdCounts.fromJson(j['a']),
+      b: AdCounts.fromJson(j['b']),
+      daily: {
+        if (d is Map)
+          for (final e in d.entries) '${e.key}': AdCounts.fromJson(e.value),
+      },
+    );
+  }
+
+  static Map<String, AdStats> mapFromJson(Object? j) {
+    final r = j is Map ? j['reklamlar'] : null;
+    if (r is! Map) return const {};
+    return {for (final e in r.entries) '${e.key}': AdStats.fromJson(e.value)};
+  }
+}
+
+/// A/B testi sonucu.
+enum AbVerdict { needMoreData, noDifference, aWins, bWins }
+
+/// Her görsel en az [minViews] kez görüldüyse iki oran z-testiyle (%95)
+/// kazananı bulur.
+AbVerdict abVerdict(AdCounts a, AdCounts b, {int minViews = 100}) {
+  if (a.views < minViews || b.views < minViews) return AbVerdict.needMoreData;
+  final p = (a.clicks + b.clicks) / (a.views + b.views);
+  if (p <= 0 || p >= 1) return AbVerdict.noDifference;
+  final se = math.sqrt(p * (1 - p) * (1 / a.views + 1 / b.views));
+  final z = (b.rate - a.rate) / se;
+  if (z >= 1.96) return AbVerdict.bWins;
+  if (z <= -1.96) return AbVerdict.aWins;
+  return AbVerdict.noDifference;
 }

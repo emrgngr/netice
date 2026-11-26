@@ -7,6 +7,7 @@ import '../core/ads.dart';
 import '../l10n/l10n.dart';
 import 'ad_device_preview.dart';
 import 'ad_slot.dart';
+import 'ad_stats_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
 
@@ -273,6 +274,11 @@ class _AdAdminScreenState extends State<AdAdminScreen> {
           : AppBar(
               title: const Text('Reklam yönetimi'),
               actions: [
+                IconButton(
+                  tooltip: 'İstatistikler',
+                  icon: const Icon(Icons.insights_rounded),
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdStatsScreen())),
+                ),
                 PopupMenuButton<String>(
                   onSelected: (v) async {
                     if (v == 'key') _tokenDialog();
@@ -385,9 +391,19 @@ class _AdAdminScreenState extends State<AdAdminScreen> {
                   ),
                   value: _admin.settings.emptySlotCard,
                   onChanged: (v) {
-                    _admin.setSettings(AdSettings(emptySlotCard: v, contactEmail: _admin.settings.contactEmail));
+                    _admin.setSettings(_admin.settings.copyWith(emptySlotCard: v));
                     _refreshPreview();
                   },
+                ),
+                SwitchListTile(
+                  title: const Text('Görülme ve tıklama sayacı', style: TextStyle(fontWeight: FontWeight.w700)),
+                  subtitle: Text(
+                    'Her reklamın günlük toplam görülme ve tıklama sayısı kimliksiz olarak sayılır; '
+                    'kimin gördüğü bilinmez. Kapatırsanız yeni sayım yapılmaz.',
+                    style: TextStyle(color: muted, fontSize: 12.5),
+                  ),
+                  value: _admin.settings.stats,
+                  onChanged: (v) => _admin.setSettings(_admin.settings.copyWith(stats: v)),
                 ),
               ],
             ),

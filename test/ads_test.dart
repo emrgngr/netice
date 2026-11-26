@@ -227,6 +227,55 @@ void main() {
     AdService.instance.debugSet(const [], const {});
   });
 
+  test('A/B sonucu ve sayaç özeti', () {
+    expect(abVerdict(const AdCounts(50, 5), const AdCounts(500, 50)), AbVerdict.needMoreData);
+    expect(abVerdict(const AdCounts(1000, 20), const AdCounts(1000, 22)), AbVerdict.noDifference);
+    expect(abVerdict(const AdCounts(1000, 20), const AdCounts(1000, 45)), AbVerdict.bWins);
+    expect(abVerdict(const AdCounts(1000, 45), const AdCounts(1000, 20)), AbVerdict.aWins);
+    final m = AdStats.mapFromJson({
+      'gun': 30,
+      'reklamlar': {
+        'r1': {
+          'a': {'g': 10, 't': 1},
+          'b': {'g': 30, 't': 3},
+          'gunluk': {
+            '2026-11-26': {'g': 40, 't': 4},
+          },
+        },
+      },
+    });
+    expect(m['r1']!.total.views, 40);
+    expect(m['r1']!.total.rate, closeTo(0.1, 1e-9));
+    expect(m['r1']!.daily['2026-11-26']!.clicks, 4);
+    expect(AdStats.mapFromJson(null), isEmpty);
+  });
+
+  test('sayaç: yalnız yayındaki reklamlar, önizleme ve kapalı ayar sayılmaz', () {
+    final s = AdService.instance;
+    const ad = Ad(id: 'p1', type: AdType.image, media: 'https://x/a.jpg', mediaB: 'https://x/b.jpg');
+    s.debugSet(const [ad], const {});
+    s.recordImpression(ad);
+    s.recordImpression(ad, variantB: true);
+    s.recordClick(ad, variantB: true);
+    final day = DateTime.now().toUtc().toIso8601String().substring(0, 10);
+    expect(s.pendingStats, {'$day|p1|a|g': 1, '$day|p1|b|g': 1, '$day|p1|b|t': 1});
+    // Cihaza eklenmiş (yayınlanmamış) reklam sayılmaz.
+    s.recordImpression(const Ad(id: 'yerel', type: AdType.image, media: '/tmp/a.jpg'));
+    expect(s.pendingStats.length, 3);
+    // Yönetici önizlemesi sayılmaz.
+    s.setPreview(const [ad]);
+    s.recordClick(ad);
+    expect(s.pendingStats.length, 3);
+    s.setPreview(null);
+    // Sayaç kapalıysa sayılmaz.
+    s.debugSet(const [ad], const {}, settings: const AdSettings(stats: false));
+    s.recordImpression(ad);
+    expect(s.pendingStats, isEmpty);
+    expect(const AdSettings().toJson()['istatistik'], isTrue);
+    expect(AdSettings.fromJson({'istatistik': false}).stats, isFalse);
+    s.debugSet(const [], const {});
+  });
+
   testWidgets('Pro abonesine reklam gösterilmez', (tester) async {
     final file = File('test/fixtures/ads/kart.jpg');
     AdService.instance.debugSet(

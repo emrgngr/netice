@@ -12,6 +12,7 @@ import 'package:netice/main.dart';
 import 'package:netice/ui/ad_admin_screen.dart';
 import 'package:netice/ui/ad_device_preview.dart';
 import 'package:netice/ui/ad_slot.dart';
+import 'package:netice/ui/ad_stats_screen.dart';
 import 'package:netice/ui/theme.dart';
 
 import 'screenshots_test.dart' show loadFonts, shot;
@@ -171,6 +172,23 @@ void main() {
         await tester.tap(find.text('Cooktatlihayat yılbaşı'));
       },
     );
+
+    // 6) İstatistikler (örnek sayılarla).
+    final today = DateTime.now().toUtc();
+    String d(int i) => today.subtract(Duration(days: i)).toIso8601String().substring(0, 10);
+    final demo = {
+      'k': AdStats(
+        a: const AdCounts(4120, 74),
+        b: const AdCounts(4088, 131),
+        daily: {for (var i = 0; i < 30; i++) d(i): AdCounts(180 + (i * 37) % 140, 6 + i % 5)},
+      ),
+      's': AdStats(
+        a: const AdCounts(9650, 58),
+        daily: {for (var i = 0; i < 30; i++) d(i): AdCounts(260 + (i * 53) % 170, 2)},
+      ),
+      'c': AdStats(a: const AdCounts(812, 19), daily: {for (var i = 0; i < 9; i++) d(i * 3): const AdCounts(90, 2)}),
+    };
+    await shot(tester, _themed(store, AdStatsScreen(initial: demo)), const Size(390, 1500), 'arac_10_istatistik');
 
     await tester.pumpWidget(const SizedBox());
     AdService.instance.debugSet(const [], const {});
