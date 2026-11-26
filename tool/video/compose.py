@@ -18,6 +18,9 @@ import tempfile
 
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'brand'))
+from bolum_simgeleri import SIMGELER, simge as bolum_simgesi  # noqa: E402
+
 W, H, FPS = 720, 1280, 24
 NAVY = (15, 27, 61)
 NAVY_DARK = (6, 11, 28)
@@ -215,9 +218,22 @@ def glow(radius, color, alpha, cy):
     return g
 
 
+_small_icons = {}
+
+
+def _rgb(h):
+    h = h.lstrip('#')
+    return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
+
+
 class Video:
-    def __init__(self, lang, title):
+    def __init__(self, lang, title, section=None):
         self.lang = lang
+        # Bölüm videolarında uygulamadaki bölüm simgesi ve rengi kullanılır.
+        self.section = section if section in SIMGELER else None
+        if self.section:
+            self.icon = bolum_simgesi(self.section, 512)
+            self.accent = _rgb(SIMGELER[self.section][1])
         self.rtl = lang == 'ar'
         self.title = title
         self.bg = background()
@@ -237,9 +253,19 @@ class Video:
             return ease_out((t - k) / 0.55)
 
         a = show(0.0)
-        mark, _ = draw_mark(96)
-        mark.putalpha(mark.getchannel('A').point(lambda v: int(v * a)))
-        frame.paste(mark, (int(W / 2 - 48), int(450 - 20 * (1 - a))), mark)
+        if self.section:
+            # Bölüm renginde ışıma + bölüm simgesi (hafif büyüyerek gelir).
+            g = glow(260, self.accent, 0.35 * a, 440)
+            frame.paste(g, (0, 0), g)
+            sz = int(230 * (0.82 + 0.18 * ease_back(min(1, max(0, t / 0.6)))))
+            ic = self.icon.resize((sz, sz), Image.LANCZOS)
+            ic.putalpha(ic.getchannel('A').point(lambda v: int(v * a)))
+            bob = 6 * math.sin(max(0, t - 0.8) * 2.0)
+            frame.paste(ic, (int(W / 2 - sz / 2), int(440 - sz / 2 - 20 * (1 - a) + bob)), ic)
+        else:
+            mark, _ = draw_mark(96)
+            mark.putalpha(mark.getchannel('A').point(lambda v: int(v * a)))
+            frame.paste(mark, (int(W / 2 - 48), int(450 - 20 * (1 - a))), mark)
         dr = ImageDraw.Draw(frame)
         a = show(0.18)
         lab_f = font(lang, 26, bold=True)
@@ -355,10 +381,20 @@ class Video:
         d = seg['d']
         frame = self.bg.copy()
         dr = ImageDraw.Draw(frame)
+        tx = 40
+        sec = self.section or seg.get('section')
+        if sec in SIMGELER:
+            if sec not in _small_icons:
+                _small_icons[sec] = bolum_simgesi(sec, 208).resize((52, 52), Image.LANCZOS)
+            ic = _small_icons[sec]
+            ix = W - 40 - 52 if rtl else 36
+            frame.paste(ic, (ix, 42), ic)
+            dr = ImageDraw.Draw(frame)
+            tx = 100
         if rtl:
-            dr.text((W - 40, 52), self.title, font=self.title_f, fill='white', anchor='ra', direction='rtl')
+            dr.text((W - tx, 52), self.title, font=self.title_f, fill='white', anchor='ra', direction='rtl')
         else:
-            dr.text((40, 52), self.title, font=self.title_f, fill='white')
+            dr.text((tx, 52), self.title, font=self.title_f, fill='white')
         n_sc = sum(1 for s in segs if s['kind'] == 'scene')
         step = f"{seg['step'] + 1}/{n_sc}"
         sw = dr.textlength(step, font=self.step_f) + 28
@@ -534,8 +570,15 @@ def rehber(lang):
     frames_dir = f'build/video/frames/{lang}'
     targets = load_targets(frames_dir)
     script = json.load(open(f'tool/video/anlatim_{lang}.json'))
+    # Sahne hangi kılavuz bölümündeyse başlıkta o bölümün simgesi görünür.
+    sec_of = {}
+    for sec, keys in json.load(open('tool/video/kilavuz.json'))['bolumler'].items():
+        for k in keys:
+            sec_of.setdefault(k, sec)
+    sec_of.update({'01_tanitim': 'start', '03_siniflar': 'classes', '11_kurum': 'classes'})
     segs = [dict(kind='scene', frame=name, text=text, audio=f'build/video/audio/{lang}/{i:02d}.mp3',
-                 targets=targets.get(name, []), frames_dir=frames_dir) for i, (name, text) in enumerate(script.items())]
+                 targets=targets.get(name, []), frames_dir=frames_dir, section=sec_of.get(name))
+            for i, (name, text) in enumerate(script.items())]
     segs.append(dict(kind='outro'))
     Video(lang, f'Netice · {TITLES.get(lang, TITLES["en"])}').build(segs, f'build/video/rehber_{lang}.mp4', stings=(0, 'outro'))
 
@@ -564,7 +607,7 @@ def kilavuz(lang, only=None):
             segs.append(dict(kind='scene', frame=frame, text=text, audio=audio, targets=targets.get(k, targets.get(frame, [])),
                              frames_dir=frames_dir))
         segs.append(dict(kind='outro'))
-        Video(lang, f'Netice · {heading}').build(segs, f'build/video/kilavuz_{sec}_{lang}.mp4', stings=('outro',))
+        Video(lang, heading, section=sec).build(segs, f'build/video/kilavuz_{sec}_{lang}.mp4', stings=('outro',))
 
 
 if __name__ == '__main__':

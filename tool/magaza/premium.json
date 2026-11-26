@@ -1,5 +1,5 @@
 {
- "_not": "ses: 'elevenlabs' olan sahneler tool/magaza/seslendir.py ile eğitimci, sakin bir kadın sesiyle üretilir (<kare>.mp3).",
+ "_not": "ses: 'elevenlabs' olan sahneler tool/magaza/seslendir.py ile eğitimci, sakin bir kadın sesiyle üretilir (<kare>.mp3). 'bolum': alt yazının solundaki bölüm simgesi (tool/brand/bolum_simgeleri.py).",
  "sahneler": [
   {
    "kare": "kare_00",
@@ -15,7 +15,8 @@
     1639,
     464
    ],
-   "metin": "Okut düğmesine dokunun ve kamerayı forma tutun. Netice kâğıdı kendiliğinden bulur, okur ve puanlar."
+   "metin": "Okut düğmesine dokunun ve kamerayı forma tutun. Netice kâğıdı kendiliğinden bulur, okur ve puanlar.",
+   "bolum": "scan"
   },
   {
    "kare": "kare_02",
@@ -26,7 +27,8 @@
     1656,
     446
    ],
-   "metin": "Sınıf ortalaması, puan dağılımı ve sıralama, anında hazır."
+   "metin": "Sınıf ortalaması, puan dağılımı ve sıralama, anında hazır.",
+   "bolum": "report"
   },
   {
    "kare": "kare_03",
@@ -37,7 +39,8 @@
     1668,
     565
    ],
-   "metin": "Kütüphanede kendi soru bankanızı kurun. Sorular, konu özetleri ve hap bilgiler tek yerde."
+   "metin": "Kütüphanede kendi soru bankanızı kurun. Sorular, konu özetleri ve hap bilgiler tek yerde.",
+   "bolum": "library"
   },
   {
    "kare": "kare_04",
@@ -48,7 +51,8 @@
     1632,
     450
    ],
-   "metin": "Bankadan soru seçin, sınav kitapçığınızı hazırlayın. A'dan H'ye kitapçık türleri, karışık şıklar, PDF ya da Word."
+   "metin": "Bankadan soru seçin, sınav kitapçığınızı hazırlayın. A'dan H'ye kitapçık türleri, karışık şıklar, PDF ya da Word.",
+   "bolum": "booklet"
   },
   {
    "kare": "kare_05",
@@ -59,7 +63,8 @@
     1554,
     706
    ],
-   "metin": "Konu ve kazanım analizinin ardından, her öğrenciye kendi eksiklerine göre bir tekrar testi hazırlayın."
+   "metin": "Konu ve kazanım analizinin ardından, her öğrenciye kendi eksiklerine göre bir tekrar testi hazırlayın.",
+   "bolum": "ai"
   },
   {
    "kare": "kare_06",
@@ -70,7 +75,8 @@
     1663,
     471
    ],
-   "metin": "Bütün sınıfın karnelerini, hazır mesajla, velilere sırayla gönderin."
+   "metin": "Bütün sınıfın karnelerini, hazır mesajla, velilere sırayla gönderin.",
+   "bolum": "parents"
   },
   {
    "kare": "kare_07",
@@ -81,12 +87,14 @@
     1663,
     490
    ],
-   "metin": "Aynı Wi-Fi ağındaki öğretmenler, ortak sınavın sonuçlarını internetsiz ve dosyasız, tek cihazda toplar."
+   "metin": "Aynı Wi-Fi ağındaki öğretmenler, ortak sınavın sonuçlarını internetsiz ve dosyasız, tek cihazda toplar.",
+   "bolum": "classes"
   },
   {
    "kare": "kare_08",
    "ses": "elevenlabs",
-   "metin": "Kendi optik formunuzu yazdırın. Dört küçük formlu kısa quiz kâğıdıyla kâğıttan da tasarruf edin."
+   "metin": "Kendi optik formunuzu yazdırın. Dört küçük formlu kısa quiz kâğıdıyla kâğıttan da tasarruf edin.",
+   "bolum": "print"
   },
   {
    "kare": "kare_99_magazalar",

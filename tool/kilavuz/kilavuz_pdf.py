@@ -21,6 +21,8 @@ from reportlab.platypus import Paragraph
 
 sys.path.insert(0, os.path.dirname(__file__))
 from icerik import BOLUMLER, SAYFALAR  # noqa: E402
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'brand'))
+from bolum_simgeleri import KILAVUZ, SIMGELER, hepsi as simgeleri_hazirla  # noqa: E402
 
 KOK = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 DIL = sys.argv[1] if len(sys.argv) > 1 else 'tr'
@@ -216,14 +218,32 @@ def hedef_kutusu(c, olcek, sol, ust, r):
     return x - pad, y - pad, w + 2 * pad, h + 2 * pad
 
 
+_SIMGE = {}
+
+
+def bolum_simgesi(c, bolum, x, y, boyut):
+    """Bölümün renkli simge kutusu (uygulamadaki bölüm simgeleriyle aynı)."""
+    if not _SIMGE:
+        _SIMGE.update(simgeleri_hazirla(os.path.join(KOK, 'build', 'bolum_simgeleri')))
+    c.drawImage(ImageReader(_SIMGE[KILAVUZ[bolum]]), x, y, boyut, boyut, mask='auto')
+
+
+def bolum_rengi(bolum, koyu=False):
+    return HexColor(SIMGELER[KILAVUZ[bolum]][2 if koyu else 1])
+
+
 def ust_bant(c, bolum, baslik, sayfa_no):
     c.setFillColor(IVORY)
     c.rect(0, 0, W, H, stroke=0, fill=1)
+    # bölüm rengiyle ince üst şerit
+    c.setFillColor(bolum_rengi(bolum))
+    c.rect(0, H - 6, W, 6, stroke=0, fill=1)
     ad = T(dict(BOLUMLER)[bolum])
-    c.setFillColor(EMERALD_D)
+    bolum_simgesi(c, bolum, W - M - 30 if RTL else M - 3, H - 52, 30)
+    c.setFillColor(bolum_rengi(bolum, koyu=True))
     c.setFont('J7', 8.5)
     etiket = f'第{bolum}章' if CJK else f'{ust(T("BÖLÜM"))} {bolum}'
-    yaz(c, W - M if RTL else M, H - 44, f'{etiket}  ·  {ust(ad)}', sag=RTL)
+    yaz(c, W - M - 34 if RTL else M + 34, H - 41, f'{etiket}  ·  {ust(ad)}', sag=RTL)
     c.setFillColor(INK)
     c.setFont('J8', 22)
     yaz(c, W - M if RTL else M, H - 70, T(baslik), sag=RTL)
@@ -412,6 +432,90 @@ def kapak(c):
     yaz(c, M, 26, T('İletişim:') + ' bilgi@neticeoptik.com')
 
 
+def bolum_kapagi(c, no, sayfa_baslari, sayfa_no):
+    """Her bölümün başında koyu zeminli, büyük simgeli kapak sayfası."""
+    ad = T(dict(BOLUMLER)[no])
+    acik, koyu = bolum_rengi(no), bolum_rengi(no, koyu=True)
+    c.setFillColor(INK)
+    c.rect(0, 0, W, H, stroke=0, fill=1)
+    # bölüm renginde yumuşak ışıma
+    for i, a in enumerate([0.05, 0.06, 0.07, 0.09, 0.11]):
+        c.setFillColor(Color(acik.red, acik.green, acik.blue, alpha=a))
+        c.circle(W * 0.82, H * 0.70, 330 - i * 60, stroke=0, fill=1)
+    # optik form esintisi: köşede küçük daire ızgarası
+    c.setStrokeColor(Color(1, 1, 1, alpha=0.10))
+    c.setLineWidth(1)
+    for r_ in range(6):
+        for k in range(5):
+            x = (M + 8 + k * 16) if not RTL else (W - M - 8 - k * 16)
+            y = 70 + r_ * 16
+            if (r_ * 5 + k) % 7 == 3:
+                c.setFillColor(Color(acik.red, acik.green, acik.blue, alpha=0.55))
+                c.circle(x, y, 5, stroke=0, fill=1)
+            else:
+                c.circle(x, y, 5, stroke=1, fill=0)
+    # büyük simge
+    sx = W - M - 150 if RTL else M - 10
+    bolum_simgesi(c, no, sx, H - 300, 160)
+    # dev bölüm numarası (arka planda)
+    c.setFillColor(Color(1, 1, 1, alpha=0.06))
+    c.setFont('J8', 260)
+    if RTL:
+        c.drawString(M - 10, H - 330, no)
+    else:
+        c.drawRightString(W - M + 10, H - 330, no)
+    c.setFillColor(acik)
+    c.setFont('J7', 12)
+    etiket = f'第{no}章' if CJK else f'{ust(T("BÖLÜM"))} {no}'
+    yaz(c, W - M if RTL else M, H - 345, etiket, sag=RTL)
+    c.setFillColor(white)
+    st = ParagraphStyle('bk', fontName='J8', fontSize=34, leading=40, textColor=white,
+                        alignment=2 if RTL else 0, shaping=int(SHAPE))
+    alt = H - 360 - para(c, ad, st, M, H - 360, W - 2 * M)
+    c.setStrokeColor(acik)
+    c.setLineWidth(3)
+    c.line(W - M - 56 if RTL else M, alt - 18, W - M if RTL else M + 56, alt - 18)
+    # konular
+    y = alt - 52
+    sira = [i for i, s in enumerate(SAYFALAR) if s['bolum'] == no]
+    for j, i in enumerate(sira):
+        s = SAYFALAR[i]
+        c.setFillColor(Color(1, 1, 1, alpha=0.06))
+        c.roundRect(M, y - 12, W - 2 * M, 30, 10, stroke=0, fill=1)
+        c.setFillColor(acik)
+        c.setFont('J8', 11)
+        num = f'{j + 1:02d}'
+        c.setFillColor(white)
+        c.setFont('J6', 12)
+        if RTL:
+            c.setFillColor(acik)
+            c.setFont('J8', 11)
+            c.drawRightString(W - M - 14, y, num)
+            c.setFillColor(white)
+            c.setFont('J6', 12)
+            yaz(c, W - M - 46, y, T(s['baslik']), sag=True)
+            c.setFillColor(HexColor('#8C97B8'))
+            c.setFont('J7', 11)
+            c.drawString(M + 14, y, str(sayfa_baslari['_s'][i]))
+        else:
+            c.setFillColor(acik)
+            c.setFont('J8', 11)
+            c.drawString(M + 14, y, num)
+            c.setFillColor(white)
+            c.setFont('J6', 12)
+            yaz(c, M + 46, y, T(s['baslik']))
+            c.setFillColor(HexColor('#8C97B8'))
+            c.setFont('J7', 11)
+            c.drawRightString(W - M - 14, y, str(sayfa_baslari['_s'][i]))
+        y -= 38
+        if y < 150:
+            break
+    c.setFillColor(HexColor('#8C97B8'))
+    c.setFont('J5', 8)
+    yaz(c, M, 22, 'Netice · ' + T('Kullanım kılavuzu'))
+    c.drawRightString(W - M, 22, str(sayfa_no))
+
+
 def icindekiler(c, sayfa_baslari):
     c.setFillColor(IVORY)
     c.rect(0, 0, W, H, stroke=0, fill=1)
@@ -423,10 +527,10 @@ def icindekiler(c, sayfa_baslari):
         c.setFillColor(white)
         c.setStrokeColor(LINE)
         c.roundRect(M, y - 32, W - 2 * M, 42, 12, stroke=1, fill=1)
-        rozet(c, M + 26, y - 12, no, r=12)
+        bolum_simgesi(c, no, M + 8, y - 30, 38)
         c.setFillColor(INK)
         c.setFont('J7', 13)
-        yaz(c, M + 50, y - 8, T(ad))
+        yaz(c, M + 52, y - 8, f'{no}. ' + T(ad))
         konular = [T(s['baslik']) for s in SAYFALAR if s['bolum'] == no]
         c.setFillColor(MUTED)
         c.setFont('J', 8.5)
@@ -451,11 +555,11 @@ def icindekiler(c, sayfa_baslari):
         x = M + i * (bw + 22)
         c.setFillColor(INK if i % 2 == 0 else INK2)
         c.roundRect(x, y - 78, bw, 70, 12, stroke=0, fill=1)
-        rozet(c, x + bw / 2, y - 8, i + 1, r=11)
+        bolum_simgesi(c, ['2', '3', '4', '5', '6'][i], x + bw / 2 - 15, y - 22, 30)
         c.setFillColor(white)
         c.setFont('J7', 10)
         for j, satir in enumerate(a.split('\n')):
-            yaz(c, x + bw / 2, y - 42 - j * 13, satir, orta=True)
+            yaz(c, x + bw / 2, y - 46 - j * 13, satir, orta=True)
         if i < 4:
             ok(c, x + bw + 3, y - 43, x + bw + 19, y - 43)
 
@@ -467,18 +571,28 @@ def main():
     c.setTitle('Netice · ' + T('Kullanım kılavuzu'))
     c.setAuthor('Netice')
     # sayfa numaraları: kapak 1, içindekiler 2, bölüm sayfaları 3'ten başlar
-    basi = {}
+    # Her bölümün önüne bir kapak sayfası gelir. basi[bölüm] = kapak sayfası,
+    # basi['_s'][i] = i. konunun sayfası.
+    basi = {'_s': {}}
+    no = 3
     for i, s in enumerate(SAYFALAR):
-        basi.setdefault(s['bolum'], i + 3)
+        if s['bolum'] not in basi:
+            basi[s['bolum']] = no
+            no += 1
+        basi['_s'][i] = no
+        no += 1
     kapak(c)
     c.showPage()
     icindekiler(c, basi)
     c.showPage()
     for i, s in enumerate(SAYFALAR):
-        adim_sayfasi(c, s, i + 3)
+        if basi[s['bolum']] == basi['_s'][i] - 1:
+            bolum_kapagi(c, s['bolum'], basi, basi[s['bolum']])
+            c.showPage()
+        adim_sayfasi(c, s, basi['_s'][i])
         c.showPage()
     c.save()
-    print(CIKTI, len(SAYFALAR) + 2, 'sayfa')
+    print(CIKTI, no - 1, 'sayfa')
 
 
 if __name__ == '__main__':
