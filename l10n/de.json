@@ -2494,5 +2494,15 @@
 "Sitemizden yeni kurulum dosyasını indirin. Verileriniz olduğu gibi kalır.": "Lade das neue Installationsprogramm von unserer Website. Deine Daten bleiben erhalten.",
 "Sürüm {0}": "Version {0}",
 "Uygulama yeni sürüm çıktığında size haber verir; yenilikleri bu pencerede görürsünüz.": "Die App sagt dir jetzt Bescheid, wenn eine neue Version erscheint; die Neuerungen siehst du in diesem Fenster.",
-"Yeni sürüm hazır: {0}": "Neue Version verfügbar: {0}"
+"Yeni sürüm hazır: {0}": "Neue Version verfügbar: {0}",
+"Cevap kâğıtlarının fotoğraflarını ya da tarayıcıdan çıkan çok sayfalı PDF'i seçin. PDF'teki her sayfa bir kâğıt sayılır, hepsi tek seferde okunur. Kâğıdın dört köşesindeki siyah kareler görünür olmalı.": "Wähle Fotos der Antwortbögen oder das mehrseitige PDF aus deinem Scanner. Jede Seite des PDFs zählt als ein Bogen, alle werden in einem Durchgang gelesen. Die schwarzen Quadrate in den vier Ecken des Bogens müssen sichtbar sein.",
+"Dosyalar hazırlanıyor…": "Dateien werden vorbereitet…",
+"Galeri / PDF": "Galerie / PDF",
+"PDF açılamadı: {0}": "PDF konnte nicht geöffnet werden: {0}",
+"PDF'te okunacak sayfa bulunamadı.": "Im PDF wurden keine lesbaren Seiten gefunden.",
+"Taranmış PDF": "Gescanntes PDF",
+"Taranmış PDF dosyalarını seçin": "Gescannte PDF-Dateien auswählen",
+"{0} okundu": "{0} gelesen",
+"{0} okunuyor": "{0} wird gelesen",
+"{0} · sayfa {1} / {2} okunuyor": "{0} · Seite {1} / {2} wird gelesen"
 }

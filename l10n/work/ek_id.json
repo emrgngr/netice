@@ -482,5 +482,15 @@
  "Sitemizden yeni kurulum dosyasını indirin. Verileriniz olduğu gibi kalır.": "Unduh penginstal baru dari situs kami. Data Anda tetap aman.",
  "Sürüm {0}": "Versi {0}",
  "Uygulama yeni sürüm çıktığında size haber verir; yenilikleri bu pencerede görürsünüz.": "Aplikasi kini memberi tahu saat ada versi baru; hal-hal baru akan tampil di jendela ini.",
- "Yeni sürüm hazır: {0}": "Versi baru tersedia: {0}"
+ "Yeni sürüm hazır: {0}": "Versi baru tersedia: {0}",
+ "Cevap kâğıtlarının fotoğraflarını ya da tarayıcıdan çıkan çok sayfalı PDF'i seçin. PDF'teki her sayfa bir kâğıt sayılır, hepsi tek seferde okunur. Kâğıdın dört köşesindeki siyah kareler görünür olmalı.": "Pilih foto lembar jawaban atau PDF multi-halaman dari pemindai Anda. Setiap halaman PDF dihitung sebagai satu lembar, dan semuanya dibaca sekaligus. Kotak hitam di keempat sudut lembar harus terlihat.",
+ "Dosyalar hazırlanıyor…": "Menyiapkan file…",
+ "Galeri / PDF": "Galeri / PDF",
+ "PDF açılamadı: {0}": "PDF tidak dapat dibuka: {0}",
+ "PDF'te okunacak sayfa bulunamadı.": "Tidak ada halaman yang dapat dibaca di PDF.",
+ "Taranmış PDF": "PDF hasil pindaian",
+ "Taranmış PDF dosyalarını seçin": "Pilih file PDF hasil pindaian",
+ "{0} okundu": "{0} terbaca",
+ "{0} okunuyor": "Membaca {0}",
+ "{0} · sayfa {1} / {2} okunuyor": "{0} · membaca halaman {1} / {2}"
 }

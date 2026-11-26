@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:printing/printing.dart';
 
 import '../core/models.dart';
+import '../core/pdf_pages.dart';
 import '../core/scoring.dart';
 import '../core/store.dart' show ScanStatus, specFor;
 import '../main.dart';
@@ -45,6 +46,7 @@ class _Input {
   final String name;
   final Future<Uint8List> Function() bytes;
   _Input(this.name, this.bytes);
+  bool get isPdf => name.toLowerCase().endsWith('.pdf');
 }
 
 class _ScanScreenState extends State<ScanScreen> {
@@ -59,10 +61,18 @@ class _ScanScreenState extends State<ScanScreen> {
 
   Exam get _exam => StoreScope.of(context).examById(widget.examId)!;
 
-  Future<void> _readGray(String source, GrayImage gray) async {
+  Future<void> _readGray(String source, GrayImage gray) =>
+      _read(source, (spec) => compute(_readJob, _Job(gray, spec)));
+
+  /// PDF sayfası: renkli piksellerin griye çevrilmesi de arka planda yapılır,
+  /// uzun taramalarda ekran donmasın.
+  Future<void> _readRgba(String source, Uint8List rgba, int w, int h) =>
+      _read(source, (spec) => compute(_readRgbaJob, _RgbaJob(rgba, w, h, spec)));
+
+  Future<void> _read(String source, Future<(OmrResult, Uint8List?)> Function(ReadSpec spec) job) async {
     final exam = _exam;
     try {
-      final (r, jpeg) = await compute(_readJob, _Job(gray, specFor(StoreScope.of(context), exam)));
+      final (r, jpeg) = await job(specFor(StoreScope.of(context), exam));
       if (!mounted) return;
       final store = StoreScope.of(context);
       final sheet = store.addScan(exam, r);
@@ -88,11 +98,11 @@ class _ScanScreenState extends State<ScanScreen> {
     }
   }
 
-  Future<void> _pickFiles() async {
+  Future<void> _pickFiles({bool pdfOnly = false}) async {
     final files = await FilePicker.pickFiles(
-      dialogTitle: tr('Cevap kâğıtlarını seçin'),
+      dialogTitle: pdfOnly ? tr('Taranmış PDF dosyalarını seçin') : tr('Cevap kâğıtlarını seçin'),
       type: FileType.custom,
-      allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
+      allowedExtensions: pdfOnly ? ['pdf'] : ['jpg', 'jpeg', 'png', 'pdf'],
     );
     if (files.isEmpty) return;
     await _processAll([for (final f in files) _Input(f.name, f.readAsBytes)]);
@@ -118,20 +128,57 @@ class _ScanScreenState extends State<ScanScreen> {
       _cancel = false;
       _batchTotal = inputs.length;
       _batchDone = 0;
+      _status = tr('Dosyalar hazırlanıyor…');
     });
+    // İlerleme sayfa sayfa gösterilir: önce PDF'lerin sayfa sayısına bakılır.
+    // Sayı bulunamayan PDF tek adım sayılır.
+    final units = <int>[];
     for (final f in inputs) {
+      if (!f.isPdf) {
+        units.add(1);
+        continue;
+      }
+      try {
+        units.add(await compute(_pageCountJob, await f.bytes()) ?? 1);
+      } catch (_) {
+        units.add(1);
+      }
+    }
+    if (!mounted) return;
+    setState(() => _batchTotal = units.fold(0, (a, b) => a + b));
+    for (var i = 0; i < inputs.length; i++) {
+      final f = inputs[i];
       if (_cancel || !mounted) break;
       final bytes = await f.bytes();
-      if (f.name.toLowerCase().endsWith('.pdf')) {
+      if (f.isPdf) {
         var page = 0;
-        await for (final raster in Printing.raster(bytes, dpi: 150)) {
-          if (_cancel || !mounted) break;
-          page++;
-          setState(() => _status = tr('{0} · sayfa {1} okunuyor', [f.name, page]));
-          await _readGray('${f.name} · s.$page', _rgbaToGray(raster.pixels, raster.width, raster.height));
+        final known = units[i];
+        final pages = known > 1 ? known : null;
+        try {
+          await for (final raster in Printing.raster(bytes, dpi: 150)) {
+            if (_cancel || !mounted) break;
+            page++;
+            setState(() => _status = pages == null
+                ? tr('{0} · sayfa {1} okunuyor', [f.name, page])
+                : tr('{0} · sayfa {1} / {2} okunuyor', [f.name, page, pages]));
+            await _readRgba('${f.name} · s.$page', raster.pixels, raster.width, raster.height);
+            if (!mounted) return;
+            // Tahmin edilen sayıdan fazla sayfa çıkarsa çubuk taşmasın.
+            setState(() {
+              if (page <= known) _batchDone++;
+            });
+          }
+        } catch (e) {
+          if (mounted) setState(() => _entries.insert(0, _ScanEntry(f.name, error: tr('PDF açılamadı: {0}', [e]))));
         }
+        if (!mounted) return;
+        if (page == 0 && !_cancel) {
+          setState(() => _entries.insert(0, _ScanEntry(f.name, error: tr('PDF\'te okunacak sayfa bulunamadı.'))));
+        }
+        // Sayfa sayısı az tahmin edildiyse ya da hiç bilinmiyorsa eksik adımları tamamla.
+        if (!_cancel) setState(() => _batchDone += math.max(0, known - page));
       } else {
-        setState(() => _status = '${f.name} okunuyor');
+        setState(() => _status = tr('{0} okunuyor', [f.name]));
         final gray = await compute(_decodeJob, bytes);
         if (!mounted) return;
         if (gray == null) {
@@ -139,8 +186,8 @@ class _ScanScreenState extends State<ScanScreen> {
         } else {
           await _readGray(f.name, gray);
         }
+        if (mounted) setState(() => _batchDone++);
       }
-      if (mounted) setState(() => _batchDone++);
     }
     if (!mounted) return;
     final batch = _entries.sublist(0, _entries.length - startEntries);
@@ -153,7 +200,7 @@ class _ScanScreenState extends State<ScanScreen> {
       _batchTotal = 0;
       _status = [
         if (_cancel) tr('Durduruldu'),
-        '$ok okundu',
+        tr('{0} okundu', [ok]),
         if (review > 0) tr('{0} kontrol bekliyor', [review]),
         if (dup > 0) tr('{0} zaten okunmuştu', [dup]),
         if (err > 0) tr('{0} okunamadı', [err]),
@@ -216,7 +263,7 @@ class _ScanScreenState extends State<ScanScreen> {
                   Chip(
                     backgroundColor: NColors.darkSurface,
                     side: BorderSide.none,
-                    label: Text('$read${total > 0 ? ' / $total' : ''} okundu',
+                    label: Text(tr('{0} okundu', ['$read${total > 0 ? ' / $total' : ''}']),
                         style: const TextStyle(color: Colors.white, fontFeatures: tabular)),
                   ),
                   const Spacer(),
@@ -267,7 +314,7 @@ class _ScanScreenState extends State<ScanScreen> {
                           const Icon(Icons.document_scanner_outlined, size: 72, color: NColors.emerald),
                           const SizedBox(height: 16),
                           Text(
-                            tr('Cevap kâğıtlarının fotoğraflarını ya da tarayıcıdan çıkan çok sayfalı PDF\'i seçin. Kâğıdın dört köşesindeki siyah kareler görünür olmalı.'),
+                            tr('Cevap kâğıtlarının fotoğraflarını ya da tarayıcıdan çıkan çok sayfalı PDF\'i seçin. PDF\'teki her sayfa bir kâğıt sayılır, hepsi tek seferde okunur. Kâğıdın dört köşesindeki siyah kareler görünür olmalı.'),
                             textAlign: TextAlign.center,
                             style: TextStyle(color: Colors.white70, height: 1.5),
                           ),
@@ -343,11 +390,14 @@ class _ScanScreenState extends State<ScanScreen> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      IconButton.outlined(
-                        tooltip: tr('Dosya veya PDF seç'),
-                        style: IconButton.styleFrom(foregroundColor: Colors.white, side: const BorderSide(color: Colors.white24)),
-                        onPressed: _busy ? null : _pickFiles,
-                        icon: const Icon(Icons.picture_as_pdf_outlined),
+                      // Tarayıcıdan çıkan çok sayfalı PDF: her sayfa bir kâğıt,
+                      // hepsi tek seferde okunur.
+                      Expanded(
+                        child: FilledButton.tonalIcon(
+                          onPressed: _busy ? null : () => _pickFiles(pdfOnly: true),
+                          icon: const Icon(Icons.picture_as_pdf_outlined),
+                          label: Text(tr('Taranmış PDF')),
+                        ),
                       ),
                     ] else
                       Expanded(
@@ -404,6 +454,17 @@ class _Job {
   } catch (_) {}
   return (r, jpeg);
 }
+
+class _RgbaJob {
+  final Uint8List rgba;
+  final int w, h;
+  final ReadSpec spec;
+  _RgbaJob(this.rgba, this.w, this.h, this.spec);
+}
+
+(OmrResult, Uint8List?) _readRgbaJob(_RgbaJob j) => _readJob(_Job(_rgbaToGray(j.rgba, j.w, j.h), j.spec));
+
+int? _pageCountJob(Uint8List bytes) => pdfPageCount(bytes);
 
 GrayImage? _decodeJob(Uint8List bytes) => GrayImage.decode(bytes);
 

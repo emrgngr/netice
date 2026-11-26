@@ -1416,5 +1416,15 @@
  "Sitemizden yeni kurulum dosyasını indirin. Verileriniz olduğu gibi kalır.": "请从我们的网站下载新的安装程序。您的数据保持不变。",
  "Sürüm {0}": "版本 {0}",
  "Uygulama yeni sürüm çıktığında size haber verir; yenilikleri bu pencerede görürsünüz.": "新版本发布时应用会提醒您，新功能将在此窗口中显示。",
- "Yeni sürüm hazır: {0}": "新版本可用：{0}"
+ "Yeni sürüm hazır: {0}": "新版本可用：{0}",
+ "Cevap kâğıtlarının fotoğraflarını ya da tarayıcıdan çıkan çok sayfalı PDF'i seçin. PDF'teki her sayfa bir kâğıt sayılır, hepsi tek seferde okunur. Kâğıdın dört köşesindeki siyah kareler görünür olmalı.": "请选择答题卡照片，或扫描仪生成的多页 PDF。PDF 中每一页算作一张答题卡，全部一次读取。答题卡四角的黑色方块必须清晰可见。",
+ "Dosyalar hazırlanıyor…": "正在准备文件…",
+ "Galeri / PDF": "相册 / PDF",
+ "PDF açılamadı: {0}": "无法打开 PDF：{0}",
+ "PDF'te okunacak sayfa bulunamadı.": "PDF 中没有找到可读取的页面。",
+ "Taranmış PDF": "扫描的 PDF",
+ "Taranmış PDF dosyalarını seçin": "选择扫描的 PDF 文件",
+ "{0} okundu": "已读取 {0}",
+ "{0} okunuyor": "正在读取 {0}",
+ "{0} · sayfa {1} / {2} okunuyor": "{0} · 正在读取第 {1} / {2} 页"
 }

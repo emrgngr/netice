@@ -1416,5 +1416,15 @@
  "Sitemizden yeni kurulum dosyasını indirin. Verileriniz olduğu gibi kalır.": "当サイトから新しいインストーラーをダウンロードしてください。データはそのまま残ります。",
  "Sürüm {0}": "バージョン {0}",
  "Uygulama yeni sürüm çıktığında size haber verir; yenilikleri bu pencerede görürsünüz.": "新しいバージョンが出るとアプリがお知らせします。新機能はこの画面で確認できます。",
- "Yeni sürüm hazır: {0}": "新しいバージョンがあります：{0}"
+ "Yeni sürüm hazır: {0}": "新しいバージョンがあります：{0}",
+ "Cevap kâğıtlarının fotoğraflarını ya da tarayıcıdan çıkan çok sayfalı PDF'i seçin. PDF'teki her sayfa bir kâğıt sayılır, hepsi tek seferde okunur. Kâğıdın dört köşesindeki siyah kareler görünür olmalı.": "解答用紙の写真、またはスキャナーで作成した複数ページの PDF を選んでください。PDF の各ページが 1 枚の用紙として、すべてまとめて読み取られます。用紙の四隅の黒い四角が写っている必要があります。",
+ "Dosyalar hazırlanıyor…": "ファイルを準備しています…",
+ "Galeri / PDF": "ギャラリー / PDF",
+ "PDF açılamadı: {0}": "PDF を開けませんでした: {0}",
+ "PDF'te okunacak sayfa bulunamadı.": "PDF に読み取れるページが見つかりませんでした。",
+ "Taranmış PDF": "スキャンした PDF",
+ "Taranmış PDF dosyalarını seçin": "スキャンした PDF ファイルを選択",
+ "{0} okundu": "{0} 枚読み取り済み",
+ "{0} okunuyor": "{0} を読み取り中",
+ "{0} · sayfa {1} / {2} okunuyor": "{0} · {1} / {2} ページを読み取り中"
 }

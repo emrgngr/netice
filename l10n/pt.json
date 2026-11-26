@@ -2422,5 +2422,15 @@
 "Sitemizden yeni kurulum dosyasını indirin. Verileriniz olduğu gibi kalır.": "Baixe o novo instalador no nosso site. Seus dados continuam como estão.",
 "Sürüm {0}": "Versão {0}",
 "Uygulama yeni sürüm çıktığında size haber verir; yenilikleri bu pencerede görürsünüz.": "Agora o app avisa quando sai uma nova versão; você verá as novidades nesta janela.",
-"Yeni sürüm hazır: {0}": "Nova versão disponível: {0}"
+"Yeni sürüm hazır: {0}": "Nova versão disponível: {0}",
+"Cevap kâğıtlarının fotoğraflarını ya da tarayıcıdan çıkan çok sayfalı PDF'i seçin. PDF'teki her sayfa bir kâğıt sayılır, hepsi tek seferde okunur. Kâğıdın dört köşesindeki siyah kareler görünür olmalı.": "Escolha fotos das folhas de respostas ou o PDF de várias páginas do seu scanner. Cada página do PDF conta como uma folha, e todas são lidas de uma só vez. Os quadrados pretos nos quatro cantos da folha devem estar visíveis.",
+"Dosyalar hazırlanıyor…": "Preparando arquivos…",
+"Galeri / PDF": "Galeria / PDF",
+"PDF açılamadı: {0}": "Não foi possível abrir o PDF: {0}",
+"PDF'te okunacak sayfa bulunamadı.": "Nenhuma página para ler foi encontrada no PDF.",
+"Taranmış PDF": "PDF digitalizado",
+"Taranmış PDF dosyalarını seçin": "Escolha os arquivos PDF digitalizados",
+"{0} okundu": "{0} lidas",
+"{0} okunuyor": "Lendo {0}",
+"{0} · sayfa {1} / {2} okunuyor": "{0} · lendo página {1} / {2}"
 }
