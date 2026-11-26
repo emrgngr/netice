@@ -348,5 +348,15 @@
  "Genel istatistik": "Estadísticas generales",
  "PDF rapor": "Informe PDF",
  "Dönem": "Trimestre",
- "Genel başarı": "Éxito general"
+ "Genel başarı": "Éxito general",
+ "Gökkuşağı, Orman, Deniz ya da Uzay. Seçtiğiniz tema cevap kartlarına, karnelere ve belgelere de geçer.": "Arcoíris, Bosque, Mar o Espacio. El tema elegido se aplica también a las tarjetas de respuesta, los boletines y los diplomas.",
+ "İsimli cevap kartlarını sınav ekranındaki \"Form yazdır\" ile basın. 1–2. sınıflar için \"Büyük kart\" seçeneği A4'e iki kart ve iri daireler basar.": "Imprime tarjetas con nombre desde «Imprimir formularios» en la pantalla del examen. Para 1.º y 2.º, la opción «Tarjeta grande» imprime dos tarjetas por A4 con círculos grandes.",
+ "Çocuk karnesi ve tebrik belgesi": "Boletín infantil y diploma",
+ "Çocuk şablonuyla hazırlanan sınavların raporları renkli ve yıldızlıdır. Kâğıtları okuttuktan sonra Analiz sekmesini açın.": "Los informes de exámenes hechos con la plantilla infantil son coloridos y con estrellas. Tras escanear las hojas, abre la pestaña Análisis.",
+ "Yıldızlar, soru soru doğru ve yanlışlar, sınıf ortalaması ve gelişim grafiği. Sıra ve T puanı gösterilmez.": "Estrellas, aciertos y errores pregunta a pregunta, media de la clase y gráfico de progreso. No se muestran el puesto ni la puntuación T.",
+ "Her öğrenciye renkli bir belge: yüksek başarıda Başarı Belgesi, diğerlerinde Gayret Belgesi.": "Un diploma de colores para cada alumno: «Diploma al logro» con buena nota y «Diploma al esfuerzo» para el resto.",
+ "Sınıf ortalaması, yıldız dağılımı, soru soru sınıf başarısı ve sınıfın gelişimi.": "Media de la clase, reparto de estrellas, aciertos de la clase por pregunta y su progreso.",
+ "Başka bir sınavda da çocuk raporlarını Sınav ayarları > Rapor görünümü bölümünden açabilirsiniz. Dönemin bütün sınavları çocuk görünümündeyse dönem karnesi de çocuk görünümünde çıkar.": "Puedes activar los informes infantiles en cualquier otro examen en Ajustes del examen > Estilo del informe. Si todos los exámenes del trimestre usan la vista infantil, el boletín trimestral también.",
+ "Renk teması": "Tema de color",
+ "Tebrik belgeleri": "Diplomas"
 }

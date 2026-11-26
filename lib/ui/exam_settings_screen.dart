@@ -32,6 +32,7 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
   late bool _booklet;
   late int _digits;
   late bool _kidReports;
+  late KidTheme _kidTheme;
 
   /// Kitapçıklar Yeni sınav'da kendi anahtarlarıyla girildi (soru sırası yok).
   bool get _ownKeys => _exam.bookletKeys.isNotEmpty;
@@ -58,6 +59,7 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
     _booklet = _exam.hasBooklets;
     _digits = _exam.numberDigits;
     _kidReports = _exam.kidStyle;
+    _kidTheme = _exam.kidTheme;
     _template = _exam.templateId;
     _open = [
       for (final q in _exam.openQuestions)
@@ -183,6 +185,7 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
       rule: ScoringRule(wrongsPerCorrect: _wpc, maxScore: max, passScore: pass),
       numberDigits: _digits,
       kidReports: _kidReports,
+      kidTheme: _kidTheme,
     ));
     toast(context, tr('Kaydedildi; tüm puanlar yeniden hesaplandı.'));
     Navigator.pop(context);
@@ -368,13 +371,28 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
               SectionTitle(tr('Rapor görünümü')),
               Card(
                 clipBehavior: Clip.antiAlias,
-                child: SwitchListTile(
+                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                SwitchListTile(
                   value: _kidReports,
                   // Köşe kutulu çocuk formunda raporlar hep çocuk görünümündedir.
                   onChanged: _exam.kidForm ? null : (v) => setState(() => _kidReports = v),
                   title: Text(tr('Çocuk dostu raporlar (ilkokul)'), style: const TextStyle(fontWeight: FontWeight.w700)),
                   subtitle: Text(tr('Karne ve sınıf raporu renkli, yıldızlı ve sade olur; sıra ve T puanı gösterilmez. Gelişim grafiği ve sınıf ortalaması yer alır.')),
                 ),
+                if (_kidReports)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+                    child: Wrap(spacing: 8, runSpacing: 8, children: [
+                      for (final th in KidTheme.values)
+                        ChoiceChip(
+                          avatar: CircleAvatar(backgroundColor: Color(th.accent), radius: 7),
+                          label: Text(th.label),
+                          selected: _kidTheme == th,
+                          onSelected: (_) => setState(() => _kidTheme = th),
+                        ),
+                    ]),
+                  ),
+                ]),
               ),
               SectionTitle(tr('Kitapçık türü')),
               Card(

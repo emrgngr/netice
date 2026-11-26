@@ -348,5 +348,15 @@
  "Genel istatistik": "Ümumi statistika",
  "PDF rapor": "PDF hesabat",
  "Dönem": "Yarımil",
- "Genel başarı": "Ümumi uğur"
+ "Genel başarı": "Ümumi uğur",
+ "Gökkuşağı, Orman, Deniz ya da Uzay. Seçtiğiniz tema cevap kartlarına, karnelere ve belgelere de geçer.": "Göy qurşağı, Meşə, Dəniz və ya Kosmos. Seçdiyiniz mövzu cavab kartlarına, qiymət kartlarına və sertifikatlara da keçir.",
+ "İsimli cevap kartlarını sınav ekranındaki \"Form yazdır\" ile basın. 1–2. sınıflar için \"Büyük kart\" seçeneği A4'e iki kart ve iri daireler basar.": "Adlı cavab kartlarını imtahan ekranındakı \"Forma çap et\" ilə çap edin. 1–2-ci siniflər üçün \"Böyük kart\" seçimi A4-ə iki kart və iri dairələr çap edir.",
+ "Çocuk karnesi ve tebrik belgesi": "Uşaq qiymət kartı və təbrik sertifikatı",
+ "Çocuk şablonuyla hazırlanan sınavların raporları renkli ve yıldızlıdır. Kâğıtları okuttuktan sonra Analiz sekmesini açın.": "Uşaq şablonu ilə hazırlanan imtahanların hesabatları rəngli və ulduzludur. Vərəqləri oxutduqdan sonra Analiz bölməsini açın.",
+ "Yıldızlar, soru soru doğru ve yanlışlar, sınıf ortalaması ve gelişim grafiği. Sıra ve T puanı gösterilmez.": "Ulduzlar, sual-sual düz və səhvlər, sinif ortalaması və inkişaf qrafiki. Sıra və T balı göstərilmir.",
+ "Her öğrenciye renkli bir belge: yüksek başarıda Başarı Belgesi, diğerlerinde Gayret Belgesi.": "Hər şagirdə rəngli sertifikat: yüksək nəticədə Uğur Sertifikatı, digərlərində Səy Sertifikatı.",
+ "Sınıf ortalaması, yıldız dağılımı, soru soru sınıf başarısı ve sınıfın gelişimi.": "Sinif ortalaması, ulduz bölgüsü, sual-sual sinif uğuru və sinfin inkişafı.",
+ "Başka bir sınavda da çocuk raporlarını Sınav ayarları > Rapor görünümü bölümünden açabilirsiniz. Dönemin bütün sınavları çocuk görünümündeyse dönem karnesi de çocuk görünümünde çıkar.": "Başqa imtahanda da uşaq hesabatlarını İmtahan ayarları > Hesabat görünüşü bölməsindən aça bilərsiniz. Yarımilin bütün imtahanları uşaq görünüşündədirsə, yarımil qiymət kartı da elə çıxır.",
+ "Renk teması": "Rəng mövzusu",
+ "Tebrik belgeleri": "Təbrik sertifikatları"
 }

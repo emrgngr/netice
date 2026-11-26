@@ -346,5 +346,15 @@
  "Genel istatistik": "Estatísticas gerais",
  "PDF rapor": "Relatório em PDF",
  "Dönem": "Período",
- "Genel başarı": "Desempenho geral"
+ "Genel başarı": "Desempenho geral",
+ "Gökkuşağı, Orman, Deniz ya da Uzay. Seçtiğiniz tema cevap kartlarına, karnelere ve belgelere de geçer.": "Arco-íris, Floresta, Oceano ou Espaço. O tema escolhido também vale para cartões de resposta, boletins e certificados.",
+ "İsimli cevap kartlarını sınav ekranındaki \"Form yazdır\" ile basın. 1–2. sınıflar için \"Büyük kart\" seçeneği A4'e iki kart ve iri daireler basar.": "Imprima os cartões com nome em \"Imprimir formulários\" na tela da prova. Para 1º e 2º anos, a opção \"Cartão grande\" imprime dois cartões por A4 com bolhas grandes.",
+ "Çocuk karnesi ve tebrik belgesi": "Boletim infantil e certificado",
+ "Çocuk şablonuyla hazırlanan sınavların raporları renkli ve yıldızlıdır. Kâğıtları okuttuktan sonra Analiz sekmesini açın.": "Os relatórios das provas feitas com o modelo infantil são coloridos e com estrelas. Depois de ler as folhas, abra a aba Análise.",
+ "Yıldızlar, soru soru doğru ve yanlışlar, sınıf ortalaması ve gelişim grafiği. Sıra ve T puanı gösterilmez.": "Estrelas, acertos e erros questão por questão, média da turma e gráfico de progresso. Posição e nota T não aparecem.",
+ "Her öğrenciye renkli bir belge: yüksek başarıda Başarı Belgesi, diğerlerinde Gayret Belgesi.": "Um certificado colorido para cada aluno: \"Certificado de Conquista\" para notas altas e \"Certificado de Esforço\" para os demais.",
+ "Sınıf ortalaması, yıldız dağılımı, soru soru sınıf başarısı ve sınıfın gelişimi.": "Média da turma, distribuição de estrelas, acertos da turma por questão e o progresso da turma.",
+ "Başka bir sınavda da çocuk raporlarını Sınav ayarları > Rapor görünümü bölümünden açabilirsiniz. Dönemin bütün sınavları çocuk görünümündeyse dönem karnesi de çocuk görünümünde çıkar.": "Você pode ativar os relatórios infantis em qualquer outra prova em Configurações da prova > Estilo do relatório. Se todas as provas do período usam a visão infantil, o boletim do período também.",
+ "Renk teması": "Tema de cores",
+ "Tebrik belgeleri": "Certificados"
 }

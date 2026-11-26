@@ -430,12 +430,25 @@ void main() {
         }, then: () => scrollTo(find.text(tr('Çocuklar için (ilkokul)')).first, center: 150));
     await scene('38_cocuk', BookletWizardScreen(booklet: bank.bookletById('k1')), () => {
           'sablon': text(tr('Çocuk / İlkokul')),
+          'tema': text(tr('Renk teması')),
           'aciklama': find.textContaining(tr('Cevaplar ilk sayfanın köşesindeki küçük kutudan telefonla okunur. İsimli cevap kartlarını sınav ekranındaki "Form yazdır" ile basabilirsiniz.').split(' ').take(4).join(' ')).first,
         }, then: () async {
           await tester.tap(find.text(tr('İleri')).last);
           await settle();
           await tester.tap(find.text(tr('Çocuk / İlkokul')).last);
+          await settle();
+          await tester.tap(find.text(KidTheme.space.label).last);
         });
+    // Çocuk raporları: örnek sınav bu sahne için çocuk görünümüne alınır.
+    final demoAt = store.exams.indexWhere((e) => e.id == 'demo_exam');
+    final demo = store.exams[demoAt];
+    store.exams[demoAt] = demo.copyWith(kidReports: true, kidTheme: KidTheme.space);
+    await scene('39_cocuk_rapor', const ExamScreen(examId: 'demo_exam'), () => {
+          'karne': find.text(tr('Öğrenci karnesi')).first,
+          'belge': find.text(tr('Tebrik belgeleri')).first,
+          'rapor': find.text(tr('Sınav raporu')).first,
+        }, then: () async => tester.tap(find.descendant(of: find.byType(TabBar), matching: find.text(tr('Analiz')))));
+    store.exams[demoAt] = demo;
 
     // 8. Silme
     await scene('18_sec_sil', const HomeScreen(), () => {

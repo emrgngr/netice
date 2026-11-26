@@ -348,5 +348,15 @@
  "Genel istatistik": "Общая статистика",
  "PDF rapor": "PDF-отчёт",
  "Dönem": "Полугодие",
- "Genel başarı": "Общая успеваемость"
+ "Genel başarı": "Общая успеваемость",
+ "Gökkuşağı, Orman, Deniz ya da Uzay. Seçtiğiniz tema cevap kartlarına, karnelere ve belgelere de geçer.": "Радуга, Лес, Море или Космос. Выбранная тема переходит и на карточки ответов, табели и грамоты.",
+ "İsimli cevap kartlarını sınav ekranındaki \"Form yazdır\" ile basın. 1–2. sınıflar için \"Büyük kart\" seçeneği A4'e iki kart ve iri daireler basar.": "Печатайте именные карточки через «Печать бланков» на экране работы. Для 1–2 классов вариант «Большая карточка» печатает две карточки на лист A4 с крупными кружками.",
+ "Çocuk karnesi ve tebrik belgesi": "Детский табель и грамота",
+ "Çocuk şablonuyla hazırlanan sınavların raporları renkli ve yıldızlıdır. Kâğıtları okuttuktan sonra Analiz sekmesini açın.": "Отчёты по работам с детским шаблоном яркие и со звёздами. После сканирования откройте вкладку «Анализ».",
+ "Yıldızlar, soru soru doğru ve yanlışlar, sınıf ortalaması ve gelişim grafiği. Sıra ve T puanı gösterilmez.": "Звёзды, верные и неверные ответы по вопросам, средний балл класса и график роста. Место и T-балл не показываются.",
+ "Her öğrenciye renkli bir belge: yüksek başarıda Başarı Belgesi, diğerlerinde Gayret Belgesi.": "Яркая грамота каждому ученику: «Грамота за успехи» при высоком результате, «Грамота за старание» — остальным.",
+ "Sınıf ortalaması, yıldız dağılımı, soru soru sınıf başarısı ve sınıfın gelişimi.": "Средний балл класса, распределение звёзд, успех класса по вопросам и рост класса.",
+ "Başka bir sınavda da çocuk raporlarını Sınav ayarları > Rapor görünümü bölümünden açabilirsiniz. Dönemin bütün sınavları çocuk görünümündeyse dönem karnesi de çocuk görünümünde çıkar.": "Для любой другой работы детские отчёты включаются в Настройках работы > Вид отчёта. Если все работы четверти в детском виде, табель за четверть тоже будет детским.",
+ "Renk teması": "Цветовая тема",
+ "Tebrik belgeleri": "Грамоты"
 }

@@ -166,6 +166,42 @@ class OpenQuestion {
       label: j['label'] as String? ?? '', maxPoints: (j['maxPoints'] as num).toDouble(), bankId: j['bankId'] as String?);
 }
 
+/// Çocuk şablonunun renk teması (kitapçık, cevap kartları, karne, raporlar).
+/// Renkler 0xAARRGGBB; ekran ve PDF aynı değerleri kullanır.
+enum KidTheme {
+  rainbow([0xFFFFE7A8, 0xFFFFD1DC, 0xFFCDEAFE], 0xFFE0567A, 0xFFF5F9FF,
+      [0xFFFF8A5B, 0xFF4CB6E8, 0xFF7CC25A, 0xFFB38AE6, 0xFFF6B632, 0xFFEF6F9A]),
+  forest([0xFFE3F4C8, 0xFFC9EBD6, 0xFFFFF0C2], 0xFF2F8F4E, 0xFFF4FAF1,
+      [0xFF7CC25A, 0xFF3FA66B, 0xFFF6B632, 0xFF9BC53D, 0xFFE8894A, 0xFF4CB6A0]),
+  ocean([0xFFCDEFFB, 0xFFBFE3F5, 0xFFD7F2EC], 0xFF1E7FB8, 0xFFF1F8FD,
+      [0xFF2E9BD6, 0xFF26B5A8, 0xFF5C7FE0, 0xFFF28B66, 0xFF3CC0E8, 0xFF7A9CF0]),
+  space([0xFFDCD3FA, 0xFFCFDBFF, 0xFFFBD8EE], 0xFF7A4FD0, 0xFFF6F3FE,
+      [0xFF8E6CEF, 0xFF5B8DEF, 0xFFEF6FB4, 0xFFF6B632, 0xFF4CB6E8, 0xFFB38AE6]);
+
+  const KidTheme(this.gradient, this.accent, this.soft, this.badges);
+
+  /// Başlık bandının üç rengi (soldan sağa).
+  final List<int> gradient;
+
+  /// Vurgu rengi (soru sayısı, puan, övgü).
+  final int accent;
+
+  /// Bölüm kutularının zemini.
+  final int soft;
+
+  /// Soru numarası rozetleri ve grafik çubukları.
+  final List<int> badges;
+
+  String get label => switch (this) {
+        KidTheme.rainbow => tr('Gökkuşağı'),
+        KidTheme.forest => tr('Orman'),
+        KidTheme.ocean => tr('Deniz'),
+        KidTheme.space => tr('Uzay'),
+      };
+
+  static KidTheme byName(Object? name) => KidTheme.values.asNameMap()[name] ?? KidTheme.rainbow;
+}
+
 class Exam {
   final String id;
   final String name;
@@ -221,6 +257,9 @@ class Exam {
   /// Çocuk görünümlü raporlar kullanılsın mı?
   bool get kidStyle => kidForm || kidReports;
 
+  /// Çocuk görünümünün renk teması.
+  final KidTheme kidTheme;
+
   const Exam({
     required this.id,
     required this.name,
@@ -238,6 +277,7 @@ class Exam {
     this.numberDigits = 10,
     this.kidForm = false,
     this.kidReports = false,
+    this.kidTheme = KidTheme.rainbow,
   });
 
   bool get isCommon => commonId != null;
@@ -393,6 +433,7 @@ class Exam {
     int? numberDigits,
     bool? kidForm,
     bool? kidReports,
+    KidTheme? kidTheme,
   }) =>
       Exam(
         id: id ?? this.id,
@@ -411,6 +452,7 @@ class Exam {
         numberDigits: numberDigits ?? this.numberDigits,
         kidForm: kidForm ?? this.kidForm,
         kidReports: kidReports ?? this.kidReports,
+        kidTheme: kidTheme ?? this.kidTheme,
       );
 
   Map<String, dynamic> toJson() => {
@@ -434,6 +476,7 @@ class Exam {
         'numberDigits': numberDigits,
         if (kidForm) 'kidForm': true,
         if (kidReports) 'kidReports': true,
+        if (kidTheme != KidTheme.rainbow) 'kidTheme': kidTheme.name,
         if (openQuestions.isNotEmpty) 'openQuestions': openQuestions.map((q) => q.toJson()).toList(),
       };
 
@@ -464,6 +507,7 @@ class Exam {
         numberDigits: j['numberDigits'] == 10 ? 10 : 6,
         kidForm: j['kidForm'] == true,
         kidReports: j['kidReports'] == true,
+        kidTheme: KidTheme.byName(j['kidTheme']),
         openQuestions: [
           for (final e in (j['openQuestions'] as List?) ?? const []) OpenQuestion.fromJson(e as Map<String, dynamic>)
         ],

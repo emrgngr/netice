@@ -348,5 +348,15 @@
  "Genel istatistik": "全体統計",
  "PDF rapor": "PDF レポート",
  "Dönem": "学期",
- "Genel başarı": "全体の達成度"
+ "Genel başarı": "全体の達成度",
+ "Gökkuşağı, Orman, Deniz ya da Uzay. Seçtiğiniz tema cevap kartlarına, karnelere ve belgelere de geçer.": "にじ・森・海・宇宙から選べます。選んだテーマは解答カード、通知表、賞状にも使われます。",
+ "İsimli cevap kartlarını sınav ekranındaki \"Form yazdır\" ile basın. 1–2. sınıflar için \"Büyük kart\" seçeneği A4'e iki kart ve iri daireler basar.": "名前入りの解答カードはテスト画面の「用紙を印刷」で印刷します。1・2年生向けの「大きいカード」はA4に2枚、大きな丸で印刷します。",
+ "Çocuk karnesi ve tebrik belgesi": "子ども向け通知表と賞状",
+ "Çocuk şablonuyla hazırlanan sınavların raporları renkli ve yıldızlıdır. Kâğıtları okuttuktan sonra Analiz sekmesini açın.": "子ども向けテンプレートで作ったテストの報告はカラフルで星を使います。読み取り後に「分析」タブを開きます。",
+ "Yıldızlar, soru soru doğru ve yanlışlar, sınıf ortalaması ve gelişim grafiği. Sıra ve T puanı gösterilmez.": "星、問題ごとの正解と不正解、クラス平均、成長グラフ。順位とT得点は表示されません。",
+ "Her öğrenciye renkli bir belge: yüksek başarıda Başarı Belgesi, diğerlerinde Gayret Belgesi.": "すべての児童にカラフルな賞状：成績が高ければ「優秀」、それ以外は「努力賞」。",
+ "Sınıf ortalaması, yıldız dağılımı, soru soru sınıf başarısı ve sınıfın gelişimi.": "クラス平均、星の分布、問題ごとのクラスの正答率、クラスの成長。",
+ "Başka bir sınavda da çocuk raporlarını Sınav ayarları > Rapor görünümü bölümünden açabilirsiniz. Dönemin bütün sınavları çocuk görünümündeyse dönem karnesi de çocuk görünümünde çıkar.": "ほかのテストでも「テストの設定 > 報告書のスタイル」で子ども向け報告をオンにできます。学期のテストがすべて子ども向けなら、学期の通知表も子ども向けになります。",
+ "Renk teması": "カラーテーマ",
+ "Tebrik belgeleri": "賞状"
 }

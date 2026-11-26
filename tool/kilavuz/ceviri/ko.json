@@ -346,5 +346,15 @@
  "Genel istatistik": "전체 통계",
  "PDF rapor": "PDF 보고서",
  "Dönem": "학기",
- "Genel başarı": "전체 성취도"
+ "Genel başarı": "전체 성취도",
+ "Gökkuşağı, Orman, Deniz ya da Uzay. Seçtiğiniz tema cevap kartlarına, karnelere ve belgelere de geçer.": "무지개, 숲, 바다, 우주 중에서 고르세요. 선택한 테마는 답안 카드, 성적표, 상장에도 적용됩니다.",
+ "İsimli cevap kartlarını sınav ekranındaki \"Form yazdır\" ile basın. 1–2. sınıflar için \"Büyük kart\" seçeneği A4'e iki kart ve iri daireler basar.": "시험 화면의 \"양식 인쇄\"로 이름이 들어간 답안 카드를 인쇄하세요. 1–2학년용 \"큰 카드\"는 A4에 큰 동그라미 카드 2장을 인쇄합니다.",
+ "Çocuk karnesi ve tebrik belgesi": "어린이 성적표와 상장",
+ "Çocuk şablonuyla hazırlanan sınavların raporları renkli ve yıldızlıdır. Kâğıtları okuttuktan sonra Analiz sekmesini açın.": "어린이 템플릿으로 만든 시험의 보고서는 알록달록하고 별을 사용합니다. 답안지를 읽힌 뒤 분석 탭을 여세요.",
+ "Yıldızlar, soru soru doğru ve yanlışlar, sınıf ortalaması ve gelişim grafiği. Sıra ve T puanı gösterilmez.": "별, 문제별 정답과 오답, 학급 평균과 성장 그래프. 순위와 T 점수는 표시되지 않습니다.",
+ "Her öğrenciye renkli bir belge: yüksek başarıda Başarı Belgesi, diğerlerinde Gayret Belgesi.": "모든 학생에게 알록달록한 상장: 성적이 높으면 우수상, 나머지는 노력상.",
+ "Sınıf ortalaması, yıldız dağılımı, soru soru sınıf başarısı ve sınıfın gelişimi.": "학급 평균, 별 분포, 문제별 학급 정답률과 학급의 성장.",
+ "Başka bir sınavda da çocuk raporlarını Sınav ayarları > Rapor görünümü bölümünden açabilirsiniz. Dönemin bütün sınavları çocuk görünümündeyse dönem karnesi de çocuk görünümünde çıkar.": "다른 시험에서도 시험 설정 > 보고서 모양에서 어린이 보고서를 켤 수 있습니다. 학기의 모든 시험이 어린이 보기이면 학기 성적표도 어린이 보기로 나옵니다.",
+ "Renk teması": "색 테마",
+ "Tebrik belgeleri": "상장"
 }

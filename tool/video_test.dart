@@ -350,12 +350,23 @@ void main() {
     await scene('k_yz_soru', AiQuestionsScreen(noteId: 'n3', initialDrafts: drafts),
         () => [text(tr('Çocuklar için (ilkokul)')), find.byType(FilledButton).first, text(tr('Öneriler'))],
         then: () => reveal(text(tr('Çocuklar için (ilkokul)')), dy: -200));
-    await scene('k_cocuk', BookletWizardScreen(booklet: bank.bookletById('k1')), () => [text(tr('Çocuk / İlkokul'))],
-        then: () async {
+    await scene('k_cocuk', BookletWizardScreen(booklet: bank.bookletById('k1')),
+        () => [text(tr('Çocuk / İlkokul')), text(tr('Renk teması'))], then: () async {
       await tester.tap(find.text(tr('İleri')).last);
       await settle();
       await tester.tap(find.text(tr('Çocuk / İlkokul')).last);
+      await settle();
+      await tester.tap(find.text(KidTheme.space.label).last);
     });
+    // Çocuk raporları: örnek sınav bu sahne için çocuk görünümüne alınır
+    // (kaydedilmeden; liste doğrudan değiştirilir).
+    final demoAt = store.exams.indexWhere((e) => e.id == 'demo_exam');
+    final demo = store.exams[demoAt];
+    store.exams[demoAt] = demo.copyWith(kidReports: true, kidTheme: KidTheme.space);
+    await scene('k_cocuk_rapor', const ExamScreen(examId: 'demo_exam'),
+        () => [text(tr('Öğrenci karnesi')), text(tr('Tebrik belgeleri'))],
+        then: () => tester.tap(find.descendant(of: find.byType(TabBar), matching: find.text(tr('Analiz')))));
+    store.exams[demoAt] = demo;
     // Sınıf sınıf analiz ve genel istatistik (bölüm videosu "report").
     await scene('k_sinif_analiz', const CompareScreen(),
         () => [find.byType(FilterChip), text(tr('Öne çıkanlar')), tip(tr('PDF rapor'))],

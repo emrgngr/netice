@@ -348,5 +348,15 @@
  "Genel istatistik": "总体统计",
  "PDF rapor": "PDF 报告",
  "Dönem": "学期",
- "Genel başarı": "总体成绩"
+ "Genel başarı": "总体成绩",
+ "Gökkuşağı, Orman, Deniz ya da Uzay. Seçtiğiniz tema cevap kartlarına, karnelere ve belgelere de geçer.": "彩虹、森林、海洋或太空。所选主题也会用于答题卡、成绩单和奖状。",
+ "İsimli cevap kartlarını sınav ekranındaki \"Form yazdır\" ile basın. 1–2. sınıflar için \"Büyük kart\" seçeneği A4'e iki kart ve iri daireler basar.": "在考试页面用\"打印答题卡\"打印带姓名的答题卡。一、二年级可选\"大卡片\"，每张 A4 打印两张、圆圈更大。",
+ "Çocuk karnesi ve tebrik belgesi": "儿童成绩单和奖状",
+ "Çocuk şablonuyla hazırlanan sınavların raporları renkli ve yıldızlıdır. Kâğıtları okuttuktan sonra Analiz sekmesini açın.": "用儿童模板制作的考试报告色彩丰富并使用星星。扫描答题卡后打开\"分析\"标签。",
+ "Yıldızlar, soru soru doğru ve yanlışlar, sınıf ortalaması ve gelişim grafiği. Sıra ve T puanı gösterilmez.": "星星、逐题对错、班级平均分和进步图。不显示排名和 T 分数。",
+ "Her öğrenciye renkli bir belge: yüksek başarıda Başarı Belgesi, diğerlerinde Gayret Belgesi.": "每位学生一张彩色奖状：成绩高的获\"优秀奖状\"，其他获\"努力奖状\"。",
+ "Sınıf ortalaması, yıldız dağılımı, soru soru sınıf başarısı ve sınıfın gelişimi.": "班级平均分、星星分布、逐题班级正确率和班级的进步。",
+ "Başka bir sınavda da çocuk raporlarını Sınav ayarları > Rapor görünümü bölümünden açabilirsiniz. Dönemin bütün sınavları çocuk görünümündeyse dönem karnesi de çocuk görünümünde çıkar.": "其他考试也可在\"考试设置 > 报告样式\"中开启儿童报告。如果本学期所有考试都是儿童样式，学期成绩单也会是儿童样式。",
+ "Renk teması": "颜色主题",
+ "Tebrik belgeleri": "奖状"
 }

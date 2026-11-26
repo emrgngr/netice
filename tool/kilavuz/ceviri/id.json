@@ -346,5 +346,15 @@
  "Genel istatistik": "Statistik umum",
  "PDF rapor": "Laporan PDF",
  "Dönem": "Semester",
- "Genel başarı": "Keberhasilan umum"
+ "Genel başarı": "Keberhasilan umum",
+ "Gökkuşağı, Orman, Deniz ya da Uzay. Seçtiğiniz tema cevap kartlarına, karnelere ve belgelere de geçer.": "Pelangi, Hutan, Laut, atau Luar angkasa. Tema yang dipilih juga dipakai pada kartu jawaban, rapor, dan piagam.",
+ "İsimli cevap kartlarını sınav ekranındaki \"Form yazdır\" ile basın. 1–2. sınıflar için \"Büyük kart\" seçeneği A4'e iki kart ve iri daireler basar.": "Cetak kartu jawaban bernama lewat \"Cetak formulir\" di layar ujian. Untuk kelas 1–2, opsi \"Kartu besar\" mencetak dua kartu per A4 dengan lingkaran besar.",
+ "Çocuk karnesi ve tebrik belgesi": "Rapor anak dan piagam",
+ "Çocuk şablonuyla hazırlanan sınavların raporları renkli ve yıldızlıdır. Kâğıtları okuttuktan sonra Analiz sekmesini açın.": "Laporan ujian yang dibuat dengan templat anak berwarna dan memakai bintang. Setelah memindai lembar, buka tab Analisis.",
+ "Yıldızlar, soru soru doğru ve yanlışlar, sınıf ortalaması ve gelişim grafiği. Sıra ve T puanı gösterilmez.": "Bintang, jawaban benar dan salah per soal, rata-rata kelas, dan grafik perkembangan. Peringkat dan nilai T tidak ditampilkan.",
+ "Her öğrenciye renkli bir belge: yüksek başarıda Başarı Belgesi, diğerlerinde Gayret Belgesi.": "Piagam berwarna untuk setiap siswa: Piagam Prestasi untuk nilai tinggi, Piagam Usaha untuk lainnya.",
+ "Sınıf ortalaması, yıldız dağılımı, soru soru sınıf başarısı ve sınıfın gelişimi.": "Rata-rata kelas, sebaran bintang, keberhasilan kelas per soal, dan perkembangan kelas.",
+ "Başka bir sınavda da çocuk raporlarını Sınav ayarları > Rapor görünümü bölümünden açabilirsiniz. Dönemin bütün sınavları çocuk görünümündeyse dönem karnesi de çocuk görünümünde çıkar.": "Laporan anak juga bisa diaktifkan untuk ujian lain di Pengaturan ujian > Gaya laporan. Jika semua ujian semester memakai tampilan anak, rapor semester juga begitu.",
+ "Renk teması": "Tema warna",
+ "Tebrik belgeleri": "Piagam"
 }

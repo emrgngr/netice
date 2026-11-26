@@ -348,5 +348,15 @@
  "Genel istatistik": "Statistiche generali",
  "PDF rapor": "Report PDF",
  "Dönem": "Periodo",
- "Genel başarı": "Successo complessivo"
+ "Genel başarı": "Successo complessivo",
+ "Gökkuşağı, Orman, Deniz ya da Uzay. Seçtiğiniz tema cevap kartlarına, karnelere ve belgelere de geçer.": "Arcobaleno, Foresta, Mare o Spazio. Il tema scelto vale anche per schede risposte, pagelle e attestati.",
+ "İsimli cevap kartlarını sınav ekranındaki \"Form yazdır\" ile basın. 1–2. sınıflar için \"Büyük kart\" seçeneği A4'e iki kart ve iri daireler basar.": "Stampa le schede con nome da \"Stampa moduli\" nella schermata della verifica. Per la 1ª e 2ª, l'opzione \"Scheda grande\" stampa due schede per A4 con cerchi grandi.",
+ "Çocuk karnesi ve tebrik belgesi": "Pagella per bambini e attestato",
+ "Çocuk şablonuyla hazırlanan sınavların raporları renkli ve yıldızlıdır. Kâğıtları okuttuktan sonra Analiz sekmesini açın.": "I rapporti delle verifiche fatte con il modello per bambini sono colorati e con le stelle. Dopo la scansione apri la scheda Analisi.",
+ "Yıldızlar, soru soru doğru ve yanlışlar, sınıf ortalaması ve gelişim grafiği. Sıra ve T puanı gösterilmez.": "Stelle, risposte giuste e sbagliate domanda per domanda, media della classe e grafico dei progressi. Posizione e punteggio T non compaiono.",
+ "Her öğrenciye renkli bir belge: yüksek başarıda Başarı Belgesi, diğerlerinde Gayret Belgesi.": "Un attestato colorato per ogni alunno: \"Attestato di merito\" con risultati alti, \"Attestato di impegno\" per gli altri.",
+ "Sınıf ortalaması, yıldız dağılımı, soru soru sınıf başarısı ve sınıfın gelişimi.": "Media della classe, distribuzione delle stelle, successo della classe per domanda e progressi della classe.",
+ "Başka bir sınavda da çocuk raporlarını Sınav ayarları > Rapor görünümü bölümünden açabilirsiniz. Dönemin bütün sınavları çocuk görünümündeyse dönem karnesi de çocuk görünümünde çıkar.": "Puoi attivare i rapporti per bambini in qualsiasi altra verifica da Impostazioni verifica > Stile del rapporto. Se tutte le verifiche del periodo usano la vista per bambini, anche la pagella del periodo.",
+ "Renk teması": "Tema colori",
+ "Tebrik belgeleri": "Attestati"
 }

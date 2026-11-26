@@ -3,6 +3,8 @@ import 'package:netice/core/models.dart';
 import 'package:netice/core/progress.dart';
 import 'package:netice/core/report.dart';
 import 'package:netice/core/scoring.dart';
+import 'package:netice/core/term.dart';
+import 'package:netice/reports/kid_pdf.dart';
 import 'package:netice/l10n/l10n.dart';
 import 'package:netice/reports/kid_reports_pdf.dart';
 import 'package:netice/reports/pdf_documents.dart';
@@ -67,4 +69,27 @@ void main() {
       }
     });
   }
+
+  test('tema, büyük kart, tebrik belgesi ve dönem karnesi', () async {
+    final e = exam().copyWith(kidTheme: KidTheme.forest, kidForm: true);
+    expect(Exam.fromJson(e.toJson()).kidTheme, KidTheme.forest);
+    expect(Exam.fromJson(exam().toJson()).kidTheme, KidTheme.rainbow);
+    final res = results(e);
+    final cards = await buildFormsPdf(e, students.values.take(3).toList(), bigCards: true);
+    expect(String.fromCharCodes(cards.take(5)), '%PDF-');
+    expect(activeKidTheme, KidTheme.forest);
+    final cert = await buildKidCertificatesPdf(exam: e, results: res, students: students);
+    expect(String.fromCharCodes(cert.take(5)), '%PDF-');
+    final rep = ExamReport.build(e, res);
+    final term = TermReport(
+      '3-A',
+      Term.around(DateTime(2026, 11, 24)).first,
+      [TermExam(e, rep, 1)],
+      [
+        for (final st in rep.standings) TermRow(students[st.result.sheet.studentId]!, [st.pct], st.pct, const {'Bitkiler': (0.8, 0.6)}),
+      ],
+    );
+    final termPdf = await buildTermCardsPdf(term);
+    expect(String.fromCharCodes(termPdf).contains('Andika'), isTrue, reason: 'çocuk dönem karnesi');
+  });
 }

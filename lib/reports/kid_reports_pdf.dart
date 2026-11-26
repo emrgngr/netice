@@ -12,6 +12,7 @@ import '../core/models.dart';
 import '../core/progress.dart';
 import '../core/report.dart';
 import '../core/scoring.dart';
+import '../core/term.dart';
 import '../l10n/l10n.dart';
 import 'brand_footer.dart';
 import 'kid_pdf.dart';
@@ -160,7 +161,7 @@ class _KidKit {
       pw.Container(
         padding: const pw.EdgeInsets.symmetric(horizontal: 12, vertical: 9),
         decoration: pw.BoxDecoration(
-          gradient: const pw.LinearGradient(colors: [kidYellow, kidPink, kidBlue]),
+          gradient: pw.LinearGradient(colors: [kidYellow, kidPink, kidBlue]),
           borderRadius: pw.BorderRadius.circular(16),
         ),
         child: pw.Row(
@@ -377,6 +378,7 @@ Future<Uint8List> buildKidStudentCardsPdf({
   Map<String, List<(String, double, List<String>)>> studyTopics = const {},
   Map<String, List<HistoryEntry>> history = const {},
 }) async {
+  useKidTheme(exam.kidTheme);
   final baseTheme = await pdfTheme(school.fontFamily);
   final theme = await kidPdfTheme(school.fontFamily);
   await BrandAssets.load();
@@ -656,6 +658,7 @@ Future<Uint8List> buildKidResultsPdf({
   SchoolInfo school = const SchoolInfo(),
   List<(String, double)> classHistory = const [],
 }) async {
+  useKidTheme(exam.kidTheme);
   final baseTheme = await pdfTheme(school.fontFamily);
   final theme = await kidPdfTheme(school.fontFamily);
   await BrandAssets.load();
@@ -896,5 +899,362 @@ Future<Uint8List> buildKidResultsPdf({
       ],
     ),
   );
+  return doc.save();
+}
+
+/// Renkli, kesik çizgili çerçeve (belge kenarı) ve köşelerde yıldızlar.
+pw.Widget _certFrame(pw.Widget child) => pw.Container(
+  padding: const pw.EdgeInsets.all(10),
+  decoration: pw.BoxDecoration(
+    gradient: pw.LinearGradient(colors: [kidYellow, kidPink, kidBlue], begin: pw.Alignment.topLeft, end: pw.Alignment.bottomRight),
+    borderRadius: pw.BorderRadius.circular(22),
+  ),
+  child: pw.Stack(
+    children: [
+      pw.Container(
+        padding: const pw.EdgeInsets.fromLTRB(40, 26, 40, 20),
+        decoration: pw.BoxDecoration(
+          color: PdfColors.white,
+          borderRadius: pw.BorderRadius.circular(16),
+          border: pw.Border.all(color: kidRose, width: 1.6, style: pw.BorderStyle.dashed),
+        ),
+        child: child,
+      ),
+      pw.Positioned(left: 10, top: 10, child: kidStar(30)),
+      pw.Positioned(right: 10, top: 10, child: kidStar(30)),
+      pw.Positioned(left: 10, bottom: 10, child: kidStar(22)),
+      pw.Positioned(right: 10, bottom: 10, child: kidStar(22)),
+    ],
+  ),
+);
+
+/// Tebrik belgeleri: her öğrenciye yatay A4 renkli bir belge. Yüksek
+/// başarıda "Başarı Belgesi", diğerlerinde "Gayret Belgesi" yazar; her çocuk
+/// emeği için kutlanır. [minStars] verilirse yalnız o kadar yıldızı olanlar.
+Future<Uint8List> buildKidCertificatesPdf({
+  required Exam exam,
+  required List<Result> results,
+  required Map<String, Student> students,
+  SchoolInfo school = const SchoolInfo(),
+  String? onlyStudentId,
+  int minStars = 1,
+}) async {
+  useKidTheme(exam.kidTheme);
+  final baseTheme = await pdfTheme(school.fontFamily);
+  final theme = await kidPdfTheme(school.fontFamily);
+  await BrandAssets.load();
+  final r = ExamReport.build(exam, results);
+  final doc = pw.Document(theme: theme, title: tr('{0} tebrik belgeleri', [exam.name]), author: tr('Netice'));
+  final teacher = school.teacher.trim();
+  final list = [
+    for (final st in r.standings)
+      if ((onlyStudentId == null || st.result.sheet.studentId == onlyStudentId) && kidStars(st.pct) >= minStars) st,
+  ]..sort((a, b) => (students[a.result.sheet.studentId]?.fullName ?? '').compareTo(students[b.result.sheet.studentId]?.fullName ?? ''));
+
+  for (final st in list) {
+    final stu = students[st.result.sheet.studentId];
+    final stars = kidStars(st.pct);
+    final success = stars >= 4;
+    doc.addPage(
+      pw.Page(
+        textDirection: _dir,
+        pageFormat: PdfPageFormat.a4.landscape,
+        margin: const pw.EdgeInsets.all(26),
+        build: (ctx) => pw.Column(
+          children: [
+            pw.Expanded(
+              child: _certFrame(
+                pw.Column(
+                  mainAxisAlignment: pw.MainAxisAlignment.center,
+                  children: [
+                    if (school.name.trim().isNotEmpty)
+                      pw.Text(
+                        school.name.trim(),
+                        textAlign: pw.TextAlign.center,
+                        style: const pw.TextStyle(fontSize: 12, color: kidMuted),
+                      ),
+                    pw.SizedBox(height: 8),
+                    pw.Text(
+                      success ? tr('Başarı Belgesi') : tr('Gayret Belgesi'),
+                      style: pw.TextStyle(fontSize: 40, fontWeight: pw.FontWeight.bold, color: kidRose),
+                    ),
+                    pw.SizedBox(height: 10),
+                    _stars(stars, 30),
+                    pw.SizedBox(height: 16),
+                    pw.Text(
+                      stu?.fullName ?? tr('Eşleşmeyen kâğıt'),
+                      textAlign: pw.TextAlign.center,
+                      style: pw.TextStyle(fontSize: 32, fontWeight: pw.FontWeight.bold, color: kidInk),
+                    ),
+                    pw.Container(width: 300, height: 1.4, color: kidLine, margin: const pw.EdgeInsets.symmetric(vertical: 8)),
+                    pw.Text(
+                      success
+                          ? tr('"{0}" sınavında gösterdiğin başarı için seni kutlarız. Böyle parlamaya devam et!', [exam.name])
+                          : tr('"{0}" sınavındaki emeğin ve gayretin için seni kutlarız. Her gün biraz daha ilerliyorsun!', [exam.name]),
+                      textAlign: pw.TextAlign.center,
+                      style: const pw.TextStyle(fontSize: 15, color: kidInk),
+                    ),
+                    pw.SizedBox(height: 22),
+                    pw.Row(
+                      mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: pw.CrossAxisAlignment.end,
+                      children: [
+                        pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.start,
+                          children: [
+                            pw.Text(
+                              L10n.date(exam.date),
+                              style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold, color: kidInk),
+                            ),
+                            pw.Text(exam.className, style: const pw.TextStyle(fontSize: 10, color: kidMuted)),
+                          ],
+                        ),
+                        pw.Column(
+                          children: [
+                            pw.Container(width: 170, height: 1, color: kidInk),
+                            pw.SizedBox(height: 3),
+                            pw.Text(teacher.isEmpty ? tr('Öğretmenim') : teacher, style: const pw.TextStyle(fontSize: 11, color: kidInk)),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            pw.SizedBox(height: 6),
+            pw.Theme(data: baseTheme, child: brandStrip(divider: false)),
+          ],
+        ),
+      ),
+    );
+  }
+  if (list.isEmpty) {
+    doc.addPage(
+      pw.Page(
+        textDirection: _dir,
+        build: (_) => pw.Center(child: pw.Text(tr('Henüz okunan kâğıt yok.'))),
+      ),
+    );
+  }
+  return doc.save();
+}
+
+/// Çocuk görünümlü dönem karnesi: dönem boyunca sınavlar, yıldızlar, gelişim
+/// grafiği, güçlü olduğu ve çalışacağı konular.
+Future<Uint8List> buildKidTermCardsPdf(TermReport t, {SchoolInfo school = const SchoolInfo(), String? onlyStudentId}) async {
+  final exam0 = t.exams.first.exam;
+  useKidTheme(exam0.kidTheme);
+  final baseTheme = await pdfTheme(school.fontFamily);
+  final theme = await kidPdfTheme(school.fontFamily);
+  await BrandAssets.load();
+  final k = _KidKit(exam0, school, baseTheme);
+  final doc = pw.Document(theme: theme, title: tr('Dönem karnem'), author: tr('Netice'));
+  final rows = t.rows.where((r) => r.average != null && (onlyStudentId == null || r.student.id == onlyStudentId)).toList();
+  if (rows.isEmpty) {
+    doc.addPage(
+      pw.Page(
+        textDirection: _dir,
+        build: (_) => pw.Center(child: pw.Text(tr('Bu dönemde sonucu olan öğrenci yok.'))),
+      ),
+    );
+    return doc.save();
+  }
+  for (final r in rows) {
+    final stars = kidStars(r.average!);
+    final out = r.outcomes.entries.toList()..sort((a, b) => b.value.$1.compareTo(a.value.$1));
+    final strong = [
+      for (final e in out)
+        if (e.value.$1 >= 0.7) e.key,
+    ].take(4).toList();
+    final weak = [
+      for (final e in out.reversed)
+        if (e.value.$1 < 0.5) e.key,
+    ].take(4).toList();
+    final taken = [
+      for (var i = 0; i < t.exams.length; i++)
+        if (r.scores[i] != null) i,
+    ];
+    doc.addPage(
+      pw.MultiPage(
+        textDirection: _dir,
+        pageFormat: PdfPageFormat.a4,
+        margin: const pw.EdgeInsets.fromLTRB(30, 22, 30, 18),
+        footer: k.footer,
+        build: (ctx) => [
+          k.banner(
+            tr('Dönem karnem'),
+            subtitle: [t.term.label, if (t.className.isNotEmpty) t.className].join('  ·  '),
+            trailing: pw.Container(
+              padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: pw.BoxDecoration(color: PdfColors.white, borderRadius: pw.BorderRadius.circular(12)),
+              child: pw.Column(
+                children: [
+                  pw.Text(
+                    '${r.grade}',
+                    style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold, color: kidRose),
+                  ),
+                  pw.Text(tr('dönem ortalaması'), style: const pw.TextStyle(fontSize: 7.5, color: kidMuted)),
+                ],
+              ),
+            ),
+          ),
+          pw.SizedBox(height: 8),
+          pw.Container(
+            padding: const pw.EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: pw.BoxDecoration(
+              border: pw.Border.all(color: kidLine, width: 1.3),
+              borderRadius: pw.BorderRadius.circular(14),
+            ),
+            child: pw.Row(
+              children: [
+                pw.Expanded(
+                  child: pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text(
+                        r.student.fullName,
+                        style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold, color: kidInk),
+                      ),
+                      if (r.student.number.isNotEmpty)
+                        pw.Text('${tr('No')} ${r.student.number}', style: const pw.TextStyle(fontSize: 9, color: kidMuted)),
+                      pw.SizedBox(height: 4),
+                      pw.Text(
+                        kidPraise(stars),
+                        style: pw.TextStyle(fontSize: 12, color: kidRose, fontWeight: pw.FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+                _stars(stars, 22),
+              ],
+            ),
+          ),
+          pw.SizedBox(height: 8),
+          pw.Row(
+            children: [
+              k.tile(tr('Katıldığım sınav'), '${r.taken} / ${t.exams.length}', kidInk, kidBlue),
+              k.tile(tr('Dönem ortalamam'), _f1(r.average!), kidRose, kidPink),
+              k.tile(tr('Sınıf ortalaması'), _f1(t.classAverage), _green, _softGreen),
+            ],
+          ),
+          if (taken.length >= 2)
+            k.section(
+              tr('Gelişim yolculuğum'),
+              k.growth([for (final i in taken) (_shortName(t.exams[i].exam), r.scores[i]!, t.exams[i].mean100)]),
+              hint: tr('Bu dönemdeki sınavlarım'),
+              color: 4,
+            ),
+          k.section(
+            tr('Sınavlarım'),
+            pw.Column(
+              children: [
+                for (var i = 0; i < t.exams.length; i++)
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.only(bottom: 4),
+                    child: pw.Row(
+                      children: [
+                        pw.Expanded(
+                          child: pw.Text(t.exams[i].exam.name, maxLines: 1, style: const pw.TextStyle(fontSize: 9.5, color: kidInk)),
+                        ),
+                        pw.SizedBox(
+                          width: 70,
+                          child: pw.Text(L10n.date(t.exams[i].exam.date), style: const pw.TextStyle(fontSize: 8.5, color: kidMuted)),
+                        ),
+                        pw.SizedBox(
+                          width: 40,
+                          child: pw.Text(
+                            r.scores[i] == null ? '–' : _f1(r.scores[i]!),
+                            textAlign: pw.TextAlign.right,
+                            style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold, color: kidInk),
+                          ),
+                        ),
+                        pw.SizedBox(width: 10),
+                        r.scores[i] == null
+                            ? pw.SizedBox(
+                                width: 56,
+                                child: pw.Text(tr('Girmedi'), style: const pw.TextStyle(fontSize: 8.5, color: _gray)),
+                              )
+                            : _stars(kidStars(r.scores[i]!), 10),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+            color: 1,
+          ),
+          if (out.isNotEmpty) ...[
+            k.section(
+              tr('Konularım'),
+              pw.Column(
+                children: [
+                  for (final e in out.take(10))
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.only(bottom: 4),
+                      child: pw.Row(
+                        children: [
+                          pw.SizedBox(
+                            width: 150,
+                            child: pw.Text(e.key, maxLines: 2, style: const pw.TextStyle(fontSize: 9, color: kidInk)),
+                          ),
+                          pw.Expanded(child: _bar(e.value.$1, _rateColor(e.value.$1), height: 9)),
+                          pw.SizedBox(width: 6),
+                          _stars(kidStars(e.value.$1 * 100), 9),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+              color: 3,
+            ),
+            pw.Row(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Expanded(
+                  child: k.section(
+                    tr('Çok iyi olduğum konular'),
+                    pw.Text(
+                      strong.isEmpty ? tr('Henüz belirgin değil.') : strong.join(', '),
+                      style: const pw.TextStyle(fontSize: 9, color: kidInk),
+                    ),
+                    color: 2,
+                  ),
+                ),
+                pw.SizedBox(width: 8),
+                pw.Expanded(
+                  child: k.section(
+                    tr('Biraz daha çalışacağım konular'),
+                    pw.Text(
+                      weak.isEmpty ? tr('Belirgin bir eksik görünmüyor.') : weak.join(', '),
+                      style: const pw.TextStyle(fontSize: 9, color: kidInk),
+                    ),
+                    color: 5,
+                  ),
+                ),
+              ],
+            ),
+          ],
+          pw.SizedBox(height: 8),
+          pw.Row(
+            children: [
+              for (final label in [tr('Öğretmenimin notu'), tr('Veli imzası')])
+                pw.Expanded(
+                  child: pw.Container(
+                    height: 40,
+                    margin: const pw.EdgeInsets.symmetric(horizontal: 3),
+                    padding: const pw.EdgeInsets.all(6),
+                    decoration: pw.BoxDecoration(
+                      border: pw.Border.all(color: kidLine, width: 1, style: pw.BorderStyle.dashed),
+                      borderRadius: pw.BorderRadius.circular(10),
+                    ),
+                    child: pw.Text(label, style: const pw.TextStyle(fontSize: 8.5, color: kidMuted)),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
   return doc.save();
 }

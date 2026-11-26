@@ -348,5 +348,15 @@
  "Genel istatistik": "Statistiques générales",
  "PDF rapor": "Rapport PDF",
  "Dönem": "Période",
- "Genel başarı": "Réussite globale"
+ "Genel başarı": "Réussite globale",
+ "Gökkuşağı, Orman, Deniz ya da Uzay. Seçtiğiniz tema cevap kartlarına, karnelere ve belgelere de geçer.": "Arc-en-ciel, Forêt, Océan ou Espace. Le thème choisi s'applique aussi aux cartes-réponses, bulletins et diplômes.",
+ "İsimli cevap kartlarını sınav ekranındaki \"Form yazdır\" ile basın. 1–2. sınıflar için \"Büyük kart\" seçeneği A4'e iki kart ve iri daireler basar.": "Imprimez les cartes nominatives via « Imprimer les formulaires » sur l'écran de l'évaluation. Pour le CP–CE1, l'option « Grande carte » imprime deux cartes par A4 avec de grandes bulles.",
+ "Çocuk karnesi ve tebrik belgesi": "Bulletin enfant et diplôme",
+ "Çocuk şablonuyla hazırlanan sınavların raporları renkli ve yıldızlıdır. Kâğıtları okuttuktan sonra Analiz sekmesini açın.": "Les rapports des évaluations faites avec le modèle enfant sont colorés et étoilés. Après la lecture des feuilles, ouvrez l'onglet Analyse.",
+ "Yıldızlar, soru soru doğru ve yanlışlar, sınıf ortalaması ve gelişim grafiği. Sıra ve T puanı gösterilmez.": "Étoiles, bonnes et mauvaises réponses question par question, moyenne de la classe et graphique de progrès. Le rang et la note T ne sont pas affichés.",
+ "Her öğrenciye renkli bir belge: yüksek başarıda Başarı Belgesi, diğerlerinde Gayret Belgesi.": "Un diplôme coloré pour chaque élève : « Diplôme de réussite » pour les bons résultats, « Diplôme d'effort » pour les autres.",
+ "Sınıf ortalaması, yıldız dağılımı, soru soru sınıf başarısı ve sınıfın gelişimi.": "Moyenne de la classe, répartition des étoiles, réussite de la classe par question et progrès de la classe.",
+ "Başka bir sınavda da çocuk raporlarını Sınav ayarları > Rapor görünümü bölümünden açabilirsiniz. Dönemin bütün sınavları çocuk görünümündeyse dönem karnesi de çocuk görünümünde çıkar.": "Vous pouvez activer les rapports enfant pour toute autre évaluation dans Réglages de l'évaluation > Style du rapport. Si toutes les évaluations du trimestre sont en vue enfant, le bulletin trimestriel l'est aussi.",
+ "Renk teması": "Thème de couleur",
+ "Tebrik belgeleri": "Diplômes"
 }

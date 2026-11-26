@@ -348,5 +348,15 @@
  "Genel istatistik": "الإحصاءات العامة",
  "PDF rapor": "تقرير PDF",
  "Dönem": "الفصل",
- "Genel başarı": "النجاح العام"
+ "Genel başarı": "النجاح العام",
+ "Gökkuşağı, Orman, Deniz ya da Uzay. Seçtiğiniz tema cevap kartlarına, karnelere ve belgelere de geçer.": "قوس قزح أو الغابة أو البحر أو الفضاء. تنتقل السمة التي تختارها إلى بطاقات الإجابة وبطاقات النتائج والشهادات أيضًا.",
+ "İsimli cevap kartlarını sınav ekranındaki \"Form yazdır\" ile basın. 1–2. sınıflar için \"Büyük kart\" seçeneği A4'e iki kart ve iri daireler basar.": "اطبع بطاقات الإجابة بالأسماء من \"طباعة النماذج\" في شاشة الاختبار. للصفين الأول والثاني يطبع خيار \"بطاقة كبيرة\" بطاقتين في صفحة A4 بدوائر كبيرة.",
+ "Çocuk karnesi ve tebrik belgesi": "بطاقة نتائج الطفل وشهادة التهنئة",
+ "Çocuk şablonuyla hazırlanan sınavların raporları renkli ve yıldızlıdır. Kâğıtları okuttuktan sonra Analiz sekmesini açın.": "تقارير الاختبارات المعدّة بقالب الأطفال ملوّنة وبالنجوم. بعد مسح الأوراق افتح تبويب التحليل.",
+ "Yıldızlar, soru soru doğru ve yanlışlar, sınıf ortalaması ve gelişim grafiği. Sıra ve T puanı gösterilmez.": "النجوم، والإجابات الصحيحة والخاطئة سؤالًا سؤالًا، ومتوسط الصف ومخطط التقدّم. لا يظهر الترتيب ولا الدرجة التائية.",
+ "Her öğrenciye renkli bir belge: yüksek başarıda Başarı Belgesi, diğerlerinde Gayret Belgesi.": "شهادة ملوّنة لكل طالب: شهادة نجاح للنتائج العالية، وشهادة اجتهاد للبقية.",
+ "Sınıf ortalaması, yıldız dağılımı, soru soru sınıf başarısı ve sınıfın gelişimi.": "متوسط الصف وتوزيع النجوم ونجاح الصف في كل سؤال وتقدّم الصف.",
+ "Başka bir sınavda da çocuk raporlarını Sınav ayarları > Rapor görünümü bölümünden açabilirsiniz. Dönemin bütün sınavları çocuk görünümündeyse dönem karnesi de çocuk görünümünde çıkar.": "يمكنك تفعيل تقارير الأطفال لأي اختبار آخر من إعدادات الاختبار > شكل التقرير. إذا كانت كل اختبارات الفصل بعرض الأطفال، تظهر بطاقة الفصل بعرض الأطفال أيضًا.",
+ "Renk teması": "سمة الألوان",
+ "Tebrik belgeleri": "شهادات التهنئة"
 }
