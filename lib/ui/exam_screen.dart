@@ -26,6 +26,7 @@ import 'grade_export_screen.dart';
 import 'open_scores_screen.dart';
 import 'report_preview_screen.dart';
 import 'student_detail_screen.dart';
+import 'teaching_screen.dart';
 import 'pro_screen.dart';
 import 'personal_review_ui.dart';
 import 'parent_send_screen.dart';
@@ -354,6 +355,14 @@ class ExamScreen extends StatelessWidget {
       }
     }
 
+    Future<void> reflection() async {
+      if (results.isEmpty) return toast(context, tr('Önce kâğıt okutun.'));
+      await ReportPreviewScreen.open(context,
+          title: tr('Öğrenci değerlendirme kâğıdı'),
+          fileName: '${_safe(exam.name)}_degerlendirme_kagidi.pdf',
+          build: () => buildReflectionPdf(exam: exam, results: results, students: store.studentById, school: store.reportSchool));
+    }
+
     Future<void> labels() async {
       if (results.isEmpty) return toast(context, tr('Etiket için önce kâğıt okutun.'));
       await ReportPreviewScreen.open(context,
@@ -375,6 +384,8 @@ class ExamScreen extends StatelessWidget {
       _Action(Icons.school_outlined, tr('e-Okul listesi'), eokul),
       _Action(Icons.co_present_outlined, tr('Classroom / Moodle\'a aktar'), () => openGradeExport(context, exam)),
       _Action(Icons.label_outline, tr('Sonuç etiketi'), labels),
+      _Action(Icons.psychology_outlined, tr('Öğretim önerileri'), () => TeachingScreen.open(context, exam)),
+      _Action(Icons.rate_review_outlined, tr('Öğrenci değerlendirme kâğıdı'), reflection),
       _Action(Icons.assignment_ind_outlined, tr('Kişiye özel tekrar testi'), () => openPersonalReview(context, exam)),
       _Action(Icons.forward_to_inbox_rounded, tr('Velilere toplu gönder'), () => openBulkParentSend(context, exam)),
       _Action(Icons.hub_outlined, exam.isCommon ? tr('Ortak sınav') : tr('Ortak sınav yap'), () => openCommonExamMenu(context, exam)),
@@ -1139,6 +1150,17 @@ class _AnalysisTab extends StatelessWidget {
         ),
       ),
       if (rep.outcomes.isNotEmpty) WeakTopicsCard(exam: exam, results: rep.results),
+      if (rep.results.isNotEmpty)
+        Card(
+          margin: const EdgeInsets.only(top: 12),
+          child: ListTile(
+            leading: const IconBadge(Icons.psychology_outlined),
+            title: Text(tr('Öğretim önerileri'), style: const TextStyle(fontWeight: FontWeight.w800)),
+            subtitle: Text(tr('Kavram yanılgıları, destek / pekiştirme / zenginleştirme grupları ve benzer yanlış kontrolü')),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => TeachingScreen.open(context, exam),
+          ),
+        ),
       if (rep.outcomes.isNotEmpty) ...[
         SectionTitle(tr('Kazanım ısı haritası')),
         Card(
@@ -1193,7 +1215,14 @@ class _AnalysisTab extends StatelessWidget {
     final m = parseOutcomeRanges(ctrl.text, exam.questionCount);
     store.upsertExam(exam.copyWith(questions: [
       for (final q in exam.questions)
-        Question(no: q.no, correct: q.correct, points: q.points, cancelled: q.cancelled, outcomeCode: m[q.no]),
+        Question(
+            no: q.no,
+            correct: q.correct,
+            points: q.points,
+            cancelled: q.cancelled,
+            outcomeCode: m[q.no],
+            bankId: q.bankId,
+            misconceptions: q.misconceptions),
     ]));
     if (context.mounted) toast(context, tr('Kazanımlar kaydedildi.'));
   }
@@ -1425,15 +1454,18 @@ Future<void> openCardsPreview(BuildContext context, Exam exam, {String? studentI
       baseFileName: '${_safe(exam.name)}_karne',
       students: students,
       initialStudentId: studentId,
-      build: (id) => buildStudentCardsPdf(
-          exam: exam,
-          results: results,
-          students: byId,
-          onlyStudentId: id,
-          school: store.reportSchool,
-          notes: developmentNotes(store, id == null ? results.map((r) => r.sheet.studentId) : [id]),
-          history: developmentHistory(store, exam, id == null ? results.map((r) => r.sheet.studentId) : [id]),
-          studyTopics: BankAnalysis.studyTopics(exam, results, BankStore.instance, only: id == null ? null : [id])),
+      // Tek öğrencinin karnesi velinin dilinde (Öğrenci > Velinin dili).
+      build: (id) => inLanguage(
+          id == null ? null : byId[id]?.parentLanguage,
+          () => buildStudentCardsPdf(
+              exam: exam,
+              results: results,
+              students: byId,
+              onlyStudentId: id,
+              school: store.reportSchool,
+              notes: developmentNotes(store, id == null ? results.map((r) => r.sheet.studentId) : [id]),
+              history: developmentHistory(store, exam, id == null ? results.map((r) => r.sheet.studentId) : [id]),
+              studyTopics: BankAnalysis.studyTopics(exam, results, BankStore.instance, only: id == null ? null : [id]))),
     ),
   ));
 }
@@ -1450,21 +1482,26 @@ Future<bool> shareStudentCard(BuildContext context, Exam exam, String studentId,
   final r = results.where((x) => x.sheet.studentId == studentId).firstOrNull;
   if (st == null || r == null) return false;
   try {
-    final bytes = await buildStudentCardsPdf(
-        exam: exam,
-        results: results,
-        students: store.studentById,
-        onlyStudentId: studentId,
-        school: store.reportSchool,
-        notes: developmentNotes(store, [studentId]),
-        history: developmentHistory(store, exam, [studentId]),
-        studyTopics: BankAnalysis.studyTopics(exam, results, BankStore.instance, only: [studentId]));
+    final lang = st.parentLanguage;
+    final bytes = await inLanguage(
+        lang,
+        () => buildStudentCardsPdf(
+            exam: exam,
+            results: results,
+            students: store.studentById,
+            onlyStudentId: studentId,
+            school: store.reportSchool,
+            notes: developmentNotes(store, [studentId]),
+            history: developmentHistory(store, exam, [studentId]),
+            studyTopics: BankAnalysis.studyTopics(exam, results, BankStore.instance, only: [studentId])));
     final rep = ExamReport.build(exam, results);
+    final (subject, body) = inLanguageSync(
+        lang, () => (tr('{0} – {1} sınav karnesi', [st.fullName, exam.name]), parentMessage(store, exam, st, r, rep.stats.mean)));
     await Printing.sharePdf(
       bytes: bytes,
       filename: '${_safe(st.fullName)}_${_safe(exam.name)}_karne.pdf',
-      subject: tr('{0} – {1} sınav karnesi', [st.fullName, exam.name]),
-      body: parentMessage(store, exam, st, r, rep.stats.mean),
+      subject: subject,
+      body: body,
     );
     return true;
   } catch (e) {

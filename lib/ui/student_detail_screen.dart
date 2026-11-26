@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:material_ui/material_ui.dart';
 
 import '../core/insights.dart';
@@ -64,6 +66,7 @@ class StudentDetailScreen extends StatelessWidget {
                     _Mini(tr('Sınav'), '${h.length}'),
                     _Mini(tr('Ortalama'), L10n.percent(avg.round())),
                     if (trend != null) _Mini(tr('Son değişim'), '${trend >= 0 ? '+' : ''}${trend.round()}'),
+                    if (s.goal != null) _Mini(tr('Hedef'), L10n.percent(s.goal!.round())),
                   ]),
                 ]),
               ),
@@ -80,6 +83,8 @@ class StudentDetailScreen extends StatelessWidget {
               ),
             ),
           ],
+          const SizedBox(height: 12),
+          _GoalCard(student: s, history: h),
           if (h.isEmpty)
             Padding(
               padding: EdgeInsets.only(top: 24),
@@ -91,11 +96,12 @@ class StudentDetailScreen extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(12, 18, 16, 12),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  SizedBox(height: 170, child: _TrendChart(h)),
+                  SizedBox(height: 170, child: _TrendChart(h, goal: s.goal)),
                   const SizedBox(height: 8),
                   Wrap(spacing: 16, children: [
                     _Legend(NColors.emerald, tr('Öğrenci')),
                     _Legend(t.colorScheme.onSurface.withValues(alpha: 0.35), tr('Sınıf ortalaması')),
+                    if (s.goal != null) _Legend(NColors.amber, tr('Hedef')),
                   ]),
                 ]),
               ),
@@ -233,7 +239,8 @@ class _Legend extends StatelessWidget {
 /// Öğrenci yüzdesi ve sınıf ortalaması (yüzde) çizgi grafiği.
 class _TrendChart extends StatelessWidget {
   final List<HistoryEntry> h;
-  const _TrendChart(this.h);
+  final double? goal;
+  const _TrendChart(this.h, {this.goal});
 
   @override
   Widget build(BuildContext context) {
@@ -243,6 +250,7 @@ class _TrendChart extends StatelessWidget {
         student: [for (final e in h) e.pct],
         klass: [for (final e in h) e.exam.rule.maxScore == 0 ? 0 : e.classMean / e.exam.rule.maxScore * 100],
         labels: [for (final e in h) '${e.exam.date.day}.${e.exam.date.month}'],
+        goal: goal,
         font: t.textTheme.bodySmall?.fontFamily,
         grid: t.colorScheme.outlineVariant,
         muted: t.colorScheme.onSurface.withValues(alpha: 0.35),
@@ -258,8 +266,10 @@ class _TrendPainter extends CustomPainter {
   final List<String> labels;
   final Color grid, muted, text;
   final String? font;
+  final double? goal;
   _TrendPainter(
       {required this.student,
+      this.goal,
       required this.klass,
       required this.labels,
       required this.grid,
@@ -309,6 +319,16 @@ class _TrendPainter extends CustomPainter {
     }
 
     line(klass, muted, 2, dots: false);
+    if (goal != null) {
+      // Kesikli hedef çizgisi.
+      final y = 6 + hgt * (1 - goal!.clamp(0, 100) / 100);
+      final p = Paint()
+        ..color = NColors.amber
+        ..strokeWidth = 2;
+      for (var x = left; x < left + w; x += 10) {
+        canvas.drawLine(Offset(x, y), Offset(math.min(x + 6, left + w), y), p);
+      }
+    }
     line(student, NColors.emerald, 3);
     for (var i = 0; i < labels.length; i++) {
       label(labels[i], Offset(pt(i, 0).dx, size.height - bottom + 5), center: true);
@@ -316,5 +336,112 @@ class _TrendPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_TrendPainter o) => o.student != student || o.klass != klass;
+  bool shouldRepaint(_TrendPainter o) => o.student != student || o.klass != klass || o.goal != goal;
+}
+
+/// Kişisel hedef: hedef yüzdesi, son sınavla karşılaştırma ve gelişim puanı.
+class _GoalCard extends StatelessWidget {
+  final Student student;
+  final List<HistoryEntry> history;
+  const _GoalCard({required this.student, required this.history});
+
+  static Future<void> edit(BuildContext context, Student s) async {
+    final store = StoreScope.of(context);
+    final c = TextEditingController(text: s.goal == null ? '' : '${s.goal!.round()}');
+    final r = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(tr('Kişisel hedef')),
+        content: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(tr('Öğrenciyle birlikte gerçekçi bir başarı yüzdesi belirleyin. Hedef karnede ve gelişim grafiğinde görünür.')),
+          const SizedBox(height: 12),
+          TextField(
+            controller: c,
+            autofocus: true,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(labelText: tr('Hedef (%)'), hintText: tr('ör. 75'), prefixIcon: const Icon(Icons.flag_outlined)),
+          ),
+        ]),
+        actions: [
+          if (s.goal != null) TextButton(onPressed: () => Navigator.pop(ctx, 'clear'), child: Text(tr('Hedefi kaldır'))),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(tr('Vazgeç'))),
+          FilledButton(onPressed: () => Navigator.pop(ctx, 'save'), child: Text(tr('Kaydet'))),
+        ],
+      ),
+    );
+    if (r == 'clear') store.updateStudent(s.copyWith(clearGoal: true));
+    if (r == 'save') {
+      final g = double.tryParse(c.text.trim().replaceAll(',', '.').replaceAll('%', ''));
+      if (g == null) return;
+      store.updateStudent(s.copyWith(goal: g.clamp(1, 100).toDouble()));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final goal = student.goal;
+    final t = Theme.of(context);
+    if (goal == null) {
+      return Card(
+        child: ListTile(
+          leading: const IconBadge(Icons.flag_outlined, color: NColors.amber),
+          title: Text(tr('Kişisel hedef belirleyin'), style: const TextStyle(fontWeight: FontWeight.w700)),
+          subtitle: Text(tr('Öğrenci kendi gelişimini sınıfla değil, kendi hedefiyle karşılaştırır.')),
+          trailing: const Icon(Icons.add_rounded),
+          onTap: () => edit(context, student),
+        ),
+      );
+    }
+    final last = history.isEmpty ? null : history.last.pct;
+    final growth = history.length < 2 ? null : history.last.pct - history.first.pct;
+    final reached = last != null && last >= goal;
+    return Card(
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () => edit(context, student),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              IconBadge(reached ? Icons.emoji_events_outlined : Icons.flag_outlined, color: reached ? NColors.emerald : NColors.amber),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(tr('Kişisel hedef: {0}', [L10n.percent(goal.round())]), style: const TextStyle(fontWeight: FontWeight.w800)),
+                  Text(
+                    last == null
+                        ? tr('Henüz sınav yok.')
+                        : reached
+                            ? tr('Son sınavda hedefe ulaştı ({0}).', [L10n.percent(last.round())])
+                            : tr('Son sınav {0}; hedefe {1} puan kaldı.', [L10n.percent(last.round()), (goal - last).ceil()]),
+                    style: t.textTheme.bodySmall,
+                  ),
+                ]),
+              ),
+              const Icon(Icons.edit_outlined, size: 18),
+            ]),
+            if (last != null) ...[
+              const SizedBox(height: 12),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: LinearProgressIndicator(
+                  value: (last / goal).clamp(0, 1),
+                  minHeight: 10,
+                  color: reached ? NColors.emerald : NColors.amber,
+                  backgroundColor: t.colorScheme.surfaceContainerHighest,
+                ),
+              ),
+            ],
+            if (growth != null) ...[
+              const SizedBox(height: 10),
+              Text(
+                tr('Gelişim puanı: ilk sınavından bu yana {0}{1} puan.', [growth >= 0 ? '+' : '', growth.round()]),
+                style: TextStyle(fontWeight: FontWeight.w700, color: growth >= 0 ? NColors.emerald : NColors.coral),
+              ),
+            ],
+          ]),
+        ),
+      ),
+    );
+  }
 }

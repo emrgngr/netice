@@ -39,6 +39,13 @@ class Student {
   /// aktarırken öğrenciyi kesin eşleştirmek için kullanılır.
   final String email;
 
+  /// Velinin konuştuğu dil (uygulama dil kodu: 'ar', 'de'…). Boşsa karne
+  /// uygulamanın dilinde hazırlanır.
+  final String parentLanguage;
+
+  /// Öğrencinin kişisel hedefi: başarı yüzdesi (0–100); yoksa null.
+  final double? goal;
+
   const Student({
     required this.id,
     required this.firstName,
@@ -47,9 +54,20 @@ class Student {
     required this.className,
     this.parentPhone = '',
     this.email = '',
+    this.parentLanguage = '',
+    this.goal,
   });
 
-  Student copyWith({String? number, String? className, String? parentPhone, String? email}) => Student(
+  Student copyWith({
+    String? number,
+    String? className,
+    String? parentPhone,
+    String? email,
+    String? parentLanguage,
+    double? goal,
+    bool clearGoal = false,
+  }) =>
+      Student(
         id: id,
         firstName: firstName,
         lastName: lastName,
@@ -57,6 +75,8 @@ class Student {
         className: className ?? this.className,
         parentPhone: parentPhone ?? this.parentPhone,
         email: email ?? this.email,
+        parentLanguage: parentLanguage ?? this.parentLanguage,
+        goal: clearGoal ? null : (goal ?? this.goal),
       );
 
   /// Çince ve Japonca adlar arasında boşluk bırakılmaz (王伟).
@@ -71,6 +91,8 @@ class Student {
         'className': className,
         if (parentPhone.isNotEmpty) 'parentPhone': parentPhone,
         if (email.isNotEmpty) 'email': email,
+        if (parentLanguage.isNotEmpty) 'parentLanguage': parentLanguage,
+        if (goal != null) 'goal': goal,
       };
 
   factory Student.fromJson(Map<String, dynamic> j) => Student(
@@ -81,6 +103,8 @@ class Student {
         className: j['className'] as String,
         parentPhone: j['parentPhone'] as String? ?? '',
         email: j['email'] as String? ?? '',
+        parentLanguage: j['parentLanguage'] as String? ?? '',
+        goal: (j['goal'] as num?)?.toDouble(),
       );
 }
 
@@ -97,6 +121,9 @@ class Question {
   /// Soru bankasından geldiyse bankadaki kimliği (analizler için).
   final String? bankId;
 
+  /// Yanlış şıkların yakaladığı kavram yanılgıları (A sırasındaki şık → yanılgı).
+  final Map<int, String> misconceptions;
+
   const Question({
     required this.no,
     required this.correct,
@@ -104,9 +131,13 @@ class Question {
     this.cancelled = false,
     this.outcomeCode,
     this.bankId,
+    this.misconceptions = const {},
   });
 
-  Question copyWith({Set<int>? correct, double? points, bool? cancelled, String? outcomeCode}) =>
+  /// [choice] şıkkının yanılgısı (doğru şıksa ya da yazılmamışsa boş).
+  String misconceptionOf(int choice) => correct.contains(choice) ? '' : (misconceptions[choice] ?? '').trim();
+
+  Question copyWith({Set<int>? correct, double? points, bool? cancelled, String? outcomeCode, Map<int, String>? misconceptions}) =>
       Question(
         no: no,
         correct: correct ?? this.correct,
@@ -114,6 +145,7 @@ class Question {
         cancelled: cancelled ?? this.cancelled,
         outcomeCode: outcomeCode ?? this.outcomeCode,
         bankId: bankId,
+        misconceptions: misconceptions ?? this.misconceptions,
       );
 
   Map<String, dynamic> toJson() => {
@@ -123,6 +155,8 @@ class Question {
         'cancelled': cancelled,
         'outcomeCode': outcomeCode,
         if (bankId != null) 'bankId': bankId,
+        if (misconceptions.values.any((m) => m.trim().isNotEmpty))
+          'misconceptions': {for (final e in misconceptions.entries) if (e.value.trim().isNotEmpty) '${e.key}': e.value},
       };
 
   factory Question.fromJson(Map<String, dynamic> j) => Question(
@@ -132,6 +166,10 @@ class Question {
         cancelled: j['cancelled'] as bool? ?? false,
         outcomeCode: j['outcomeCode'] as String?,
         bankId: j['bankId'] as String?,
+        misconceptions: {
+          for (final e in ((j['misconceptions'] as Map?) ?? const {}).entries)
+            if (int.tryParse('${e.key}') != null) int.parse('${e.key}'): '${e.value}'
+        },
       );
 }
 
@@ -366,6 +404,9 @@ class Exam {
           cancelled: questions[order[i]].cancelled,
           outcomeCode: questions[order[i]].outcomeCode,
           bankId: questions[order[i]].bankId,
+          misconceptions: {
+            for (final e in questions[order[i]].misconceptions.entries) printedChoice(booklet, order[i], e.key): e.value
+          },
         ),
     ];
   }

@@ -431,14 +431,21 @@ class BankStore extends ChangeNotifier {
     final byDiff = {for (final d in Difficulty.values) d: candidates.where((q) => q.difficulty == d).toList()};
     final picked = <BankQuestion>[];
     final topicCount = <String, int>{};
+    final levelCount = <CognitiveLevel, int>{};
 
     BankQuestion? take(List<BankQuestion> from) {
       if (from.isEmpty) return null;
       var best = 0;
-      if (p.balanceTopics) {
+      if (p.balanceTopics || p.balanceLevels) {
         var bestScore = 1 << 30;
         for (var i = 0; i < from.length; i++) {
-          final s = (topicCount[from[i].topicLabel] ?? 0) * 1000 + (p.preferUnused ? (used[from[i].id] ?? 0) : 0) * 10 + i ~/ 50;
+          final q = from[i];
+          // Düzeyi belirtilmemiş soru, dengeleme açıkken en sona kalır.
+          final level = !p.balanceLevels ? 0 : (q.cognitive == CognitiveLevel.none ? 50 : (levelCount[q.cognitive] ?? 0));
+          final s = (p.balanceTopics ? (topicCount[q.topicLabel] ?? 0) : 0) * 100000 +
+              level * 1000 +
+              (p.preferUnused ? (used[q.id] ?? 0) : 0) * 10 +
+              i ~/ 50;
           if (s < bestScore) {
             bestScore = s;
             best = i;
@@ -447,6 +454,7 @@ class BankStore extends ChangeNotifier {
       }
       final q = from.removeAt(best);
       topicCount[q.topicLabel] = (topicCount[q.topicLabel] ?? 0) + 1;
+      levelCount[q.cognitive] = (levelCount[q.cognitive] ?? 0) + 1;
       return q;
     }
 

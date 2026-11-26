@@ -10,6 +10,8 @@ import 'package:pdf/widgets.dart' as pw;
 
 import '../core/models.dart';
 import '../core/insights.dart';
+import '../core/misconceptions.dart';
+import '../core/teaching.dart';
 import '../core/overview.dart';
 import '../core/progress.dart';
 import '../core/report.dart';
@@ -22,6 +24,8 @@ import '../l10n/l10n.dart';
 import 'brand_footer.dart';
 import 'kid_pdf.dart';
 import 'kid_reports_pdf.dart';
+
+part 'teaching_pdf.dart';
 
 const _ink = PdfColor.fromInt(0xFF0F1B3D);
 const _emerald = PdfColor.fromInt(0xFF10B981);
@@ -1262,6 +1266,23 @@ Future<Uint8List> buildResultsPdf({
               ),
             ),
         ],
+        if (Misconceptions.any(exam) && results.isNotEmpty) ...[
+          k.title(tr('Kavram yanılgıları'), tr('Yanlış şıklara yazılan yanılgılar ve bu şıkları seçen öğrenci sayısı')),
+          k.table(
+            [tr('Yanılgı'), tr('Soru / şık'), tr('Öğrenci'), tr('Oran')],
+            [
+              for (final f in Misconceptions.of(exam, [for (final x in results) x.sheet]))
+                [
+                  f.text,
+                  f.sources.map((x) => '${x.$1}${_letter(x.$2)}').join(', '),
+                  '${f.students.length}',
+                  _pct(f.students.length / results.length),
+                ],
+            ],
+            leftColumn: 0,
+            widths: {0: const pw.FlexColumnWidth(4)},
+          ),
+        ],
         if (r.outcomes.isNotEmpty) ...[
           pw.NewPage(),
           k.title(tr('Kazanım ısı haritası'), tr('Her öğrencinin her kazanımdaki doğru oranı · yeşil ≥ %70 · sarı %50–69 · mercan < %50')),
@@ -1471,6 +1492,10 @@ Future<Uint8List> buildStudentCardsPdf({
               k.statBox(tr('Yanlış'), '${res.wrong}', color: _coral),
               k.statBox(tr('Boş'), '${res.blank}', color: _gray),
               k.statBox(tr('Başarı'), L10n.percent(st.pct.round())),
+              if (stu?.goal != null)
+                k.statBox(tr('Kişisel hedef'), L10n.percent(stu!.goal!.round()),
+                    hint: st.pct >= stu.goal! ? tr('hedefe ulaştı') : tr('hedefe {0} puan kaldı', [(stu.goal! - st.pct).ceil()]),
+                    color: st.pct >= stu.goal! ? _emerald : _amber),
               if (exam.hasOpen) ...[
                 k.statBox(tr('Test kısmı'), '${_f1(res.testScore)} / ${_f1(exam.testMax)}'),
                 k.statBox(tr('Klasik kısım'), res.openMissing ? tr('eksik') : '${_f1(res.openScore)} / ${_f1(exam.openMax)}'),
@@ -1563,6 +1588,14 @@ Future<Uint8List> buildStudentCardsPdf({
                         child: pw.Text('• $t', style: const pw.TextStyle(fontSize: 8)),
                       ),
                   ]),
+                ),
+            ],
+            if (Misconceptions.ofSheet(exam, res.sheet).isNotEmpty) ...[
+              k.title(tr('Dikkat edilecek kavram yanılgıları'), tr('Seçtiği yanlış şıklardan çıkarıldı')),
+              for (final m in Misconceptions.ofSheet(exam, res.sheet).take(3))
+                pw.Padding(
+                  padding: const pw.EdgeInsets.only(bottom: 2),
+                  child: pw.Text('• $m', style: const pw.TextStyle(fontSize: 8.5)),
                 ),
             ],
             if (wrongs.isNotEmpty) ...[

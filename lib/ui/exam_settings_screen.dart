@@ -139,7 +139,9 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
           correct: _qs[i].correct,
           points: p,
           cancelled: _qs[i].cancelled,
-          outcomeCode: code.isEmpty ? null : code));
+          outcomeCode: code.isEmpty ? null : code,
+          bankId: _qs[i].bankId,
+          misconceptions: _qs[i].misconceptions));
     }
     final open = <OpenQuestion>[];
     for (var i = 0; i < _open.length; i++) {

@@ -267,6 +267,36 @@ class StudentImport {
         x.contains('ogrencino') || x == 'no' || x == 'numara' || x.contains('adsoyad'));
   }
 
+  /// "Arapça", "Arabic", "ar", "العربية" gibi yazımlardan uygulama dil kodu.
+  static String languageCodeOf(String raw) {
+    final t = raw.trim().toLowerCase();
+    if (t.isEmpty) return '';
+    for (final l in AppLanguage.all) {
+      if (t == l.code || t == l.name.toLowerCase()) return l.code;
+    }
+    const names = {
+      'tr': ['türkçe', 'turkce', 'turkish', 'türk'],
+      'en': ['ingilizce', 'english', 'inglés', 'anglais', 'englisch'],
+      'az': ['azerice', 'azerbaycanca', 'azerbaijani', 'azəri'],
+      'de': ['almanca', 'german', 'deutsch'],
+      'ar': ['arapça', 'arapca', 'arabic', 'arabe', 'arabisch'],
+      'es': ['ispanyolca', 'spanish', 'español', 'espanol', 'spanisch'],
+      'ru': ['rusça', 'rusca', 'russian', 'русский', 'russisch'],
+      'it': ['italyanca', 'italian', 'italiano'],
+      'fr': ['fransızca', 'fransizca', 'french', 'français', 'francais'],
+      'zh': ['çince', 'cince', 'chinese', '中文'],
+      'ja': ['japonca', 'japanese', '日本語'],
+      'pt': ['portekizce', 'portuguese', 'português', 'portugues'],
+      'hi': ['hintçe', 'hintce', 'hindi', 'हिन्दी'],
+      'id': ['endonezce', 'indonesian', 'bahasa indonesia', 'indonesia'],
+      'ko': ['korece', 'korean', '한국어'],
+    };
+    for (final e in names.entries) {
+      if (e.value.any((n) => t.startsWith(n))) return e.key;
+    }
+    return '';
+  }
+
   static List<Student> parseRows(List<List<String>> allRows, {String defaultClass = ''}) {
     if (allRows.isEmpty) return [];
     // e-Okul gibi dökümlerde başlıktan önce okul adı vb. satırlar olabilir.
@@ -293,6 +323,7 @@ class StudentImport {
     final iClass = find(['sinif', 'sube']);
     final iPhone = find(['velitelefonu', 'velitelefon', 'velitel', 'velicep', 'telefon', 'gsm', 'cep', 'phone']);
     final iMail = find(['eposta', 'email', 'mail', 'epostaadresi', 'emailaddress']);
+    final iLang = find(['velidili', 'velidil', 'parentlanguage', 'homelanguage', 'evdili', 'anadili']);
     final hasHeader = iNo >= 0 || iFirst >= 0 || iFull >= 0;
     final data = hasHeader ? rows.skip(1) : rows;
     if (!hasHeader) {
@@ -324,6 +355,7 @@ class StudentImport {
         className: at(iClass).isNotEmpty ? at(iClass) : defaultClass,
         parentPhone: iPhone >= 0 ? at(iPhone).trim() : '',
         email: iMail >= 0 && at(iMail).contains('@') ? at(iMail).trim() : '',
+        parentLanguage: iLang >= 0 ? languageCodeOf(at(iLang)) : '',
       ));
     }
     return out;
