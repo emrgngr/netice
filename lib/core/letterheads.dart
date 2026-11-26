@@ -48,6 +48,10 @@ class HeaderPreset {
                 parent: 'Millî Savunma Bakanlığı', units: const ['Kara Kuvvetleri Komutanlığı'], name: 'Eğitim ve Doktrin Komutanlığı'),
             HeaderPreset(tr('Jandarma ve Sahil Güvenlik Akademisi'),
                 parent: 'Jandarma ve Sahil Güvenlik Akademisi Başkanlığı', name: 'Jandarma Astsubay Meslek Yüksekokulu Müdürlüğü'),
+            HeaderPreset(tr('Jandarma Okulları (Jandarma Okullar Komutanlığı)'),
+                parent: 'Jandarma Genel Komutanlığı',
+                units: const ['Jandarma Okullar Komutanlığı'],
+                name: 'Jandarma Astsubay Temel Eğitim Okulu Komutanlığı'),
           ],
         InstitutionType.university => [
             HeaderPreset(tr('Fakülte'), parent: 'Ankara Üniversitesi Rektörlüğü', name: 'Eğitim Bilimleri Fakültesi Dekanlığı'),
