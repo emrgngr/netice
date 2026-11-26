@@ -55,7 +55,7 @@ def cevir(dil, tr):
     client = anthropic.Anthropic(max_retries=6)
     alanlar = []
     for sc in tr['sahneler']:
-        alanlar.append({k: sc[k] for k in ('kare', 'metin', 'baslik', 'vurgu', 'ust', 'isaret', 'etiketler', 'etiket_kelime')
+        alanlar.append({k: copy.deepcopy(sc[k]) for k in ('kare', 'metin', 'baslik', 'vurgu', 'ust', 'isaret', 'etiketler', 'etiket_kelime')
                         if k in sc})
         for i in alanlar[-1].get('isaret', []):
             i.pop('hedef', None)
@@ -122,7 +122,7 @@ def main():
         json.dump(json.load(open(elle, encoding='utf-8')), open(cikti, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
         print('elle düzeltilmiş çeviri:', elle)
         return
-    asset = f'masaustu_{dil}_{ozet(tr)}.json'
+    asset = f'masaustu_v2_{dil}_{ozet(tr)}.json'
     if subprocess.run(['gh', 'release', 'download', RELEASE, '-p', asset, '-O', cikti, '--clobber'],
                       capture_output=True).returncode == 0:
         print('hazır:', asset)
