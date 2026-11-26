@@ -30,7 +30,7 @@ jobs:
       fail-fast: false
       max-parallel: 4
       matrix:
-        dil: [en, de, fr, es, it, pt, ru, ar, az, zh, ja, ko, hi, id]
+        dil: [tr, en, de, fr, es, it, pt, ru, ar, az, zh, ja, ko, hi, id]
     env:
       GH_TOKEN: ${{ github.token }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -67,9 +67,15 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p out
-          ffmpeg -nostdin -y -loglevel error -i build/bilgisayar_$DIL.mp4 -vf scale=1280:-2 -c:v libx264 -preset slow -crf 25 -c:a aac -b:a 128k -movflags +faststart out/${DIL}_bilgisayar.mp4
-          ffmpeg -nostdin -y -loglevel error -ss 4.5 -i build/bilgisayar_$DIL.mp4 -frames:v 1 -vf scale=1280:-2 -q:v 4 out/${DIL}_bilgisayar.jpg
-          if gh release download rehber-videolari -p "rehber_${DIL}.mp4" -O build/rehber.mp4 --clobber; then
+          # Full HD, yüksek kalite; Cloudflare Pages dosya sınırı (25 MiB) aşılmasın diye
+          # en yüksek bit hızı videonun süresine göre sınırlanır.
+          SURE=$(ffprobe -v error -show_entries format=duration -of csv=p=0 build/bilgisayar_$DIL.mp4)
+          MAKS=$(python3 -c "print(int((23.5*8*1024*1024/$SURE - 160000)/1000))")
+          echo "süre $SURE sn, en yüksek video bit hızı ${MAKS}k"
+          ffmpeg -nostdin -y -loglevel error -i build/bilgisayar_$DIL.mp4 -c:v libx264 -preset slow -crf 19 -tune animation \
+            -maxrate ${MAKS}k -bufsize $((MAKS*2))k -pix_fmt yuv420p -c:a aac -b:a 160k -movflags +faststart out/${DIL}_bilgisayar.mp4
+          ffmpeg -nostdin -y -loglevel error -ss 4.5 -i build/bilgisayar_$DIL.mp4 -frames:v 1 -q:v 3 out/${DIL}_bilgisayar.jpg
+          if [ "$DIL" != tr ] && gh release download rehber-videolari -p "rehber_${DIL}.mp4" -O build/rehber.mp4 --clobber; then
             ffmpeg -nostdin -y -loglevel error -i build/rehber.mp4 -vf "scale=-2:960" -c:v libx264 -preset slow -crf 27 -c:a aac -b:a 112k -movflags +faststart out/${DIL}_telefon.mp4
             ffmpeg -nostdin -y -loglevel error -ss 3 -i build/rehber.mp4 -frames:v 1 -vf "scale=-2:960" -q:v 4 out/${DIL}_telefon.jpg
           fi

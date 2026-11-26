@@ -446,6 +446,10 @@ def label_image(text):
     return im
 
 
+# Halka ile hedef arasındaki boşluk (ekran pikseli): düğme/kart çerçeveye tam girsin.
+PAD = 24
+
+
 class Callout:
     def __init__(self, spec, t_on, t_off):
         self.box = spec['hedef']
@@ -476,7 +480,7 @@ class Callout:
             return
         a = cam.to_screen(st, self.box[0], self.box[1])
         b = cam.to_screen(st, self.box[2], self.box[3])
-        pad = 12
+        pad = PAD
         r = (max(WIN[0] + 4, a[0] - pad), max(WIN[1] + 4, a[1] - pad), min(WIN[2] - 4, b[0] + pad), min(WIN[3] - 4, b[1] + pad))
         if r[2] - r[0] < 12 or r[3] - r[1] < 12:  # hedef henüz pencerede görünmüyor
             return
@@ -631,7 +635,7 @@ class Scene:
             if active:
                 a = self.cam.to_screen(st, active.box[0], active.box[1])
                 b = self.cam.to_screen(st, active.box[2], active.box[3])
-                spot = (a[0] - 12, a[1] - 12, b[0] + 12, b[1] + 12)
+                spot = (a[0] - PAD, a[1] - PAD, b[0] + PAD, b[1] + PAD)
             render_window(f, self.src, st, spot, spot_a)
         # Sol sütun: afiş yazısı.
         kp = ease_out((t - 0.1) / 0.45)

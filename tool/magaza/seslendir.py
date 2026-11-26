@@ -100,10 +100,13 @@ def main(folder, ayar='premium.json', on_ek='magaza_tr'):
     cfg = json.load(open(ayar if os.path.isabs(ayar) or os.path.exists(ayar) else os.path.join(HERE, ayar), encoding='utf-8'))
     # Türkçe dışındaki diller: çok dilli, genç ve enerjik "Liam" sesi (Murat'ın Türkçe aksanı olmasın).
     dil = cfg.get('dil', 'tr')
-    etiket = SES_ETIKETI if dil == 'tr' else 'erkek_liam'
+    # Kullanıcı 2026-11-26: "ses tonunu enerjik hale getir". Ses yeniden üretilsin diye
+    # dosya adına "enerjik" eklendi. Önce Eleven v3 ([excited] tonuyla) denenir; olmazsa
+    # multilingual v2 daha düşük kararlılık, daha yüksek stil ve hızla.
+    etiket = (SES_ETIKETI if dil == 'tr' else 'erkek_liam') + '_enerjik'
     vid = None if dil == 'tr' else (os.environ.get('ELEVENLABS_YABANCI_VOICE_ID') or LIAM)
-    # Heyecanlı ve enerjik (kullanıcı 2026-11-25: genç erkek sesi): değişken tonlama, biraz hızlı.
-    ayarlar = {'stability': 0.3, 'similarity_boost': 0.8, 'style': 0.6, 'use_speaker_boost': True, 'speed': 1.1}
+    v3 = {'stability': 0.0, 'similarity_boost': 0.8, 'style': 0.8, 'use_speaker_boost': True}
+    v2 = {'stability': 0.2, 'similarity_boost': 0.8, 'style': 0.85, 'use_speaker_boost': True, 'speed': 1.15}
     for sc in cfg['sahneler']:
         if sc.get('ses', 'elevenlabs') != 'elevenlabs':
             continue
@@ -118,16 +121,29 @@ def main(folder, ayar='premium.json', on_ek='magaza_tr'):
         if not os.environ.get('ELEVENLABS_API_KEY'):
             sys.exit(f'{asset} yok ve ELEVENLABS_API_KEY tanımlı değil')
         vid = vid or promo_voice_id()
-        body = {'text': text, 'model_id': MODEL, 'voice_settings': ayarlar}
+        denemeler = [{'text': '[excited] ' + text, 'model_id': 'eleven_v3', 'voice_settings': v3},
+                     {'text': text, 'model_id': MODEL, 'voice_settings': v2}]
+        for i, body in enumerate(denemeler):
+            try:
+                if zaman:
+                    r = json.loads(api(f'/text-to-speech/{vid}/with-timestamps?output_format=mp3_44100_128', body))
+                    data = base64.b64decode(r['audio_base64'])
+                    hiza = r.get('alignment') or r.get('normalized_alignment') or {}
+                    if not hiza.get('characters'):
+                        raise ValueError('kelime zamanları gelmedi')
+                else:
+                    data = api(f'/text-to-speech/{vid}?output_format=mp3_44100_128', body)
+                print('model:', body['model_id'])
+                break
+            except Exception as e:  # noqa: BLE001
+                if i == len(denemeler) - 1:
+                    raise
+                print(body['model_id'], 'olmadı, sonraki model deneniyor:', e)
         if zaman:
-            r = json.loads(api(f'/text-to-speech/{vid}/with-timestamps?output_format=mp3_44100_128', body))
-            data = base64.b64decode(r['audio_base64'])
-            hiza = json.dumps(r.get('alignment') or r.get('normalized_alignment') or {}, ensure_ascii=False).encode()
+            hiza = json.dumps(hiza, ensure_ascii=False).encode()
             with open(os.path.join(folder, sc['kare'] + '.json'), 'wb') as f:
                 f.write(hiza)
             _yukle(folder, zasset, hiza)
-        else:
-            data = api(f'/text-to-speech/{vid}?output_format=mp3_44100_128', body)
         with open(out, 'wb') as f:
             f.write(data)
         _yukle(folder, asset, data)

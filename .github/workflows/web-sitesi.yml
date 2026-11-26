@@ -65,6 +65,15 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python3 tool/site/cevir.py web-sitesi build/site
 
+      - name: Türkçe bilgisayar videosu (yüksek kaliteli sürüm varsa)
+        run: |
+          if [ -f build/site/video/tr/bilgisayar.mp4 ]; then
+            mv build/site/video/tr/bilgisayar.mp4 build/site/video/netice_bilgisayar.mp4
+            [ -f build/site/video/tr/bilgisayar.jpg ] && mv build/site/video/tr/bilgisayar.jpg build/site/video/netice_bilgisayar.jpg
+          fi
+          rm -rf build/site/video/tr
+          find build/site -size +25M -print | sed 's/^/::error::25 MiB sınırını aşıyor: /' | grep . && exit 1 || true
+
       - uses: actions/upload-artifact@v4
         with:
           name: site-ceviri-bellegi
@@ -100,3 +109,10 @@ jobs:
             if [ "$DAL" = main ]; then echo "### Site yayında: https://www.neticeoptik.com"; else echo "### Önizleme: https://onizleme.neticeoptik.pages.dev"; fi
             echo "Bu yükleme: $ADRES"
           } >> "$GITHUB_STEP_SUMMARY"
+          # Videolar ileri/geri sarılabilsin: sunucu parça isteğine 206 vermeli (_worker.js).
+          if [ -n "$ADRES" ]; then
+            sleep 10
+            KOD=$(curl -s -o /dev/null -w '%{http_code}' -r 1000-1999 "$ADRES/video/netice_bilgisayar.mp4" || true)
+            echo "Video parça isteği: HTTP $KOD (206 olmalı)" | tee -a "$GITHUB_STEP_SUMMARY"
+            [ "$KOD" = 206 ] || echo "::warning::Video parça isteği 206 dönmedi ($KOD); videolar sarılamayabilir."
+          fi
