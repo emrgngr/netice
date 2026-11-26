@@ -541,7 +541,6 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
                                   label: Text(letter(c), style: const TextStyle(fontWeight: FontWeight.w800)),
                                   showCheckmark: false,
                                   selected: _qs[i].correct.contains(c),
-                                  selectedColor: NColors.emerald.withValues(alpha: 0.35),
                                   onSelected: _qs[i].cancelled ? null : (_) => _toggle(i, c),
                                 ),
                             ]),

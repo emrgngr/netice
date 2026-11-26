@@ -444,7 +444,6 @@ class _CropImportScreenState extends State<CropImportScreen> {
                 label: Text(_type == QuestionType.trueFalse ? (i == 0 ? tr('Doğru') : tr('Yanlış')) : letter(i),
                     style: const TextStyle(fontWeight: FontWeight.w800)),
                 selected: _answer == i,
-                selectedColor: NColors.emerald.withValues(alpha: 0.25),
                 onSelected: (on) => setState(() => _answer = on ? i : null),
               ),
           ]),

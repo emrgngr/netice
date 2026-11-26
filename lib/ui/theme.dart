@@ -19,10 +19,16 @@ class NColors {
   /// Gece modunda dolu düğmelerin zümrüdü: koyu ton, üstünde beyaz yazı.
   static const nightEmerald = Color(0xFF05875F);
 
-  /// Dolu (zümrüt) düğme zemini ve yazısı: gündüz açık zümrüt + lacivert yazı,
-  /// gece koyu zümrüt + beyaz yazı.
-  static Color buttonBg(bool dark) => dark ? nightEmerald : emerald;
-  static Color buttonFg(bool dark) => dark ? Colors.white : ink;
+  /// Yeşil zeminde yazı ve simge her zaman beyazdır (lacivert kullanılmaz).
+  /// Beyaz yazının okunması için dolu düğmelerde biraz koyu zümrüt kullanılır.
+  static const onGreen = Colors.white;
+
+  /// Gündüz modunda dolu düğmelerin zümrüdü (üstünde beyaz yazı).
+  static const deepEmerald = Color(0xFF059669);
+
+  /// Dolu (zümrüt) düğme zemini ve yazısı: zemin koyu zümrüt, yazı beyaz.
+  static Color buttonBg(bool dark) => dark ? nightEmerald : deepEmerald;
+  static Color buttonFg(bool dark) => onGreen;
 
   /// Gece modunda grafiklerde lacivert yerine kullanılan açık lacivert.
   static const nightNavy = Color(0xFF6C7BB5);
@@ -68,10 +74,11 @@ const inkGradient = LinearGradient(
   stops: [0, 0.55, 1],
 );
 
+/// Zümrüt gradyan: üstündeki yazı ve simgeler beyazdır.
 const emeraldGradient = LinearGradient(
   begin: Alignment.topCenter,
   end: Alignment.bottomCenter,
-  colors: [Color(0xFF34D399), Color(0xFF059669)],
+  colors: [Color(0xFF10B981), Color(0xFF047857)],
 );
 
 /// Gece modunda grafik çubukları: koyu zeminde seçilebilen açık lacivert.
@@ -115,9 +122,9 @@ class NTheme {
     final scheme = ColorScheme(
       brightness: brightness,
       primary: isDark ? NColors.emerald : NColors.ink,
-      onPrimary: isDark ? NColors.ink : Colors.white,
+      onPrimary: Colors.white,
       secondary: NColors.emerald,
-      onSecondary: NColors.ink,
+      onSecondary: Colors.white,
       tertiary: NColors.amber,
       onTertiary: NColors.ink,
       error: NColors.coral,
@@ -159,7 +166,9 @@ class NTheme {
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: surface,
-        indicatorColor: NColors.emerald.withValues(alpha: isDark ? 0.25 : 0.16),
+        indicatorColor: NColors.buttonBg(isDark),
+        iconTheme: WidgetStateProperty.resolveWith(
+            (s) => IconThemeData(color: s.contains(WidgetState.selected) ? NColors.onGreen : onSurface)),
         elevation: 8,
         shadowColor: NColors.ink.withValues(alpha: 0.12),
         surfaceTintColor: Colors.transparent,
@@ -241,8 +250,10 @@ class NTheme {
       segmentedButtonTheme: SegmentedButtonThemeData(
         style: ButtonStyle(
           backgroundColor: WidgetStateProperty.resolveWith(
-              (s) => s.contains(WidgetState.selected) ? NColors.emerald.withValues(alpha: isDark ? 0.28 : 0.16) : surface),
-          foregroundColor: WidgetStatePropertyAll(onSurface),
+              (s) => s.contains(WidgetState.selected) ? NColors.buttonBg(isDark) : surface),
+          // Yeşil (seçili) zeminde yazı ve simge beyaz.
+          foregroundColor: WidgetStateProperty.resolveWith(
+              (s) => s.contains(WidgetState.selected) ? NColors.onGreen : onSurface),
           side: WidgetStatePropertyAll(BorderSide(color: scheme.outlineVariant)),
           textStyle: const WidgetStatePropertyAll(TextStyle(fontFamily: _font, fontWeight: FontWeight.w600)),
           shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
@@ -250,9 +261,14 @@ class NTheme {
       ),
       chipTheme: ChipThemeData(
         backgroundColor: surface,
-        selectedColor: NColors.emerald.withValues(alpha: isDark ? 0.28 : 0.16),
+        selectedColor: NColors.buttonBg(isDark),
+        checkmarkColor: NColors.onGreen,
         side: BorderSide(color: scheme.outlineVariant),
-        labelStyle: TextStyle(fontFamily: _font, fontWeight: FontWeight.w600, color: onSurface),
+        // Seçili (yeşil) çipte yazı beyaz.
+        labelStyle: TextStyle(
+            fontFamily: _font,
+            fontWeight: FontWeight.w600,
+            color: WidgetStateColor.resolveWith((s) => s.contains(WidgetState.selected) ? NColors.onGreen : onSurface)),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
       progressIndicatorTheme: ProgressIndicatorThemeData(

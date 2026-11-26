@@ -253,8 +253,10 @@ class ChoiceChips<T> extends StatelessWidget {
           FilterChip(
             label: Text(label(v)),
             selected: selected.contains(v),
-            selectedColor: (color?.call(v) ?? NColors.emerald).withValues(alpha: 0.2),
-            checkmarkColor: color?.call(v) ?? NColors.emerald,
+            // Renk verilmezse temadaki dolu yeşil + beyaz yazı kullanılır.
+            selectedColor: color == null ? null : color!(v).withValues(alpha: 0.2),
+            checkmarkColor: color?.call(v),
+            labelStyle: color == null ? null : TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600),
             onSelected: (on) => onChanged(on ? ({...selected, v}) : ({...selected}..remove(v))),
           ),
       ]);

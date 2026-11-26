@@ -410,7 +410,7 @@ class _NewExamScreenState extends State<NewExamScreen> {
                 for (var b = 0; b < _booklets; b++)
                   ChoiceChip(
                     selected: b == _bk,
-                    avatar: _filled(b) == _count ? const Icon(Icons.check_circle_rounded, size: 18, color: NColors.emerald) : null,
+                    avatar: _filled(b) == _count ? Icon(Icons.check_circle_rounded, size: 18, color: b == _bk ? NColors.onGreen : NColors.emerald) : null,
                     label: Text(tr('{0} kitapçığı · {1}/{2}', [Exam.bookletLetter(b), _filled(b), _count])),
                     onSelected: (_) => setState(() => _bk = b),
                   ),
