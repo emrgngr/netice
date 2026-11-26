@@ -1596,6 +1596,9 @@
  "İnternetsiz çalışma": "オフラインで動作",
  "Karşılaştırma, Kasım 2026'da benzer uygulamaların mağaza ve ürün sayfalarındaki bilgilere dayanır. Yayınevi uygulamaları yalnız kendi formlarını okur.": "2026年11月時点の類似アプリのストアページ・製品ページの情報に基づく比較です。出版社アプリは自社の用紙のみ読み取ります。",
  "Kendi ders notunuzdan dakikalar içinde soru üretin, her öğrenciye kendi yanlışlarından tekrar testi hazırlayın.": "授業ノートから数分で問題を作成し、生徒一人ひとりに自分の間違いから復習テストを用意できます。",
- "Okul, polis akademisi, askerî okul, POMEM, üniversite, kurs: raporlar kurumunuzun başlığı ve imza alanıyla çıkar.": "学校、警察学校、防衛系学校、大学、講座：レポートは機関のレターヘッドと署名欄付きで出力されます。",
- "Soru yazmaktan veliye karneye kadar bütün sınav süreci tek uygulamada. Benzer uygulamalar bu işin yalnız bir parçasını yapar.": "問題作成から保護者への成績表まで、試験のすべてを1つのアプリで。類似アプリはその一部しかできません。"
+ "Soru yazmaktan veliye karneye kadar bütün sınav süreci tek uygulamada. Benzer uygulamalar bu işin yalnız bir parçasını yapar.": "問題作成から保護者への成績表まで、試験のすべてを1つのアプリで。類似アプリはその一部しかできません。",
+ "Her yayınevinin formunu ayrı uygulamayla okumayın; kendi sınavınızı, kendi formunuzla okuyun.": "出版社ごとに別のアプリは不要。自分の試験を、自分の用紙で読み取りましょう。",
+ "Evet. Profil > Kurum bilgileri ekranında kurum türünü seçin (üniversite, Polis Akademisi, askerî okul, kurs…). Başlık, amir ve öğretmen unvanları ile grup adı (sınıf, bölük, takım, grup) buna göre gelir; hepsini değiştirebilirsiniz. Başka ülkelerde \"Türkiye resmi yazı biçimi\"ni kapatın.": "はい。プロフィール > 機関情報で種類（大学、警察学校、士官学校、講座など）を選ぶと、ヘッダー、責任者と教員の役職、グループ名（クラス、中隊、小隊、グループ）がそれに合わせて変わり、すべて変更できます。他の国では「トルコ公文書形式」をオフにしてください。",
+ "Okul, polis akademisi, askerî okul, üniversite, kurs: raporlar kurumunuzun başlığı ve imza alanıyla çıkar.": "学校、警察学校、防衛系学校、大学、講座：レポートは機関のレターヘッドと署名欄付きで出力されます。",
+ "Polis Akademisi": "警察学校"
 }

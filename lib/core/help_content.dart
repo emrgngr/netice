@@ -265,7 +265,7 @@ List<Faq> get faqs => <Faq>[
   Faq(tr('Raporlar'), tr('Raporlarda kurumumun adı görünmüyor.'),
       tr('Profil > Kurum bilgileri ekranından kurum adını ve diğer bilgileri girin. "Resmi yazı başlığı" açıksa tüm PDF\'lerde resmi başlık çıkar.')),
   Faq(tr('Raporlar'), tr('Polis Akademisi, askerî okul ya da üniversitede kullanılabilir mi?'),
-      tr('Evet. Profil > Kurum bilgileri ekranında kurum türünü seçin (üniversite, Polis Akademisi/PMYO/POMEM, askerî okul, kurs…). Başlık, amir ve öğretmen unvanları ile grup adı (sınıf, bölük, takım, grup) buna göre gelir; hepsini değiştirebilirsiniz. Başka ülkelerde "Türkiye resmi yazı biçimi"ni kapatın.')),
+      tr('Evet. Profil > Kurum bilgileri ekranında kurum türünü seçin (üniversite, Polis Akademisi, askerî okul, kurs…). Başlık, amir ve öğretmen unvanları ile grup adı (sınıf, bölük, takım, grup) buna göre gelir; hepsini değiştirebilirsiniz. Başka ülkelerde "Türkiye resmi yazı biçimi"ni kapatın.')),
   Faq(tr('Raporlar'), tr('Ülkemin not sistemi farklı. Değiştirebilir miyim?'),
       tr('Evet. Ayarlar > "Not sistemi"nden hazır sistemlerden birini seçin ya da düzeylerin adını ve alt sınırlarını kendiniz girin. Karneler ve raporlar bu sisteme göre hazırlanır.')),
   Faq(tr('Raporlar'), tr('Karneyi veliye nasıl gönderirim?'),

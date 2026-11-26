@@ -17,6 +17,7 @@ import '../omr/serial_scanner.dart';
 import 'scan_feedback.dart';
 import 'exam_screen.dart';
 import 'review_screen.dart' show unmatchedLabel;
+import 'rate_share.dart';
 import 'scan_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
@@ -53,6 +54,26 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
   bool _warn = false;
   FrameAdvice? _pendingAdvice;
   int _sessionCount = 0;
+
+  /// Oturum başındaki "kontrol bekleyen" kâğıt sayısı; puan isteği yalnız
+  /// sorunsuz geçen bir okuma oturumundan sonra gösterilir.
+  int? _reviewAtStart;
+  bool _rateAsked = false;
+
+  /// Başarılı bir okuma oturumundan (en az 10 kâğıt, yeni kontrol gerektiren
+  /// kâğıt yok) çıkarken, daha önce puan verilmediyse yıldız penceresi açılır.
+  bool _shouldAskRating(int review) {
+    final store = StoreScope.of(context);
+    return !_rateAsked && _sessionCount >= 10 && review <= (_reviewAtStart ?? review) && store.rating == 0 && !store.ratePrompted;
+  }
+
+  Future<void> _close(int review) async {
+    if (_shouldAskRating(review)) {
+      _rateAsked = true;
+      await showRateDialog(context);
+    }
+    if (mounted) Navigator.pop(context);
+  }
 
   @override
   void initState() {
@@ -219,9 +240,15 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
     final read = store.sheetsOf(exam.id).length;
     final total = store.studentsOf(exam.className).length;
     final review = store.sheetsOf(exam.id).where((s) => s.needsReview).length;
+    _reviewAtStart ??= review;
     final c = _controller;
 
-    return SuccessFlash(pulse: _flash, child: Scaffold(
+    return PopScope(
+      canPop: !_shouldAskRating(review),
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _close(review);
+      },
+      child: SuccessFlash(pulse: _flash, child: Scaffold(
       backgroundColor: NColors.darkBg,
       body: SafeArea(
         child: Column(children: [
@@ -230,7 +257,7 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
             padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
             child: Row(children: [
               IconButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: () => _close(review),
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
               ),
               Expanded(
@@ -355,7 +382,7 @@ class _CameraScanScreenState extends State<CameraScanScreen> with WidgetsBinding
           ),
         ]),
       ),
-    ));
+    )));
   }
 }
 

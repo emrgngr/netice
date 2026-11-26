@@ -1596,6 +1596,9 @@
  "İnternetsiz çalışma": "离线使用",
  "Karşılaştırma, Kasım 2026'da benzer uygulamaların mağaza ve ürün sayfalarındaki bilgilere dayanır. Yayınevi uygulamaları yalnız kendi formlarını okur.": "对比依据 2026 年 11 月同类应用的商店页面和产品页面信息。出版社应用只能读取自家答题卡。",
  "Kendi ders notunuzdan dakikalar içinde soru üretin, her öğrenciye kendi yanlışlarından tekrar testi hazırlayın.": "几分钟内用自己的课堂笔记出题，并为每位学生根据其错题生成复习测验。",
- "Okul, polis akademisi, askerî okul, POMEM, üniversite, kurs: raporlar kurumunuzun başlığı ve imza alanıyla çıkar.": "学校、警察学院、军校、大学、培训班：报告带有贵机构的抬头和签名栏。",
- "Soru yazmaktan veliye karneye kadar bütün sınav süreci tek uygulamada. Benzer uygulamalar bu işin yalnız bir parçasını yapar.": "从出题到给家长的成绩单，整个考试流程都在一个应用中完成。同类应用只能完成其中一部分。"
+ "Soru yazmaktan veliye karneye kadar bütün sınav süreci tek uygulamada. Benzer uygulamalar bu işin yalnız bir parçasını yapar.": "从出题到给家长的成绩单，整个考试流程都在一个应用中完成。同类应用只能完成其中一部分。",
+ "Her yayınevinin formunu ayrı uygulamayla okumayın; kendi sınavınızı, kendi formunuzla okuyun.": "不必为每家出版社的答题卡单独装一个应用：用自己的答题卡批改自己的考试。",
+ "Evet. Profil > Kurum bilgileri ekranında kurum türünü seçin (üniversite, Polis Akademisi, askerî okul, kurs…). Başlık, amir ve öğretmen unvanları ile grup adı (sınıf, bölük, takım, grup) buna göre gelir; hepsini değiştirebilirsiniz. Başka ülkelerde \"Türkiye resmi yazı biçimi\"ni kapatın.": "可以。在“个人 > 机构信息”中选择机构类型（大学、警察学院、军校、培训班…）。抬头、负责人和教师职务以及分组名称（班、连、排、组）会随之调整，均可修改。在其他国家请关闭“土耳其公文格式”。",
+ "Okul, polis akademisi, askerî okul, üniversite, kurs: raporlar kurumunuzun başlığı ve imza alanıyla çıkar.": "学校、警察学院、军校、大学、培训班：报告带有贵机构的抬头和签名栏。",
+ "Polis Akademisi": "警察学院"
 }
