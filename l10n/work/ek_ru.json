@@ -1512,5 +1512,6 @@
  "İfadeler doğru mu, yanlış mı? İşaretleyiniz.": "Верны ли утверждения? Отметьте.",
  "Şık": "Варианты",
  "Okuma sesi": "Звук сканирования",
- "Her kâğıt okununca kısa bir melodi çalar ve telefon hafifçe titrer": "После каждого бланка звучит короткая мелодия и телефон слегка вибрирует"
+ "Her kâğıt okununca kısa bir melodi çalar ve telefon hafifçe titrer": "После каждого бланка звучит короткая мелодия и телефон слегка вибрирует",
+ "Bu kâğıt zaten okunmuştu; tekrar eklenmedi.": "Этот бланк уже был прочитан; повторно не добавлен."
 }

@@ -1512,5 +1512,6 @@
  "İfadeler doğru mu, yanlış mı? İşaretleyiniz.": "Sind die Aussagen richtig oder falsch? Kreuzen Sie an.",
  "Şık": "Antworten",
  "Okuma sesi": "Scan-Ton",
- "Her kâğıt okununca kısa bir melodi çalar ve telefon hafifçe titrer": "Nach jedem gelesenen Bogen ertönt eine kurze Melodie und das Handy vibriert leicht"
+ "Her kâğıt okununca kısa bir melodi çalar ve telefon hafifçe titrer": "Nach jedem gelesenen Bogen ertönt eine kurze Melodie und das Handy vibriert leicht",
+ "Bu kâğıt zaten okunmuştu; tekrar eklenmedi.": "Dieser Bogen wurde bereits gelesen und nicht erneut hinzugefügt."
 }

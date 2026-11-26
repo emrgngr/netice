@@ -32,14 +32,11 @@ class ScanScreen extends StatefulWidget {
   State<ScanScreen> createState() => _ScanScreenState();
 }
 
+/// Bu oturumda okunan bir kâğıt (okunamayanlar listeye girmez).
 class _ScanEntry {
   final String source;
-  final Sheet? sheet;
-  final String? error;
-
-  /// Aynı kâğıt zaten okunmuştu (hata değil, bilgi).
-  final bool duplicate;
-  _ScanEntry(this.source, {this.sheet, this.error, this.duplicate = false});
+  final Sheet sheet;
+  _ScanEntry(this.source, {required this.sheet});
 }
 
 /// Toplu okumada sırayla işlenecek bir dosya.
@@ -51,7 +48,24 @@ class _Input {
 }
 
 class _ScanScreenState extends State<ScanScreen> {
+  /// Yalnız okunan kâğıtlar listelenir; okunamayanlar kaydedilmez,
+  /// kısa bir uyarıyla geçilir ve sayısı özet satırında görünür.
   final List<_ScanEntry> _entries = [];
+  int _failed = 0;
+  final _flash = ValueNotifier<int>(0);
+
+  @override
+  void dispose() {
+    _flash.dispose();
+    super.dispose();
+  }
+
+  /// Okunamayan dosya/sayfa: listeye eklenmez, tek dosyada kısa uyarı.
+  void _fail(String source, String message) {
+    _failed++;
+    HapticFeedback.heavyImpact();
+    if (_batchTotal <= 1) toast(context, '$source: $message');
+  }
   bool _busy = false;
   String _status = '';
   int _batchTotal = 0, _batchDone = 0;
@@ -80,7 +94,8 @@ class _ScanScreenState extends State<ScanScreen> {
       final status = store.lastScanStatus;
       if (jpeg != null && status != ScanStatus.duplicate) store.attachSheetImage(sheet, jpeg);
       if (status == ScanStatus.duplicate) {
-        setState(() => _entries.insert(0, _ScanEntry(source, sheet: sheet, duplicate: true)));
+        HapticFeedback.selectionClick();
+        toast(context, tr('Bu kâğıt zaten okunmuştu; tekrar eklenmedi.'));
         return;
       }
       if (status == ScanStatus.conflict) {
@@ -90,11 +105,12 @@ class _ScanScreenState extends State<ScanScreen> {
         toast(context, tr('Bu kâğıt "{0}" sınavına ait; oraya kaydedildi.', [store.examById(sheet.examId)?.name]));
       }
       ScanFeedback.success(store);
+      _flash.value++;
       setState(() => _entries.insert(0, _ScanEntry(source, sheet: sheet)));
     } on OmrException catch (e) {
-      setState(() => _entries.insert(0, _ScanEntry(source, error: tr(e.message))));
+      _fail(source, tr(e.message));
     } catch (e) {
-      setState(() => _entries.insert(0, _ScanEntry(source, error: tr('Okunamadı: {0}', [e]))));
+      _fail(source, tr('Okunamadı: {0}', [e]));
     }
   }
 
@@ -123,6 +139,7 @@ class _ScanScreenState extends State<ScanScreen> {
 
   Future<void> _processAll(List<_Input> inputs) async {
     final startEntries = _entries.length;
+    final startFailed = _failed;
     setState(() {
       _busy = true;
       _cancel = false;
@@ -169,11 +186,11 @@ class _ScanScreenState extends State<ScanScreen> {
             });
           }
         } catch (e) {
-          if (mounted) setState(() => _entries.insert(0, _ScanEntry(f.name, error: tr('PDF açılamadı: {0}', [e]))));
+          if (mounted) _fail(f.name, tr('PDF açılamadı: {0}', [e]));
         }
         if (!mounted) return;
         if (page == 0 && !_cancel) {
-          setState(() => _entries.insert(0, _ScanEntry(f.name, error: tr('PDF\'te okunacak sayfa bulunamadı.'))));
+          _fail(f.name, tr('PDF\'te okunacak sayfa bulunamadı.'));
         }
         // Sayfa sayısı az tahmin edildiyse ya da hiç bilinmiyorsa eksik adımları tamamla.
         if (!_cancel) setState(() => _batchDone += math.max(0, known - page));
@@ -182,7 +199,7 @@ class _ScanScreenState extends State<ScanScreen> {
         final gray = await compute(_decodeJob, bytes);
         if (!mounted) return;
         if (gray == null) {
-          setState(() => _entries.insert(0, _ScanEntry(f.name, error: tr('Görüntü açılamadı.'))));
+          _fail(f.name, tr('Görüntü açılamadı.'));
         } else {
           await _readGray(f.name, gray);
         }
@@ -191,10 +208,9 @@ class _ScanScreenState extends State<ScanScreen> {
     }
     if (!mounted) return;
     final batch = _entries.sublist(0, _entries.length - startEntries);
-    final ok = batch.where((e) => e.sheet != null && !e.duplicate && !e.sheet!.needsReview).length;
-    final review = batch.where((e) => e.sheet != null && !e.duplicate && e.sheet!.needsReview).length;
-    final dup = batch.where((e) => e.duplicate).length;
-    final err = batch.where((e) => e.sheet == null).length;
+    final ok = batch.where((e) => !e.sheet.needsReview).length;
+    final review = batch.where((e) => e.sheet.needsReview).length;
+    final err = _failed - startFailed;
     setState(() {
       _busy = false;
       _batchTotal = 0;
@@ -202,7 +218,6 @@ class _ScanScreenState extends State<ScanScreen> {
         if (_cancel) tr('Durduruldu'),
         tr('{0} okundu', [ok]),
         if (review > 0) tr('{0} kontrol bekliyor', [review]),
-        if (dup > 0) tr('{0} zaten okunmuştu', [dup]),
         if (err > 0) tr('{0} okunamadı', [err]),
       ].join(' · ');
       _onlyProblems = false;
@@ -238,7 +253,7 @@ class _ScanScreenState extends State<ScanScreen> {
     final total = store.studentsOf(exam.className).length;
     final t = Theme.of(context);
     final shown = _onlyProblems
-        ? _entries.where((e) => e.sheet == null || e.duplicate || e.sheet!.needsReview).toList()
+        ? _entries.where((e) => e.sheet.needsReview).toList()
         : _entries;
 
     return Scaffold(
@@ -252,7 +267,7 @@ class _ScanScreenState extends State<ScanScreen> {
               style: t.textTheme.bodySmall?.copyWith(color: Colors.white70)),
         ]),
       ),
-      body: Watermark(child: SafeArea(
+      body: SuccessFlash(pulse: _flash, child: Watermark(child: SafeArea(
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 720),
@@ -298,7 +313,7 @@ class _ScanScreenState extends State<ScanScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(children: [
                     Expanded(child: Text(_status, style: const TextStyle(color: Colors.white70))),
-                    if (!_busy && _entries.any((e) => e.sheet == null || e.duplicate || e.sheet!.needsReview))
+                    if (!_busy && _entries.any((e) => e.sheet.needsReview))
                       FilterChip(
                         label: Text(tr('Yalnızca sorunlular')),
                         selected: _onlyProblems,
@@ -331,40 +346,17 @@ class _ScanScreenState extends State<ScanScreen> {
                         separatorBuilder: (_, _) => const SizedBox(height: 8),
                         itemBuilder: (_, i) {
                           final e = shown[i];
-                          if (e.sheet == null) {
-                            return Card(
-                              color: NColors.darkSurface,
-                              child: ListTile(
-                                leading: const Icon(Icons.error_outline, color: NColors.coral),
-                                title: Text(e.source, style: const TextStyle(color: Colors.white)),
-                                subtitle: Text(e.error ?? '', style: const TextStyle(color: Colors.white70)),
-                              ),
-                            );
-                          }
-                          if (e.duplicate) {
-                            final who = students[e.sheet!.studentId];
-                            return Card(
-                              color: NColors.darkSurface,
-                              child: ListTile(
-                                leading: const Icon(Icons.content_copy_rounded, color: Colors.white54),
-                                title: Text(e.source, style: const TextStyle(color: Colors.white)),
-                                subtitle: Text(
-                                    tr('Bu kâğıt zaten okunmuştu{0}; tekrar eklenmedi.', [who == null ? '' : ' (${who.fullName})']),
-                                    style: const TextStyle(color: Colors.white70)),
-                              ),
-                            );
-                          }
-                          final r = Scorer.score(exam, e.sheet!);
-                          final st = students[e.sheet!.studentId];
-                          final reviewN = e.sheet!.answers.where((a) => a.needsReview).length;
+                          final r = Scorer.score(exam, e.sheet);
+                          final st = students[e.sheet.studentId];
+                          final reviewN = e.sheet.answers.where((a) => a.needsReview).length;
                           return Card(
                             child: ListTile(
                               leading: CircleAvatar(
-                                backgroundColor: (e.sheet!.needsReview ? NColors.amber : NColors.emerald).withValues(alpha: 0.18),
-                                child: Icon(e.sheet!.needsReview ? Icons.priority_high : Icons.check,
-                                    color: e.sheet!.needsReview ? NColors.amber : NColors.emerald),
+                                backgroundColor: (e.sheet.needsReview ? NColors.amber : NColors.emerald).withValues(alpha: 0.18),
+                                child: Icon(e.sheet.needsReview ? Icons.priority_high : Icons.check,
+                                    color: e.sheet.needsReview ? NColors.amber : NColors.emerald),
                               ),
-                              title: Text(st == null ? unmatchedLabel(e.sheet!) : '${st.fullName} · ${st.number}',
+                              title: Text(st == null ? unmatchedLabel(e.sheet) : '${st.fullName} · ${st.number}',
                                   style: const TextStyle(fontWeight: FontWeight.w700)),
                               subtitle: reviewN > 0
                                   ? Text(tr('{0} işaret kontrol bekliyor', [reviewN]), style: const TextStyle(color: NColors.amber))
@@ -427,7 +419,7 @@ class _ScanScreenState extends State<ScanScreen> {
             ]),
           ),
         ),
-      )),
+      ))),
     );
   }
 }

@@ -1512,5 +1512,6 @@
  "İfadeler doğru mu, yanlış mı? İşaretleyiniz.": "Are the statements true or false? Mark them.",
  "Şık": "Choices",
  "Okuma sesi": "Scan sound",
- "Her kâğıt okununca kısa bir melodi çalar ve telefon hafifçe titrer": "Plays a short melody and vibrates lightly after each sheet is read"
+ "Her kâğıt okununca kısa bir melodi çalar ve telefon hafifçe titrer": "Plays a short melody and vibrates lightly after each sheet is read",
+ "Bu kâğıt zaten okunmuştu; tekrar eklenmedi.": "This sheet was already read; it was not added again."
 }

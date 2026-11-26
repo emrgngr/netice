@@ -578,5 +578,6 @@
  "İfadeler doğru mu, yanlış mı? İşaretleyiniz.": "As afirmações são verdadeiras ou falsas? Marque.",
  "Şık": "Alternativas",
  "Okuma sesi": "Som de leitura",
- "Her kâğıt okununca kısa bir melodi çalar ve telefon hafifçe titrer": "Toca uma melodia curta e vibra levemente a cada folha lida"
+ "Her kâğıt okununca kısa bir melodi çalar ve telefon hafifçe titrer": "Toca uma melodia curta e vibra levemente a cada folha lida",
+ "Bu kâğıt zaten okunmuştu; tekrar eklenmedi.": "Esta folha já tinha sido lida; não foi adicionada novamente."
 }
