@@ -138,9 +138,48 @@ Future<Uint8List> buildBookletPdf(
     );
   }
 
+  /// Görselli şıklar: harf, görsel ve (varsa) altında kısa yazı; yan yana.
+  pw.Widget imageChoices(List<String> texts, List<String?> imgs, double width) {
+    final n = texts.length;
+    final perRow = width < 260 ? 2 : (n <= 4 ? n : 3);
+    final cellW = (width - (perRow - 1) * 6) / perRow;
+    final style = pw.TextStyle(fontSize: fs - 1, color: kids ? kidInk : null);
+    pw.Widget cell(int i) => pw.Row(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
+          pw.SizedBox(
+              width: fs * 1.6,
+              child: pw.Text('${_letter(i)})', style: pw.TextStyle(fontSize: fs, fontWeight: pw.FontWeight.bold, color: kids ? kidInk : null))),
+          pw.Expanded(
+            child: pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
+              if (i < imgs.length && image(imgs[i]) != null)
+                pw.Container(
+                  height: math.min(fs * 7, cellW * 0.75),
+                  alignment: pw.Alignment.topLeft,
+                  child: pw.Image(pw.MemoryImage(image(imgs[i])!), fit: pw.BoxFit.contain),
+                ),
+              if (texts[i].trim().isNotEmpty) pw.Text(texts[i], style: style),
+            ]),
+          ),
+        ]);
+    return pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
+      for (var i = 0; i < n; i += perRow)
+        pw.Padding(
+          padding: const pw.EdgeInsets.only(top: 4),
+          child: pw.Row(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
+            for (var k = i; k < i + perRow; k++) ...[
+              if (k > i) pw.SizedBox(width: 6),
+              pw.SizedBox(width: cellW, child: k < n ? cell(k) : pw.SizedBox()),
+            ],
+          ]),
+        ),
+    ]);
+  }
+
   pw.Widget choicesBox(PrintedQuestion p, double width) {
     final q = p.question;
-    final texts = q.type == QuestionType.trueFalse ? [tr('Doğru'), tr('Yanlış')] : p.choices;
+    final imgs = q.hasChoiceImages ? p.choiceImages : const <String?>[];
+    var texts = q.type == QuestionType.trueFalse ? [tr('Doğru'), tr('Yanlış')] : p.choices;
+    if (imgs.isNotEmpty && texts.length < imgs.length) texts = [...texts, for (var i = texts.length; i < imgs.length; i++) ''];
+    if (imgs.isNotEmpty) return imageChoices(texts, imgs, width);
     if (texts.isEmpty || texts.every((t) => t.trim().isEmpty)) return pw.SizedBox();
     final style = pw.TextStyle(fontSize: fs);
     // Çocuk şablonunda harf yuvarlak içinde.
@@ -176,6 +215,59 @@ Future<Uint8List> buildBookletPdf(
       ));
     }
     return pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: rows);
+  }
+
+  /// Okuma parçası: yönerge ve başlık bir parça, her paragraf ayrı parça
+  /// (uzun metin sütunlara/sayfalara bölünebilsin), görsel en sonda.
+  List<_Block> passageBlocks(BankPassage pa, int from, int to) {
+    final bar = pw.BoxDecoration(
+      color: kids ? kidSoftBlue : _soft,
+      border: pw.Border(left: pw.BorderSide(color: kids ? kidLine : _emerald, width: 2.5)),
+    );
+    final instruction = from == to
+        ? tr('{0}. soruyu aşağıdaki metne göre cevaplayınız.', [from])
+        : tr('{0}–{1}. soruları aşağıdaki metne göre cevaplayınız.', [from, to]);
+    final paras = [for (final t in pa.text.split(RegExp(r'\n\s*\n'))) if (t.trim().isNotEmpty) t.trim()];
+    final out = <_Block>[
+      _Block(
+          (width, _) => pw.Container(
+                width: width,
+                margin: const pw.EdgeInsets.only(top: 4),
+                padding: const pw.EdgeInsets.fromLTRB(8, 5, 8, 2),
+                decoration: bar,
+                child: pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
+                  pw.Text(instruction, style: pw.TextStyle(fontSize: fs, fontWeight: pw.FontWeight.bold, color: kids ? kidInk : _ink)),
+                  if (pa.title.trim().isNotEmpty)
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.only(top: 3),
+                      child: pw.Center(child: pw.Text(pa.title.trim(), style: pw.TextStyle(fontSize: fs, fontWeight: pw.FontWeight.bold))),
+                    ),
+                ]),
+              ),
+          keepWithNext: true),
+    ];
+    for (var i = 0; i < paras.length; i++) {
+      out.add(_Block(
+          (width, _) => pw.Container(
+                width: width,
+                padding: const pw.EdgeInsets.fromLTRB(8, 2, 8, 3),
+                decoration: bar,
+                child: pw.Text(paras[i], style: pw.TextStyle(fontSize: fs, lineSpacing: fs * 0.22, color: kids ? kidInk : null), textAlign: pw.TextAlign.justify),
+              ),
+          keepWithNext: i == paras.length - 1 && pa.imageId == null));
+    }
+    if (pa.imageId != null) {
+      out.add(_Block(
+          (width, maxH) => pw.Container(
+                width: width,
+                padding: const pw.EdgeInsets.fromLTRB(8, 2, 8, 4),
+                decoration: bar,
+                alignment: pw.Alignment.center,
+                child: imageBox(pa.imageId, width - 16, math.max(80, maxH - 80)),
+              ),
+          keepWithNext: true));
+    }
+    return out;
   }
 
   pw.Widget answerLines(int n) => pw.Column(children: [
@@ -403,6 +495,12 @@ Future<Uint8List> buildBookletPdf(
                       if (pointsText.isNotEmpty)
                         pw.TextSpan(text: pointsText, style: pw.TextStyle(fontSize: fs - 1.5, color: _muted)),
                     ]),
+                  ),
+                if (q.multiSelect && q.correct.length > 1)
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.only(top: 2),
+                    child: pw.Text(tr('(Doğru olan bütün şıkları işaretleyiniz.)'),
+                        style: pw.TextStyle(fontSize: fs - 1, fontStyle: pw.FontStyle.italic, fontWeight: pw.FontWeight.bold)),
                   ),
                 if (q.imageId != null) imageBox(q.imageId, inner, math.max(80, maxH - 60)),
                 if (q.items.isNotEmpty) premises(q.items, numbers: kids && q.parent?.type == QuestionType.ordering),
@@ -837,6 +935,14 @@ Future<Uint8List> buildBookletPdf(
         current = p.question.subject;
         out.add(sectionBlock(current.isEmpty ? tr('Diğer') : current));
       }
+      final pa = plan.passageStarting(p.question, i > 0 ? v.test[i - 1].question : null);
+      if (pa != null) {
+        var last = i;
+        while (last + 1 < v.test.length && v.test[last + 1].question.passageId == pa.id) {
+          last++;
+        }
+        out.addAll(passageBlocks(pa, p.no, v.test[last].no));
+      }
       final g = p.question.parent;
       if (g != null && g.type.grouped) {
         final members = [p];
@@ -851,7 +957,16 @@ Future<Uint8List> buildBookletPdf(
     if (v.open.isNotEmpty) {
       out.add(sectionBlock(tr('Klasik sorular'),
           note: answers ? null : tr('Cevaplarınızı her sorunun altındaki boşluğa yazınız.')));
-      for (final p in v.open) {
+      for (var i = 0; i < v.open.length; i++) {
+        final p = v.open[i];
+        final pa = plan.passageStarting(p.question, i > 0 ? v.open[i - 1].question : null);
+        if (pa != null) {
+          var last = i;
+          while (last + 1 < v.open.length && v.open[last + 1].question.passageId == pa.id) {
+            last++;
+          }
+          out.addAll(passageBlocks(pa, p.no, v.open[last].no));
+        }
         out.add(questionBlock(p, open: true, withAnswer: answers));
       }
     }

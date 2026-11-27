@@ -248,6 +248,16 @@ class BankQuestion {
   /// (Kaydedilmez.)
   final BankQuestion? parent;
 
+  /// Bağlı olduğu okuma parçası (metin, grafik, tablo); aynı parçaya bağlı
+  /// sorular kitapçıkta parçanın altında birlikte basılır.
+  final String? passageId;
+
+  /// Görselli şıklar: [i]. şıkkın görseli (yoksa null). [choices] ile aynı sırada.
+  final List<String?> choiceImages;
+
+  /// Birden çok doğru şık işaretlenir (öğrenci doğruların hepsini işaretlemeli).
+  final bool multiSelect;
+
   final bool favorite;
   final DateTime created;
   final DateTime updated;
@@ -277,15 +287,23 @@ class BankQuestion {
     this.items = const [],
     this.itemKeys = const [],
     this.parent,
+    this.passageId,
+    this.choiceImages = const [],
+    this.multiSelect = false,
     this.favorite = false,
     required this.created,
     required this.updated,
   });
 
+  /// [i]. şıkkın görseli (yoksa null).
+  String? choiceImage(int i) => i >= 0 && i < choiceImages.length ? choiceImages[i] : null;
+
+  bool get hasChoiceImages => choiceImages.any((c) => c != null);
+
   /// Şık sayısı (yazılı şıklar varsa onların sayısı).
   int get optionCount => type == QuestionType.trueFalse || type == QuestionType.trueFalseTable
       ? 2
-      : (choices.isNotEmpty ? choices.length : choiceCount);
+      : (choices.isNotEmpty ? choices.length : (hasChoiceImages ? choiceImages.length : choiceCount));
 
   /// Sıralama sorusunda kitapçıkta üretilecek şık sayısı (adım sayısının
   /// izin verdiği kadar).
@@ -305,7 +323,7 @@ class BankQuestion {
 
   /// Şıklar yazıyla verilmiş mi (karıştırılabilir mi)?
   /// (Şıklar görselin içindeyse karıştırılamaz.)
-  bool get shufflableChoices => type == QuestionType.multiple && parent == null && choices.length >= 2;
+  bool get shufflableChoices => type == QuestionType.multiple && parent == null && (choices.length >= 2 || choiceImages.length >= 2);
 
   /// Konu yoksa kazanım, o da yoksa ders: analizde kullanılan başlık.
   String get topicLabel => topic.trim().isNotEmpty ? topic.trim() : (outcome.trim().isNotEmpty ? outcome.trim() : subject.trim());
@@ -369,6 +387,7 @@ class BankQuestion {
             correct: {if (i < itemKeys.length && itemKeys[i] >= 0) itemKeys[i]},
             points: points,
             parent: this,
+            passageId: passageId,
             created: created,
             updated: updated,
           ),
@@ -422,6 +441,7 @@ class BankQuestion {
           solutionImageId: solutionImageId,
           points: points,
           parent: this,
+          passageId: passageId,
           created: created,
           updated: updated,
         ),
@@ -455,6 +475,10 @@ class BankQuestion {
     int? answerLines,
     List<String>? items,
     List<int>? itemKeys,
+    String? passageId,
+    bool clearPassage = false,
+    List<String?>? choiceImages,
+    bool? multiSelect,
     bool? favorite,
     DateTime? updated,
   }) =>
@@ -482,6 +506,9 @@ class BankQuestion {
         answerLines: answerLines ?? this.answerLines,
         items: items ?? this.items,
         itemKeys: itemKeys ?? this.itemKeys,
+        passageId: clearPassage ? null : (passageId ?? this.passageId),
+        choiceImages: choiceImages ?? this.choiceImages,
+        multiSelect: multiSelect ?? this.multiSelect,
         favorite: favorite ?? this.favorite,
         created: created,
         updated: updated ?? DateTime.now(),
@@ -511,6 +538,9 @@ class BankQuestion {
         'answerLines': answerLines,
         if (items.isNotEmpty) 'items': items,
         if (itemKeys.isNotEmpty) 'itemKeys': itemKeys,
+        if (passageId != null) 'passageId': passageId,
+        if (hasChoiceImages) 'choiceImages': choiceImages,
+        if (multiSelect) 'multiSelect': true,
         if (favorite) 'favorite': true,
         'created': created.toIso8601String(),
         'updated': updated.toIso8601String(),
@@ -540,7 +570,72 @@ class BankQuestion {
         answerLines: j['answerLines'] as int? ?? 4,
         items: (j['items'] as List?)?.cast<String>() ?? const [],
         itemKeys: (j['itemKeys'] as List?)?.cast<int>() ?? const [],
+        passageId: j['passageId'] as String?,
+        choiceImages: (j['choiceImages'] as List?)?.cast<String?>() ?? const [],
+        multiSelect: j['multiSelect'] as bool? ?? false,
         favorite: j['favorite'] as bool? ?? false,
+        created: DateTime.tryParse(j['created'] as String? ?? '') ?? DateTime.now(),
+        updated: DateTime.tryParse(j['updated'] as String? ?? '') ?? DateTime.now(),
+      );
+}
+
+/// Okuma parçası: birden çok sorunun ortak metni, grafiği ya da tablosu
+/// ("1–4. soruları aşağıdaki metne göre cevaplayınız").
+class BankPassage {
+  final String id;
+  final String title;
+  final String text;
+  final String? imageId;
+  final String subject;
+  final DateTime created;
+  final DateTime updated;
+
+  const BankPassage({
+    required this.id,
+    this.title = '',
+    this.text = '',
+    this.imageId,
+    this.subject = '',
+    required this.created,
+    required this.updated,
+  });
+
+  bool get isEmpty => text.trim().isEmpty && imageId == null;
+
+  /// Listelerde gösterilen ad.
+  String get label {
+    if (title.trim().isNotEmpty) return title.trim();
+    final t = text.trim().replaceAll(RegExp(r'\s+'), ' ');
+    if (t.isEmpty) return tr('Görselli parça');
+    return t.length > 48 ? '${t.substring(0, 47)}…' : t;
+  }
+
+  BankPassage copyWith({String? title, String? text, String? imageId, bool clearImage = false, String? subject}) => BankPassage(
+        id: id,
+        title: title ?? this.title,
+        text: text ?? this.text,
+        imageId: clearImage ? null : (imageId ?? this.imageId),
+        subject: subject ?? this.subject,
+        created: created,
+        updated: DateTime.now(),
+      );
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        if (title.isNotEmpty) 'title': title,
+        if (text.isNotEmpty) 'text': text,
+        if (imageId != null) 'imageId': imageId,
+        if (subject.isNotEmpty) 'subject': subject,
+        'created': created.toIso8601String(),
+        'updated': updated.toIso8601String(),
+      };
+
+  factory BankPassage.fromJson(Map<String, dynamic> j) => BankPassage(
+        id: j['id'] as String,
+        title: j['title'] as String? ?? '',
+        text: j['text'] as String? ?? '',
+        imageId: j['imageId'] as String?,
+        subject: j['subject'] as String? ?? '',
         created: DateTime.tryParse(j['created'] as String? ?? '') ?? DateTime.now(),
         updated: DateTime.tryParse(j['updated'] as String? ?? '') ?? DateTime.now(),
       );

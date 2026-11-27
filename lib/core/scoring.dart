@@ -45,6 +45,10 @@ class Scorer {
   static Outcome outcomeFor(Question q, Answer a) {
     if (q.cancelled) return Outcome.cancelled;
     if (a.state == MarkState.blank || a.marked.isEmpty) return Outcome.blank;
+    // Çok doğrulu soru: doğruların hepsi ve yalnız onlar işaretlenmeli.
+    if (q.multiSelect) {
+      return a.marked.length == q.correct.length && a.marked.containsAll(q.correct) ? Outcome.correct : Outcome.wrong;
+    }
     // Onaylanmamış çift işaret geçersiz sayılır (yanlış).
     if (a.marked.length > 1) return Outcome.wrong;
     return q.correct.contains(a.marked.first) ? Outcome.correct : Outcome.wrong;

@@ -7,6 +7,7 @@ import '../theme.dart';
 import '../widgets.dart';
 import 'bank_widgets.dart';
 import 'image_tools.dart';
+import 'passage_screen.dart';
 
 /// Soru ekleme / düzenleme.
 class QuestionEditorScreen extends StatefulWidget {
@@ -74,9 +75,12 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
         keys.add(i < _keys.length ? _keys[i] : -1);
       }
     }
+    final imgs = ty == QuestionType.multiple ? [for (var i = 0; i < _choices.length; i++) _q.choiceImage(i)] : const <String?>[];
     return _q.copyWith(
       text: _text.text.trim(),
       choices: withChoices && hasText ? texts : const [],
+      choiceImages: imgs.any((c) => c != null) ? imgs : const [],
+      multiSelect: ty == QuestionType.multiple && _q.multiSelect && _q.correct.length > 1,
       choiceCount: switch (ty) {
         QuestionType.multiple || QuestionType.matching || QuestionType.wordBank => _choices.length,
         QuestionType.ordering => _q.choiceCount.clamp(2, 5),
@@ -125,6 +129,21 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
     } else {
       Navigator.pop(context);
     }
+  }
+
+  Future<void> _pickChoiceImage(int i) async {
+    final b = await pickBankImage(context);
+    if (b == null) return;
+    final id = await bank.saveImage(b);
+    final imgs = [for (var k = 0; k < _choices.length; k++) _q.choiceImage(k)];
+    imgs[i] = id;
+    _set(_q.copyWith(choiceImages: imgs));
+  }
+
+  void _removeChoiceImage(int i) {
+    final imgs = [for (var k = 0; k < _choices.length; k++) _q.choiceImage(k)];
+    imgs[i] = null;
+    _set(_q.copyWith(choiceImages: imgs.any((c) => c != null) ? imgs : const []));
   }
 
   Future<void> _pickImage({bool solution = false}) async {
@@ -188,6 +207,8 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
     final c = {..._q.correct};
     if (c.contains(i)) {
       c.remove(i);
+    } else if (_q.multiSelect) {
+      c.add(i);
     } else {
       // Tek doğru cevap olağandır; birden çok doğru için uzun basılır.
       c
@@ -216,7 +237,9 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
     if (_choices.length <= 2) return;
     setState(() {
       _choices.removeLast().dispose();
-      _q = _q.copyWith(correct: _q.correct.where((c) => c < _choices.length).toSet());
+      _q = _q.copyWith(
+          correct: _q.correct.where((c) => c < _choices.length).toSet(),
+          choiceImages: _q.choiceImages.length > _choices.length ? _q.choiceImages.sublist(0, _choices.length) : null);
       _dirty = true;
     });
   }
@@ -327,6 +350,12 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
           ),
         ]),
       ),
+      if (!_q.type.grouped)
+        _card(
+          icon: Icons.article_outlined,
+          title: tr('Okuma parçası'),
+          child: PassagePicker(passageId: _q.passageId, onChanged: (id) => _set(id == null ? _q.copyWith(clearPassage: true) : _q.copyWith(passageId: id))),
+        ),
       _card(
         icon: Icons.account_tree_outlined,
         title: tr('Ders ve konu'),
@@ -546,7 +575,10 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
             IconButton(tooltip: tr('Şık ekle'), onPressed: _choices.length < 5 ? _addChoice : null, icon: const Icon(Icons.add_circle_outline)),
           ]),
           child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            Text(tr('Doğru şıkkın harfine dokunun. Şıklar görseldeyse metin kutularını boş bırakın.'),
+            Text(
+                _q.multiSelect
+                    ? tr('Doğru olan bütün şıkların harflerine dokunun.')
+                    : tr('Doğru şıkkın harfine dokunun. Şıklar görseldeyse metin kutularını boş bırakın.'),
                 style: TextStyle(fontSize: 12.5, color: t.colorScheme.onSurface.withValues(alpha: 0.6))),
             const SizedBox(height: 10),
             for (var i = 0; i < _choices.length; i++) ...[
@@ -560,11 +592,37 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
                       controller: _choices[i],
                       onChanged: (_) => _dirty = true,
                       textCapitalization: TextCapitalization.sentences,
-                      decoration: InputDecoration(isDense: true, hintText: tr('{0} şıkkı', [letter(i)])),
+                      decoration: InputDecoration(
+                          isDense: true,
+                          hintText: _q.choiceImage(i) != null ? tr('Görselin altındaki yazı (isteğe bağlı)') : tr('{0} şıkkı', [letter(i)])),
                     ),
                   ),
+                  if (_q.choiceImage(i) == null)
+                    IconButton(
+                      tooltip: tr('Şıkka görsel ekle'),
+                      onPressed: () => _pickChoiceImage(i),
+                      icon: const Icon(Icons.add_photo_alternate_outlined),
+                    ),
                 ]),
               ),
+              if (_q.choiceImage(i) != null)
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(start: 50, bottom: 10),
+                  child: Row(children: [
+                    Container(
+                      decoration: BoxDecoration(
+                          color: Colors.white, borderRadius: BorderRadius.circular(8), border: Border.all(color: t.colorScheme.outlineVariant)),
+                      padding: const EdgeInsets.all(4),
+                      child: BankImage(_q.choiceImage(i), height: 72, width: 120),
+                    ),
+                    const SizedBox(width: 6),
+                    IconButton(tooltip: tr('Değiştir'), onPressed: () => _pickChoiceImage(i), icon: const Icon(Icons.swap_horiz_rounded)),
+                    IconButton(
+                        tooltip: tr('Kaldır'),
+                        onPressed: () => _removeChoiceImage(i),
+                        icon: const Icon(Icons.delete_outline_rounded, color: NColors.coral)),
+                  ]),
+                ),
               if (_showMis && !_q.correct.contains(i))
                 Padding(
                   padding: const EdgeInsetsDirectional.only(start: 50, bottom: 10),
@@ -582,6 +640,13 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
                 ),
             ],
             const SizedBox(height: 4),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              value: _q.multiSelect,
+              onChanged: (v) => _set(_q.copyWith(multiSelect: v, correct: v ? null : (_q.correct.isEmpty ? const {} : {_q.correct.first}))),
+              title: Text(tr('Birden çok doğru şık')),
+              subtitle: Text(tr('Öğrenci doğru olan bütün şıkları işaretler; hepsini ve yalnız onları işaretlerse doğru sayılır. Kitapçıkta yönergesi yazılır.')),
+            ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               value: _showMis,

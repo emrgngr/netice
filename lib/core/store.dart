@@ -993,7 +993,13 @@ class AppStore extends ChangeNotifier {
     final codeBooklet = code?.resolve(FormCode.examCodeOf(target.id))?.booklet;
     var booklet = target.hasBooklets ? (r.booklet ?? codeBooklet ?? 0) : 0;
     if (booklet >= target.bookletCount) booklet = 0;
-    final answers = target.toMasterOrder(booklet, r.answers);
+    final answers = [
+      // Çok doğrulu sorularda birden çok işaret beklenir; öğretmene sorulmaz.
+      for (final (i, a) in target.toMasterOrder(booklet, r.answers).indexed)
+        a.state == MarkState.multiple && i < target.questions.length && target.questions[i].multiSelect
+            ? Answer(a.state, a.marked, confirmed: true)
+            : a,
+    ];
     lastScanStatus = ScanStatus.added;
     var studentId = st?.id;
     var openScores = const <double?>[];

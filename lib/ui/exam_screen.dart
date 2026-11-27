@@ -1408,7 +1408,8 @@ class _AnalysisTab extends StatelessWidget {
             outcomeCode: m[q.no],
             bankId: q.bankId,
             misconceptions: q.misconceptions,
-            cognitive: q.cognitive),
+            cognitive: q.cognitive,
+            multiSelect: q.multiSelect),
     ]));
     if (context.mounted) toast(context, tr('Kazanımlar kaydedildi.'));
   }

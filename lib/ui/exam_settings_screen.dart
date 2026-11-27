@@ -153,7 +153,8 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
           outcomeCode: code.isEmpty ? null : code,
           bankId: _qs[i].bankId,
           misconceptions: _qs[i].misconceptions,
-          cognitive: _qs[i].cognitive));
+          cognitive: _qs[i].cognitive,
+          multiSelect: _qs[i].multiSelect));
     }
     final open = <OpenQuestion>[];
     for (var i = 0; i < _open.length; i++) {
@@ -613,6 +614,22 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
                             ]),
                           ),
                         ]),
+                        if (_qs[i].correct.length > 1)
+                          Padding(
+                            padding: const EdgeInsetsDirectional.only(start: 38, top: 6),
+                            child: Wrap(spacing: 6, runSpacing: 6, children: [
+                              ChoiceChip(
+                                label: Text(tr('Biri yeterli')),
+                                selected: !_qs[i].multiSelect,
+                                onSelected: (_) => setState(() => _qs[i] = _qs[i].copyWith(multiSelect: false)),
+                              ),
+                              ChoiceChip(
+                                label: Text(tr('Hepsi işaretlenmeli')),
+                                selected: _qs[i].multiSelect,
+                                onSelected: (_) => setState(() => _qs[i] = _qs[i].copyWith(multiSelect: true)),
+                              ),
+                            ]),
+                          ),
                         const SizedBox(height: 8),
                         Row(children: [
                           SizedBox(
