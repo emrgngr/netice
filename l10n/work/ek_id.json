@@ -1043,5 +1043,13 @@
  "{0} kodlama alanı (doğum tarihi, cinsiyet gibi)": "{0} kolom kode (seperti tanggal lahir, jenis kelamin)",
  "{0} seçenekten biri okunur.": "Satu dari {0} pilihan dibaca.",
  "{0} sütun; her sütundan bir karakter okunur ({1}).": "{0} kolom; satu karakter dibaca dari setiap kolom ({1}).",
- "Örn. Kadın, Erkek": "Mis. Perempuan, Laki-laki"
+ "Örn. Kadın, Erkek": "Mis. Perempuan, Laki-laki",
+ "Netice Pro ve kurum": "Netice Pro dan institusi",
+ "Ödeme Microsoft hesabınızdan": "Pembayaran ditagihkan ke akun Microsoft Anda",
+ "Microsoft hesabı > Hizmetler ve abonelikler": "Akun Microsoft > Layanan & langganan",
+ "Ana ekrandaki \"Dönem sonu raporu\"nu açın; sınıfı ve dönemi seçin.": "Buka \"Laporan akhir periode\" di layar beranda; pilih kelas dan semester.",
+ "Ana ekrandaki \"Genel analiz\" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.": "\"Analisis keseluruhan\" di layar utama menampilkan hasil semua kelas dan semua siswa yang mengikuti ujian secara bersamaan.",
+ "Dönem sonu raporu": "Laporan akhir periode",
+ "Genel analiz": "Analisis keseluruhan",
+ "Kazandığınız zaman": "Waktu yang Anda hemat"
 }

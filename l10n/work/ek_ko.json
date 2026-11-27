@@ -1043,5 +1043,13 @@
  "{0} kodlama alanı (doğum tarihi, cinsiyet gibi)": "마킹 항목 {0}개 (생년월일, 성별 등)",
  "{0} seçenekten biri okunur.": "선택지 {0}개 중 하나를 읽습니다.",
  "{0} sütun; her sütundan bir karakter okunur ({1}).": "{0}열, 각 열에서 한 글자를 읽습니다 ({1}).",
- "Örn. Kadın, Erkek": "예: 여, 남"
+ "Örn. Kadın, Erkek": "예: 여, 남",
+ "Netice Pro ve kurum": "Netice Pro 및 기관",
+ "Ödeme Microsoft hesabınızdan": "결제는 Microsoft 계정으로 청구됩니다",
+ "Microsoft hesabı > Hizmetler ve abonelikler": "Microsoft 계정 > 서비스 및 구독",
+ "Ana ekrandaki \"Dönem sonu raporu\"nu açın; sınıfı ve dönemi seçin.": "홈 화면에서 \"기말 보고서\"를 열고 반과 학기를 선택하세요.",
+ "Ana ekrandaki \"Genel analiz\" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.": "홈 화면의 \"전체 분석\"에서 모든 반과 시험에 응시한 모든 학생의 결과를 한곳에서 볼 수 있습니다.",
+ "Dönem sonu raporu": "기말 보고서",
+ "Genel analiz": "전체 분석",
+ "Kazandığınız zaman": "절약한 시간"
 }

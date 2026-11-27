@@ -15,6 +15,7 @@ import 'onboarding_screen.dart';
 import 'rate_share.dart';
 import 'help_screen.dart';
 import 'scan_feedback.dart';
+import 'service_cards.dart';
 import 'theme.dart';
 import 'widgets.dart';
 import 'template_screen.dart';
@@ -240,7 +241,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(tr('Ayarlar'))),
       body: Watermark(
-        child: ListView(padding: EdgeInsets.fromLTRB(16, 8, 16, 40 + MediaQuery.paddingOf(context).bottom), children: [
+        child: SectionedList(padding: EdgeInsets.fromLTRB(16, 8, 16, 40 + MediaQuery.paddingOf(context).bottom), children: [
           SectionTitle(tr('Dil')),
           Card(
             clipBehavior: Clip.antiAlias,

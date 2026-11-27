@@ -10,6 +10,7 @@ import '../core/spreadsheet.dart';
 import '../core/models.dart';
 import '../main.dart';
 import 'student_detail_screen.dart';
+import 'service_cards.dart';
 import 'theme.dart';
 import 'transfer_ui.dart';
 import 'illustrations.dart';
@@ -306,6 +307,16 @@ class _StudentsScreenState extends State<StudentsScreen> {
           onChanged: (v) => setState(() => _query = v),
         ),
         const SizedBox(height: 12),
+        if (wideLayout(context) && list.isNotEmpty)
+          LayoutBuilder(builder: (context, c) {
+            final cols = (c.maxWidth / 250).floor().clamp(2, 6);
+            void open(Student s) => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => StudentDetailScreen(studentId: s.id, onEdit: (st) => _edit(existing: st))));
+            return ServiceGrid(columns: cols, gap: 12, children: [
+              for (final s in list) _StudentCard(student: s, onTap: () => open(s), onEdit: () => _edit(existing: s)),
+            ]);
+          })
+        else
         Card(
           clipBehavior: Clip.antiAlias,
           child: Column(children: [
@@ -331,6 +342,77 @@ class _StudentsScreenState extends State<StudentsScreen> {
           ]),
         ),
       ]),
+    );
+  }
+}
+
+/// Geniş ekranda öğrenci kartı: yuvarlak baş harf rozeti, ad, numara.
+class _StudentCard extends StatefulWidget {
+  final Student student;
+  final VoidCallback onTap;
+  final VoidCallback onEdit;
+  const _StudentCard({required this.student, required this.onTap, required this.onEdit});
+
+  @override
+  State<_StudentCard> createState() => _StudentCardState();
+}
+
+class _StudentCardState extends State<_StudentCard> {
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context);
+    final dark = t.brightness == Brightness.dark;
+    final s = widget.student;
+    final r = BorderRadius.circular(20);
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hover = true),
+      onExit: (_) => setState(() => _hover = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 160),
+        transform: Matrix4.translationValues(0, _hover ? -2 : 0, 0),
+        decoration: BoxDecoration(borderRadius: r, boxShadow: [
+          if (!dark) BoxShadow(color: NColors.ink.withValues(alpha: _hover ? 0.14 : 0.07), blurRadius: _hover ? 20 : 14, offset: const Offset(0, 6)),
+        ]),
+        child: Material(
+          color: t.cardTheme.color ?? t.colorScheme.surface,
+          clipBehavior: Clip.antiAlias,
+          shape: RoundedRectangleBorder(
+              borderRadius: r,
+              side: BorderSide(color: _hover ? NColors.emerald.withValues(alpha: 0.6) : t.colorScheme.outlineVariant)),
+          child: InkWell(
+            onTap: widget.onTap,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(14, 14, 6, 14),
+              child: Row(children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  alignment: Alignment.center,
+                  decoration: const BoxDecoration(shape: BoxShape.circle, gradient: inkGradient),
+                  child: Text(s.firstName.isEmpty ? '?' : s.firstName.characters.first.toUpperCase(),
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 17)),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text(s.fullName, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 2),
+                    Text('${tr('No')} ${s.number}',
+                        style: TextStyle(fontSize: 12.5, color: t.colorScheme.onSurface.withValues(alpha: 0.6))),
+                  ]),
+                ),
+                IconButton(
+                  tooltip: tr('Düzenle'),
+                  icon: const Icon(Icons.edit_outlined, size: 18),
+                  onPressed: widget.onEdit,
+                ),
+              ]),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
