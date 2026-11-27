@@ -20,6 +20,8 @@ import '../main.dart';
 import '../reports/kid_reports_pdf.dart';
 import '../reports/pdf_documents.dart';
 import 'review_screen.dart';
+import 'deneme_screen.dart';
+import 'sections_screen.dart';
 import 'camera_scan_screen.dart';
 import 'exam_settings_screen.dart';
 import 'grade_export_screen.dart';
@@ -408,6 +410,7 @@ class ExamScreen extends StatelessWidget {
           await Navigator.of(context).push(MaterialPageRoute(builder: (_) => OpenScoresScreen(examId: exam.id)));
         }),
       _Action(Icons.picture_as_pdf_outlined, tr('Sınav raporu'), pdfReport),
+      if (exam.isMultiSubject) _Action(Icons.view_column_outlined, tr('Ders ders sonuçlar'), () => DenemeScreen.open(context, exam.id)),
       _Action(Icons.badge_outlined, tr('Öğrenci karnesi'), studentCards),
       if (exam.kidStyle) _Action(Icons.workspace_premium_outlined, tr('Tebrik belgeleri'), certificates),
       _Action(Icons.table_view_outlined, tr('Excel'), excel),
@@ -420,6 +423,8 @@ class ExamScreen extends StatelessWidget {
       _Action(Icons.content_copy_rounded, tr('Eşdeğer telafi sınavı'), makeup),
       _Action(Icons.forward_to_inbox_rounded, tr('Velilere toplu gönder'), () => openBulkParentSend(context, exam)),
       _Action(Icons.hub_outlined, exam.isCommon ? tr('Ortak sınav') : tr('Ortak sınav yap'), () => openCommonExamMenu(context, exam)),
+      if (!exam.isMultiSubject)
+        _Action(Icons.view_column_outlined, tr('Deneme sınavı yap (ders bölümleri)'), () => SectionsScreen.open(context, exam.id)),
     ];
 
     return DefaultTabController(
@@ -617,6 +622,19 @@ class _ResultsTab extends StatelessWidget {
                     .push(MaterialPageRoute(builder: (_) => OpenScoresScreen(examId: exam.id))),
                 child: Text(tr('Gir')),
               ),
+            ),
+          ),
+        ),
+      if (exam.isMultiSubject)
+        Padding(
+          padding: const EdgeInsets.only(bottom: 14),
+          child: Card(
+            child: ListTile(
+              leading: const Icon(Icons.view_column_outlined),
+              title: Text(tr('Ders ders sonuçlar'), style: const TextStyle(fontWeight: FontWeight.w700)),
+              subtitle: Text(tr('{0} ders · net, sıralama ve ders başarı sıralaması', [exam.sections.length])),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () => DenemeScreen.open(context, exam.id),
             ),
           ),
         ),

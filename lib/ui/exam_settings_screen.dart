@@ -6,6 +6,7 @@ import '../core/pro.dart';
 import 'key_from_photo.dart';
 import 'pro_screen.dart';
 import 'rubric_screen.dart';
+import 'sections_screen.dart';
 import 'bank/bank_widgets.dart' show SuggestField, bank;
 import 'theme.dart';
 import 'widgets.dart';
@@ -186,7 +187,9 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
         orders.add(order);
       }
     }
-    StoreScope.of(context).upsertExam(_exam.copyWith(
+    // Ders bölümleri ayrı ekranda kaydedilir; en güncel sınavın üzerine yazılır.
+    final latest = StoreScope.of(context).examById(widget.examId) ?? _exam;
+    StoreScope.of(context).upsertExam(latest.copyWith(
       bookletOrders: orders,
       // Sıra elle değiştiyse kitapçık bankadan basılan karışık şık eşlemesi geçersizdir.
       bookletChoiceOrders: orders.toString() == _exam.bookletOrders.toString() ? _exam.bookletChoiceOrders : const [],
@@ -333,6 +336,24 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
                 ],
                 onChanged: (v) => setState(() => _wpc = v ?? 0),
               ),
+              SectionTitle(tr('Deneme sınavı')),
+              Builder(builder: (context) {
+                final ex = StoreScope.of(context).examById(widget.examId) ?? _exam;
+                return Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.view_column_outlined),
+                    title: Text(tr('Ders bölümleri'), style: const TextStyle(fontWeight: FontWeight.w700)),
+                    subtitle: Text(ex.isMultiSubject
+                        ? [for (final s in ex.sections) '${s.name} (${s.count})'].join(' · ')
+                        : tr('Birden çok ders varsa ders ders net, toplam net ve sıralama')),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () async {
+                      await SectionsScreen.open(context, widget.examId);
+                      if (mounted) setState(() {});
+                    },
+                  ),
+                );
+              }),
               SectionTitle(tr('Form türü')),
               Card(
                 child: Padding(

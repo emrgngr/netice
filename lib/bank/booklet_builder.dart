@@ -166,6 +166,23 @@ class BookletPlan {
     return BookletPlan._(test, open, variants, o, choiceCount, testPts, openPts);
   }
 
+  /// Sorular birden çok dersten ve her ders tek bir blokta ise ders
+  /// bölümleri (çok dersli deneme); değilse boş.
+  List<ExamSection> subjectSections() {
+    final runs = <(String, int)>[];
+    for (final q in testMaster) {
+      final s = q.subject.trim();
+      if (runs.isNotEmpty && runs.last.$1 == s) {
+        runs[runs.length - 1] = (s, runs.last.$2 + 1);
+      } else {
+        runs.add((s, 1));
+      }
+    }
+    final names = runs.map((r) => r.$1).toList();
+    if (runs.length < 2 || names.toSet().length != names.length || names.any((n) => n.isEmpty)) return const [];
+    return ExamSection.fromCounts([for (final r in runs) (r.$1, r.$2, 0.0)]);
+  }
+
   static List<double> _evenSplit(double total, int n) {
     // Yüzde birlik hassasiyetle; kalan ilk sorulara dağıtılır.
     final cents = (total * 100).round();
@@ -222,6 +239,7 @@ class BookletPlan {
       kidForm: kidBox,
       kidReports: options.kids,
       kidTheme: options.kidTheme,
+      sections: subjectSections(),
       openQuestions: [
         for (var i = 0; i < openMaster.length; i++)
           OpenQuestion(label: _openLabel(openMaster[i], i), maxPoints: openPoints[i], bankId: openMaster[i].id),

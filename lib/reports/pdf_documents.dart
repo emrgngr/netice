@@ -8,6 +8,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/src/pdf/font/arabic.dart' as arabic_text;
 import 'package:pdf/widgets.dart' as pw;
 
+import '../core/deneme.dart';
 import '../core/models.dart';
 import '../core/insights.dart';
 import '../core/mastery.dart';
@@ -1410,6 +1411,7 @@ Future<Uint8List> buildStudentCardsPdf({
   }
   final fonts = await _Fonts.load(school.fontFamily);
   final r = ExamReport.build(exam, results);
+  final deneme = exam.isMultiSubject ? DenemeReport.build(exam, results) : null;
   final k = _Kit(exam, school, docTitle: tr('Öğrenci Sınav Karnesi'), letterheadEveryPage: true);
   final max = exam.rule.maxScore;
   final doc = pw.Document(
@@ -1521,6 +1523,38 @@ Future<Uint8List> buildStudentCardsPdf({
                           : '–'),
               ],
             ]),
+            if (deneme != null && deneme.rowOf(res.sheet.studentId) != null) ...[
+              k.title(tr('Ders ders sonuçlar'),
+                  deneme.exam.hasWeightedScore
+                      ? tr('Toplam net {0} · puan {1} · deneme sırası {2} / {3}', [
+                          _f2(deneme.rowOf(res.sheet.studentId)!.totalNet),
+                          _f2(deneme.rowOf(res.sheet.studentId)!.weighted!),
+                          deneme.rowOf(res.sheet.studentId)!.rank,
+                          deneme.rows.length,
+                        ])
+                      : tr('Toplam net {0} · deneme sırası {1} / {2}', [
+                          _f2(deneme.rowOf(res.sheet.studentId)!.totalNet),
+                          deneme.rowOf(res.sheet.studentId)!.rank,
+                          deneme.rows.length,
+                        ])),
+              k.table(
+                [tr('Ders'), tr('Soru'), tr('Doğru'), tr('Yanlış'), tr('Boş'), tr('Net'), tr('Sınıf ort. net')],
+                [
+                  for (final (i, s) in deneme.rowOf(res.sheet.studentId)!.sections.indexed)
+                    [
+                      s.section.name,
+                      '${s.counted}',
+                      '${s.correct}',
+                      '${s.wrong}',
+                      '${s.blank}',
+                      _f2(s.net),
+                      _f2(deneme.summaries[i].meanNet),
+                    ]
+                ],
+                leftColumn: 0,
+                widths: {0: const pw.FlexColumnWidth(3)},
+              ),
+            ],
             k.title(tr('Sınıfla karşılaştırma')),
             compare(tr('Öğrenci'), res.score, _emerald),
             compare(tr('Sınıf ortalaması'), r.stats.mean, _ink),
@@ -2673,5 +2707,87 @@ Future<Uint8List> buildOutcomeTrackingPdf(TermReport t, {SchoolInfo school = con
       ));
     }
   }
+  return doc.save();
+}
+
+/// Çok dersli deneme sınavı sonuç listesi: ders ortalamaları, ders başarı
+/// sıralaması ve öğrenci sıralaması (ders ders D/Y/N, toplam net, puan).
+Future<Uint8List> buildDenemePdf({
+  required DenemeReport report,
+  required Map<String, Student> students,
+  SchoolInfo school = const SchoolInfo(),
+}) async {
+  final exam = report.exam;
+  final fonts = await _Fonts.load(school.fontFamily);
+  final k = _Kit(exam, school, docTitle: tr('Deneme Sınavı Sonuç Listesi'));
+  final doc = pw.Document(theme: fonts.theme, title: tr('{0} deneme sonuçları', [exam.name]), author: tr('Netice'));
+  final w = exam.hasWeightedScore;
+  final secs = exam.sections;
+  doc.addPage(pw.MultiPage(
+    textDirection: _dir,
+    pageFormat: PdfPageFormat.a4.landscape,
+    margin: const pw.EdgeInsets.fromLTRB(30, 26, 30, 26),
+    header: k.header,
+    footer: k.footer,
+    build: (ctx) => [
+      k.title(
+          tr('Deneme sınavı sonuçları'),
+          tr('{0} öğrenci · {1} ders · {2} soru · ortalama toplam net {3}', [
+            report.rows.length,
+            secs.length,
+            exam.questionCount,
+            _f2(report.meanTotalNet),
+          ])),
+      k.grid([
+        for (final s in report.summaries)
+          k.statBox(s.section.name, '${_f2(s.meanNet)} / ${s.counted}',
+              hint: tr('Ortalama net · %{0}', [_f1(s.percent)]),
+              color: _pColor(s.percent / 100)),
+        if (w) k.statBox(tr('Ortalama puan'), _f2(report.meanWeighted ?? 0)),
+      ], columns: math.min(6, secs.length + (w ? 1 : 0))),
+      pw.SizedBox(height: 6),
+      pw.Text(tr('Ders başarı sıralaması'), style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10, color: _ink)),
+      pw.SizedBox(height: 4),
+      for (final (i, s) in report.ranked.indexed)
+        pw.Padding(
+          padding: const pw.EdgeInsets.only(bottom: 3),
+          child: pw.Row(children: [
+            pw.SizedBox(width: 16, child: pw.Text('${i + 1}.', style: const pw.TextStyle(fontSize: 8, color: _muted))),
+            pw.SizedBox(width: 170, child: pw.Text(s.section.name, style: const pw.TextStyle(fontSize: 8))),
+            pw.Expanded(child: k.hbar(s.percent / 100, _pColor(s.percent / 100))),
+            pw.SizedBox(width: 40, child: pw.Text('%${_f1(s.percent)}', textAlign: pw.TextAlign.right, style: const pw.TextStyle(fontSize: 8))),
+          ]),
+        ),
+      pw.SizedBox(height: 10),
+      k.table(
+        [
+          tr('Sıra'),
+          tr('Ad Soyad'),
+          for (final s in secs) s.name.length > 14 ? '${s.name.substring(0, 13)}.' : s.name,
+          tr('Top. net'),
+          if (w) tr('Puan') else tr('Not'),
+        ],
+        [
+          for (final r in report.rows)
+            [
+              '${r.rank}',
+              students[r.result.sheet.studentId]?.fullName ?? tr('Eşleşmeyen kâğıt'),
+              for (final s in r.sections) '${s.correct}/${s.wrong} · ${_f2(s.net)}',
+              _f2(r.totalNet),
+              w ? _f2(r.weighted!) : _f1(r.result.score),
+            ]
+        ],
+        leftColumn: 1,
+        widths: {0: const pw.FixedColumnWidth(28), 1: const pw.FlexColumnWidth(3)},
+        fontSize: secs.length > 5 ? 7 : 8,
+      ),
+      pw.SizedBox(height: 4),
+      pw.Text(
+          tr('Ders sütunlarında doğru/yanlış · net yazılıdır.') +
+              (w ? ' ${tr('Puan = taban puan + her dersin neti × katsayısı (tahmini).')}' : ''),
+          style: const pw.TextStyle(fontSize: 7, color: _muted)),
+      k.signatures(),
+    ],
+  ));
   return doc.save();
 }
