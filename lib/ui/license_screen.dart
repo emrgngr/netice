@@ -7,6 +7,7 @@ import '../core/license.dart';
 import '../l10n/l10n.dart';
 import '../main.dart';
 import 'admin_panel_screen.dart';
+import 'service_cards.dart';
 import 'theme.dart';
 import 'widgets.dart';
 
@@ -79,7 +80,7 @@ class _LicenseScreenState extends State<LicenseScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(tr('Kurum lisansı'))),
       body: Watermark(
-        child: ListView(padding: EdgeInsets.fromLTRB(20, 8, 20, 40 + MediaQuery.paddingOf(context).bottom), children: [
+        child: SectionedList(padding: EdgeInsets.fromLTRB(20, 8, 20, 40 + MediaQuery.paddingOf(context).bottom), children: [
           if (l != null)
             Card(
               child: Padding(

@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 
 import '../core/models.dart';
+import 'logo.dart';
 import 'theme.dart';
 import '../l10n/l10n.dart';
 
@@ -123,15 +124,31 @@ class AppLogo extends StatelessWidget {
   const AppLogo({super.key, this.size = 40});
 
   @override
-  Widget build(BuildContext context) => Container(
+  Widget build(BuildContext context) {
+    // Gece modunda zıt renk: açık zemin üzerinde koyu (lacivert) logo.
+    if (Theme.of(context).brightness == Brightness.dark) {
+      return Container(
         width: size,
         height: size,
+        padding: EdgeInsets.all(size * 0.2),
         decoration: BoxDecoration(
+          color: const Color(0xFFF4F6FB),
           borderRadius: BorderRadius.circular(size * 0.225),
-          boxShadow: [BoxShadow(color: NColors.ink.withValues(alpha: 0.25), blurRadius: size * 0.3, offset: Offset(0, size * 0.08))],
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.35), blurRadius: size * 0.3, offset: Offset(0, size * 0.08))],
         ),
-        child: Image.asset('assets/icon/netice_icon_rounded_1024.png', width: size, height: size, filterQuality: FilterQuality.high),
+        child: NeticeMark(size: size * 0.6, ink: NColors.ink, showEmpty: size >= 40),
       );
+    }
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(size * 0.225),
+        boxShadow: [BoxShadow(color: NColors.ink.withValues(alpha: 0.25), blurRadius: size * 0.3, offset: Offset(0, size * 0.08))],
+      ),
+      child: Image.asset('assets/icon/netice_icon_rounded_1024.png', width: size, height: size, filterQuality: FilterQuality.high),
+    );
+  }
 }
 
 /// Lacivert gradyanlı, hafif dokulu "kahraman" panel.

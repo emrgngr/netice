@@ -10,11 +10,11 @@ import '../bank/bank_store.dart';
 
 import '../core/legal.dart';
 import '../main.dart';
-import 'logo.dart';
 import 'onboarding_screen.dart';
 import 'rate_share.dart';
 import 'help_screen.dart';
 import 'scan_feedback.dart';
+import 'logo.dart';
 import 'service_cards.dart';
 import 'theme.dart';
 import 'widgets.dart';
@@ -502,7 +502,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onTap: _secretTap,
             child: Center(
             child: Column(children: [
-              const NeticeMark(size: 36),
+              // Gece modunda zıt renk: açık zemin üzerinde koyu logo.
+              if (t.brightness == Brightness.dark)
+                Container(
+                  padding: const EdgeInsets.all(7),
+                  decoration: BoxDecoration(color: const Color(0xFFF4F6FB), borderRadius: BorderRadius.circular(10)),
+                  child: const NeticeMark(size: 30, ink: NColors.ink, showEmpty: false),
+                )
+              else
+                const NeticeMark(size: 36),
               const SizedBox(height: 6),
               Text(tr('Netice {0}', [appVersion]), style: const TextStyle(fontWeight: FontWeight.w700)),
               Text(tr('Kâğıttan sonuca, saniyeler içinde.'), style: TextStyle(color: muted, fontSize: 12)),

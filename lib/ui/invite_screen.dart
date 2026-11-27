@@ -8,6 +8,7 @@ import '../core/legal.dart';
 import '../core/referral.dart';
 import '../l10n/l10n.dart';
 import '../main.dart';
+import 'service_cards.dart';
 import 'theme.dart';
 import 'widgets.dart';
 
@@ -77,7 +78,7 @@ class _InviteScreenState extends State<InviteScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(tr('Arkadaşını davet et'))),
       body: Watermark(
-        child: ListView(
+        child: SectionedList(
           padding: EdgeInsets.fromLTRB(20, 8, 20, 40 + MediaQuery.paddingOf(context).bottom),
           children: [
             // Kendi davet kodu.
