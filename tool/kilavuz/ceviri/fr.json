@@ -383,5 +383,11 @@
  "Otomatik analiz ve karne": "Analyses et bulletins automatiques",
  "Kayıt gerekmez": "Sans inscription",
  "Optik formları telefonla okuyun; puan, analiz, karne ve raporlar kendiliğinden hazırlansın. Bu kılavuz, ilk açılıştan rapor almaya kadar her adımı gösterir.": "Scannez les feuilles de réponses avec votre téléphone : notes, analyses, bulletins et rapports se préparent tout seuls. Ce guide présente chaque étape, du premier lancement au premier rapport.",
- "Kâğıttan sonuca, saniyeler içinde.": "De la feuille aux résultats, en quelques secondes."
+ "Kâğıttan sonuca, saniyeler içinde.": "De la feuille aux résultats, en quelques secondes.",
+ "Dönem sonu raporu": "Bilan de fin de période",
+ "Dönem sonu raporu, seçtiğiniz sınavları birleştirerek dönem notlarını ve kazanım karnelerini hazırlar.": "Le bilan de fin de période combine les examens choisis pour préparer les moyennes et les bulletins de compétences.",
+ "Şube karşılaştırması": "Comparaison des classes",
+ "Aynı sınavı birden çok şubede yaptıysanız ana ekrandaki Şube karşılaştırması şubeleri yan yana koyar.": "Si vous avez donné la même épreuve dans plusieurs classes, la Comparaison des classes de l'écran d'accueil les place côte à côte.",
+ "Genel analiz": "Analyse générale",
+ "Genel analiz, tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını tek ekranda toplar.": "L'Analyse générale réunit sur un écran les résultats de toutes les classes et de tous les élèves ayant passé une épreuve."
 }

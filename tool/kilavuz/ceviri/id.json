@@ -381,5 +381,11 @@
  "Otomatik analiz ve karne": "Analisis dan rapor otomatis",
  "Kayıt gerekmez": "Tanpa pendaftaran",
  "Optik formları telefonla okuyun; puan, analiz, karne ve raporlar kendiliğinden hazırlansın. Bu kılavuz, ilk açılıştan rapor almaya kadar her adımı gösterir.": "Pindai lembar jawaban dengan ponsel dan biarkan nilai, analisis, rapor, dan laporan tersusun sendiri. Panduan ini menunjukkan setiap langkah, dari pertama dibuka hingga laporan pertama.",
- "Kâğıttan sonuca, saniyeler içinde.": "Dari kertas ke hasil, dalam hitungan detik."
+ "Kâğıttan sonuca, saniyeler içinde.": "Dari kertas ke hasil, dalam hitungan detik.",
+ "Dönem sonu raporu": "Laporan akhir periode",
+ "Dönem sonu raporu, seçtiğiniz sınavları birleştirerek dönem notlarını ve kazanım karnelerini hazırlar.": "Laporan akhir periode menggabungkan ujian yang Anda pilih untuk menyusun nilai semester dan rapor capaian kompetensi.",
+ "Şube karşılaştırması": "Perbandingan kelas",
+ "Aynı sınavı birden çok şubede yaptıysanız ana ekrandaki Şube karşılaştırması şubeleri yan yana koyar.": "Jika Anda memberi ujian yang sama di beberapa kelas, Perbandingan kelas di beranda menyandingkan kelas-kelas itu.",
+ "Genel analiz": "Analisis keseluruhan",
+ "Genel analiz, tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını tek ekranda toplar.": "Analisis keseluruhan mengumpulkan hasil semua kelas dan semua siswa yang mengikuti ujian dalam satu layar."
 }

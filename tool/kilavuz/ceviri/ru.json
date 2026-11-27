@@ -383,5 +383,11 @@
  "Otomatik analiz ve karne": "Автоматический анализ и табели",
  "Kayıt gerekmez": "Без регистрации",
  "Optik formları telefonla okuyun; puan, analiz, karne ve raporlar kendiliğinden hazırlansın. Bu kılavuz, ilk açılıştan rapor almaya kadar her adımı gösterir.": "Сканируйте бланки ответов телефоном — баллы, анализ, табели и отчёты готовятся сами. Это руководство показывает каждый шаг от первого запуска до первого отчёта.",
- "Kâğıttan sonuca, saniyeler içinde.": "От бумаги к результату за секунды."
+ "Kâğıttan sonuca, saniyeler içinde.": "От бумаги к результату за секунды.",
+ "Dönem sonu raporu": "Итоговый отчёт за период",
+ "Dönem sonu raporu, seçtiğiniz sınavları birleştirerek dönem notlarını ve kazanım karnelerini hazırlar.": "Итоговый отчёт за период объединяет выбранные контрольные и готовит итоговые оценки и табели по результатам обучения.",
+ "Şube karşılaştırması": "Сравнение классов",
+ "Aynı sınavı birden çok şubede yaptıysanız ana ekrandaki Şube karşılaştırması şubeleri yan yana koyar.": "Если вы проводили одну и ту же работу в нескольких классах, Сравнение классов на главном экране ставит классы рядом.",
+ "Genel analiz": "Общий анализ",
+ "Genel analiz, tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını tek ekranda toplar.": "Общий анализ собирает на одном экране результаты всех классов и всех учеников, писавших работы."
 }

@@ -381,5 +381,11 @@
  "Otomatik analiz ve karne": "자동 분석과 성적표",
  "Kayıt gerekmez": "가입 불필요",
  "Optik formları telefonla okuyun; puan, analiz, karne ve raporlar kendiliğinden hazırlansın. Bu kılavuz, ilk açılıştan rapor almaya kadar her adımı gösterir.": "휴대폰으로 답안지를 스캔하면 점수, 분석, 성적표, 보고서가 자동으로 준비됩니다. 이 안내서는 처음 실행부터 첫 보고서까지 모든 단계를 보여 줍니다.",
- "Kâğıttan sonuca, saniyeler içinde.": "종이에서 결과까지, 몇 초 만에."
+ "Kâğıttan sonuca, saniyeler içinde.": "종이에서 결과까지, 몇 초 만에.",
+ "Dönem sonu raporu": "기말 보고서",
+ "Dönem sonu raporu, seçtiğiniz sınavları birleştirerek dönem notlarını ve kazanım karnelerini hazırlar.": "기말 보고서는 고른 시험을 합쳐 학기 성적과 성취기준 성적표를 만듭니다.",
+ "Şube karşılaştırması": "반 비교",
+ "Aynı sınavı birden çok şubede yaptıysanız ana ekrandaki Şube karşılaştırması şubeleri yan yana koyar.": "같은 시험을 여러 반에서 봤다면 홈 화면의 반 비교가 반들을 나란히 놓고 비교합니다.",
+ "Genel analiz": "전체 분석",
+ "Genel analiz, tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını tek ekranda toplar.": "전체 분석은 모든 반과 시험을 본 모든 학생의 결과를 한 화면에 모읍니다."
 }

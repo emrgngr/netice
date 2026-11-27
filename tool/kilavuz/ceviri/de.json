@@ -383,5 +383,11 @@
  "Otomatik analiz ve karne": "Automatische Analyse und Zeugnisse",
  "Kayıt gerekmez": "Keine Registrierung",
  "Optik formları telefonla okuyun; puan, analiz, karne ve raporlar kendiliğinden hazırlansın. Bu kılavuz, ilk açılıştan rapor almaya kadar her adımı gösterir.": "Scannen Sie Antwortbögen mit dem Smartphone – Punkte, Analysen, Zeugnisse und Berichte entstehen von selbst. Dieses Handbuch zeigt jeden Schritt vom ersten Start bis zum ersten Bericht.",
- "Kâğıttan sonuca, saniyeler içinde.": "Vom Papier zum Ergebnis in Sekunden."
+ "Kâğıttan sonuca, saniyeler içinde.": "Vom Papier zum Ergebnis in Sekunden.",
+ "Dönem sonu raporu": "Abschlussbericht",
+ "Dönem sonu raporu, seçtiğiniz sınavları birleştirerek dönem notlarını ve kazanım karnelerini hazırlar.": "Der Abschlussbericht fasst die gewählten Prüfungen zusammen und erstellt Noten und Kompetenzzeugnisse.",
+ "Şube karşılaştırması": "Klassenvergleich",
+ "Aynı sınavı birden çok şubede yaptıysanız ana ekrandaki Şube karşılaştırması şubeleri yan yana koyar.": "Wenn Sie dieselbe Prüfung in mehreren Klassen geschrieben haben, stellt der Klassenvergleich auf dem Startbildschirm die Klassen nebeneinander.",
+ "Genel analiz": "Gesamtanalyse",
+ "Genel analiz, tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını tek ekranda toplar.": "Die Gesamtanalyse zeigt die Ergebnisse aller Klassen und aller geprüften Schülerinnen und Schüler auf einem Bildschirm."
 }

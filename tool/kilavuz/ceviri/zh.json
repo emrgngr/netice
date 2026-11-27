@@ -383,5 +383,11 @@
  "Otomatik analiz ve karne": "自动分析和成绩单",
  "Kayıt gerekmez": "无需注册",
  "Optik formları telefonla okuyun; puan, analiz, karne ve raporlar kendiliğinden hazırlansın. Bu kılavuz, ilk açılıştan rapor almaya kadar her adımı gösterir.": "用手机扫描答题卡，分数、分析、成绩单和报告自动生成。本手册介绍从首次打开到生成第一份报告的每一步。",
- "Kâğıttan sonuca, saniyeler içinde.": "从纸张到成绩，只需几秒。"
+ "Kâğıttan sonuca, saniyeler içinde.": "从纸张到成绩，只需几秒。",
+ "Dönem sonu raporu": "期末报告",
+ "Dönem sonu raporu, seçtiğiniz sınavları birleştirerek dönem notlarını ve kazanım karnelerini hazırlar.": "期末报告将所选考试合并，生成学期成绩和学习目标成绩单。",
+ "Şube karşılaştırması": "班级对比",
+ "Aynı sınavı birden çok şubede yaptıysanız ana ekrandaki Şube karşılaştırması şubeleri yan yana koyar.": "如果同一场考试在多个班级进行，主页上的“班级对比”会把各班并排比较。",
+ "Genel analiz": "总体分析",
+ "Genel analiz, tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını tek ekranda toplar.": "总体分析把所有班级和所有参加考试的学生的成绩汇总在一个屏幕上。"
 }

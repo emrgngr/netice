@@ -383,5 +383,11 @@
  "Otomatik analiz ve karne": "自動分析と成績表",
  "Kayıt gerekmez": "登録不要",
  "Optik formları telefonla okuyun; puan, analiz, karne ve raporlar kendiliğinden hazırlansın. Bu kılavuz, ilk açılıştan rapor almaya kadar her adımı gösterir.": "スマートフォンで解答用紙を読み取るだけで、得点・分析・成績表・レポートが自動で作成されます。このガイドでは、初回起動から最初のレポート作成までの手順を紹介します。",
- "Kâğıttan sonuca, saniyeler içinde.": "紙から結果まで、数秒で。"
+ "Kâğıttan sonuca, saniyeler içinde.": "紙から結果まで、数秒で。",
+ "Dönem sonu raporu": "期末レポート",
+ "Dönem sonu raporu, seçtiğiniz sınavları birleştirerek dönem notlarını ve kazanım karnelerini hazırlar.": "期末レポートは選んだテストをまとめ、学期の成績と到達目標の成績表を作ります。",
+ "Şube karşılaştırması": "クラス比較",
+ "Aynı sınavı birden çok şubede yaptıysanız ana ekrandaki Şube karşılaştırması şubeleri yan yana koyar.": "同じテストを複数のクラスで行った場合、ホーム画面の「クラス比較」でクラスを並べて比べられます。",
+ "Genel analiz": "全体分析",
+ "Genel analiz, tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını tek ekranda toplar.": "全体分析は、すべてのクラスと受験したすべての生徒の結果を1つの画面にまとめます。"
 }

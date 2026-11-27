@@ -381,5 +381,11 @@
  "Otomatik analiz ve karne": "स्वचालित विश्लेषण और रिपोर्ट कार्ड",
  "Kayıt gerekmez": "पंजीकरण की ज़रूरत नहीं",
  "Optik formları telefonla okuyun; puan, analiz, karne ve raporlar kendiliğinden hazırlansın. Bu kılavuz, ilk açılıştan rapor almaya kadar her adımı gösterir.": "फ़ोन से उत्तर-पत्रक स्कैन करें; अंक, विश्लेषण, रिपोर्ट कार्ड और रिपोर्ट अपने आप तैयार होते हैं। यह गाइड पहली बार खोलने से पहली रिपोर्ट तक हर चरण दिखाती है।",
- "Kâğıttan sonuca, saniyeler içinde.": "कागज़ से परिणाम तक, सेकंडों में।"
+ "Kâğıttan sonuca, saniyeler içinde.": "कागज़ से परिणाम तक, सेकंडों में।",
+ "Dönem sonu raporu": "सत्रांत रिपोर्ट",
+ "Dönem sonu raporu, seçtiğiniz sınavları birleştirerek dönem notlarını ve kazanım karnelerini hazırlar.": "सत्रांत रिपोर्ट चुनी गई परीक्षाओं को जोड़कर सत्र के अंक और लर्निंग आउटकम रिपोर्ट कार्ड बनाती है।",
+ "Şube karşılaştırması": "कक्षा तुलना",
+ "Aynı sınavı birden çok şubede yaptıysanız ana ekrandaki Şube karşılaştırması şubeleri yan yana koyar.": "अगर आपने एक ही परीक्षा कई कक्षाओं में ली है, तो होम स्क्रीन की कक्षा तुलना कक्षाओं को साथ-साथ रखती है।",
+ "Genel analiz": "समग्र विश्लेषण",
+ "Genel analiz, tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını tek ekranda toplar.": "समग्र विश्लेषण सभी कक्षाओं और परीक्षा देने वाले सभी छात्रों के परिणाम एक ही स्क्रीन पर लाता है।"
 }

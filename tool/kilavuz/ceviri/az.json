@@ -383,5 +383,11 @@
  "Otomatik analiz ve karne": "Avtomatik təhlil və karne",
  "Kayıt gerekmez": "Qeydiyyat tələb olunmur",
  "Optik formları telefonla okuyun; puan, analiz, karne ve raporlar kendiliğinden hazırlansın. Bu kılavuz, ilk açılıştan rapor almaya kadar her adımı gösterir.": "Optik formaları telefonla oxudun; bal, təhlil, karne və hesabatlar özü hazırlansın. Bu təlimat ilk açılışdan hesabat almağa qədər hər addımı göstərir.",
- "Kâğıttan sonuca, saniyeler içinde.": "Kağızdan nəticəyə, saniyələr içində."
+ "Kâğıttan sonuca, saniyeler içinde.": "Kağızdan nəticəyə, saniyələr içində.",
+ "Dönem sonu raporu": "Dövr sonu hesabatı",
+ "Dönem sonu raporu, seçtiğiniz sınavları birleştirerek dönem notlarını ve kazanım karnelerini hazırlar.": "Dövr sonu hesabatı seçdiyiniz imtahanları birləşdirərək dövr qiymətlərini və nəticə hesabatlarını hazırlayır.",
+ "Şube karşılaştırması": "Sinif müqayisəsi",
+ "Aynı sınavı birden çok şubede yaptıysanız ana ekrandaki Şube karşılaştırması şubeleri yan yana koyar.": "Eyni imtahanı bir neçə sinifdə keçirmisinizsə, ana ekrandakı Sinif müqayisəsi sinifləri yan-yana qoyur.",
+ "Genel analiz": "Ümumi təhlil",
+ "Genel analiz, tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını tek ekranda toplar.": "Ümumi təhlil bütün siniflərin və imtahana girən bütün şagirdlərin nəticələrini bir ekranda toplayır."
 }

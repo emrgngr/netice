@@ -383,5 +383,11 @@
  "Otomatik analiz ve karne": "تحليل وبطاقات نتائج تلقائية",
  "Kayıt gerekmez": "لا حاجة للتسجيل",
  "Optik formları telefonla okuyun; puan, analiz, karne ve raporlar kendiliğinden hazırlansın. Bu kılavuz, ilk açılıştan rapor almaya kadar her adımı gösterir.": "امسح أوراق الإجابة بهاتفك ودع الدرجات والتحليلات وبطاقات النتائج والتقارير تُعدّ نفسها. يعرض هذا الدليل كل خطوة من أول تشغيل حتى أول تقرير.",
- "Kâğıttan sonuca, saniyeler içinde.": "من الورقة إلى النتيجة في ثوانٍ."
+ "Kâğıttan sonuca, saniyeler içinde.": "من الورقة إلى النتيجة في ثوانٍ.",
+ "Dönem sonu raporu": "تقرير نهاية الفصل",
+ "Dönem sonu raporu, seçtiğiniz sınavları birleştirerek dönem notlarını ve kazanım karnelerini hazırlar.": "يجمع تقرير نهاية الفصل الدراسي الاختبارات التي تختارها ويجهز الدرجات وبطاقات النواتج.",
+ "Şube karşılaştırması": "مقارنة الصفوف",
+ "Aynı sınavı birden çok şubede yaptıysanız ana ekrandaki Şube karşılaştırması şubeleri yan yana koyar.": "إذا أجريت الاختبار نفسه في عدة صفوف، فإن «مقارنة الصفوف» في الشاشة الرئيسية تضع الصفوف جنبًا إلى جنب.",
+ "Genel analiz": "التحليل العام",
+ "Genel analiz, tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını tek ekranda toplar.": "يجمع «التحليل العام» نتائج جميع الصفوف وكل الطلاب الذين أدوا الاختبار في شاشة واحدة."
 }

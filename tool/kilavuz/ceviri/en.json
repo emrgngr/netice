@@ -383,5 +383,11 @@
  "Otomatik analiz ve karne": "Automatic analysis and report cards",
  "Kayıt gerekmez": "No sign-up needed",
  "Optik formları telefonla okuyun; puan, analiz, karne ve raporlar kendiliğinden hazırlansın. Bu kılavuz, ilk açılıştan rapor almaya kadar her adımı gösterir.": "Scan answer sheets with your phone and let scores, analyses, report cards and reports prepare themselves. This guide shows every step, from first launch to your first report.",
- "Kâğıttan sonuca, saniyeler içinde.": "From paper to results, in seconds."
+ "Kâğıttan sonuca, saniyeler içinde.": "From paper to results, in seconds.",
+ "Dönem sonu raporu": "End-of-term report",
+ "Dönem sonu raporu, seçtiğiniz sınavları birleştirerek dönem notlarını ve kazanım karnelerini hazırlar.": "The End-of-term report combines the exams you choose to prepare term grades and outcome report cards.",
+ "Şube karşılaştırması": "Class comparison",
+ "Aynı sınavı birden çok şubede yaptıysanız ana ekrandaki Şube karşılaştırması şubeleri yan yana koyar.": "If you gave the same exam in several classes, Class comparison on the home screen puts the classes side by side.",
+ "Genel analiz": "Overall analysis",
+ "Genel analiz, tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını tek ekranda toplar.": "Overall analysis brings together the results of all classes and every student who took an exam on one screen."
 }
