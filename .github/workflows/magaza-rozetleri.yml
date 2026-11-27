@@ -1,4 +1,4 @@
-# Google Play ve App Store'un resmî "indir" rozetlerini (11 dil) indirip
+# Google Play ve App Store'un resmî "indir" rozetlerini (15 dil) indirip
 # assets/badges/ klasörüne koyar ve aynı dala gönderir. Rozetler resmî
 # kaynaklardan değiştirilmeden alınır (marka kuralları gereği yeniden çizilmez).
 name: Mağaza rozetleri
@@ -22,7 +22,7 @@ jobs:
           set -euo pipefail
           mkdir -p assets/badges
           # uygulama dili : Google dil kodu : Apple yerel kodu
-          for satir in tr:tr:tr-tr en:en:en-us az:az:en-us de:de:de-de ar:ar:ar-sa es:es:es-es ru:ru:ru-ru it:it:it-it fr:fr:fr-fr zh:zh-cn:zh-cn ja:ja:ja-jp; do
+          for satir in tr:tr:tr-tr en:en:en-us az:az:en-us de:de:de-de ar:ar:ar-sa es:es:es-es ru:ru:ru-ru it:it:it-it fr:fr:fr-fr zh:zh-cn:zh-cn ja:ja:ja-jp pt:pt-br:pt-br hi:hi:hi-in id:id:id-id ko:ko:ko-kr; do
             IFS=: read -r dil g a <<< "$satir"
             if ! curl -fsSL -o "assets/badges/google_play_$dil.png" "https://play.google.com/intl/en_us/badges/static/images/badges/${g}_badge_web_generic.png"; then
               echo "Google Play rozeti yok: $g → en"
@@ -47,5 +47,5 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add assets/badges
           if git diff --cached --quiet; then echo "Değişiklik yok"; exit 0; fi
-          git commit -m "Mağaza rozetleri (resmî, 11 dil)"
+          git commit -m "Mağaza rozetleri (resmî, 15 dil)"
           git push origin "HEAD:${GITHUB_REF_NAME}"

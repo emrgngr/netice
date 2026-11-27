@@ -357,6 +357,11 @@ def sayfa_yaz(kaynak_html, sayfa, dil, bellek, cikti):
                 v = el.get(a)
                 if v and goreli_mi(v) and not re.match(r'^[\w-]+\.html([#?].*)?$', v):
                     el[a] = kok + v
+        # Google Play / App Store rozetleri o dilin resmî rozetiyle (assets/badges; yoksa İngilizce).
+        for im in soup.find_all('img'):
+            m = re.search(r'img/(google_play|app_store)_tr\.(png|svg)$', im.get('src', ''))
+            if m:
+                im['src'] = kok + 'img/' + rozet(cikti, m.group(1), m.group(2), dil)
         # O dilin videoları varsa onları göster.
         for v in soup.find_all('video'):
             ad = {'tel': 'telefon', 'pc': 'bilgisayar'}.get(v.get('data-video-panel'))
@@ -393,6 +398,22 @@ def sayfa_yaz(kaynak_html, sayfa, dil, bellek, cikti):
     os.makedirs(os.path.dirname(hedef), exist_ok=True)
     with open(hedef, 'w', encoding='utf-8') as f:
         f.write(str(soup))
+
+
+ROZETLER = os.path.join(HERE, '..', '..', 'assets', 'badges')
+
+
+def rozet(cikti, ad, uzanti, dil):
+    """Resmî mağaza rozetini (uygulamadaki assets/badges) sitenin img klasörüne koyar."""
+    for d in (dil, 'en'):
+        dosya = f'{ad}_{d}.{uzanti}'
+        yol = os.path.join(ROZETLER, dosya)
+        if os.path.exists(yol):
+            hedef = os.path.join(cikti, 'img', dosya)
+            if not os.path.exists(hedef):
+                shutil.copyfile(yol, hedef)
+            return dosya
+    return f'{ad}_tr.{uzanti}'
 
 
 def main():
