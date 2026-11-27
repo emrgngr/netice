@@ -3,6 +3,16 @@
 // çalışır (_routes.json); diğer her şey doğrudan statik dosyadır.
 export default {
   async fetch(request, env) {
+    // Google Search Console doğrulama dosyası: Pages "/x.html"i "/x"e
+    // yönlendirir; Google dosyayı yönlendirmesiz, tam adıyla görmek ister.
+    const url = new URL(request.url);
+    if (/^\/google[0-9a-f]+\.html$/.test(url.pathname)) {
+      const r = await env.ASSETS.fetch(new Request(new URL(url.pathname.slice(0, -5), url), request));
+      return new Response(r.status === 200 ? r.body : null, {
+        status: r.status === 200 ? 200 : 404,
+        headers: { 'Content-Type': 'text/html; charset=utf-8' },
+      });
+    }
     const res = await env.ASSETS.fetch(request);
     const range = request.headers.get('Range');
     if (res.status === 206 || res.status >= 300 || request.method !== 'GET' && request.method !== 'HEAD') return res;
