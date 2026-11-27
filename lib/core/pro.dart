@@ -17,7 +17,7 @@ import '../l10n/l10n.dart';
 /// Netice Pro: okuma ve temel sonuçlar ücretsizdir; aşağıdaki özellikler
 /// Pro aboneliği ister.
 enum ProFeature {
-  termReport('Dönem raporu', 'Dönem sonu notu, ağırlıklı ortalama ve Excel'),
+  termReport('Dönem sonu raporu', 'Dönem sonu notu, ağırlıklı ortalama ve Excel'),
   studentCards('Öğrenci ve kazanım karnesi', 'Her öğrenci için ayrıntılı PDF karne'),
   parentShare('Karneyi veliye gönder', 'WhatsApp veya e-postayla tek dokunuşla'),
   cloudBackup('Google Drive yedeği', 'Kendi hesabınıza her gün otomatik yedek'),

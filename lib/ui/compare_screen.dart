@@ -75,9 +75,9 @@ class _CompareScreenState extends State<CompareScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text(tr('Sınıf sınıf analiz')), actions: [
+      appBar: AppBar(title: Text(tr('Şube karşılaştırması')), actions: [
         IconButton(
-          tooltip: tr('Genel istatistik'),
+          tooltip: tr('Genel analiz'),
           onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const GeneralStatsScreen())),
           icon: const Icon(Icons.query_stats_rounded),
         ),

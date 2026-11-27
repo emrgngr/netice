@@ -14,6 +14,7 @@ import '../main.dart';
 import 'invite_screen.dart';
 import 'license_screen.dart';
 import 'school_offer_screen.dart';
+import 'service_cards.dart';
 import 'theme.dart';
 import 'widgets.dart';
 import '../l10n/l10n.dart';
@@ -170,7 +171,13 @@ class _ProScreenState extends State<ProScreen> {
       body: Stack(children: [
         const Positioned.fill(child: _ProBackdrop()),
         SafeArea(
-          child: ListView(padding: const EdgeInsets.fromLTRB(20, 4, 20, 28), children: [
+          child: LayoutBuilder(builder: (context, box) {
+          // Geniş ekranda içerik ortada en çok 1100 px; planlar ve hizmetler
+          // ince uzun satırlar yerine yan yana kartlar olarak dizilir.
+          final w = box.maxWidth;
+          final wide = w >= 760;
+          final side = w > 1140 ? (w - 1100) / 2 : 20.0;
+          return ListView(padding: EdgeInsets.fromLTRB(side, 4, side, 28), children: [
             Align(
               alignment: Alignment.centerLeft,
               child: IconButton(
@@ -197,7 +204,11 @@ class _ProScreenState extends State<ProScreen> {
               style: TextStyle(color: Colors.white.withValues(alpha: 0.72), fontSize: 14.5, height: 1.4),
             ),
             const SizedBox(height: 22),
-            for (final x in ProFeature.values) _FeatureRow(x, highlight: x == f),
+            ServiceGrid(
+              columns: w >= 1000 ? 3 : (w >= 640 ? 2 : 1),
+              gap: 10,
+              children: [for (final x in ProFeature.values) _FeatureRow(x, highlight: x == f)],
+            ),
             const SizedBox(height: 10),
             const _TrustLine(),
             const SizedBox(height: 18),
@@ -271,22 +282,41 @@ class _ProScreenState extends State<ProScreen> {
                     label: Text(tr('İndirimi App Store\'da kullan (kod: {0})', [Referral.appStoreOfferCode])),
                   ),
                 ),
-              for (final p in _plans)
-                _PlanTile(
-                  plan: p,
-                  selected: p.id == _selected,
-                  best: p.id == (_campaign?.highlightTermPass == true ? proTermPassId : proYearlyId),
-                  onTap: () => setState(() => _selected = p.id),
-                ),
+              if (wide)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: ServiceGrid(
+                    columns: _plans.length.clamp(1, 3),
+                    children: [
+                      for (final p in _plans)
+                        _PlanCard(
+                          plan: p,
+                          selected: p.id == _selected,
+                          best: p.id == (_campaign?.highlightTermPass == true ? proTermPassId : proYearlyId),
+                          onTap: () => setState(() => _selected = p.id),
+                        ),
+                    ],
+                  ),
+                )
+              else
+                for (final p in _plans)
+                  _PlanTile(
+                    plan: p,
+                    selected: p.id == _selected,
+                    best: p.id == (_campaign?.highlightTermPass == true ? proTermPassId : proYearlyId),
+                    onTap: () => setState(() => _selected = p.id),
+                  ),
               const _PriceLock(),
               const SizedBox(height: 14),
-              SizedBox(
+              Center(
+                child: SizedBox(
                 height: 58,
+                width: wide ? 440 : double.infinity,
                 child: FilledButton(
                   style: FilledButton.styleFrom(
-                    backgroundColor: NColors.emerald,
+                    backgroundColor: NColors.deepEmerald,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                    shape: const StadiumBorder(),
                     textStyle: const TextStyle(fontFamily: 'PlusJakartaSans', fontSize: 17, fontWeight: FontWeight.w800),
                   ),
                   onPressed: _busy ? null : _buy,
@@ -295,6 +325,7 @@ class _ProScreenState extends State<ProScreen> {
                       : Text(tr('Pro\'ya geç')),
                 ),
               ),
+              ),
               const SizedBox(height: 6),
               TextButton(
                 onPressed: _restore,
@@ -302,29 +333,38 @@ class _ProScreenState extends State<ProScreen> {
               ),
             ],
             const SizedBox(height: 14),
-            if (!ProService.salesDisabled) ...[
-              _AiPackCard(plan: _pack, busy: _packBusy, onBuy: _buyPack),
-              const SizedBox(height: 14),
-            ],
-            if (store.thanksCode == null && !ProService.salesDisabled) ...[
-              _InviteCta(
-                title: tr('Arkadaşını davet et'),
-                detail: store.appliedInvite == null && !store.hasSubscription
-                    ? tr('Davet kodunuz varsa %15 indirim. Siz davet ederseniz her arkadaşınız için 1 ay ek Pro.')
-                    : tr('Her arkadaşınız için 1 ay ek Pro kazanın.'),
-                onTap: _openInvite,
-              ),
-              const SizedBox(height: 10),
-            ],
-            if (!ProService.salesDisabled) ...[
-              _SchoolPackCta(onTap: () => SchoolOfferScreen.open(context)),
-              const SizedBox(height: 10),
-            ],
-            _InstitutionCta(onTap: () async {
-              await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LicenseScreen()));
-              if (context.mounted && StoreScope.of(context).isPro && widget.feature != null) Navigator.of(context).maybePop();
-              if (mounted) setState(() {});
+            Builder(builder: (context) {
+              final extras = <Widget>[
+                if (!ProService.salesDisabled) _AiPackCard(plan: _pack, busy: _packBusy, onBuy: _buyPack, vertical: wide),
+                if (store.thanksCode == null && !ProService.salesDisabled)
+                  _InviteCta(
+                    title: tr('Arkadaşını davet et'),
+                    detail: store.appliedInvite == null && !store.hasSubscription
+                        ? tr('Davet kodunuz varsa %15 indirim. Siz davet ederseniz her arkadaşınız için 1 ay ek Pro.')
+                        : tr('Her arkadaşınız için 1 ay ek Pro kazanın.'),
+                    onTap: _openInvite,
+                    vertical: wide,
+                  ),
+                if (!ProService.salesDisabled)
+                  _SchoolPackCta(onTap: () => SchoolOfferScreen.open(context), vertical: wide),
+                _InstitutionCta(
+                  vertical: wide,
+                  onTap: () async {
+                    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LicenseScreen()));
+                    if (context.mounted && StoreScope.of(context).isPro && widget.feature != null) {
+                      Navigator.of(context).maybePop();
+                    }
+                    if (mounted) setState(() {});
+                  },
+                ),
+              ];
+              return ServiceGrid(
+                columns: wide ? (extras.length == 3 || w >= 1060 && extras.length == 4 ? extras.length : 2) : 1,
+                gap: wide ? 14 : 10,
+                children: extras,
+              );
             }),
+            const SizedBox(height: 14),
             const SizedBox(height: 6),
             if (!ProService.salesDisabled)
             Text(
@@ -347,7 +387,8 @@ class _ProScreenState extends State<ProScreen> {
                 child: Text(tr('Kullanım koşulları'), style: TextStyle(color: Colors.white60, fontSize: 12)),
               ),
             ]),
-          ]),
+          ]);
+          }),
         ),
       ]),
     );
@@ -395,6 +436,8 @@ class _FeatureRow extends StatelessWidget {
     ProFeature.studentCards: Icons.badge_outlined,
     ProFeature.parentShare: Icons.send_rounded,
     ProFeature.cloudBackup: Icons.cloud_done_outlined,
+    ProFeature.deviceSync: Icons.devices_rounded,
+    ProFeature.gradeExport: Icons.school_outlined,
     ProFeature.advancedCharts: Icons.donut_large_rounded,
     ProFeature.detailedStats: Icons.query_stats_rounded,
     ProFeature.officialHeader: Icons.account_balance_outlined,
@@ -422,18 +465,25 @@ class _FeatureRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: highlight ? 0.12 : 0.05),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(color: highlight ? const Color(0xFFE9C46A) : Colors.white.withValues(alpha: 0.08)),
         ),
         child: Row(children: [
-          Icon(_icons[f], color: const Color(0xFF7BE0B4), size: 22),
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: const Color(0xFF7BE0B4).withValues(alpha: 0.13),
+            ),
+            child: Icon(_icons[f], color: const Color(0xFF7BE0B4), size: 21),
+          ),
           const SizedBox(width: 12),
           Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
               Text(f.title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 14.5)),
               Text(f.detail, style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 12.5)),
             ]),
@@ -525,6 +575,86 @@ class _PlanTile extends StatelessWidget {
       );
 }
 
+/// Geniş ekranda plan kartı: seçim düğmesi ve rozet üstte, büyük fiyat altta.
+class _PlanCard extends StatelessWidget {
+  final ProPlan plan;
+  final bool selected;
+  final bool best;
+  final VoidCallback onTap;
+  const _PlanCard({required this.plan, required this.selected, required this.best, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) => InkWell(
+        borderRadius: BorderRadius.circular(26),
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            gradient: selected
+                ? LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [NColors.emerald.withValues(alpha: 0.24), NColors.emerald.withValues(alpha: 0.08)],
+                  )
+                : null,
+            color: selected ? null : Colors.white.withValues(alpha: 0.04),
+            borderRadius: BorderRadius.circular(26),
+            border: Border.all(color: selected ? NColors.emerald : Colors.white.withValues(alpha: 0.12), width: selected ? 2 : 1),
+            boxShadow: [
+              if (selected) BoxShadow(color: NColors.emerald.withValues(alpha: 0.22), blurRadius: 28, offset: const Offset(0, 10)),
+            ],
+          ),
+          child: Stack(children: [
+            PositionedDirectional(
+              top: -50,
+              end: -50,
+              child: Container(
+                width: 140,
+                height: 140,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: (selected ? NColors.emerald : Colors.white).withValues(alpha: selected ? 0.14 : 0.04),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Row(children: [
+                  Icon(selected ? Icons.check_circle_rounded : Icons.radio_button_off_rounded,
+                      color: selected ? NColors.emerald : Colors.white54, size: 26),
+                  const Spacer(),
+                  if (best)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(color: const Color(0xFFE9C46A), borderRadius: BorderRadius.circular(99)),
+                      child: Text(tr('Önerilen'),
+                          style: const TextStyle(color: NColors.ink, fontSize: 11, fontWeight: FontWeight.w900)),
+                    ),
+                ]),
+                const SizedBox(height: 16),
+                Text(plan.title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 18, height: 1.2)),
+                const SizedBox(height: 4),
+                Text(plan.note, style: TextStyle(color: Colors.white.withValues(alpha: 0.62), fontSize: 13, height: 1.35)),
+                const SizedBox(height: 18),
+                const Spacer(),
+                if (plan.oldPrice != null)
+                  Text(plan.oldPrice!,
+                      style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.5),
+                          fontSize: 13,
+                          decoration: TextDecoration.lineThrough,
+                          decorationColor: Colors.white54)),
+                Text(plan.price,
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 26, letterSpacing: -0.4)),
+              ]),
+            ),
+          ]),
+        ),
+      );
+}
+
 class _ActiveCard extends StatelessWidget {
   final String? product;
   const _ActiveCard({this.product});
@@ -565,69 +695,139 @@ class _ActiveCard extends StatelessWidget {
       );
 }
 
+/// Pro ekranındaki ek hizmet kartı (ek paket, davet, okul paketi, kurum).
+/// [vertical] geniş ekranda kart biçimi: üstte yuvarlak simge, altta eylem.
+/// Dar ekranda yatay, yuvarlatılmış bir kart olarak kalır.
+class _ExtraCard extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String title;
+  final String detail;
+  final String? note;
+  final Widget? action;
+  final VoidCallback? onTap;
+  final bool vertical;
+  const _ExtraCard({
+    required this.icon,
+    required this.color,
+    required this.title,
+    required this.detail,
+    this.note,
+    this.action,
+    this.onTap,
+    this.vertical = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final r = BorderRadius.circular(vertical ? 26 : 22);
+    final badge = Container(
+      width: vertical ? 50 : 42,
+      height: vertical ? 50 : 42,
+      decoration: BoxDecoration(shape: BoxShape.circle, color: color.withValues(alpha: 0.16)),
+      child: Icon(icon, color: color, size: vertical ? 25 : 22),
+    );
+    final texts = <Widget>[
+      Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 15, height: 1.25)),
+      const SizedBox(height: 3),
+      Text(detail, style: TextStyle(color: Colors.white.withValues(alpha: 0.62), fontSize: 12.5, height: 1.4)),
+      if (note != null) ...[
+        const SizedBox(height: 4),
+        Text(note!, style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: 12)),
+      ],
+    ];
+    final arrow = Container(
+      width: 32,
+      height: 32,
+      decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white.withValues(alpha: 0.08)),
+      child: const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 17),
+    );
+    final act = action ?? arrow;
+    return InkWell(
+      borderRadius: r,
+      onTap: onTap,
+      child: Container(
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          borderRadius: r,
+          border: Border.all(color: color.withValues(alpha: 0.45)),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [color.withValues(alpha: 0.13), color.withValues(alpha: 0.03)],
+          ),
+        ),
+        child: vertical
+            ? Stack(children: [
+                PositionedDirectional(
+                  top: -44,
+                  end: -44,
+                  child: Container(
+                    width: 120,
+                    height: 120,
+                    decoration: BoxDecoration(shape: BoxShape.circle, color: color.withValues(alpha: 0.10)),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 18),
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    badge,
+                    const SizedBox(height: 14),
+                    ...texts,
+                    const SizedBox(height: 14),
+                    const Spacer(),
+                    Align(alignment: AlignmentDirectional.centerEnd, child: act),
+                  ]),
+                ),
+              ])
+            : Padding(
+                padding: const EdgeInsets.all(14),
+                child: Row(children: [
+                  badge,
+                  const SizedBox(width: 12),
+                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: texts)),
+                  const SizedBox(width: 8),
+                  act,
+                ]),
+              ),
+      ),
+    );
+  }
+}
+
 /// "Arkadaşını davet et" çağrısı: davet ekranını açar.
 class _InviteCta extends StatelessWidget {
   final String title;
   final String detail;
   final VoidCallback onTap;
-  const _InviteCta({required this.title, required this.detail, required this.onTap});
+  final bool vertical;
+  const _InviteCta({required this.title, required this.detail, required this.onTap, this.vertical = false});
 
   @override
-  Widget build(BuildContext context) => InkWell(
-        borderRadius: BorderRadius.circular(18),
+  Widget build(BuildContext context) => _ExtraCard(
+        icon: Icons.card_giftcard_rounded,
+        color: const Color(0xFF7BE0B4),
+        title: title,
+        detail: detail,
         onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: const Color(0xFF7BE0B4).withValues(alpha: 0.5)),
-            color: const Color(0xFF7BE0B4).withValues(alpha: 0.06),
-          ),
-          child: Row(children: [
-            const Icon(Icons.card_giftcard_rounded, color: Color(0xFF7BE0B4)),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 14.5)),
-                Text(detail, style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 12.5)),
-              ]),
-            ),
-            const Icon(Icons.chevron_right, color: Colors.white54),
-          ]),
-        ),
+        vertical: vertical,
       );
 }
 
 /// "Okulunuz / kurumunuz için" çağrısı: kurum lisansı ekranını açar.
 class _InstitutionCta extends StatelessWidget {
   final VoidCallback onTap;
-  const _InstitutionCta({required this.onTap});
+  final bool vertical;
+  const _InstitutionCta({required this.onTap, this.vertical = false});
 
   @override
-  Widget build(BuildContext context) => InkWell(
-        borderRadius: BorderRadius.circular(18),
+  Widget build(BuildContext context) => _ExtraCard(
+        icon: Icons.apartment_rounded,
+        color: const Color(0xFFE9C46A),
+        title: tr('Okulunuz veya kurumunuz için'),
+        detail: tr('Kurum lisansıyla tüm öğretmenlere Pro, ortak sınav ve yönetici paneli. Kurum kodunuz varsa buradan girin.'),
         onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: const Color(0xFFE9C46A).withValues(alpha: 0.5)),
-            color: const Color(0xFFE9C46A).withValues(alpha: 0.06),
-          ),
-          child: Row(children: [
-            const Icon(Icons.apartment_rounded, color: Color(0xFFE9C46A)),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(tr('Okulunuz veya kurumunuz için'),
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 14.5)),
-                Text(tr('Kurum lisansıyla tüm öğretmenlere Pro, ortak sınav ve yönetici paneli. Kurum kodunuz varsa buradan girin.'),
-                    style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 12.5)),
-              ]),
-            ),
-            const Icon(Icons.chevron_right, color: Colors.white54),
-          ]),
-        ),
+        vertical: vertical,
       );
 }
 
@@ -678,26 +878,44 @@ class _CampaignBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final left = c.daysLeft(DateTime.now());
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [const Color(0xFFE9C46A).withValues(alpha: 0.22), const Color(0xFF7BE0B4).withValues(alpha: 0.12)]),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE9C46A).withValues(alpha: 0.7)),
-      ),
-      child: Row(children: [
-        const Icon(Icons.celebration_rounded, color: Color(0xFFE9C46A)),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(c.title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 14.5)),
-            Text(c.detail, style: TextStyle(color: Colors.white.withValues(alpha: 0.75), fontSize: 12.5)),
-            const SizedBox(height: 2),
-            Text(left <= 1 ? tr('Bugün son gün') : tr('Son {0} gün', [left]),
-                style: const TextStyle(color: Color(0xFFE9C46A), fontWeight: FontWeight.w700, fontSize: 12)),
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 720),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(10, 10, 22, 10),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+                colors: [const Color(0xFFE9C46A).withValues(alpha: 0.24), const Color(0xFF7BE0B4).withValues(alpha: 0.12)]),
+            borderRadius: BorderRadius.circular(40),
+            border: Border.all(color: const Color(0xFFE9C46A).withValues(alpha: 0.7)),
+          ),
+          child: Row(children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: const BoxDecoration(shape: BoxShape.circle, color: Color(0xFFE9C46A)),
+              child: const Icon(Icons.celebration_rounded, color: NColors.ink, size: 26),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(c.title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 15)),
+                Text(c.detail, style: TextStyle(color: Colors.white.withValues(alpha: 0.75), fontSize: 12.5)),
+              ]),
+            ),
+            const SizedBox(width: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE9C46A).withValues(alpha: 0.16),
+                borderRadius: BorderRadius.circular(99),
+              ),
+              child: Text(left <= 1 ? tr('Bugün son gün') : tr('Son {0} gün', [left]),
+                  style: const TextStyle(color: Color(0xFFE9C46A), fontWeight: FontWeight.w800, fontSize: 12)),
+            ),
           ]),
         ),
-      ]),
+      ),
     );
   }
 }
@@ -727,41 +945,31 @@ class _AiPackCard extends StatelessWidget {
   final ProPlan plan;
   final bool busy;
   final VoidCallback onBuy;
-  const _AiPackCard({required this.plan, required this.busy, required this.onBuy});
+  final bool vertical;
+  const _AiPackCard({required this.plan, required this.busy, required this.onBuy, this.vertical = false});
 
   @override
   Widget build(BuildContext context) {
     final credits = AiUsage.instance.credits;
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFB79CFF).withValues(alpha: 0.55)),
-        color: const Color(0xFFB79CFF).withValues(alpha: 0.07),
+    return _ExtraCard(
+      icon: Icons.auto_awesome_rounded,
+      color: const Color(0xFFB79CFF),
+      title: tr('Ek soru paketi · {0} soru', [aiPackSize]),
+      detail: tr('Aylık yapay zekâ hakkınız bitince kullanılır, süresi dolmaz.'),
+      note: credits > 0 ? tr('Kalan ek hak: {0} soru', [credits]) : null,
+      vertical: vertical,
+      action: FilledButton(
+        style: FilledButton.styleFrom(
+          backgroundColor: const Color(0xFF7C5CE0),
+          foregroundColor: Colors.white,
+          shape: const StadiumBorder(),
+          padding: const EdgeInsets.symmetric(horizontal: 18),
+        ),
+        onPressed: busy ? null : onBuy,
+        child: busy
+            ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2.2, color: Colors.white))
+            : Text(plan.price, style: const TextStyle(fontWeight: FontWeight.w800)),
       ),
-      child: Row(children: [
-        const Icon(Icons.auto_awesome_rounded, color: Color(0xFFB79CFF)),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(tr('Ek soru paketi · {0} soru', [aiPackSize]),
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 14.5)),
-            Text(tr('Aylık yapay zekâ hakkınız bitince kullanılır, süresi dolmaz.'),
-                style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 12.5)),
-            if (credits > 0)
-              Text(tr('Kalan ek hak: {0} soru', [credits]),
-                  style: const TextStyle(color: Color(0xFFB79CFF), fontWeight: FontWeight.w700, fontSize: 12)),
-          ]),
-        ),
-        const SizedBox(width: 8),
-        FilledButton(
-          style: FilledButton.styleFrom(backgroundColor: const Color(0xFF7C5CE0), foregroundColor: Colors.white),
-          onPressed: busy ? null : onBuy,
-          child: busy
-              ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2.2, color: Colors.white))
-              : Text(plan.price),
-        ),
-      ]),
     );
   }
 }
@@ -769,31 +977,16 @@ class _AiPackCard extends StatelessWidget {
 /// Okul / zümre paketi çağrısı.
 class _SchoolPackCta extends StatelessWidget {
   final VoidCallback onTap;
-  const _SchoolPackCta({required this.onTap});
+  final bool vertical;
+  const _SchoolPackCta({required this.onTap, this.vertical = false});
 
   @override
-  Widget build(BuildContext context) => InkWell(
-        borderRadius: BorderRadius.circular(18),
+  Widget build(BuildContext context) => _ExtraCard(
+        icon: Icons.groups_rounded,
+        color: const Color(0xFF5EC8E5),
+        title: tr('Okul / zümre paketi'),
+        detail: tr('5 ve daha fazla öğretmene %45\'e varan indirim. Okulunuza teklif isteyin.'),
         onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: const Color(0xFF7BE0B4).withValues(alpha: 0.5)),
-            color: const Color(0xFF7BE0B4).withValues(alpha: 0.06),
-          ),
-          child: Row(children: [
-            const Icon(Icons.groups_rounded, color: Color(0xFF7BE0B4)),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(tr('Okul / zümre paketi'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 14.5)),
-                Text(tr('5 ve daha fazla öğretmene %45\'e varan indirim. Okulunuza teklif isteyin.'),
-                    style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 12.5)),
-              ]),
-            ),
-            const Icon(Icons.chevron_right, color: Colors.white54),
-          ]),
-        ),
+        vertical: vertical,
       );
 }

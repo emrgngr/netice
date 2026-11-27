@@ -3054,5 +3054,10 @@
 "{0} kodlama alanı (doğum tarihi, cinsiyet gibi)": "{0} حقول ترميز (مثل تاريخ الميلاد والجنس)",
 "{0} seçenekten biri okunur.": "يُقرأ خيار واحد من {0} خيارات.",
 "{0} sütun; her sütundan bir karakter okunur ({1}).": "{0} أعمدة؛ يُقرأ حرف واحد من كل عمود ({1}).",
-"Örn. Kadın, Erkek": "مثال: أنثى، ذكر"
+"Örn. Kadın, Erkek": "مثال: أنثى، ذكر",
+"Ana ekrandaki \"Dönem sonu raporu\"nu açın; sınıfı ve dönemi seçin.": "افتح «تقرير نهاية الفصل» في الشاشة الرئيسية؛ اختر الصف والفصل.",
+"Ana ekrandaki \"Genel analiz\" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.": "تعرض \"التحليل العام\" في الشاشة الرئيسية نتائج جميع الصفوف وجميع الطلاب الذين أدوا الاختبارات معا.",
+"Dönem sonu raporu": "تقرير نهاية الفصل",
+"Genel analiz": "التحليل العام",
+"Kazandığınız zaman": "الوقت الذي وفرته"
 }

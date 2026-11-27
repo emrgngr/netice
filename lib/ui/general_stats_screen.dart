@@ -44,13 +44,13 @@ class _GeneralStatsScreenState extends State<GeneralStatsScreen> {
     Future<void> pdf() async {
       if (ov.isEmpty) return toast(context, tr('Rapor için önce kâğıt okutun.'));
       await ReportPreviewScreen.open(context,
-          title: tr('Genel istatistik'),
+          title: tr('Genel analiz'),
           fileName: 'genel_istatistik.pdf',
           build: () => buildOverviewPdf(ov, school: store.reportSchool, filter: _filterText(classNames.length)));
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text(tr('Genel istatistik')), actions: [
+      appBar: AppBar(title: Text(tr('Genel analiz')), actions: [
         IconButton(tooltip: tr('PDF rapor'), onPressed: pdf, icon: const Icon(Icons.picture_as_pdf_outlined)),
       ]),
       bottomNavigationBar: const AdBannerBar(AdPage.compare),

@@ -121,8 +121,8 @@ List<GuideSection> get guideSections => <GuideSection>[
       tr('"Excel" tüm sonuçları, soru ve kazanım ayrıntılarıyla Excel\'in açabildiği bir dosyaya kaydeder.'),
       tr('"e-Okul listesi" okul numarasına göre sıralı, tam sayıya yuvarlanmış puanları verir; e-Okul\'a not girerken yanınızda açık tutun.'),
     ]),
-    GuideTopic(tr('Dönem raporu'), [
-      tr('Ana ekrandaki "Dönem raporu"nu açın; sınıfı ve dönemi seçin.'),
+    GuideTopic(tr('Dönem sonu raporu'), [
+      tr('Ana ekrandaki "Dönem sonu raporu"nu açın; sınıfı ve dönemi seçin.'),
       tr('Dahil edilecek sınavları işaretleyin ve gerekirse ağırlık verin (1×, 2×, 3×).'),
       tr('"Not çizelgesi" dönem sonu notlarını, "Kazanım karneleri" her öğrencinin dönem boyunca kazanım başarısını verir.'),
     ]),
@@ -132,13 +132,13 @@ List<GuideSection> get guideSections => <GuideSection>[
       tr('Listede yoksa "Kendim yazacağım" ile düzeylerin adını ve alt sınırını yazın (2–12 düzey).'),
       tr('Karneler, raporlar ve grafikler bu düzeylerle hazırlanır.'),
     ], tip: tr('Puanı 100 yerine 20 ya da 10 üzerinden vermek için Sınav ayarları > "Tam puan"ı değiştirin.')),
-    GuideTopic(tr('Sınıf sınıf analiz'), [
-      tr('Aynı sınavı birden çok şubede yaptıysanız ana ekrandaki "Sınıf sınıf analiz" şubeleri yan yana gösterir.'),
+    GuideTopic(tr('Şube karşılaştırması'), [
+      tr('Aynı sınavı birden çok şubede yaptıysanız ana ekrandaki "Şube karşılaştırması" şubeleri yan yana gösterir.'),
       tr('Öne çıkanlar, genel ortalamaya göre fark, geçme ve katılım oranı, özet tablo ve soru soru doğru oranları herkese açıktır.'),
       tr('Pro ile her şubenin puan yayılımı, başarı düzeyleri, doğru / yanlış / boş dağılımı, en çok ayrışan sorular ve sınıf birincileri de görünür.'),
     ]),
-    GuideTopic(tr('Genel istatistik'), [
-      tr('Ana ekrandaki "Genel istatistik" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.'),
+    GuideTopic(tr('Genel analiz'), [
+      tr('Ana ekrandaki "Genel analiz" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.'),
       tr('Üstten dönemi (tüm zamanlar, son 30 gün, son 90 gün) ve sınıfları seçerek daraltın.'),
       tr('Genel başarı, katılım, sınıf sıralaması, başarı düzeyleri ve sınav listesi herkese açıktır; Pro ile puan dağılımı, gelişim çizgileri, en başarılı, en çok gelişen ve desteğe ihtiyaç duyan öğrenciler ile kazanım özeti eklenir.'),
       tr('Sağ üstteki PDF düğmesiyle tüm istatistiği rapor olarak alabilirsiniz.'),

@@ -2181,7 +2181,7 @@ Future<Uint8List> buildOverviewPdf(Overview ov, {SchoolInfo school = const Schoo
       headerInfo: tr('Genel istatistik · {0}', [filter]),
       docTitle: tr('Genel İstatistik Raporu'),
       classLine: SchoolInfo.upper(ov.classes.map((c) => c.name).join(', ')));
-  final doc = pw.Document(theme: fonts.theme, title: tr('Genel istatistik'), author: tr('Netice'));
+  final doc = pw.Document(theme: fonts.theme, title: tr('Genel analiz'), author: tr('Netice'));
   String p(double v) => L10n.percent(v.round());
   final d = ov.dist;
   doc.addPage(pw.MultiPage(
@@ -2191,7 +2191,7 @@ Future<Uint8List> buildOverviewPdf(Overview ov, {SchoolInfo school = const Schoo
     header: (ctx) => k.header(ctx),
     footer: k.footer,
     build: (ctx) => [
-      k.title(tr('Genel istatistik'), filter),
+      k.title(tr('Genel analiz'), filter),
       k.grid([
         k.statBox(tr('Genel başarı'), p(d.mean), hint: tr('Medyan {0}', [p(d.median)]), color: _emerald),
         k.statBox(tr('Sınav'), '${ov.exams.length}', hint: tr('{0} kâğıt', [ov.sheets])),
