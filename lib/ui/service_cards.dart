@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 
 import 'section_icons.dart';
 import 'theme.dart';
+import 'widgets.dart' show SectionTitle;
 
 /// Hizmet kartlarını eşit yükseklikte satırlara dizen ızgara. Uzun çeviriler
 /// (ör. Almanca) satırı uzatır; aynı satırdaki kartlar birlikte uzar.
@@ -39,7 +40,10 @@ class ServiceGrid extends StatelessWidget {
 /// yumuşak bir daire, üstte simge, altta başlık, açıklama ve yuvarlak ok.
 /// [hero] kart lacivert degrade zemin üstünde beyaz yazıyla öne çıkar.
 class ServiceCard extends StatefulWidget {
-  final Section section;
+  final Section? section;
+  /// [section] yerine serbest simge ve renk (ayarlar, profil gibi bölüm dışı kartlar).
+  final IconData? icon;
+  final Color? color;
   final String title;
   final String subtitle;
   final Color? accent;
@@ -47,7 +51,9 @@ class ServiceCard extends StatefulWidget {
   final bool hero;
   const ServiceCard({
     super.key,
-    required this.section,
+    this.section,
+    this.icon,
+    this.color,
     required this.title,
     required this.subtitle,
     required this.onTap,
@@ -67,7 +73,10 @@ class _ServiceCardState extends State<ServiceCard> {
     final t = Theme.of(context);
     final dark = t.brightness == Brightness.dark;
     final hero = widget.hero;
-    final accent = widget.accent ?? widget.section.style.deep;
+    final style = widget.section?.style ??
+        SectionStyle(widget.icon ?? Icons.circle, Color.lerp(widget.color ?? NColors.emerald, Colors.white, 0.25)!,
+            widget.color ?? NColors.emerald);
+    final accent = widget.accent ?? style.deep;
     final fg = hero ? Colors.white : t.colorScheme.onSurface;
     final sub = hero ? const Color(0xFFC9D2EE) : t.colorScheme.onSurface.withValues(alpha: dark ? 0.72 : 0.62);
     final radius = BorderRadius.circular(24);
@@ -126,7 +135,9 @@ class _ServiceCardState extends State<ServiceCard> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SectionIcon(widget.section, size: 46),
+                        widget.section != null
+                            ? SectionIcon(widget.section!, size: 46)
+                            : GlossyIcon(style.icon, style.light, style.deep, size: 46),
                         const SizedBox(height: 14),
                         Text(
                           widget.title,
@@ -169,5 +180,131 @@ class _ServiceCardState extends State<ServiceCard> {
         ),
       ),
     );
+  }
+}
+
+
+/// Geniş pencere mi? (yan menü hariç içerik genişliği yeterliyse kartlar yan yana dizilir.)
+bool wideLayout(BuildContext context) => MediaQuery.sizeOf(context).width >= 1100;
+
+/// Hizmet ızgarasının sütun sayısı, içerik genişliğine göre.
+int serviceColumns(double width) => width >= 1150 ? 4 : width >= 820 ? 3 : 2;
+
+/// Başlıklı bölümleri geniş ekranda iki sütuna dizer (ince uzun satırlar yerine
+/// yan yana yuvarlatılmış kartlar). Dar ekranda alt alta durur.
+class CardSections extends StatelessWidget {
+  final List<(String, Widget)> sections;
+  const CardSections({super.key, required this.sections});
+
+  @override
+  Widget build(BuildContext context) {
+    Widget sec((String, Widget) s) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          SectionTitle(s.$1),
+          RoundedPanel(child: s.$2),
+        ]);
+    return LayoutBuilder(builder: (context, c) {
+      if (c.maxWidth < 900) {
+        return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [for (final s in sections) sec(s)]);
+      }
+      // Sırayı koruyarak iki sütuna böl: soldakiler önce, sağdakiler sonra okunur.
+      final half = (sections.length + 1) ~/ 2;
+      return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [for (final s in sections.take(half)) sec(s)])),
+        const SizedBox(width: 20),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [for (final s in sections.skip(half)) sec(s)])),
+      ]);
+    });
+  }
+}
+
+/// Büyük köşeli, yumuşak gölgeli panel; içindeki satırlar tek bir kartta toplanır.
+class RoundedPanel extends StatelessWidget {
+  final Widget child;
+  const RoundedPanel({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context);
+    final dark = t.brightness == Brightness.dark;
+    final r = BorderRadius.circular(22);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: r,
+        boxShadow: [if (!dark) BoxShadow(color: NColors.ink.withValues(alpha: 0.07), blurRadius: 18, offset: const Offset(0, 8))],
+      ),
+      child: Material(
+        color: t.cardTheme.color ?? t.colorScheme.surface,
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(borderRadius: r, side: BorderSide(color: t.colorScheme.outlineVariant)),
+        child: Theme(
+          // İçteki Card'lar panelle birleşsin: ayrı kutu, gölge ve kenar olmasın.
+          data: t.copyWith(cardTheme: t.cardTheme.copyWith(elevation: 0, shape: const RoundedRectangleBorder())),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
+/// Bölüm başlığı (SectionTitle) ve altındaki kartlardan oluşan bir liste.
+/// Dar ekranda olduğu gibi alt alta; geniş ekranda her başlık altındaki
+/// öğeler tek bir yuvarlatılmış panelde toplanıp iki sütuna dizilir.
+/// Listenin sonundaki [GestureDetector] / [Center] gibi altbilgiler panelin dışında kalır.
+class SectionedList extends StatelessWidget {
+  final EdgeInsetsGeometry padding;
+  final List<Widget> children;
+  const SectionedList({super.key, required this.padding, required this.children});
+
+  @override
+  Widget build(BuildContext context) {
+    if (!wideLayout(context)) return ListView(padding: padding, children: children);
+    final lead = <Widget>[];
+    final sections = <(String, List<Widget>)>[];
+    final footer = <Widget>[];
+    for (final w in children) {
+      if (w is SectionTitle) {
+        sections.add((w.text, []));
+      } else if (sections.isEmpty) {
+        lead.add(w);
+      } else if (w is GestureDetector || footer.isNotEmpty) {
+        footer.add(w);
+      } else {
+        sections.last.$2.add(w);
+      }
+    }
+    // Kart aralarındaki boşluklar panelde ayraç olur; sondaki boşluklar atılır.
+    Widget body(List<Widget> ws) {
+      final items = [for (final w in ws) if (!(w is SizedBox && w.child == null)) w];
+      while (items.isNotEmpty && items.last is SizedBox) {
+        items.removeLast();
+      }
+      return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        for (final (i, w) in items.indexed) ...[if (i > 0) const Divider(height: 1), w],
+      ]);
+    }
+
+    return ListView(padding: padding, children: [
+      ...lead,
+      CardSections(sections: [for (final s in sections) if (s.$2.isNotEmpty) (s.$1, body(s.$2))]),
+      if (footer.isNotEmpty) const SizedBox(height: 8),
+      ...footer.where((w) => w is! SizedBox),
+    ]);
+  }
+}
+
+/// Geniş ekranda öğeleri iki sütuna sırayla (soldan sağa) dağıtır; dar ekranda alt alta.
+class TwoColumns extends StatelessWidget {
+  final bool wide;
+  final List<Widget> children;
+  const TwoColumns({super.key, required this.wide, required this.children});
+
+  @override
+  Widget build(BuildContext context) {
+    if (!wide) return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children);
+    Widget col(int r) => Expanded(
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          for (var i = r; i < children.length; i += 2) children[i],
+        ]));
+    return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [col(0), col(1)]);
   }
 }

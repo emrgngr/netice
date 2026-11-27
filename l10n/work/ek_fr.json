@@ -1976,5 +1976,13 @@
  "{0} kodlama alanı (doğum tarihi, cinsiyet gibi)": "{0} champs codés (comme date de naissance, sexe)",
  "{0} seçenekten biri okunur.": "Une option sur {0} est lue.",
  "{0} sütun; her sütundan bir karakter okunur ({1}).": "{0} colonnes ; un caractère est lu dans chaque colonne ({1}).",
- "Örn. Kadın, Erkek": "Ex. Femme, Homme"
+ "Örn. Kadın, Erkek": "Ex. Femme, Homme",
+ "Netice Pro ve kurum": "Netice Pro et établissement",
+ "Ödeme Microsoft hesabınızdan": "Le paiement est débité de votre compte Microsoft",
+ "Microsoft hesabı > Hizmetler ve abonelikler": "Compte Microsoft > Services et abonnements",
+ "Ana ekrandaki \"Dönem sonu raporu\"nu açın; sınıfı ve dönemi seçin.": "Ouvrez « Bilan de fin de période » sur l'écran d'accueil ; choisissez la classe et la période.",
+ "Ana ekrandaki \"Genel analiz\" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.": "« Analyse générale » sur l'écran d'accueil réunit les résultats de toutes les classes et de tous les élèves ayant passé des examens.",
+ "Dönem sonu raporu": "Bilan de fin de période",
+ "Genel analiz": "Analyse générale",
+ "Kazandığınız zaman": "Temps gagné"
 }

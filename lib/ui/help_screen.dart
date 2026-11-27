@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 import '../core/help_content.dart';
 import 'illustrations.dart';
 import 'onboarding_screen.dart';
+import 'service_cards.dart';
 import 'theme.dart';
 import 'video_guide_screen.dart';
 import 'widgets.dart';
@@ -61,6 +62,7 @@ class _HelpScreenState extends State<HelpScreen> {
           ),
         );
 
+    final wide = wideLayout(context);
     final guide = ListView(padding: const EdgeInsets.only(bottom: 32), children: [
       Padding(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
@@ -91,8 +93,9 @@ class _HelpScreenState extends State<HelpScreen> {
       const Padding(padding: EdgeInsets.fromLTRB(16, 12, 16, 0), child: VideoGuideCard()),
       const AdSlot.card(AdPage.help, padding: EdgeInsets.fromLTRB(16, 12, 16, 0)),
       search(tr('Kılavuzda ara (ör. yedek, kitapçık)')),
+      TwoColumns(wide: wide, children: [
       for (final s in guideSections)
-        if (s.topics.any((tp) => _match('${s.title} ${tp.title} ${tp.steps.join(' ')} ${tp.tip ?? ''}'))) ...[
+        if (s.topics.any((tp) => _match('${s.title} ${tp.title} ${tp.steps.join(' ')} ${tp.tip ?? ''}'))) Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 6),
             child: Row(children: [
@@ -126,8 +129,7 @@ class _HelpScreenState extends State<HelpScreen> {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Card(
-              clipBehavior: Clip.antiAlias,
+            child: RoundedPanel(
               child: Column(children: [
                 for (final tp in s.topics)
                   if (_match('${s.title} ${tp.title} ${tp.steps.join(' ')} ${tp.tip ?? ''}'))
@@ -170,14 +172,16 @@ class _HelpScreenState extends State<HelpScreen> {
               ]),
             ),
           ),
-        ],
+        ]),
+      ]),
     ]);
 
     final cats = <String>{for (final f in faqs) f.category}.toList();
     final faq = ListView(padding: const EdgeInsets.only(bottom: 32), children: [
       search(tr('Soru ara (ör. barkod, e-Okul, silgi)')),
+      TwoColumns(wide: wide, children: [
       for (final c in cats)
-        if (faqs.any((f) => f.category == c && _match('${f.q} ${f.a}'))) ...[
+        if (faqs.any((f) => f.category == c && _match('${f.q} ${f.a}'))) Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 6),
             child: Text(c.toUpperCase(),
@@ -185,8 +189,7 @@ class _HelpScreenState extends State<HelpScreen> {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Card(
-              clipBehavior: Clip.antiAlias,
+            child: RoundedPanel(
               child: Column(children: [
                 for (final f in faqs.where((f) => f.category == c && _match('${f.q} ${f.a}')))
                   ExpansionTile(
@@ -201,7 +204,8 @@ class _HelpScreenState extends State<HelpScreen> {
               ]),
             ),
           ),
-        ],
+        ]),
+      ]),
       if (!faqs.any((f) => _match('${f.q} ${f.a}')))
         Padding(
           padding: const EdgeInsets.all(32),
