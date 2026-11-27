@@ -5,16 +5,24 @@ import 'package:url_launcher/url_launcher.dart';
 import '../core/ad_admin.dart';
 import '../core/ads.dart';
 import '../l10n/l10n.dart';
+import 'ad_admin_panels.dart';
 import 'ad_device_preview.dart';
 import 'ad_slot.dart';
 import 'ad_stats_screen.dart';
+import 'service_cards.dart';
 import 'theme.dart';
 import 'widgets.dart';
 
 /// Uygulama sahibinin reklamları eklediği, düzenlediği ve yayınladığı ekran.
 /// (Yalnızca sahibin cihazında açılır; metinler Türkçedir.)
 class AdAdminScreen extends StatefulWidget {
-  const AdAdminScreen({super.key});
+  final int initialTab;
+
+  /// Önizleme görüntüleri için hazır başvurular.
+  final List<AdApplication>? previewApplications;
+  final Set<String>? previewSeen;
+  final Map<String, AdStats>? previewStats;
+  const AdAdminScreen({super.key, this.initialTab = 0, this.previewApplications, this.previewSeen, this.previewStats});
 
   @override
   State<AdAdminScreen> createState() => _AdAdminScreenState();
@@ -64,21 +72,6 @@ class _AdAdminScreenState extends State<AdAdminScreen> {
     _refreshPreview();
   }
 
-  /// Kısa özet: taslak, hedef, saat, sıklık, öncelik, ek görseller.
-  static String _extras(Ad a) => [
-    if (a.targeted)
-      'Hedef: ${[if (a.languages.isNotEmpty) 'dil ${a.languages.join('/')}', if (a.countries.isNotEmpty) 'ülke ${a.countries.join('/')}', if (a.institutions.isNotEmpty) '${a.institutions.length} kurum türü'].join(', ')}',
-    if (a.hourFrom > 0 || a.hourTo < 24) 'saat ${a.hourFrom}–${a.hourTo}',
-    if (a.weekdays.isNotEmpty) '${a.weekdays.length} gün',
-    if (a.dailyCap > 0) 'günde en çok ${a.dailyCap}',
-    if (a.weight > 1) 'öncelik ${a.weight}',
-    if (a.cta.isNotEmpty) 'düğme',
-    if (a.code.isNotEmpty) 'kod ${a.code}',
-    if (a.countdown) 'geri sayım',
-    if (a.mediaDark.isNotEmpty) 'gece görseli',
-    if (a.hasAB) 'A/B',
-  ].join(' · ');
-
   @override
   void initState() {
     super.initState();
@@ -113,8 +106,12 @@ class _AdAdminScreenState extends State<AdAdminScreen> {
     }
   }
 
-  Future<void> _edit([Ad? ad]) async {
-    final out = await Navigator.of(context).push<Ad>(MaterialPageRoute(builder: (_) => AdEditScreen(ad: ad)));
+  Future<void> _edit([Ad? ad, AdPlacement? placement]) async {
+    final out = await Navigator.of(context).push<Ad>(
+      MaterialPageRoute(
+        builder: (_) => AdEditScreen(ad: ad, placement: placement),
+      ),
+    );
     if (out != null) {
       _admin.upsert(out);
       _refreshPreview();
@@ -231,333 +228,682 @@ class _AdAdminScreenState extends State<AdAdminScreen> {
   @override
   Widget build(BuildContext context) {
     final drafts = _admin.drafts;
-    final muted = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6);
-    return Scaffold(
-      appBar: _selecting
-          ? AppBar(
-              leading: IconButton(
-                tooltip: 'Seçimi kapat',
-                icon: const Icon(Icons.close_rounded),
-                onPressed: () => setState(_selected.clear),
-              ),
-              title: Text('${_selected.length} seçili'),
-              actions: [
-                IconButton(
-                  tooltip: 'Tümünü seç',
-                  icon: const Icon(Icons.select_all_rounded),
-                  onPressed: () => setState(() => _selected.addAll(drafts.map((a) => a.id))),
-                ),
-                IconButton(
-                  tooltip: 'Aç',
-                  icon: const Icon(Icons.visibility_rounded),
-                  onPressed: () => _bulkActive(true),
-                ),
-                IconButton(
-                  tooltip: 'Kapat',
-                  icon: const Icon(Icons.visibility_off_rounded),
-                  onPressed: () => _bulkActive(false),
-                ),
-                PopupMenuButton<String>(
-                  onSelected: (v) => switch (v) {
-                    'draft' => _bulkDraft(true),
-                    'live' => _bulkDraft(false),
-                    _ => _bulkDelete(),
-                  },
-                  itemBuilder: (_) => const [
-                    PopupMenuItem(value: 'draft', child: Text('Taslağa al')),
-                    PopupMenuItem(value: 'live', child: Text('Taslaktan çıkar')),
-                    PopupMenuItem(value: 'del', child: Text('Sil')),
-                  ],
-                ),
-              ],
-            )
-          : AppBar(
-              title: const Text('Reklam yönetimi'),
-              actions: [
-                IconButton(
-                  tooltip: 'İstatistikler',
-                  icon: const Icon(Icons.insights_rounded),
-                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdStatsScreen())),
-                ),
-                PopupMenuButton<String>(
-                  onSelected: (v) async {
-                    if (v == 'key') _tokenDialog();
-                    if (v == 'reload') {
-                      final ok = await _admin.syncFromPublished(overwrite: true);
-                      if (!context.mounted) return;
-                      toast(context, ok ? 'Yayındaki liste yüklendi.' : 'Liste alınamadı (internet?).');
-                    }
-                  },
-                  itemBuilder: (_) => const [
-                    PopupMenuItem(
-                      value: 'key',
-                      child: ListTile(leading: Icon(Icons.key_rounded), title: Text('Yayın anahtarı')),
-                    ),
-                    PopupMenuItem(
-                      value: 'reload',
-                      child: ListTile(
-                        leading: Icon(Icons.cloud_download_outlined),
-                        title: Text('Yayındakini geri yükle'),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'yeni-reklam',
-        onPressed: () => _edit(),
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('Yeni reklam'),
+    final newApps = _admin.newApplications;
+    Tab tab(IconData icon, String label, {int badge = 0}) => Tab(
+      height: 58,
+      icon: Badge(
+        isLabelVisible: badge > 0,
+        label: Text('$badge'),
+        backgroundColor: NColors.coral,
+        child: Icon(icon, size: 22),
       ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-          child: FilledButton.icon(
-            style: FilledButton.styleFrom(
-              minimumSize: const Size.fromHeight(52),
-              backgroundColor: NColors.emerald,
-              foregroundColor: Colors.white,
+      child: FittedBox(child: Text(label)),
+    );
+    final tabs = TabBar(
+      labelPadding: EdgeInsets.zero,
+      labelStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12.5),
+      unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12.5),
+      tabs: [
+        tab(Icons.campaign_outlined, 'Reklamlar'),
+        tab(Icons.grid_view_rounded, 'Alanlar'),
+        tab(Icons.bar_chart_rounded, 'İstatistik'),
+        tab(Icons.mark_email_unread_outlined, 'Başvurular', badge: newApps),
+        tab(Icons.tune_rounded, 'Ayarlar'),
+      ],
+    );
+    return DefaultTabController(
+      length: 5,
+      initialIndex: widget.initialTab,
+      child: Scaffold(
+        appBar: _selecting
+            ? AppBar(
+                leading: IconButton(
+                  tooltip: 'Seçimi kapat',
+                  icon: const Icon(Icons.close_rounded),
+                  onPressed: () => setState(_selected.clear),
+                ),
+                title: Text('${_selected.length} seçili'),
+                actions: [
+                  IconButton(
+                    tooltip: 'Tümünü seç',
+                    icon: const Icon(Icons.select_all_rounded),
+                    onPressed: () => setState(() => _selected.addAll(drafts.map((a) => a.id))),
+                  ),
+                  IconButton(
+                    tooltip: 'Aç',
+                    icon: const Icon(Icons.visibility_rounded),
+                    onPressed: () => _bulkActive(true),
+                  ),
+                  IconButton(
+                    tooltip: 'Kapat',
+                    icon: const Icon(Icons.visibility_off_rounded),
+                    onPressed: () => _bulkActive(false),
+                  ),
+                  PopupMenuButton<String>(
+                    onSelected: (v) => switch (v) {
+                      'draft' => _bulkDraft(true),
+                      'live' => _bulkDraft(false),
+                      _ => _bulkDelete(),
+                    },
+                    itemBuilder: (_) => const [
+                      PopupMenuItem(value: 'draft', child: Text('Taslağa al')),
+                      PopupMenuItem(value: 'live', child: Text('Taslaktan çıkar')),
+                      PopupMenuItem(value: 'del', child: Text('Sil')),
+                    ],
+                  ),
+                ],
+                bottom: tabs,
+              )
+            : AppBar(
+                titleSpacing: 8,
+                title: const Row(
+                  children: [
+                    Icon(Icons.campaign_rounded, color: adPink),
+                    SizedBox(width: 10),
+                    Text('Reklam Yönetimi', style: TextStyle(fontWeight: FontWeight.w900)),
+                  ],
+                ),
+                actions: [
+                  if (_syncing)
+                    const Padding(
+                      padding: EdgeInsets.only(right: 16),
+                      child: SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)),
+                    ),
+                ],
+                bottom: tabs,
+              ),
+        bottomNavigationBar: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+            child: Center(
+              heightFactor: 1,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 828),
+                child: FilledButton.icon(
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size.fromHeight(52),
+                    backgroundColor: NColors.nightEmerald,
+                    foregroundColor: Colors.white,
+                  ),
+                  onPressed: _admin.dirty ? _publish : null,
+                  icon: const Icon(Icons.campaign_rounded),
+                  label: Text(_admin.dirty ? 'Değişiklikleri yayınla' : 'Her şey yayında'),
+                ),
+              ),
             ),
-            onPressed: _admin.dirty ? _publish : null,
-            icon: const Icon(Icons.campaign_rounded),
-            label: Text(_admin.dirty ? 'Değişiklikleri yayınla' : 'Her şey yayında'),
+          ),
+        ),
+        body: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 860),
+            child: TabBarView(
+              children: [
+                Builder(builder: _adsTab),
+                AdPlacementsTab(onAdd: (p) => _edit(null, p)),
+                AdStatsScreen(embedded: true, initial: widget.previewStats),
+                AdApplicationsTab(initial: widget.previewApplications, initialSeen: widget.previewSeen),
+                Builder(builder: _settingsTab),
+              ],
+            ),
           ),
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 120),
-        children: [
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Nasıl çalışır?', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15)),
-                  const SizedBox(height: 6),
-                  Text(
-                    '• "Yeni reklam" ile görsel ya da video seçin, hangi sayfalarda görüneceğini işaretleyin.\n'
-                    '• Kart: sayfa içinde büyük kutu (1280×720 önerilir). Şerit: sayfanın altında ince bant (1200×240 önerilir).\n'
-                    '• "Değişiklikleri yayınla"ya basınca tüm kullanıcılar görür. Pro abonelere reklam gösterilmez.\n'
-                    '• Kamera ile okuma ve kâğıt kontrol ekranlarında reklam yoktur.',
-                    style: TextStyle(color: muted, fontSize: 13, height: 1.45),
-                  ),
-                  const SizedBox(height: 8),
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text('Taslağı bu cihazda önizle', style: TextStyle(fontWeight: FontWeight.w700)),
-                    subtitle: const Text('Yayınlamadan önce sayfalarda nasıl durduğunu görün'),
-                    value: _previewOn,
-                    onChanged: _togglePreview,
-                  ),
-                  Row(
-                    children: [
-                      Icon(
-                        _admin.token.isEmpty ? Icons.key_off_rounded : Icons.key_rounded,
-                        size: 18,
-                        color: _admin.token.isEmpty ? NColors.amber : NColors.emerald,
-                      ),
-                      const SizedBox(width: 6),
+    );
+  }
+
+  // ---------------------------------------------------------- Reklamlar
+
+  Widget _adsTab(BuildContext context) {
+    final drafts = _admin.drafts;
+    final muted = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6);
+    final now = DateTime.now();
+    final counts = {for (final s in AdStatus.values) s: drafts.where((a) => AdStatus.of(a, now) == s).length};
+    final empty = [
+      for (final p in AdPlacement.all)
+        if (adsInPlacement(drafts, p, now: now).isEmpty) p,
+    ];
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
+      children: [
+        FilledButton.icon(
+          style: FilledButton.styleFrom(
+            minimumSize: const Size.fromHeight(50),
+            backgroundColor: NColors.nightEmerald,
+            foregroundColor: Colors.white,
+          ),
+          onPressed: () => _edit(),
+          icon: const Icon(Icons.add_rounded),
+          label: const Text('Yeni reklam ekle', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15)),
+        ),
+        const SizedBox(height: 12),
+        RoundedPanel(
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    for (final s in AdStatus.values)
                       Expanded(
-                        child: Text(
-                          _admin.token.isEmpty
-                              ? 'Yayın anahtarı girilmedi'
-                              : _admin.lastPublish == null
-                              ? 'Yayın anahtarı kayıtlı'
-                              : 'Son yayın: ${dmy(_admin.lastPublish!)} ${hm(_admin.lastPublish!)}',
-                          style: TextStyle(color: muted, fontSize: 12.5),
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 3),
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          decoration: BoxDecoration(
+                            color: s.color.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Column(
+                            children: [
+                              Text(
+                                '${counts[s]}',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w900,
+                                  color: s == AdStatus.paused ? NColors.on(context, const Color(0xFFB7791F)) : s.color,
+                                ),
+                              ),
+                              Text(s.label, style: TextStyle(color: muted, fontSize: 12)),
+                            ],
+                          ),
                         ),
                       ),
-                      if (_admin.token.isEmpty) TextButton(onPressed: _tokenDialog, child: const Text('Anahtar gir')),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                Text(
+                  'Boş alanlar: ${empty.length} / ${AdPlacement.all.length}',
+                  style: const TextStyle(fontWeight: FontWeight.w800),
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  height: 132,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: [
+                      for (final p in empty.take(8))
+                        Padding(
+                          padding: const EdgeInsets.only(right: 12),
+                          child: SizedBox(
+                            width: 64,
+                            child: Column(
+                              children: [
+                                AdPhoneMock(placement: p, width: 52, filled: false),
+                                const SizedBox(height: 5),
+                                Text(
+                                  p.title.split(' · ').first.toUpperCase(),
+                                  maxLines: 2,
+                                  textAlign: TextAlign.center,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(color: muted, fontSize: 9.5, fontWeight: FontWeight.w700),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                     ],
                   ),
-                ],
-              ),
-            ),
-          ),
-          Card(
-            child: Column(
-              children: [
-                SwitchListTile(
-                  title: const Text(
-                    'Boş alanlarda "Burada reklamınız olsun"',
-                    style: TextStyle(fontWeight: FontWeight.w700),
-                  ),
-                  subtitle: Text(
-                    'Reklam olmayan kart alanlarında, başka firmaların size yazması için davet kartı çıkar '
-                    '(${_admin.settings.contactEmail}). Pro kullanıcılar görmez.',
-                    style: TextStyle(color: muted, fontSize: 12.5),
-                  ),
-                  value: _admin.settings.emptySlotCard,
-                  onChanged: (v) {
-                    _admin.setSettings(_admin.settings.copyWith(emptySlotCard: v));
-                    _refreshPreview();
-                  },
                 ),
-                SwitchListTile(
-                  title: const Text('Görülme ve tıklama sayacı', style: TextStyle(fontWeight: FontWeight.w700)),
-                  subtitle: Text(
-                    'Her reklamın günlük toplam görülme ve tıklama sayısı kimliksiz olarak sayılır; '
-                    'kimin gördüğü bilinmez. Kapatırsanız yeni sayım yapılmaz.',
-                    style: TextStyle(color: muted, fontSize: 12.5),
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(visualDensity: VisualDensity.compact),
+                    onPressed: () => DefaultTabController.of(context).animateTo(1),
+                    icon: const Icon(Icons.grid_view_rounded, size: 17),
+                    label: const Text('Tüm alanları gör'),
                   ),
-                  value: _admin.settings.stats,
-                  onChanged: (v) => _admin.setSettings(_admin.settings.copyWith(stats: v)),
                 ),
               ],
             ),
           ),
-          SectionTitle(
-            'Reklamlar (${drafts.length})',
-            trailing: _syncing
-                ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                : null,
+        ),
+        if (drafts.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 32),
+            child: Column(
+              children: [
+                Icon(Icons.campaign_outlined, size: 56, color: muted),
+                const SizedBox(height: 8),
+                Text('Henüz reklam yok. "Yeni reklam ekle" ile başlayın.', style: TextStyle(color: muted)),
+              ],
+            ),
           ),
-          if (drafts.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 32),
-              child: Column(
+        if (drafts.length > 1 && !_selecting)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(4, 12, 4, 0),
+            child: Text(
+              'İpucu: Birden çok reklamı birlikte açıp kapatmak ya da silmek için birine uzun basın.',
+              style: TextStyle(color: muted, fontSize: 12),
+            ),
+          ),
+        for (final (i, a) in drafts.indexed) _adCard(context, i, a, now),
+      ],
+    );
+  }
+
+  Widget _adCard(BuildContext context, int i, Ad a, DateTime now) {
+    final drafts = _admin.drafts;
+    final muted = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6);
+    final status = AdStatus.of(a, now);
+    final p = placementOf(a);
+    final slots = AdPlacement.all.where((x) => x.format == a.format && (a.allPages || a.pages.contains(x.page))).length;
+    final left = a.remaining(now);
+    final chips = [
+      if (a.cta.isNotEmpty) 'Düğme',
+      if (a.code.isNotEmpty) 'Kod ${a.code}',
+      if (a.countdown) 'Geri sayım',
+      if (a.mediaDark.isNotEmpty) 'Gece görseli',
+      if (a.hasAB) 'A/B',
+      if (a.targeted) 'Hedefli',
+      if (a.timeLimited) 'Saatli',
+      if (a.dailyCap > 0) 'Günde ${a.dailyCap}',
+      if (a.weight > 1) 'Öncelik ${a.weight}',
+    ];
+    return Card(
+      margin: const EdgeInsets.only(top: 12),
+      clipBehavior: Clip.antiAlias,
+      color: _selected.contains(a.id) ? NColors.emerald.withValues(alpha: 0.14) : null,
+      child: InkWell(
+        onTap: () => _selecting ? _toggleSelect(a) : _edit(a),
+        onLongPress: () => _toggleSelect(a),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 12, 4, 6),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.campaign_outlined, size: 56, color: muted),
-                  const SizedBox(height: 8),
-                  Text('Henüz reklam yok. "Yeni reklam" ile ekleyin.', style: TextStyle(color: muted)),
-                ],
-              ),
-            ),
-          if (drafts.length > 1 && !_selecting)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: Text(
-                'İpucu: Birden çok reklamı birlikte açıp kapatmak ya da silmek için birine uzun basın.',
-                style: TextStyle(color: muted, fontSize: 12),
-              ),
-            ),
-          for (final (i, a) in drafts.indexed)
-            Card(
-              clipBehavior: Clip.antiAlias,
-              color: _selected.contains(a.id) ? NColors.emerald.withValues(alpha: 0.14) : null,
-              child: InkWell(
-                onTap: () => _selecting ? _toggleSelect(a) : _edit(a),
-                onLongPress: () => _toggleSelect(a),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 10, 0, 10),
-                  child: Row(
+                  Column(
                     children: [
+                      AdPhoneMock(placement: p, width: 58),
+                      const SizedBox(height: 8),
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: SizedBox(width: 96, height: 54, child: AdThumb(ad: a)),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              a.name.isEmpty ? 'Adsız reklam' : a.name,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(fontWeight: FontWeight.w700),
-                            ),
-                            Text(
-                              '${switch (a.type) {
-                                AdType.video => 'Video',
-                                AdType.slider => 'Slider (${a.slides.length} görsel, ${a.style.label.toLowerCase()})',
-                                AdType.image => 'Sabit görsel',
-                              }} · ${a.format == AdFormat.card ? 'Kart' : 'Şerit'} · '
-                              '${a.allPages ? 'Tüm sayfalar' : a.pages.map((p) => p.label).join(', ')}',
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(color: muted, fontSize: 12),
-                            ),
-                            if (a.start != null || a.end != null || a.isLocal)
-                              Text(
-                                [
-                                  if (a.start != null || a.end != null)
-                                    '${a.start == null ? '…' : dmy(a.start!)} – ${a.end == null ? '…' : dmy(a.end!)}',
-                                  if (a.isLocal) 'yayınlanmadı',
-                                ].join(' · '),
-                                style: TextStyle(color: a.isLocal ? NColors.amber : muted, fontSize: 12),
-                              ),
-                            if (_extras(a).isNotEmpty)
-                              Text(
-                                _extras(a),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(color: muted, fontSize: 11.5),
-                              ),
-                            if (a.draft)
-                              Container(
-                                margin: const EdgeInsets.only(top: 3),
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                                decoration: BoxDecoration(color: NColors.amber, borderRadius: BorderRadius.circular(5)),
-                                child: const Text(
-                                  'TASLAK · yayınlanmaz',
-                                  style: TextStyle(color: NColors.ink, fontSize: 10.5, fontWeight: FontWeight.w800),
-                                ),
-                              ),
-                          ],
+                        borderRadius: BorderRadius.circular(6),
+                        child: SizedBox(
+                          width: 58,
+                          height: a.format == AdFormat.card ? 33 : 12,
+                          child: AdThumb(ad: a),
                         ),
-                      ),
-                      if (_selecting)
-                        Checkbox(value: _selected.contains(a.id), onChanged: (_) => _toggleSelect(a))
-                      else
-                        Switch(
-                          value: a.active,
-                          onChanged: (v) {
-                            _admin.upsert(a.copyWith(active: v));
-                            _refreshPreview();
-                          },
-                        ),
-                      PopupMenuButton<String>(
-                        onSelected: (v) async {
-                          switch (v) {
-                            case 'up':
-                              _admin.move(i, i - 1);
-                            case 'down':
-                              _admin.move(i, i + 1);
-                            case 'dup':
-                              _admin.duplicate(a);
-                              if (context.mounted) toast(context, 'Kopya taslak olarak eklendi.');
-                            case 'preview':
-                              await Navigator.of(context)
-                                  .push(MaterialPageRoute(builder: (_) => AdDevicePreviewScreen(ad: a)));
-                            case 'select':
-                              _toggleSelect(a);
-                            case 'del':
-                              final ok = await showDialog<bool>(
-                                context: context,
-                                builder: (ctx) => AlertDialog(
-                                  title: const Text('Reklam silinsin mi?'),
-                                  content: Text(
-                                    '"${a.name}" listeden kaldırılacak. Yayınlayınca kullanıcılarda da kaybolur.',
-                                  ),
-                                  actions: [
-                                    TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Vazgeç')),
-                                    FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Sil')),
-                                  ],
-                                ),
-                              );
-                              if (ok == true) _admin.remove(a.id);
-                          }
-                          _refreshPreview();
-                        },
-                        itemBuilder: (_) => [
-                          if (i > 0) const PopupMenuItem(value: 'up', child: Text('Yukarı taşı')),
-                          if (i < drafts.length - 1) const PopupMenuItem(value: 'down', child: Text('Aşağı taşı')),
-                          const PopupMenuItem(value: 'dup', child: Text('Çoğalt')),
-                          const PopupMenuItem(value: 'preview', child: Text('Cihazlarda önizle')),
-                          const PopupMenuItem(value: 'select', child: Text('Seç (toplu işlem)')),
-                          const PopupMenuItem(value: 'del', child: Text('Sil')),
-                        ],
                       ),
                     ],
                   ),
-                ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text.rich(
+                          TextSpan(
+                            children: [
+                              TextSpan(
+                                text: (a.allPages ? 'Tüm sayfalar' : a.pages.map((x) => x.label).join(', '))
+                                    .toUpperCase(),
+                                style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13.5),
+                              ),
+                              TextSpan(
+                                text: ' · $slots alan',
+                                style: TextStyle(color: muted, fontSize: 12),
+                              ),
+                            ],
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (a.name.isNotEmpty)
+                          Text(
+                            a.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                        Text(
+                          '${switch (a.type) {
+                            AdType.video => 'Video',
+                            AdType.slider => 'Slider · ${a.style.label} · ${a.seconds} sn · ${a.slides.length} görsel',
+                            AdType.image => 'Sabit görsel',
+                          }} · ${a.format == AdFormat.card ? 'Kart' : 'Şerit'}',
+                          style: TextStyle(color: muted, fontSize: 12),
+                        ),
+                        if (a.start != null || a.end != null)
+                          Text(
+                            '${a.start == null ? '…' : dmy(a.start!)} → ${a.end == null ? '…' : dmy(a.end!)}',
+                            style: TextStyle(color: muted, fontSize: 12),
+                          ),
+                        const SizedBox(height: 3),
+                        Row(
+                          children: [
+                            Icon(Icons.circle, size: 9, color: status.color),
+                            const SizedBox(width: 5),
+                            Flexible(
+                              child: Text(
+                                [
+                                  status.label,
+                                  if (status == AdStatus.live && left != null && left > Duration.zero)
+                                    left.inHours < 24
+                                        ? '${left.inHours + 1} saat kaldı'
+                                        : '${(left.inHours / 24).ceil()} gün kaldı',
+                                  if (a.draft) 'taslak',
+                                  if (a.isLocal) 'yayınlanmadı',
+                                ].join(' · '),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w800,
+                                  color: status == AdStatus.paused
+                                      ? NColors.on(context, const Color(0xFFB7791F))
+                                      : status.color,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (a.link.isNotEmpty)
+                          Text(
+                            a.link,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(color: muted, fontSize: 11.5),
+                          ),
+                        if (chips.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 6),
+                            child: Wrap(
+                              spacing: 5,
+                              runSpacing: 5,
+                              children: [for (final c in chips) AdBadge(c, color: NColors.deepEmerald, solid: false)],
+                            ),
+                          ),
+                        const SizedBox(height: 8),
+                        ShowOnPageButton(placement: p),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ),
+              const Divider(height: 18),
+              Row(
+                children: [
+                  if (_selecting)
+                    Checkbox(value: _selected.contains(a.id), onChanged: (_) => _toggleSelect(a))
+                  else
+                    Switch(
+                      value: a.active,
+                      onChanged: (v) {
+                        _admin.upsert(a.copyWith(active: v));
+                        _refreshPreview();
+                      },
+                    ),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      a.active ? 'Yayında' : 'Durdu',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: muted),
+                    ),
+                  ),
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(visualDensity: VisualDensity.compact),
+                    onPressed: () => _edit(a),
+                    icon: const Icon(Icons.edit_outlined, size: 17),
+                    label: const Text('Düzenle'),
+                  ),
+                  PopupMenuButton<String>(
+                    onSelected: (v) async {
+                      switch (v) {
+                        case 'up':
+                          _admin.move(i, i - 1);
+                        case 'down':
+                          _admin.move(i, i + 1);
+                        case 'dup':
+                          _admin.duplicate(a);
+                          if (context.mounted) toast(context, 'Kopya taslak olarak eklendi.');
+                        case 'preview':
+                          await Navigator.of(context)
+                              .push(MaterialPageRoute(builder: (_) => AdDevicePreviewScreen(ad: a)));
+                        case 'select':
+                          _toggleSelect(a);
+                      }
+                      _refreshPreview();
+                    },
+                    itemBuilder: (_) => [
+                      if (i > 0) const PopupMenuItem(value: 'up', child: Text('Yukarı taşı')),
+                      if (i < drafts.length - 1) const PopupMenuItem(value: 'down', child: Text('Aşağı taşı')),
+                      const PopupMenuItem(value: 'dup', child: Text('Çoğalt')),
+                      const PopupMenuItem(value: 'preview', child: Text('Cihazlarda önizle')),
+                      const PopupMenuItem(value: 'select', child: Text('Seç (toplu işlem)')),
+                    ],
+                  ),
+                  IconButton(
+                    tooltip: 'Sil',
+                    color: NColors.coral,
+                    icon: const Icon(Icons.delete_outline_rounded),
+                    onPressed: () => _deleteOne(a),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _deleteOne(Ad a) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Reklam silinsin mi?'),
+        content: Text('"${a.name}" listeden kaldırılacak. Yayınlayınca kullanıcılarda da kaybolur.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Vazgeç')),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Sil')),
         ],
       ),
+    );
+    if (ok == true) {
+      _admin.remove(a.id);
+      _refreshPreview();
+    }
+  }
+
+  // ------------------------------------------------------------ Ayarlar
+
+  void _setSettings(AdSettings s) {
+    _admin.setSettings(s);
+    _refreshPreview();
+  }
+
+  Widget _settingsTab(BuildContext context) {
+    final muted = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6);
+    final s = _admin.settings;
+    TextStyle sub() => TextStyle(color: muted, fontSize: 12.5, height: 1.35);
+    const bold = TextStyle(fontWeight: FontWeight.w800);
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 120),
+      children: [
+        SectionTitle('Boş alanlar'),
+        RoundedPanel(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 6, 16, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('"Burada reklamınız olsun" kartı', style: bold),
+                  subtitle: Text(
+                    'Reklam girilmemiş alanlarda, reklam vermek isteyenlerin size başvurabileceği bir kart çıkar. '
+                    'Başvurular "Başvurular" sekmesine düşer. Pro kullanıcılar görmez.',
+                    style: sub(),
+                  ),
+                  value: s.emptySlotCard,
+                  onChanged: (v) => _setSettings(s.copyWith(emptySlotCard: v)),
+                ),
+                const SizedBox(height: 6),
+                const Text('Ne sıklıkla çıksın?', style: bold),
+                const SizedBox(height: 2),
+                Text('Aynı boş alan her açılışta değil, seçtiğiniz sıklıkla davet kartı gösterir.', style: sub()),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 6,
+                  children: [
+                    for (final n in [1, 2, 3, 4, 5])
+                      ChoiceChip(
+                        label: Text(n == 1 ? 'Her seferinde' : '$n gösterimde 1'),
+                        selected: s.emptyEvery == n,
+                        onSelected: s.emptySlotCard ? (_) => _setSettings(s.copyWith(emptyEvery: n)) : null,
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  key: ValueKey('wa-${s.whatsapp}'),
+                  initialValue: s.whatsapp,
+                  keyboardType: TextInputType.phone,
+                  decoration: const InputDecoration(
+                    labelText: 'WhatsApp numarası (isteğe bağlı)',
+                    hintText: '905xxxxxxxxx',
+                    prefixIcon: Icon(Icons.chat_rounded),
+                    border: OutlineInputBorder(),
+                  ),
+                  onFieldSubmitted: (v) => _setSettings(s.copyWith(whatsapp: v.replaceAll(RegExp(r'[^0-9]'), ''))),
+                  onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
+                  onChanged: (v) {
+                    final d = v.replaceAll(RegExp(r'[^0-9]'), '');
+                    if (d != _admin.settings.whatsapp) _admin.setSettings(_admin.settings.copyWith(whatsapp: d));
+                  },
+                ),
+                const SizedBox(height: 4),
+                Text('Ülke koduyla yazın (ör. 90 532 …). Yazarsanız formda "WhatsApp" düğmesi de çıkar.', style: sub()),
+                const SizedBox(height: 12),
+                TextFormField(
+                  key: ValueKey('mail-${s.contactEmail}'),
+                  initialValue: s.contactEmail,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: const InputDecoration(
+                    labelText: 'İletişim e-postası',
+                    prefixIcon: Icon(Icons.alternate_email_rounded),
+                    border: OutlineInputBorder(),
+                  ),
+                  onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
+                  onChanged: (v) {
+                    final m = v.trim();
+                    if (m.contains('@') && m != _admin.settings.contactEmail) {
+                      _admin.setSettings(_admin.settings.copyWith(contactEmail: m));
+                    }
+                  },
+                ),
+                const SizedBox(height: 14),
+                const Text('Önizleme', style: bold),
+                const SizedBox(height: 8),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(18),
+                  child: AdEmptyCard(email: s.contactEmail, whatsapp: s.whatsapp),
+                ),
+                const SizedBox(height: 10),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: AdEmptyCard(email: s.contactEmail, whatsapp: s.whatsapp, banner: true),
+                ),
+              ],
+            ),
+          ),
+        ),
+        SectionTitle('Uygulamadaki öneriler'),
+        RoundedPanel(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Ürün öneri kartı (SepetMix ürünleri)', style: bold),
+              subtitle: Text(
+                'Ana sayfadaki "Önerilen" ürün kartı. Kapatıp "Değişiklikleri yayınla"ya basarsanız '
+                'tüm kullanıcılarda kaybolur.',
+                style: sub(),
+              ),
+              value: s.promoCard,
+              onChanged: (v) => _setSettings(s.copyWith(promoCard: v)),
+            ),
+          ),
+        ),
+        SectionTitle('Sayaç ve önizleme'),
+        RoundedPanel(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: Column(
+              children: [
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('Görülme ve tıklama sayacı', style: bold),
+                  subtitle: Text(
+                    'Her reklamın günlük toplam görülme ve tıklama sayısı kimliksiz olarak sayılır; '
+                    'kimin gördüğü bilinmez. Kapatırsanız yeni sayım yapılmaz.',
+                    style: sub(),
+                  ),
+                  value: s.stats,
+                  onChanged: (v) => _admin.setSettings(s.copyWith(stats: v)),
+                ),
+                const Divider(height: 1),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('Taslağı bu cihazda önizle', style: bold),
+                  subtitle: Text('Yayınlamadan önce sayfalarda nasıl durduğunu yalnız siz görürsünüz.', style: sub()),
+                  value: _previewOn,
+                  onChanged: _togglePreview,
+                ),
+              ],
+            ),
+          ),
+        ),
+        SectionTitle('Yayın'),
+        RoundedPanel(
+          child: Column(
+            children: [
+              ListTile(
+                leading: Icon(
+                  _admin.token.isEmpty ? Icons.key_off_rounded : Icons.key_rounded,
+                  color: _admin.token.isEmpty ? NColors.amber : NColors.deepEmerald,
+                ),
+                title: const Text('Yayın anahtarı', style: bold),
+                subtitle: Text(
+                  _admin.token.isEmpty
+                      ? 'Girilmedi. Yayınlamak ve istatistik/başvuruları görmek için gerekir.'
+                      : _admin.lastPublish == null
+                      ? 'Kayıtlı'
+                      : 'Kayıtlı · son yayın ${dmy(_admin.lastPublish!)} ${hm(_admin.lastPublish!)}',
+                  style: sub(),
+                ),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: _tokenDialog,
+              ),
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.cloud_download_outlined),
+                title: const Text('Yayındakini geri yükle', style: bold),
+                subtitle: Text('Bu cihazdaki taslakları silip yayındaki listeyi getirir.', style: sub()),
+                onTap: () async {
+                  final ok = await _admin.syncFromPublished(overwrite: true);
+                  if (!context.mounted) return;
+                  toast(context, ok ? 'Yayındaki liste yüklendi.' : 'Liste alınamadı (internet?).');
+                },
+              ),
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.help_outline_rounded),
+                title: const Text('Nasıl çalışır?', style: bold),
+                subtitle: Text(
+                  'Kart: sayfa içinde büyük kutu (1280×720). Şerit: sayfanın altında ince bant (1200×240). '
+                  '"Değişiklikleri yayınla"ya basınca tüm kullanıcılar en geç bir saat içinde görür. '
+                  'Pro abonelere reklam gösterilmez; kamera ile okuma ve kâğıt kontrol ekranlarında reklam yoktur.',
+                  style: sub(),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
@@ -592,7 +938,10 @@ const _ownSites = ['www.neticeoptik.com', 'www.sepetmix.com', 'www.cooktatlihaya
 /// Tek reklamı ekleme/düzenleme.
 class AdEditScreen extends StatefulWidget {
   final Ad? ad;
-  const AdEditScreen({super.key, this.ad});
+
+  /// "Alanlar"dan "Reklam ekle": biçim ve sayfa bu alana göre seçili gelir.
+  final AdPlacement? placement;
+  const AdEditScreen({super.key, this.ad, this.placement});
 
   @override
   State<AdEditScreen> createState() => _AdEditScreenState();
@@ -605,8 +954,8 @@ class _AdEditScreenState extends State<AdEditScreen> {
   late final _url = TextEditingController(text: (widget.ad?.isLocal ?? true) ? '' : widget.ad!.media);
   late String? _media = widget.ad?.media;
   late AdType _type = widget.ad?.type ?? AdType.image;
-  late AdFormat _format = widget.ad?.format ?? AdFormat.card;
-  late Set<AdPage> _pages = {...?widget.ad?.pages};
+  late AdFormat _format = widget.ad?.format ?? widget.placement?.format ?? AdFormat.card;
+  late Set<AdPage> _pages = {...?widget.ad?.pages, if (widget.placement != null) widget.placement!.page};
   late bool _active = widget.ad?.active ?? true;
   late DateTime? _start = widget.ad?.start;
   late DateTime? _end = widget.ad?.end;
@@ -1317,6 +1666,41 @@ class _AdEditScreenState extends State<AdEditScreen> {
                 ),
             ],
           ),
+          const SizedBox(height: 12),
+          Text(
+            'Reklamınız burada çıkar',
+            style: TextStyle(color: muted, fontSize: 12.5, fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            height: 140,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                for (final p in AdPlacement.all.where(
+                  (p) => p.format == _format && (_pages.isEmpty || _pages.contains(p.page)),
+                ))
+                  Padding(
+                    padding: const EdgeInsets.only(right: 12),
+                    child: SizedBox(
+                      width: 70,
+                      child: Column(
+                        children: [
+                          AdPhoneMock(placement: p, width: 54),
+                          const SizedBox(height: 5),
+                          Text(
+                            '${p.no} · ${p.title.split(' · ').first}',
+                            maxLines: 2,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: muted, fontSize: 10, fontWeight: FontWeight.w700),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
           SectionTitle('5. Yayın tarihi ve saatleri'),
           Row(
             children: [
@@ -1535,6 +1919,35 @@ class _AdEditScreenState extends State<AdEditScreen> {
 
 /// Gizli hareketten (Ayarlar'da logoya 4 sn içinde 5 dokunuş) sonra açılır:
 /// PIN yoksa oluşturulur, varsa sorulur; doğruysa Reklam yönetimi açılır.
+/// Gizli yönetici hareketi: [child]'a 4 saniye içinde 5 dokunuş/tıklama
+/// Reklam yönetimi PIN ekranını açar. Görünür bir iz bırakmaz.
+class SecretAdminTap extends StatefulWidget {
+  final Widget child;
+  const SecretAdminTap({super.key, required this.child});
+
+  @override
+  State<SecretAdminTap> createState() => _SecretAdminTapState();
+}
+
+class _SecretAdminTapState extends State<SecretAdminTap> {
+  final _taps = <DateTime>[];
+
+  void _tap() {
+    final now = DateTime.now();
+    _taps
+      ..removeWhere((t) => now.difference(t) > const Duration(seconds: 4))
+      ..add(now);
+    if (_taps.length >= 5) {
+      _taps.clear();
+      openAdminGate(context);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      GestureDetector(behavior: HitTestBehavior.opaque, onTap: _tap, child: widget.child);
+}
+
 Future<void> openAdminGate(BuildContext context) async {
   final admin = AdAdmin.instance;
   await admin.load();

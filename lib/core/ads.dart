@@ -382,7 +382,7 @@ class Ad {
 
 /// Tüm reklam alanları için ayarlar (listeyle birlikte yayınlanır).
 class AdSettings {
-  /// Boş kalan kart alanlarında "Burada reklamınız olsun" kartı.
+  /// Boş kalan alanlarda "Burada reklamınız olsun" kartı.
   final bool emptySlotCard;
 
   /// O kartta açılacak iletişim e-postası.
@@ -391,25 +391,206 @@ class AdSettings {
   /// Kimliksiz görülme/tıklama sayacı açık mı (gizlilik politikasında yazılı).
   final bool stats;
 
-  const AdSettings({this.emptySlotCard = false, this.contactEmail = 'info@neticeoptik.com', this.stats = true});
+  /// Davet kartı her kaç boş gösterimde bir çıksın (1 = her seferinde).
+  final int emptyEvery;
 
-  AdSettings copyWith({bool? emptySlotCard, String? contactEmail, bool? stats}) => AdSettings(
+  /// İsteğe bağlı WhatsApp numarası (ülke koduyla, yalnız rakam).
+  final String whatsapp;
+
+  /// Ana sayfadaki ürün öneri kartı (mağaza ürünleri) gösterilsin mi.
+  final bool promoCard;
+
+  const AdSettings({
+    this.emptySlotCard = false,
+    this.contactEmail = 'info@neticeoptik.com',
+    this.stats = true,
+    this.emptyEvery = 1,
+    this.whatsapp = '',
+    this.promoCard = true,
+  });
+
+  AdSettings copyWith({
+    bool? emptySlotCard,
+    String? contactEmail,
+    bool? stats,
+    int? emptyEvery,
+    String? whatsapp,
+    bool? promoCard,
+  }) => AdSettings(
     emptySlotCard: emptySlotCard ?? this.emptySlotCard,
     contactEmail: contactEmail ?? this.contactEmail,
     stats: stats ?? this.stats,
+    emptyEvery: emptyEvery ?? this.emptyEvery,
+    whatsapp: whatsapp ?? this.whatsapp,
+    promoCard: promoCard ?? this.promoCard,
   );
 
-  Map<String, dynamic> toJson() => {'bosAlanKarti': emptySlotCard, 'iletisim': contactEmail, 'istatistik': stats};
+  Map<String, dynamic> toJson() => {
+    'bosAlanKarti': emptySlotCard,
+    'iletisim': contactEmail,
+    'istatistik': stats,
+    'bosAlanSiklik': emptyEvery,
+    if (whatsapp.isNotEmpty) 'whatsapp': whatsapp,
+    'oneriKarti': promoCard,
+  };
 
   factory AdSettings.fromJson(Object? j) {
     if (j is! Map) return const AdSettings();
     final mail = '${j['iletisim'] ?? ''}'.trim();
+    final every = int.tryParse('${j['bosAlanSiklik'] ?? 1}') ?? 1;
     return AdSettings(
       emptySlotCard: j['bosAlanKarti'] == true,
       contactEmail: mail.contains('@') ? mail : 'info@neticeoptik.com',
       stats: j['istatistik'] != false,
+      emptyEvery: every.clamp(1, 5),
+      whatsapp: '${j['whatsapp'] ?? ''}'.replaceAll(RegExp(r'[^0-9]'), ''),
+      promoCard: j['oneriKarti'] != false,
     );
   }
+}
+
+/// Uygulamadaki numaralı reklam alanları: sayfa + biçim + yer tarifi.
+/// Yönetim ekranındaki "Alanlar" listesi ve "Sayfada göster" bunu kullanır.
+class AdPlacement {
+  final int no;
+  final AdPage page;
+  final AdFormat format;
+  final String title;
+  final String where;
+
+  /// Telefon çiziminde alanın dikey konumu (0 üst, 1 alt).
+  final double position;
+  const AdPlacement(this.no, this.page, this.format, this.title, this.where, this.position);
+
+  String get key => '${page.key}/${format.name}';
+  bool get banner => format == AdFormat.banner;
+
+  static AdPlacement? byKey(String k) => all.where((p) => p.key == k).firstOrNull;
+
+  static const all = [
+    AdPlacement(
+      1,
+      AdPage.home,
+      AdFormat.card,
+      'Ana sayfa · kart',
+      'Ana sayfada özet kutularının altında büyük kart. Uygulamanın en çok görülen alanı.',
+      0.55,
+    ),
+    AdPlacement(
+      2,
+      AdPage.home,
+      AdFormat.banner,
+      'Ana sayfa · şerit',
+      'Ana sayfanın en altında, menünün üstünde ince şerit.',
+      0.92,
+    ),
+    AdPlacement(
+      3,
+      AdPage.exam,
+      AdFormat.card,
+      'Sınav sonuçları · kart',
+      'Sınav sonuçlarında öğrenci listesinin en altında.',
+      0.45,
+    ),
+    AdPlacement(
+      4,
+      AdPage.exam,
+      AdFormat.banner,
+      'Sınav sonuçları · şerit',
+      'Sınav sonuçları sayfasının en altında ince şerit.',
+      0.92,
+    ),
+    AdPlacement(
+      5,
+      AdPage.classes,
+      AdFormat.card,
+      'Sınıflar · kart',
+      'Sınıflar sayfasında Excel açıklamasının altında, sınıf düğmelerinin üstünde.',
+      0.35,
+    ),
+    AdPlacement(
+      6,
+      AdPage.classes,
+      AdFormat.banner,
+      'Sınıflar · şerit',
+      'Sınıflar ve öğrenciler sayfasının en altında.',
+      0.92,
+    ),
+    AdPlacement(
+      7,
+      AdPage.student,
+      AdFormat.banner,
+      'Öğrenci ayrıntısı · şerit',
+      'Bir öğrencinin gelişim sayfasının en altında.',
+      0.92,
+    ),
+    AdPlacement(
+      8,
+      AdPage.term,
+      AdFormat.card,
+      'Dönem sonu raporu · kart',
+      'Dönem sonu raporunda açıklamanın altında, sınıf seçiminin üstünde.',
+      0.5,
+    ),
+    AdPlacement(
+      9,
+      AdPage.term,
+      AdFormat.banner,
+      'Dönem sonu raporu · şerit',
+      'Dönem sonu raporu sayfasının en altında.',
+      0.92,
+    ),
+    AdPlacement(
+      10,
+      AdPage.compare,
+      AdFormat.card,
+      'Şube karşılaştırması · kart',
+      'Şube karşılaştırması ve Genel analiz sayfalarında grafiklerin arasında.',
+      0.5,
+    ),
+    AdPlacement(
+      11,
+      AdPage.compare,
+      AdFormat.banner,
+      'Şube karşılaştırması · şerit',
+      'Şube karşılaştırması ve Genel analiz sayfalarının en altında.',
+      0.92,
+    ),
+    AdPlacement(
+      12,
+      AdPage.help,
+      AdFormat.card,
+      'Yardım · kart',
+      'Yardım sayfasında video rehber ve örnek raporların altında.',
+      0.4,
+    ),
+    AdPlacement(
+      13,
+      AdPage.help,
+      AdFormat.banner,
+      'Kütüphane · şerit',
+      'Kütüphane (soru bankası) sayfasının en altında.',
+      0.92,
+    ),
+    AdPlacement(
+      14,
+      AdPage.profile,
+      AdFormat.card,
+      'Profil · kart',
+      'Profil sayfasında üstteki öğretmen kartının hemen altında.',
+      0.3,
+    ),
+    AdPlacement(15, AdPage.profile, AdFormat.banner, 'Profil · şerit', 'Profil sayfasının en altında.', 0.92),
+    AdPlacement(
+      16,
+      AdPage.settings,
+      AdFormat.card,
+      'Ayarlar · kart',
+      'Ayarlar sayfasında "Yardım ve gizlilik" bölümünün üstünde.',
+      0.7,
+    ),
+    AdPlacement(17, AdPage.settings, AdFormat.banner, 'Ayarlar · şerit', 'Ayarlar sayfasının en altında.', 0.92),
+  ];
 }
 
 class AdService extends ChangeNotifier {
@@ -466,6 +647,46 @@ class AdService extends ChangeNotifier {
     previewSettings = settings;
     if (list != null) dismissed.clear();
     notifyListeners();
+  }
+
+  // ---- "Sayfada göster": yönetim ekranından seçilen alan bir dakika
+  // boyunca pembe kesik çerçeveyle işaretlenir (yalnız bu cihazda). ----
+  String? highlightKey;
+  Timer? _highlightTimer;
+
+  /// Vurgulanan alan sayfada çizildi mi ("Sayfada göster" kaydırması için).
+  bool highlightShown = false;
+
+  void highlight(AdPlacement p, {Duration d = const Duration(minutes: 1)}) {
+    highlightKey = p.key;
+    highlightShown = false;
+    _highlightTimer?.cancel();
+    _highlightTimer = Timer(d, () {
+      highlightKey = null;
+      notifyListeners();
+    });
+    dismissed.remove(p.key);
+    notifyListeners();
+  }
+
+  void clearHighlight() {
+    _highlightTimer?.cancel();
+    highlightKey = null;
+    notifyListeners();
+  }
+
+  bool isHighlighted(AdPage page, AdFormat f) => highlightKey == '${page.key}/${f.name}';
+
+  // Boş alan davet kartı sıklığı: her alan için kaç kez boş gösterildiği (oturumluk).
+  final Map<String, int> _emptyShown = {};
+
+  /// Boş alanda davet kartı bu sefer çıksın mı (ayardaki "N gösterimde 1").
+  bool emptyCardTurn(AdPage page, AdFormat f, Object owner) {
+    final every = activeSettings.emptyEvery;
+    if (every <= 1) return true;
+    final k = '${page.key}/${f.name}/${identityHashCode(owner)}';
+    final n = _emptyShown.putIfAbsent(k, () => _emptyShown.length);
+    return n % every == 0;
   }
 
   void dismiss(AdPage page, AdFormat f) {
@@ -557,6 +778,25 @@ class AdService extends ChangeNotifier {
       flushStats();
     } else {
       _flushTimer ??= Timer(const Duration(minutes: 3), flushStats);
+    }
+  }
+
+  /// "Burada reklamınız olsun" formundan reklam başvurusu gönderir.
+  /// Başarılıysa null, değilse kullanıcıya gösterilecek kısa hata.
+  Future<String?> sendApplication(AdApplication a) async {
+    try {
+      final r = await http
+          .post(
+            Uri.parse('$statsUrl/basvuru'),
+            headers: {'content-type': 'application/json', 'x-netice-app': 'netice-app-1'},
+            body: jsonEncode(a.toJson()),
+          )
+          .timeout(const Duration(seconds: 20));
+      if (r.statusCode == 200) return null;
+      if (r.statusCode == 429) return 'limit';
+      return 'server';
+    } catch (_) {
+      return 'offline';
     }
   }
 
@@ -758,6 +998,59 @@ class AdService extends ChangeNotifier {
 }
 
 /// Bir görselin (A ya da B) görülme ve tıklama toplamı.
+/// Reklam vermek isteyen firmanın formdan bıraktığı başvuru.
+class AdApplication {
+  final String id;
+  final DateTime? time;
+  final String name;
+  final String company;
+  final String phone;
+  final String email;
+  final String message;
+
+  /// Başvurunun yapıldığı alan (ör. ana_sayfa/card), boş olabilir.
+  final String slot;
+  final String lang;
+  final String country;
+
+  const AdApplication({
+    this.id = '',
+    this.time,
+    required this.name,
+    this.company = '',
+    this.phone = '',
+    this.email = '',
+    required this.message,
+    this.slot = '',
+    this.lang = '',
+    this.country = '',
+  });
+
+  Map<String, dynamic> toJson() => {
+    'ad': name,
+    'firma': company,
+    'telefon': phone,
+    'eposta': email,
+    'mesaj': message,
+    'alan': slot,
+    'dil': lang,
+    'ulke': country,
+  };
+
+  factory AdApplication.fromJson(Map j) => AdApplication(
+    id: '${j['id'] ?? ''}',
+    time: DateTime.tryParse('${j['zaman'] ?? ''}')?.toLocal(),
+    name: '${j['ad'] ?? ''}',
+    company: '${j['firma'] ?? ''}',
+    phone: '${j['telefon'] ?? ''}',
+    email: '${j['eposta'] ?? ''}',
+    message: '${j['mesaj'] ?? ''}',
+    slot: '${j['alan'] ?? ''}',
+    lang: '${j['dil'] ?? ''}',
+    country: '${j['ulke'] ?? ''}',
+  );
+}
+
 class AdCounts {
   final int views;
   final int clicks;

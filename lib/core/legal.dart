@@ -47,7 +47,7 @@ String get shareText => tr('Optik kâğıtları telefonla okutup puan, analiz ve
 String _contact(String prefix) => contactEmail.isEmpty ? '' : '\n\n$prefix $contactEmail';
 
 /// Uygulama içi gizlilik politikası (mağazadaki metnin kısa hâli).
-String get privacyPolicy => [_privacy, _privacyPromo, _privacy2, _privacyNot, _privacy3, _privacyAi].map(tr).join('\n\n') +
+String get privacyPolicy => [_privacy, _privacyPromo, _privacyAdForm, _privacy2, _privacyNot, _privacy3, _privacyAi].map(tr).join('\n\n') +
     _contact(tr('İletişim:'));
 
 const _privacyAi = '''Nottan soru üretme (isteğe bağlı)
@@ -63,6 +63,9 @@ Ayarlar > Hesap bölümünden dilerseniz Google hesabınızla giriş yapıp yede
 
 const _privacyPromo = '''Tanıtımlar ve ürün önerileri
 Netice'de üçüncü taraf reklam ve reklam ağı yoktur. Ücretsiz sürümde bazı sayfalarda yalnızca geliştiricinin kendi uygulamalarının, web sitelerinin ve mağazasının tanıtımları (görsel veya video) ile kapatılabilir bir ürün öneri kartı gösterilir; Netice Pro'da tanıtım gösterilmez. Reklam kimliği okunmaz ve kullanıcı izlenmez. Tanıtımların işe yarayıp yaramadığını görmek için yalnızca her tanıtımın günlük toplam görülme ve tıklanma sayısı kimliksiz olarak Netice'nin sayaç sunucusuna gönderilir; bu sayılarla birlikte cihaz kimliği, hesap, konum, öğrenci bilgisi ya da size ait başka bir bilgi gönderilmez ve IP adresi saklanmaz. İnternet varsa tanıtım ve ürün listeleri herkese açık bir adresten indirilip cihazda saklanır; bu isteklerde size ya da öğrencilerinize ait hiçbir bilgi bulunmaz. Bir tanıtıma veya ürüne dokunduğunuzda ilgili sayfa tarayıcınızda açılır ve o sitenin kendi kuralları geçerli olur.''';
+
+const _privacyAdForm = '''Reklam başvuru formu
+Boş tanıtım alanlarında "Burada reklamınız olsun" kartı çıkabilir. Bu karttaki formu doldurmak isteğe bağlıdır ve yalnızca reklam vermek isteyenler içindir. Formu gönderirseniz yazdığınız ad, firma, telefon, e-posta ve mesaj ile uygulama dili ve ülke kodu, size dönüş yapabilmek için Netice'nin sunucusuna iletilir. Bu bilgiler başka bir amaçla kullanılmaz, kimseyle paylaşılmaz, IP adresi saklanmaz ve en geç bir yıl içinde silinir; daha önce silinmesini istediğinizde bize yazabilirsiniz.''';
 
 const _privacy2 = '''Netice Pro aboneliği
 Okuma ve temel sonuçlar ücretsizdir. Dönem raporu, karneler, veliye gönderme, Google Drive yedeği, gelişmiş grafikler ve resmi yazı başlığı Netice Pro aboneliğiyle açılır; ilk kurulumda 14 gün ücretsiz denenebilir, kart bilgisi istenmez. Ödeme Google Play tarafından alınır; kart ve ödeme bilgileriniz geliştiriciye ulaşmaz. Abonelik dönem sonunda kendiliğinden yenilenir ve Google Play > Abonelikler bölümünden istediğiniz zaman iptal edilebilir.

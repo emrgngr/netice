@@ -378,4 +378,87 @@ void main() {
     await tester.pump();
     expect(find.byType(AlertDialog), findsOneWidget);
   });
+
+  test('reklam ayarları: sıklık, WhatsApp ve öneri kartı JSON', () {
+    const s = AdSettings(emptySlotCard: true, emptyEvery: 3, whatsapp: '905321112233', promoCard: false);
+    final back = AdSettings.fromJson(jsonDecode(jsonEncode(s.toJson())));
+    expect(back.emptyEvery, 3);
+    expect(back.whatsapp, '905321112233');
+    expect(back.promoCard, isFalse);
+    // Eski yayınlarda alan yoksa öneri kartı açık, sıklık her seferinde.
+    final old = AdSettings.fromJson({'bosAlanKarti': true});
+    expect(old.promoCard, isTrue);
+    expect(old.emptyEvery, 1);
+    expect(AdSettings.fromJson({'bosAlanSiklik': 99, 'whatsapp': '+90 (532) 111'}).emptyEvery, 5);
+    expect(AdSettings.fromJson({'whatsapp': '+90 (532) 111'}).whatsapp, '90532111');
+  });
+
+  test('reklam alanları: numaralar ve anahtarlar benzersiz', () {
+    final keys = AdPlacement.all.map((p) => p.key).toSet();
+    expect(keys.length, AdPlacement.all.length);
+    expect(AdPlacement.all.map((p) => p.no).toList(), List.generate(AdPlacement.all.length, (i) => i + 1));
+    expect(AdPlacement.byKey('ana_sayfa/card')?.no, 1);
+  });
+
+  test('başvuru JSON gidiş-dönüş', () {
+    const a = AdApplication(
+      name: 'Ayşe',
+      company: 'Kırtasiye',
+      phone: '05321112233',
+      email: 'a@b.co',
+      message: 'Merhaba',
+      slot: 'ana_sayfa/card',
+    );
+    final back = AdApplication.fromJson({...a.toJson(), 'id': 'ba_x', 'zaman': '2026-11-27T10:00:00Z'});
+    expect(back.name, 'Ayşe');
+    expect(back.company, 'Kırtasiye');
+    expect(back.slot, 'ana_sayfa/card');
+    expect(back.time, isNotNull);
+  });
+
+  testWidgets('boş alan kartı sıklığı ve "Sayfada göster" çerçevesi', (tester) async {
+    AdService.instance.debugSet([], {}, settings: const AdSettings(emptySlotCard: true, emptyEvery: 2));
+    final store = AppStore();
+    Widget app(int n) => StoreScope(
+      store: store,
+      child: MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: Column(children: [for (var i = 0; i < n; i++) AdSlot.card(AdPage.term, key: ValueKey(i))]),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpWidget(app(4));
+    // 4 boş gösterimin 2'sinde davet kartı çıkar.
+    expect(find.byType(AdEmptyCard), findsNWidgets(2));
+
+    // Vurgulanan alan, reklam ve davet kartı kapalı olsa da pembe kutuyla görünür.
+    AdService.instance.debugSet([], {}, settings: const AdSettings());
+    AdService.instance.highlight(AdPlacement.byKey('donem/card')!);
+    await tester.pumpWidget(app(1));
+    expect(find.textContaining('REKLAM ALANI'), findsWidgets);
+    AdService.instance.clearHighlight();
+  });
+
+  testWidgets('masaüstü: logoya 5 tıklama kod ekranını açar', (tester) async {
+    await tester.pumpWidget(
+      StoreScope(
+        store: AppStore(),
+        child: const MaterialApp(
+          home: Scaffold(body: Center(child: SecretAdminTap(child: SizedBox.square(dimension: 40)))),
+        ),
+      ),
+    );
+    await tester.runAsync(() async {
+      for (var i = 0; i < 5; i++) {
+        await tester.tap(find.byType(SecretAdminTap));
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+    });
+    await tester.pump();
+    await tester.pump();
+    expect(find.byType(AlertDialog), findsOneWidget);
+  });
 }

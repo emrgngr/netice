@@ -44,7 +44,10 @@ import 'sample_reports_screen.dart';
 /// Ana sayfa / pano. Geniş ekranda (masaüstü) yan menülü pano,
 /// dar ekranda (telefon) büyük "Okut" düğmeli mobil düzen.
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  /// Reklam yönetimindeki "Sayfada göster" için: bu sekmeyle açılır,
+  /// karşılama/puanlama pencereleri sorulmaz.
+  final int? previewTab;
+  const HomeScreen({super.key, this.previewTab});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -55,6 +58,15 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _guideShown = false;
   bool _rateShown = false;
   bool _whatsNewChecked = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.previewTab != null) {
+      _tab = widget.previewTab!;
+      _guideShown = _rateShown = _whatsNewChecked = true;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

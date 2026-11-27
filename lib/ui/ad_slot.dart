@@ -154,30 +154,127 @@ class _AdSlotState extends State<AdSlot> {
   @override
   Widget build(BuildContext context) {
     final store = StoreScope.of(context);
-    if (store.adFree || _ads.isDismissed(widget.page, widget.format)) return const SizedBox.shrink();
+    final hl = _ads.isHighlighted(widget.page, widget.format);
+    if (!hl && (store.adFree || _ads.isDismissed(widget.page, widget.format))) return const SizedBox.shrink();
     final list = _eligible(store);
+    final banner = widget.format == AdFormat.banner;
+    Widget? box;
     if (list.isEmpty) {
       final s = _ads.activeSettings;
-      if (widget.format == AdFormat.card && s.emptySlotCard) {
-        return _frame(AdEmptyCard(email: s.contactEmail, onClose: () => _ads.dismiss(widget.page, widget.format)));
+      if (s.emptySlotCard && (hl || _ads.emptyCardTurn(widget.page, widget.format, this))) {
+        box = AdEmptyCard(
+          email: s.contactEmail,
+          whatsapp: s.whatsapp,
+          slot: '${widget.page.key}/${widget.format.name}',
+          banner: banner,
+          onClose: () => _ads.dismiss(widget.page, widget.format),
+        );
       }
-      return const SizedBox.shrink();
-    }
-    final rotation = weightedRotation(list);
-    final ad = rotation[_index % rotation.length];
-    _schedule(ad, list.length);
-    final dark = Theme.of(context).brightness == Brightness.dark;
-    final files = adDisplayFiles(ad, dark: dark, variantB: _variantB) ?? _ads.filesFor(ad)!;
-    return _frame(
-      AdView(
+    } else {
+      final rotation = weightedRotation(list);
+      final ad = rotation[_index % rotation.length];
+      _schedule(ad, list.length);
+      final dark = Theme.of(context).brightness == Brightness.dark;
+      final files = adDisplayFiles(ad, dark: dark, variantB: _variantB) ?? _ads.filesFor(ad)!;
+      box = AdView(
         ad: ad,
         files: files,
-        banner: widget.format == AdFormat.banner,
+        banner: banner,
         showQr: AdSlot.isDesktop,
         loopVideo: list.length == 1,
         onCycle: list.length > 1 ? _next : null,
         onClose: () => _ads.dismiss(widget.page, widget.format),
         onOpen: () => _ads.recordClick(ad, variantB: _variantB),
+      );
+    }
+    if (hl) return _highlighted(box);
+    if (box == null) return const SizedBox.shrink();
+    return _frame(box);
+  }
+
+  String? _scrolledFor;
+
+  /// "Sayfada göster": alan pembe kesik çerçeveyle işaretlenir ve ekrana
+  /// kaydırılır. Reklam yoksa yerine alanın adı yazan bir kutu çıkar.
+  /// (Yalnız yönetim ekranından açıldığında, sahibin cihazında görünür.)
+  Widget _highlighted(Widget? box) {
+    final banner = widget.format == AdFormat.banner;
+    final p = AdPlacement.byKey('${widget.page.key}/${widget.format.name}');
+    final title = (p?.title ?? widget.page.label).toUpperCase();
+    _ads.highlightShown = true;
+    if (_scrolledFor != _ads.highlightKey) {
+      _scrolledFor = _ads.highlightKey;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          Scrollable.ensureVisible(context, alignment: 0.35, duration: const Duration(milliseconds: 450));
+        }
+      });
+    }
+    final inner =
+        box ??
+        Container(
+          height: banner ? 64 : 112,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: const BoxDecoration(gradient: LinearGradient(colors: [Color(0xFFEC4899), Color(0xFF9333EA)])),
+          child: Row(
+            children: [
+              Icon(Icons.campaign_rounded, color: Colors.white, size: banner ? 26 : 34),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'REKLAM ALANI · $title',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13.5),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      'Reklam yönetimi > Yeni reklam ile bu alana reklam ekleyebilirsiniz (alan ${p?.no ?? '-'}).',
+                      maxLines: banner ? 1 : 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+    return Padding(
+      padding: widget.padding,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: banner ? 728 : 720),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(left: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFEC4899),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(6)),
+                ),
+                child: Text(
+                  'REKLAM ALANI · $title (${p?.no ?? '-'})',
+                  style: const TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.w900),
+                ),
+              ),
+              CustomPaint(
+                foregroundPainter: DashedFramePainter(color: const Color(0xFFEC4899), radius: banner ? 12 : 20),
+                child: Padding(
+                  padding: const EdgeInsets.all(5),
+                  child: ClipRRect(borderRadius: BorderRadius.circular(banner ? 9 : 16), child: inner),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -194,6 +291,32 @@ class _AdSlotState extends State<AdSlot> {
       ),
     );
   }
+}
+
+/// Kesik çizgili yuvarlak çerçeve ("Sayfada göster" ve alan önizlemeleri).
+class DashedFramePainter extends CustomPainter {
+  final Color color;
+  final double radius;
+  final double width;
+  const DashedFramePainter({required this.color, this.radius = 16, this.width = 2.2});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = (Offset.zero & size).deflate(width / 2);
+    final path = Path()..addRRect(RRect.fromRectAndRadius(rect, Radius.circular(radius)));
+    final p = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = width;
+    for (final m in path.computeMetrics()) {
+      for (var d = 0.0; d < m.length; d += 11) {
+        canvas.drawPath(m.extractPath(d, math.min(d + 6, m.length)), p);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(DashedFramePainter old) => old.color != color || old.radius != radius;
 }
 
 /// Tek bir reklamın görünümü: medya + "Reklam" etiketi, düğme, indirim kodu,
@@ -504,79 +627,382 @@ class _QrPainter extends CustomPainter {
   bool shouldRepaint(_QrPainter old) => old.img != img;
 }
 
-/// Boş kart alanı: "Burada reklamınız olsun".
+/// Boş reklam alanı: "Burada reklamınız olsun". "Reklam ver" başvuru
+/// formunu açar (isteğe bağlı WhatsApp ve e-posta da formda).
 class AdEmptyCard extends StatelessWidget {
   final String email;
+  final String whatsapp;
+
+  /// Başvurunun hangi alandan geldiği (ör. home/card).
+  final String slot;
+  final bool banner;
   final VoidCallback? onClose;
-  const AdEmptyCard({super.key, required this.email, this.onClose});
+  const AdEmptyCard({
+    super.key,
+    required this.email,
+    this.whatsapp = '',
+    this.slot = '',
+    this.banner = false,
+    this.onClose,
+  });
+
+  static const _gradient = BoxDecoration(
+    gradient: LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: [NColors.ink, Color(0xFF1E3A8A)],
+    ),
+  );
+
+  void _apply(BuildContext context) => showAdApplicationForm(context, email: email, whatsapp: whatsapp, slot: slot);
+
+  Widget _close() => PositionedDirectional(
+    end: 2,
+    top: 2,
+    child: InkResponse(
+      radius: 18,
+      onTap: onClose,
+      child: Container(
+        margin: const EdgeInsets.all(4),
+        padding: const EdgeInsets.all(3),
+        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.18), shape: BoxShape.circle),
+        child: const Icon(Icons.close_rounded, size: 14, color: Colors.white),
+      ),
+    ),
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    if (banner) {
+      return AspectRatio(
+        aspectRatio: 5,
+        child: LayoutBuilder(
+          builder: (context, box) {
+            final k = (box.maxHeight / 72).clamp(0.7, 1.3);
+            return Stack(
+              fit: StackFit.expand,
+              children: [
+                DecoratedBox(
+                  decoration: _gradient,
+                  child: Padding(
+                    padding: EdgeInsetsDirectional.fromSTEB(12 * k, 6, 22 * k, 6),
+                    child: Row(
+                      children: [
+                        Icon(Icons.campaign_rounded, color: NColors.amber, size: 26 * k),
+                        SizedBox(width: 10 * k),
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                tr('Burada reklamınız olsun'),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(color: Colors.white, fontSize: 14 * k, fontWeight: FontWeight.w900),
+                              ),
+                              Text(
+                                tr('Öğretmenlere ve kurumlara ulaşın.'),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 11 * k),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(width: 8 * k),
+                        _CtaPill(label: tr('Reklam ver'), scale: k * 0.85, onTap: () => _apply(context)),
+                      ],
+                    ),
+                  ),
+                ),
+                if (onClose != null) _close(),
+              ],
+            );
+          },
+        ),
+      );
+    }
+    return AspectRatio(
+      aspectRatio: 16 / 9,
+      child: LayoutBuilder(
+        builder: (context, box) {
+          final k = (box.maxWidth / 380).clamp(0.75, 1.35);
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              DecoratedBox(
+                decoration: _gradient,
+                child: Padding(
+                  padding: EdgeInsets.all(18 * k),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.campaign_rounded, color: NColors.amber, size: 34 * k),
+                      SizedBox(height: 8 * k),
+                      Text(
+                        tr('Burada reklamınız olsun'),
+                        style: TextStyle(color: Colors.white, fontSize: 20 * k, fontWeight: FontWeight.w900),
+                      ),
+                      SizedBox(height: 4 * k),
+                      Text(
+                        tr('Öğretmenlere ve kurumlara ulaşın. Bu alan için bize yazın.'),
+                        style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 12.5 * k),
+                      ),
+                      SizedBox(height: 12 * k),
+                      _CtaPill(label: tr('Reklam ver'), scale: k, onTap: () => _apply(context)),
+                    ],
+                  ),
+                ),
+              ),
+              if (onClose != null) _close(),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+/// Reklam başvuru formu (alttan açılan sayfa).
+Future<void> showAdApplicationForm(
+  BuildContext context, {
+  required String email,
+  String whatsapp = '',
+  String slot = '',
+}) => showModalBottomSheet<void>(
+  context: context,
+  isScrollControlled: true,
+  showDragHandle: true,
+  builder: (_) => AdApplicationForm(email: email, whatsapp: whatsapp, slot: slot),
+);
+
+class AdApplicationForm extends StatefulWidget {
+  final String email;
+  final String whatsapp;
+  final String slot;
+  const AdApplicationForm({super.key, required this.email, this.whatsapp = '', this.slot = ''});
+
+  @override
+  State<AdApplicationForm> createState() => _AdApplicationFormState();
+}
+
+class _AdApplicationFormState extends State<AdApplicationForm> {
+  final _name = TextEditingController();
+  final _company = TextEditingController();
+  final _phone = TextEditingController();
+  final _email = TextEditingController();
+  final _message = TextEditingController();
+  bool _sending = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    for (final c in [_name, _company, _phone, _email, _message]) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  Future<void> _send() async {
+    final name = _name.text.trim();
+    final phone = _phone.text.trim();
+    final mail = _email.text.trim();
+    final msg = _message.text.trim();
+    String? err;
+    if (name.length < 2) {
+      err = tr('Adınızı yazın.');
+    } else if (phone.isEmpty && mail.isEmpty) {
+      err = tr('Size ulaşabilmemiz için telefon ya da e-posta yazın.');
+    } else if (mail.isNotEmpty && !RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(mail)) {
+      err = tr('E-posta adresini kontrol edin.');
+    } else if (phone.isNotEmpty && !RegExp(r'^[0-9+()\-.\s]{6,30}$').hasMatch(phone)) {
+      err = tr('Telefon numarasını kontrol edin.');
+    } else if (msg.length < 5) {
+      err = tr('Kısaca ne tür bir reklam düşündüğünüzü yazın.');
+    }
+    if (err != null) {
+      setState(() => _error = err);
+      return;
+    }
+    setState(() {
+      _sending = true;
+      _error = null;
+    });
+    final res = await AdService.instance.sendApplication(
+      AdApplication(
+        name: name,
+        company: _company.text.trim(),
+        phone: phone,
+        email: mail,
+        message: msg,
+        slot: widget.slot,
+        lang: L10n.code,
+        country: deviceCountry(),
+      ),
+    );
+    if (!mounted) return;
+    if (res == null) {
+      Navigator.of(context).pop();
+      showDialog<void>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          icon: const Icon(Icons.check_circle_rounded, color: NColors.emerald, size: 40),
+          title: Text(tr('Başvurunuz alındı')),
+          content: Text(tr('Teşekkürler! En kısa sürede size dönüş yapacağız.')),
+          actions: [FilledButton(onPressed: () => Navigator.pop(ctx), child: Text(tr('Tamam')))],
+        ),
+      );
+      return;
+    }
+    setState(() {
+      _sending = false;
+      _error = res == 'limit'
+          ? tr('Şu an gönderilemedi. Lütfen biraz sonra yeniden deneyin.')
+          : tr('Gönderilemedi. İnternet bağlantınızı kontrol edin.');
+    });
+  }
 
   Future<void> _mail() async {
-    final uri = Uri(scheme: 'mailto', path: email, query: 'subject=${Uri.encodeComponent(tr('Netice reklam alanı'))}');
+    final uri = Uri(
+      scheme: 'mailto',
+      path: widget.email,
+      query: 'subject=${Uri.encodeComponent(tr('Netice reklam alanı'))}',
+    );
     try {
       await launchUrl(uri);
     } catch (_) {}
   }
 
+  Future<void> _whatsapp() async {
+    final text = Uri.encodeComponent(tr('Merhaba, Netice uygulamasında reklam vermek istiyorum.'));
+    try {
+      await launchUrl(Uri.parse('https://wa.me/${widget.whatsapp}?text=$text'), mode: LaunchMode.externalApplication);
+    } catch (_) {}
+  }
+
   @override
-  Widget build(BuildContext context) => AspectRatio(
-    aspectRatio: 16 / 9,
-    child: LayoutBuilder(
-      builder: (context, box) {
-        final k = (box.maxWidth / 380).clamp(0.75, 1.35);
-        return Stack(
-          fit: StackFit.expand,
-          children: [
-            DecoratedBox(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [NColors.ink, Color(0xFF1E3A8A)],
-                ),
-              ),
-              child: Padding(
-                padding: EdgeInsets.all(18 * k),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
+  Widget build(BuildContext context) {
+    final muted = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.65);
+    InputDecoration deco(String label, IconData icon) =>
+        InputDecoration(labelText: label, prefixIcon: Icon(icon), border: const OutlineInputBorder());
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      child: Center(
+        heightFactor: 1,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
                   children: [
-                    Icon(Icons.campaign_rounded, color: NColors.amber, size: 34 * k),
-                    SizedBox(height: 8 * k),
-                    Text(
-                      tr('Burada reklamınız olsun'),
-                      style: TextStyle(color: Colors.white, fontSize: 20 * k, fontWeight: FontWeight.w900),
+                    const Icon(Icons.campaign_rounded, color: NColors.amber, size: 30),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        tr('Netice\'de reklam verin'),
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
+                      ),
                     ),
-                    SizedBox(height: 4 * k),
-                    Text(
-                      tr('Öğretmenlere ve kurumlara ulaşın. Bu alan için bize yazın.'),
-                      style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 12.5 * k),
-                    ),
-                    SizedBox(height: 12 * k),
-                    _CtaPill(label: tr('Bize yazın'), scale: k, onTap: _mail),
                   ],
                 ),
-              ),
-            ),
-            if (onClose != null)
-              PositionedDirectional(
-                end: 2,
-                top: 2,
-                child: InkResponse(
-                  radius: 18,
-                  onTap: onClose,
-                  child: Container(
-                    margin: const EdgeInsets.all(4),
-                    padding: const EdgeInsets.all(3),
-                    decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.18), shape: BoxShape.circle),
-                    child: const Icon(Icons.close_rounded, size: 14, color: Colors.white),
-                  ),
+                const SizedBox(height: 6),
+                Text(
+                  tr('Öğretmenlere ve kurumlara ulaşın. Bilgilerinizi bırakın, size dönüş yapalım.'),
+                  style: TextStyle(color: muted),
                 ),
-              ),
-          ],
-        );
-      },
-    ),
-  );
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _name,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: deco(tr('Ad soyad'), Icons.person_outline_rounded),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: _company,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: deco(tr('Firma ya da kurum (isteğe bağlı)'), Icons.storefront_outlined),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: _phone,
+                  keyboardType: TextInputType.phone,
+                  decoration: deco(tr('Telefon'), Icons.phone_outlined),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: _email,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: deco(tr('E-posta'), Icons.alternate_email_rounded),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: _message,
+                  minLines: 3,
+                  maxLines: 6,
+                  maxLength: 1000,
+                  decoration: deco(tr('Mesajınız'), Icons.chat_bubble_outline_rounded),
+                ),
+                if (_error != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Text(
+                      _error!,
+                      style: const TextStyle(color: NColors.coral, fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                Text(
+                  tr(
+                    'Bilgileriniz yalnız size dönüş yapmak için Netice ekibine iletilir, başka bir amaçla kullanılmaz ve en geç bir yıl içinde silinir.',
+                  ),
+                  style: TextStyle(color: muted, fontSize: 12),
+                ),
+                const SizedBox(height: 14),
+                FilledButton.icon(
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size.fromHeight(50),
+                    backgroundColor: NColors.nightEmerald,
+                    foregroundColor: Colors.white,
+                  ),
+                  onPressed: _sending ? null : _send,
+                  icon: _sending
+                      ? const SizedBox.square(
+                          dimension: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        )
+                      : const Icon(Icons.send_rounded),
+                  label: Text(tr('Gönder')),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 8,
+                  children: [
+                    TextButton.icon(
+                      onPressed: _mail,
+                      icon: const Icon(Icons.mail_outline_rounded, size: 18),
+                      label: Text(widget.email),
+                    ),
+                    if (widget.whatsapp.isNotEmpty)
+                      TextButton.icon(
+                        onPressed: _whatsapp,
+                        icon: const Icon(Icons.chat_rounded, size: 18),
+                        label: const Text('WhatsApp'),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// Alt kenardaki şerit reklam (Scaffold.bottomNavigationBar için).

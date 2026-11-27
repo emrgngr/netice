@@ -64,6 +64,7 @@ class AdAdmin extends ChangeNotifier {
         settings = AdSettings.fromJson(j['ayarlar']);
         dirty = j['degisti'] == true;
         lastPublish = DateTime.tryParse('${j['yayin'] ?? ''}');
+        seenApplicationIds = {...?(j['gorulenBasvuru'] as List?)?.map((e) => '$e')};
       }
     } catch (_) {}
     notifyListeners();
@@ -82,6 +83,7 @@ class AdAdmin extends ChangeNotifier {
           'taslak': [for (final a in drafts) a.toJson()],
           'degisti': dirty,
           if (lastPublish != null) 'yayin': lastPublish!.toIso8601String(),
+          'gorulenBasvuru': [...seenApplicationIds],
         }),
       );
     } catch (_) {}
@@ -263,6 +265,56 @@ class AdAdmin extends ChangeNotifier {
     } catch (_) {
       return (null, 'İnternete bağlanılamadı.');
     }
+  }
+
+  /// Gelen reklam başvuruları (yalnız sahibin anahtarıyla).
+  Future<(List<AdApplication>?, String?)> fetchApplications() async {
+    if (token.isEmpty) return (null, 'Önce yayın anahtarını girin (Ayarlar sekmesi).');
+    try {
+      final r = await http
+          .get(Uri.parse('${AdService.statsUrl}/basvurular'), headers: {'Authorization': 'Bearer $token'})
+          .timeout(const Duration(seconds: 20));
+      if (r.statusCode == 200) {
+        final j = jsonDecode(utf8.decode(r.bodyBytes));
+        final list = (j is Map && j['basvurular'] is List) ? j['basvurular'] as List : const [];
+        final out = [for (final e in list) if (e is Map) AdApplication.fromJson(e)];
+        _seenApplications(out);
+        return (out, null);
+      }
+      if (r.statusCode == 403) return (null, 'Yayın anahtarı kabul edilmedi. Anahtarın süresi dolmuş olabilir.');
+      if (r.statusCode == 404) return (null, 'Başvuru sunucusu henüz kurulmamış (birkaç dakika sonra deneyin).');
+      return (null, 'Sunucu yanıt vermedi (${r.statusCode}).');
+    } catch (_) {
+      return (null, 'İnternete bağlanılamadı.');
+    }
+  }
+
+  Future<bool> deleteApplication(String id) async {
+    try {
+      final r = await http
+          .delete(Uri.parse('${AdService.statsUrl}/basvuru/$id'), headers: {'Authorization': 'Bearer $token'})
+          .timeout(const Duration(seconds: 20));
+      return r.statusCode == 200;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Yönetim ekranında "yeni" rozeti için: son açılışta görülen başvurular.
+  Set<String> seenApplicationIds = {};
+  int newApplications = 0;
+
+  void _seenApplications(List<AdApplication> list) {
+    newApplications = list.where((a) => !seenApplicationIds.contains(a.id)).length;
+    notifyListeners();
+  }
+
+  /// Başvurular sekmesi açılınca hepsi görüldü sayılır.
+  void markApplicationsSeen(List<AdApplication> list) {
+    seenApplicationIds = {...list.map((a) => a.id)};
+    newApplications = 0;
+    save();
+    notifyListeners();
   }
 
   Future<List<Ad>?> fetchPublished() async {
