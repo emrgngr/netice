@@ -1943,5 +1943,7 @@
  "İşlem doğruluğu": "Точность вычислений",
  "İşlem hatası": "Ошибка в вычислениях",
  "… ve {0} kazanım daha": "… и ещё {0} результатов",
- "Jandarma Okulları (Jandarma Okullar Komutanlığı)": "Школы жандармерии (Командование школ жандармерии)"
+ "Jandarma Okulları (Jandarma Okullar Komutanlığı)": "Школы жандармерии (Командование школ жандармерии)",
+ "Adı tutanlar kendiliğinden eşleşti. Eşleşmeyenleri listeden seçin.": "Ученики с совпавшим именем сопоставлены автоматически. Остальных выберите из списка.",
+ "Moodle'a not aktarırken öğrenciyi kesin eşleştirir.": "Точно сопоставляет ученика при выгрузке оценок в Moodle."
 }

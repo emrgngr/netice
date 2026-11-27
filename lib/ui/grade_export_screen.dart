@@ -268,7 +268,7 @@ class _ClassroomExportScreenState extends State<ClassroomExportScreen> {
             Text(tr('Not / {0}', [gradeText(exam.rule.maxScore)]), style: TextStyle(color: muted)),
           ]),
           const SizedBox(height: 4),
-          Text(tr('Adı ya da e-postası tutanlar kendiliğinden eşleşti. Eşleşmeyenleri listeden seçin.'),
+          Text(tr('Adı tutanlar kendiliğinden eşleşti. Eşleşmeyenleri listeden seçin.'),
               style: TextStyle(color: muted, fontSize: 13)),
           const SizedBox(height: 8),
           for (final g in rows)

@@ -3021,5 +3021,7 @@
 "İşlem doğruluğu": "运算准确性",
 "İşlem hatası": "计算错误",
 "… ve {0} kazanım daha": "… 还有 {0} 个学习目标",
-"Jandarma Okulları (Jandarma Okullar Komutanlığı)": "宪兵学校（宪兵学校司令部）"
+"Jandarma Okulları (Jandarma Okullar Komutanlığı)": "宪兵学校（宪兵学校司令部）",
+"Adı tutanlar kendiliğinden eşleşti. Eşleşmeyenleri listeden seçin.": "姓名一致的学生已自动配对。其余学生请在列表中选择。",
+"Moodle'a not aktarırken öğrenciyi kesin eşleştirir.": "向 Moodle 导出成绩时用于准确配对学生。"
 }

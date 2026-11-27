@@ -1943,5 +1943,7 @@
  "İşlem doğruluğu": "دقة العمليات",
  "İşlem hatası": "خطأ في العمليات",
  "… ve {0} kazanım daha": "… و{0} ناتج تعلم آخر",
- "Jandarma Okulları (Jandarma Okullar Komutanlığı)": "مدارس الدرك (قيادة مدارس الدرك)"
+ "Jandarma Okulları (Jandarma Okullar Komutanlığı)": "مدارس الدرك (قيادة مدارس الدرك)",
+ "Adı tutanlar kendiliğinden eşleşti. Eşleşmeyenleri listeden seçin.": "تمت مطابقة الطلاب الذين تطابق اسمهم تلقائيا. اختر الباقين من القائمة.",
+ "Moodle'a not aktarırken öğrenciyi kesin eşleştirir.": "يطابق الطالب بدقة عند تصدير الدرجات إلى Moodle."
 }

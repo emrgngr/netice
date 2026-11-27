@@ -1010,5 +1010,7 @@
  "İşlem doğruluğu": "계산 정확성",
  "İşlem hatası": "계산 실수",
  "… ve {0} kazanım daha": "… 외 성취기준 {0}개",
- "Jandarma Okulları (Jandarma Okullar Komutanlığı)": "헌병학교 (헌병학교 사령부)"
+ "Jandarma Okulları (Jandarma Okullar Komutanlığı)": "헌병학교 (헌병학교 사령부)",
+ "Adı tutanlar kendiliğinden eşleşti. Eşleşmeyenleri listeden seçin.": "이름이 일치하는 학생은 자동으로 연결했습니다. 나머지는 목록에서 선택하세요.",
+ "Moodle'a not aktarırken öğrenciyi kesin eşleştirir.": "Moodle로 성적을 내보낼 때 학생을 정확히 연결합니다."
 }

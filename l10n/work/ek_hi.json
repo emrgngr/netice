@@ -1010,5 +1010,7 @@
  "İşlem doğruluğu": "गणना की शुद्धता",
  "İşlem hatası": "गणना त्रुटि",
  "… ve {0} kazanım daha": "… और {0} अधिगम परिणाम",
- "Jandarma Okulları (Jandarma Okullar Komutanlığı)": "जेंडरमेरी स्कूल (जेंडरमेरी स्कूल कमान)"
+ "Jandarma Okulları (Jandarma Okullar Komutanlığı)": "जेंडरमेरी स्कूल (जेंडरमेरी स्कूल कमान)",
+ "Adı tutanlar kendiliğinden eşleşti. Eşleşmeyenleri listeden seçin.": "जिन विद्यार्थियों का नाम मेल खाया, वे अपने आप जुड़ गए। बाकी को सूची से चुनें।",
+ "Moodle'a not aktarırken öğrenciyi kesin eşleştirir.": "Moodle में अंक भेजते समय विद्यार्थी को सही से मिलाता है।"
 }

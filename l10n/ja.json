@@ -3021,5 +3021,7 @@
 "İşlem doğruluğu": "計算の正確さ",
 "İşlem hatası": "計算ミス",
 "… ve {0} kazanım daha": "… ほか{0}件の学習目標",
-"Jandarma Okulları (Jandarma Okullar Komutanlığı)": "憲兵学校（憲兵学校司令部）"
+"Jandarma Okulları (Jandarma Okullar Komutanlığı)": "憲兵学校（憲兵学校司令部）",
+"Adı tutanlar kendiliğinden eşleşti. Eşleşmeyenleri listeden seçin.": "名前が一致した生徒は自動で対応付けました。残りはリストから選んでください。",
+"Moodle'a not aktarırken öğrenciyi kesin eşleştirir.": "Moodle へ成績を書き出すとき、生徒を確実に対応付けます。"
 }

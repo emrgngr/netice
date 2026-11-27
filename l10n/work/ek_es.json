@@ -1943,5 +1943,7 @@
  "İşlem doğruluğu": "Exactitud de cálculo",
  "İşlem hatası": "Error de cálculo",
  "… ve {0} kazanım daha": "… y {0} resultados más",
- "Jandarma Okulları (Jandarma Okullar Komutanlığı)": "Escuelas de la Gendarmería (Mando de Escuelas de la Gendarmería)"
+ "Jandarma Okulları (Jandarma Okullar Komutanlığı)": "Escuelas de la Gendarmería (Mando de Escuelas de la Gendarmería)",
+ "Adı tutanlar kendiliğinden eşleşti. Eşleşmeyenleri listeden seçin.": "Los alumnos cuyo nombre coincidió se emparejaron solos. Elija el resto de la lista.",
+ "Moodle'a not aktarırken öğrenciyi kesin eşleştirir.": "Empareja al alumno con exactitud al exportar notas a Moodle."
 }
