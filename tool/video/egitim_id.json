@@ -1,0 +1,208 @@
+{
+ "_not": "Çeviri: egitim_tr.json ile aynı yapı (tool/video/egitim.py).",
+ "sahneler": [
+  {
+   "id": "kanca",
+   "tur": "kanca",
+   "ust": "Biaya sebenarnya satu ujian bagi guru",
+   "eski": "Berjam-jam",
+   "yeni": "Hitungan menit",
+   "alt": "Menulis soal, menyusun buklet, memeriksa lembar, menganalisis, membuat laporan",
+   "metin": "Menulis soal, menyusun buklet, memeriksa lembar jawaban satu per satu, menganalisis, menulis laporan. Satu ujian saja menyita berjam-jam waktu guru. Dengan Netice, berjam-jam itu menjadi hitungan menit."
+  },
+  {
+   "id": "vaat",
+   "tur": "vaat",
+   "ust": "Apa itu Netice?",
+   "baslik": "Seluruh ujian dalam satu aplikasi",
+   "faydalar": [
+    "Setiap langkah dari soal hingga rapor",
+    "Untuk guru dan siswa",
+    "Di ponsel, tablet, dan komputer"
+   ],
+   "ekran": "02_ana",
+   "metin": "Netice menyatukan seluruh perjalanan ujian dalam satu aplikasi: menyiapkan soal, membaca lembar jawaban, menganalisis hasil, dan menulis laporan. Di ponsel, tablet, dan komputer Anda."
+  },
+  {
+   "id": "dongu",
+   "tur": "dongu",
+   "ust": "Dalam empat langkah",
+   "baslik": "Siapkan, pindai, pahami, bagikan",
+   "kartlar": [
+    [
+     "Siapkan",
+     "Soal, buklet, dan kunci dari catatan"
+    ],
+    [
+     "Pindai",
+     "Lembar apa pun, hitungan detik"
+    ],
+    [
+     "Analisis",
+     "Tingkat siswa, kelas, dan sekolah"
+    ],
+    [
+     "Laporan",
+     "Laporan resmi, rapor, info orang tua"
+    ]
+   ],
+   "metin": "Netice bekerja dalam empat langkah. Siapkan, pindai, analisis, dan laporkan. Mari lihat apa yang Anda dapatkan di setiap langkah."
+  },
+  {
+   "id": "hazirla_soru",
+   "tur": "adim",
+   "adim": 1,
+   "ust": "Siapkan",
+   "baslik": "Soal dari catatan Anda dalam hitungan menit",
+   "faydalar": [
+    "PDF, Word, Excel, atau foto",
+    "Pilihan ganda, isian, menjodohkan",
+    "Tingkat mudah, sedang, dan sulit"
+   ],
+   "rozetler": [
+    "Benar / Salah",
+    "Uraian",
+    "Mengurutkan"
+   ],
+   "ekran": "k_yz_soru",
+   "hedef": null,
+   "metin": "Unggah catatan pelajaran Anda; berupa PDF, Word, Excel, atau foto halaman. Netice membuat soal pilihan ganda, isian, menjodohkan, dan uraian dari catatan itu. Anda tinggal memilih yang disukai."
+  },
+  {
+   "id": "hazirla_kitapcik",
+   "tur": "adim",
+   "adim": 1,
+   "ust": "Siapkan",
+   "baslik": "Buklet, kunci jawaban, dan lembar jawaban",
+   "faydalar": [
+    "Paket buklet acak A sampai H",
+    "Kunci jawaban rinci per topik",
+    "Lembar jawaban khusus ujian"
+   ],
+   "ekran": "k_kitapcik_turu",
+   "metin": "Buat buklet soal dari bank soal Anda dengan beberapa ketukan. Delapan paket buklet, kunci jawaban rinci per topik, dan lembar jawaban khusus ujian disiapkan sekaligus. Dalam bentuk Word atau PDF."
+  },
+  {
+   "id": "okut",
+   "tur": "adim",
+   "adim": 2,
+   "ust": "Pindai",
+   "baslik": "Apa pun lembar jawabannya",
+   "faydalar": [
+    "Lembar Anda sendiri atau dari penerbit",
+    "Nomor induk, nama, tanggal lahir",
+    "Baca PDF hasil pindaian sekaligus"
+   ],
+   "ekran": "07_okut_ekrani",
+   "metin": "Arahkan kamera ke lembar; setiap lembar terbaca dalam beberapa detik. Lembar Anda sendiri, lembar penerbit, atau lembar lembaga, tidak masalah. Kolom berkode seperti nomor induk, nama, dan tanggal lahir juga terbaca. Anda bisa mengunggah file PDF hasil pindaian sekaligus."
+  },
+  {
+   "id": "analiz",
+   "tur": "masaustu",
+   "adim": 3,
+   "ust": "Analisis",
+   "baslik": "Analisis dengan standar pengukuran internasional",
+   "faydalar": [
+    "Tingkat kesukaran dan daya beda tiap soal",
+    "Reliabilitas, galat ukur, pengecoh",
+    "Capaian per topik dan kompetensi"
+   ],
+   "rozetler": [
+    "Reliabilitas KR-20",
+    "Daya beda",
+    "Galat ukur"
+   ],
+   "ekran": "masaustu:analiz",
+   "metin": "Netice memakai metode pengukuran dan penilaian yang diakui di seluruh dunia. Netice menunjukkan tingkat kesukaran dan daya beda setiap soal, reliabilitas ujian, dan apakah pengecoh berfungsi. Anda langsung melihat topik dan kompetensi mana yang masih lemah."
+  },
+  {
+   "id": "analiz_genel",
+   "tur": "adim",
+   "adim": 3,
+   "ust": "Analisis",
+   "baslik": "Dari siswa hingga sekolah, di setiap tingkat",
+   "faydalar": [
+    "Grafik perkembangan tiap siswa",
+    "Perbandingan kelas",
+    "Analisis umum seluruh sekolah"
+   ],
+   "ekran": "10_ogrenci",
+   "metin": "Analisis tidak berhenti di kelas. Pantau perkembangan setiap siswa, bandingkan kelas, dan lihat gambaran seluruh sekolah di layar besar. Netice memberi tahu siapa yang perlu bantuan."
+  },
+  {
+   "id": "raporla",
+   "tur": "masaustu",
+   "adim": 4,
+   "ust": "Laporan",
+   "baslik": "Laporan resmi dengan satu ketukan",
+   "faydalar": [
+    "Kop surat resmi dan kolom tanda tangan",
+    "Rapor, laporan akhir semester dan kompetensi",
+    "Ke orang tua via WhatsApp, Classroom, Moodle"
+   ],
+   "ekran": "masaustu:donem",
+   "metin": "Analisis Anda menjadi laporan dengan kop surat resmi dan kolom tanda tangan lembaga Anda. Rapor, laporan akhir semester, dan laporan kompetensi siap dengan satu ketukan. Kirim hasil ke orang tua atau pindahkan ke Classroom dan Moodle."
+  },
+  {
+   "id": "prova",
+   "tur": "masaustu",
+   "ust": "Simulasi ujian sungguhan di rumah",
+   "baslik": "Susun sendiri ujian latihan Anda",
+   "faydalar": [
+    "Unggah catatan dan dokumen Anda",
+    "Cetak buklet dan lembar jawaban",
+    "Pindai dan lihat kekurangan Anda"
+   ],
+   "rozetler": [
+    "Buklet A–H",
+    "Waktu ujian",
+    "Lembar jawaban"
+   ],
+   "ekran": "masaustu:kitapcik",
+   "metin": "Netice bukan hanya untuk guru. Siapa pun yang sedang bersiap ujian dapat mengunggah catatan, buku, dan dokumennya sendiri lalu menyusun ujian latihannya sendiri. Cetak buklet dan lembar jawaban, atur waktunya, dan kerjakan seperti ujian sungguhan. Lalu pindai lembarnya dengan ponsel dan langsung lihat nilai serta topik yang masih kurang."
+  },
+  {
+   "id": "kitle",
+   "tur": "kitle",
+   "ust": "Untuk siapa?",
+   "baslik": "Dari SD hingga universitas, untuk semua",
+   "gruplar": [
+    "SD",
+    "SMP",
+    "SMA",
+    "Politeknik",
+    "Universitas",
+    "Akademi Kepolisian",
+    "Sekolah militer",
+    "Kursus dan bimbel",
+    "Siswa yang bersiap ujian"
+   ],
+   "alt": "15 bahasa · Sistem nilai setiap negara · Templat warna-warni untuk anak",
+   "metin": "Untuk semua: dari guru SD hingga dosen, dari akademi kepolisian hingga sekolah militer, dari tempat kursus hingga siswa yang bersiap ujian di rumah. Tersedia dalam lima belas bahasa dengan sistem nilai setiap negara, serta templat warna-warni untuk siswa kecil."
+  },
+  {
+   "id": "guven",
+   "tur": "guven",
+   "ust": "Kepercayaan",
+   "baslik": "Data siswa tetap bersama Anda",
+   "faydalar": [
+    "Bekerja tanpa internet",
+    "Tidak perlu akun",
+    "Data hanya di perangkat Anda"
+   ],
+   "metin": "Data siswa itu sensitif. Netice bekerja tanpa internet dan tidak meminta Anda membuat akun; data Anda tetap hanya di perangkat Anda sendiri."
+  },
+  {
+   "id": "kapanis",
+   "tur": "kapanis",
+   "baslik": "Dari kertas ke hasil, dalam hitungan detik.",
+   "faydalar": [
+    "Memindai selalu gratis",
+    "Coba Pro gratis 14 hari"
+   ],
+   "adres": "neticeoptik.com",
+   "magazalar": "App Store · Google Play · Microsoft Store · Mac",
+   "metin": "Memindai selalu gratis. Coba juga fitur Pro gratis selama empat belas hari. Unduh Netice hari ini, dan biarkan ujian berikutnya beralih dari kertas ke hasil dalam hitungan detik."
+  }
+ ]
+}

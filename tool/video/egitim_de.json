@@ -1,0 +1,208 @@
+{
+ "_not": "Çeviri: egitim_tr.json ile aynı yapı (tool/video/egitim.py).",
+ "sahneler": [
+  {
+   "id": "kanca",
+   "tur": "kanca",
+   "ust": "Was eine Prüfung Lehrkräfte wirklich kostet",
+   "eski": "Stunden",
+   "yeni": "Minuten",
+   "alt": "Fragen schreiben, Hefte erstellen, Bögen auswerten, analysieren, berichten",
+   "metin": "Fragen schreiben, Prüfungshefte zusammenstellen, Bögen einzeln auswerten, analysieren, Berichte schreiben. Eine einzige Prüfung kostet Lehrkräfte Stunden. Mit Netice werden aus Stunden Minuten."
+  },
+  {
+   "id": "vaat",
+   "tur": "vaat",
+   "ust": "Was ist Netice?",
+   "baslik": "Die ganze Prüfung in einer App",
+   "faydalar": [
+    "Jeder Schritt von der Frage bis zum Zeugnis",
+    "Für Lehrkräfte und Lernende",
+    "Auf Handy, Tablet und Computer"
+   ],
+   "ekran": "02_ana",
+   "metin": "Netice bündelt den ganzen Weg einer Prüfung in einer App: Es erstellt die Fragen, liest die Antwortbögen, analysiert die Ergebnisse und schreibt den Bericht. Auf Ihrem Handy, Tablet und Computer."
+  },
+  {
+   "id": "dongu",
+   "tur": "dongu",
+   "ust": "In vier Schritten",
+   "baslik": "Vorbereiten, scannen, verstehen, teilen",
+   "kartlar": [
+    [
+     "Vorbereiten",
+     "Fragen, Hefte und Lösungen aus Notizen"
+    ],
+    [
+     "Scannen",
+     "Jeder Antwortbogen, Sekunden pro Blatt"
+    ],
+    [
+     "Analysieren",
+     "Auf Schüler-, Klassen- und Schulebene"
+    ],
+    [
+     "Berichten",
+     "Amtliche Berichte, Zeugnisse, Elterninfo"
+    ]
+   ],
+   "metin": "Netice arbeitet in vier Schritten. Vorbereiten, scannen, analysieren und berichten. Sehen wir uns an, was Sie bei jedem Schritt gewinnen."
+  },
+  {
+   "id": "hazirla_soru",
+   "tur": "adim",
+   "adim": 1,
+   "ust": "Vorbereiten",
+   "baslik": "Fragen aus Ihren Notizen in Minuten",
+   "faydalar": [
+    "PDF, Word, Excel oder ein Foto",
+    "Multiple Choice, Lückentext, Zuordnung",
+    "Leicht, mittel und schwer"
+   ],
+   "rozetler": [
+    "Richtig / Falsch",
+    "Offene Frage",
+    "Reihenfolge"
+   ],
+   "ekran": "k_yz_soru",
+   "hedef": null,
+   "metin": "Laden Sie Ihre Unterrichtsnotizen hoch; als PDF, Word, Excel oder Foto einer Seite. Netice macht daraus Multiple-Choice-Fragen, Lückentexte, Zuordnungen und offene Fragen. Sie wählen nur noch die passenden aus."
+  },
+  {
+   "id": "hazirla_kitapcik",
+   "tur": "adim",
+   "adim": 1,
+   "ust": "Vorbereiten",
+   "baslik": "Heft, Lösungsschlüssel und Antwortbogen",
+   "faydalar": [
+    "Gemischte Heftversionen A bis H",
+    "Ausführlicher Lösungsschlüssel nach Thema",
+    "Ein Antwortbogen für diese Prüfung"
+   ],
+   "ekran": "k_kitapcik_turu",
+   "metin": "Erstellen Sie mit wenigen Fingertipps ein Prüfungsheft aus Ihrer Fragenbank. Acht Heftversionen, ein ausführlicher Lösungsschlüssel nach Themen und ein eigener Antwortbogen entstehen gleichzeitig. Als Word oder PDF."
+  },
+  {
+   "id": "okut",
+   "tur": "adim",
+   "adim": 2,
+   "ust": "Scannen",
+   "baslik": "Egal welcher Antwortbogen",
+   "faydalar": [
+    "Ihr eigener Bogen oder ein Verlagsbogen",
+    "Ausweisnummer, Name, Geburtsdatum",
+    "Gescannte PDFs auf einmal auswerten"
+   ],
+   "ekran": "07_okut_ekrani",
+   "metin": "Halten Sie die Kamera über das Blatt; jedes Blatt wird in wenigen Sekunden gelesen. Ob eigener Bogen, Verlagsbogen oder Bogen Ihrer Einrichtung, das spielt keine Rolle. Auch kodierte Felder wie Ausweisnummer, Name und Geburtsdatum werden gelesen. Gescannte PDF-Dateien laden Sie gesammelt hoch."
+  },
+  {
+   "id": "analiz",
+   "tur": "masaustu",
+   "adim": 3,
+   "ust": "Analysieren",
+   "baslik": "Analyse nach internationalen Standards",
+   "faydalar": [
+    "Schwierigkeit und Trennschärfe jeder Frage",
+    "Reliabilität, Messfehler, Distraktoren",
+    "Erfolg nach Thema und Lernziel"
+   ],
+   "rozetler": [
+    "KR-20-Reliabilität",
+    "Trennschärfe",
+    "Messfehler"
+   ],
+   "ekran": "masaustu:analiz",
+   "metin": "Netice nutzt weltweit anerkannte Methoden der Leistungsmessung. Es zeigt Schwierigkeit und Trennschärfe jeder Frage, die Reliabilität der Prüfung und ob die Distraktoren funktionieren. Sie sehen auf einen Blick, welches Thema und welches Lernziel noch Arbeit braucht."
+  },
+  {
+   "id": "analiz_genel",
+   "tur": "adim",
+   "adim": 3,
+   "ust": "Analysieren",
+   "baslik": "Vom Schüler bis zur Schule",
+   "faydalar": [
+    "Die Lernkurve jedes Schülers",
+    "Klassenvergleich",
+    "Überblick über die ganze Schule"
+   ],
+   "ekran": "10_ogrenci",
+   "metin": "Die Analyse endet nicht bei der Klasse. Verfolgen Sie die Entwicklung jedes Schülers, vergleichen Sie Klassen und betrachten Sie die ganze Schule auf dem großen Bildschirm. Netice zeigt Ihnen, wer Unterstützung braucht."
+  },
+  {
+   "id": "raporla",
+   "tur": "masaustu",
+   "adim": 4,
+   "ust": "Berichten",
+   "baslik": "Amtlicher Bericht mit einem Fingertipp",
+   "faydalar": [
+    "Amtlicher Briefkopf und Unterschriftsfeld",
+    "Zeugnis, Halbjahres- und Lernzielbericht",
+    "An Eltern per WhatsApp, Classroom, Moodle"
+   ],
+   "ekran": "masaustu:donem",
+   "metin": "Ihre Analysen werden zu Berichten mit dem amtlichen Briefkopf und Unterschriftsfeld Ihrer Einrichtung. Zeugnis, Halbjahresbericht und Lernzielbericht sind mit einem Fingertipp fertig. Schicken Sie Ergebnisse an Eltern oder übertragen Sie sie nach Classroom und Moodle."
+  },
+  {
+   "id": "prova",
+   "tur": "masaustu",
+   "ust": "Echte Prüfungsprobe zu Hause",
+   "baslik": "Erstellen Sie Ihre eigene Probeprüfung",
+   "faydalar": [
+    "Notizen und Unterlagen hochladen",
+    "Heft und Antwortbogen drucken",
+    "Scannen und Lücken erkennen"
+   ],
+   "rozetler": [
+    "Hefte A–H",
+    "Prüfungszeit",
+    "Antwortbogen"
+   ],
+   "ekran": "masaustu:kitapcik",
+   "metin": "Netice ist nicht nur für Lehrkräfte. Wer sich auf eine Prüfung vorbereitet, kann eigene Notizen, Bücher und Unterlagen hochladen und daraus eine eigene Probeprüfung erstellen. Drucken Sie Heft und Antwortbogen, stellen Sie die Zeit ein und schreiben Sie sie wie eine echte Prüfung. Dann scannen Sie den Bogen mit dem Handy und sehen sofort Ihre Punktzahl und Ihre Lücken."
+  },
+  {
+   "id": "kitle",
+   "tur": "kitle",
+   "ust": "Für wen?",
+   "baslik": "Von der Grundschule bis zur Universität",
+   "gruplar": [
+    "Grundschule",
+    "Mittelstufe",
+    "Gymnasium",
+    "Berufsfachschule",
+    "Universität",
+    "Polizeiakademie",
+    "Militärschulen",
+    "Kurse und Nachhilfe",
+    "Prüfungskandidaten"
+   ],
+   "alt": "15 Sprachen · Notensystem jedes Landes · Bunte Vorlagen für Kinder",
+   "metin": "Für alle, von der Grundschullehrkraft bis zur Hochschuldozentin, von der Polizeiakademie bis zur Militärschule, von Nachhilfekursen bis zu Lernenden, die sich zu Hause auf Prüfungen vorbereiten. In fünfzehn Sprachen, mit dem Notensystem jedes Landes und mit bunten Vorlagen für die Kleinsten."
+  },
+  {
+   "id": "guven",
+   "tur": "guven",
+   "ust": "Vertrauen",
+   "baslik": "Schülerdaten bleiben bei Ihnen",
+   "faydalar": [
+    "Funktioniert ohne Internet",
+    "Kein Konto nötig",
+    "Daten nur auf Ihrem Gerät"
+   ],
+   "metin": "Schülerdaten sind sensibel. Netice funktioniert ohne Internet und verlangt kein Konto; Ihre Daten bleiben nur auf Ihrem eigenen Gerät."
+  },
+  {
+   "id": "kapanis",
+   "tur": "kapanis",
+   "baslik": "Vom Papier zum Ergebnis in Sekunden.",
+   "faydalar": [
+    "Scannen ist immer kostenlos",
+    "Pro 14 Tage gratis testen"
+   ],
+   "adres": "neticeoptik.com",
+   "magazalar": "App Store · Google Play · Microsoft Store · Mac",
+   "metin": "Scannen ist immer kostenlos. Und die Pro-Funktionen testen Sie vierzehn Tage gratis. Laden Sie Netice noch heute herunter; Ihre nächste Prüfung ist in Sekunden vom Papier zum Ergebnis."
+  }
+ ]
+}

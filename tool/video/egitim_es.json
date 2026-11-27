@@ -1,0 +1,208 @@
+{
+ "_not": "Çeviri: egitim_tr.json ile aynı yapı (tool/video/egitim.py).",
+ "sahneler": [
+  {
+   "id": "kanca",
+   "tur": "kanca",
+   "ust": "Lo que de verdad le cuesta un examen al docente",
+   "eski": "Horas",
+   "yeni": "Minutos",
+   "alt": "Redactar preguntas, armar cuadernillos, corregir, analizar, informar",
+   "metin": "Redactar preguntas, armar cuadernillos, corregir las hojas una por una, analizar, escribir informes. Un solo examen le cuesta al docente horas de trabajo. Con Netice, esas horas se convierten en minutos."
+  },
+  {
+   "id": "vaat",
+   "tur": "vaat",
+   "ust": "¿Qué es Netice?",
+   "baslik": "Todo el examen en una sola app",
+   "faydalar": [
+    "Cada paso, de la pregunta al boletín",
+    "Para docentes y estudiantes",
+    "En móvil, tableta y ordenador"
+   ],
+   "ekran": "02_ana",
+   "metin": "Netice reúne todo el recorrido de un examen en una sola aplicación: prepara las preguntas, lee las hojas de respuestas, analiza los resultados y redacta el informe. En su móvil, su tableta y su ordenador."
+  },
+  {
+   "id": "dongu",
+   "tur": "dongu",
+   "ust": "En cuatro pasos",
+   "baslik": "Prepare, escanee, entienda, comparta",
+   "kartlar": [
+    [
+     "Preparar",
+     "Preguntas, cuadernillos y claves desde apuntes"
+    ],
+    [
+     "Escanear",
+     "Cualquier hoja, segundos por examen"
+    ],
+    [
+     "Analizar",
+     "A nivel de alumno, clase y centro"
+    ],
+    [
+     "Informar",
+     "Informes oficiales, boletines, aviso a familias"
+    ]
+   ],
+   "metin": "Netice funciona en cuatro pasos. Preparar, escanear, analizar e informar. Veamos qué gana en cada paso."
+  },
+  {
+   "id": "hazirla_soru",
+   "tur": "adim",
+   "adim": 1,
+   "ust": "Preparar",
+   "baslik": "Preguntas desde sus apuntes en minutos",
+   "faydalar": [
+    "PDF, Word, Excel o una foto",
+    "Opción múltiple, completar, emparejar",
+    "Niveles fácil, medio y difícil"
+   ],
+   "rozetler": [
+    "Verdadero / Falso",
+    "Pregunta abierta",
+    "Ordenar"
+   ],
+   "ekran": "k_yz_soru",
+   "hedef": null,
+   "metin": "Suba sus apuntes de clase; en PDF, Word, Excel o una foto de una página. Netice prepara con ellos preguntas de opción múltiple, de completar, de emparejar y abiertas. Usted solo elige las que le gustan."
+  },
+  {
+   "id": "hazirla_kitapcik",
+   "tur": "adim",
+   "adim": 1,
+   "ust": "Preparar",
+   "baslik": "Cuadernillo, clave de respuestas y hoja óptica",
+   "faydalar": [
+    "Versiones mezcladas de la A a la H",
+    "Clave detallada por tema",
+    "Hoja de respuestas propia del examen"
+   ],
+   "ekran": "k_kitapcik_turu",
+   "metin": "Cree un cuadernillo desde su banco de preguntas en unos toques. Ocho versiones del cuadernillo, una clave de respuestas detallada por tema y una hoja de respuestas propia del examen se preparan a la vez. En Word o PDF."
+  },
+  {
+   "id": "okut",
+   "tur": "adim",
+   "adim": 2,
+   "ust": "Escanear",
+   "baslik": "Sea cual sea la hoja de respuestas",
+   "faydalar": [
+    "Su propia hoja o la de una editorial",
+    "Número de identidad, nombre, fecha de nacimiento",
+    "Lectura masiva de PDF escaneados"
+   ],
+   "ekran": "07_okut_ekrani",
+   "metin": "Apunte la cámara a la hoja; cada hoja se lee en pocos segundos. Su propia hoja, la de una editorial o la de su institución, da igual. También se leen los campos codificados como el número de identidad, el nombre y la fecha de nacimiento. Puede subir archivos PDF escaneados en bloque."
+  },
+  {
+   "id": "analiz",
+   "tur": "masaustu",
+   "adim": 3,
+   "ust": "Analizar",
+   "baslik": "Análisis con estándares internacionales",
+   "faydalar": [
+    "Dificultad y discriminación de cada pregunta",
+    "Fiabilidad, error de medida, distractores",
+    "Logro por tema y objetivo"
+   ],
+   "rozetler": [
+    "Fiabilidad KR-20",
+    "Discriminación",
+    "Error de medida"
+   ],
+   "ekran": "masaustu:analiz",
+   "metin": "Netice usa métodos de medición y evaluación aceptados en todo el mundo. Muestra la dificultad y la discriminación de cada pregunta, la fiabilidad del examen y si los distractores funcionan. Ve de un vistazo qué tema y qué objetivo de aprendizaje necesita refuerzo."
+  },
+  {
+   "id": "analiz_genel",
+   "tur": "adim",
+   "adim": 3,
+   "ust": "Analizar",
+   "baslik": "Del alumno al centro, en todos los niveles",
+   "faydalar": [
+    "La evolución de cada alumno",
+    "Comparación de grupos",
+    "Visión general del centro"
+   ],
+   "ekran": "10_ogrenci",
+   "metin": "El análisis no se queda en la clase. Siga la evolución de cada alumno, compare grupos y revise todo el centro en una pantalla grande. Netice le dice quién necesita apoyo."
+  },
+  {
+   "id": "raporla",
+   "tur": "masaustu",
+   "adim": 4,
+   "ust": "Informar",
+   "baslik": "Informe oficial en un toque",
+   "faydalar": [
+    "Membrete oficial y espacio para firma",
+    "Boletín, informe trimestral y de objetivos",
+    "A las familias por WhatsApp, Classroom y Moodle"
+   ],
+   "ekran": "masaustu:donem",
+   "metin": "Sus análisis se convierten en informes con el membrete oficial y el espacio para firma de su institución. Boletines, informes de fin de trimestre y de objetivos están listos en un toque. Envíe los resultados a las familias o expórtelos a Classroom y Moodle."
+  },
+  {
+   "id": "prova",
+   "tur": "masaustu",
+   "ust": "Un verdadero simulacro de examen en casa",
+   "baslik": "Prepare su propio examen de práctica",
+   "faydalar": [
+    "Suba sus apuntes y documentos",
+    "Imprima el cuadernillo y la hoja",
+    "Escanee y vea qué le falta"
+   ],
+   "rozetler": [
+    "Cuadernillos A–H",
+    "Tiempo de examen",
+    "Hoja de respuestas"
+   ],
+   "ekran": "masaustu:kitapcik",
+   "metin": "Netice no es solo para docentes. Cualquiera que se prepare para un examen puede subir sus apuntes, libros y documentos y preparar su propio examen de práctica. Imprima el cuadernillo y la hoja de respuestas, controle el tiempo y resuélvalo como un examen real. Después escanee la hoja con el móvil y vea al instante su puntuación y los temas que le faltan."
+  },
+  {
+   "id": "kitle",
+   "tur": "kitle",
+   "ust": "¿Para quién?",
+   "baslik": "De primaria a la universidad, para todos",
+   "gruplar": [
+    "Primaria",
+    "Secundaria",
+    "Bachillerato",
+    "Formación profesional",
+    "Universidad",
+    "Academia de policía",
+    "Escuelas militares",
+    "Academias y cursos",
+    "Estudiantes que preparan exámenes"
+   ],
+   "alt": "15 idiomas · El sistema de notas de cada país · Plantillas de colores para niños",
+   "metin": "Para todos: del maestro de primaria al profesor universitario, de la academia de policía a las escuelas militares, de las academias a los estudiantes que preparan exámenes en casa. En quince idiomas, con el sistema de notas de cada país y plantillas de colores para los más pequeños."
+  },
+  {
+   "id": "guven",
+   "tur": "guven",
+   "ust": "Confianza",
+   "baslik": "Los datos del alumnado se quedan con usted",
+   "faydalar": [
+    "Funciona sin internet",
+    "No requiere cuenta",
+    "Datos solo en su dispositivo"
+   ],
+   "metin": "Los datos del alumnado son sensibles. Netice funciona sin internet y no le pide crear una cuenta; sus datos se quedan solo en su propio dispositivo."
+  },
+  {
+   "id": "kapanis",
+   "tur": "kapanis",
+   "baslik": "Del papel al resultado, en segundos.",
+   "faydalar": [
+    "Escanear siempre es gratis",
+    "Pruebe Pro gratis 14 días"
+   ],
+   "adres": "neticeoptik.com",
+   "magazalar": "App Store · Google Play · Microsoft Store · Mac",
+   "metin": "Escanear siempre es gratis. Y pruebe también las funciones Pro gratis durante catorce días. Descargue Netice hoy, y que su próximo examen pase del papel al resultado en segundos."
+  }
+ ]
+}
