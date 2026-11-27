@@ -3104,5 +3104,13 @@
 "{0} öğrenci · {1} ders · {2} soru · ortalama toplam net {3}": "{0} siswa · {1} mapel · {2} soal · rata-rata net total {3}",
 "{0}. ders": "Mapel {0}",
 "Örn. Matematik": "mis. Matematika",
-"Öğrenci sıralaması": "Peringkat siswa"
+"Öğrenci sıralaması": "Peringkat siswa",
+"Değer": "Nilai",
+"Gösterge": "Indikator",
+"Ort. doğru": "Rata-rata benar",
+"Ort. yanlış": "Rata-rata salah",
+"Word belgesi kaydedildi.": "Dokumen Word disimpan.",
+"Word belgesi kaydedilemedi.": "Dokumen Word tidak dapat disimpan.",
+"Word olarak kaydet": "Simpan sebagai Word",
+"Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin": "Simpan buklet dan laporan sebagai dokumen Word (.docx) yang dapat diedit"
 }

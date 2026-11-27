@@ -3175,5 +3175,13 @@
 "{0} öğrenci · {1} ders · {2} soru · ortalama toplam net {3}": "{0} şagird · {1} fənn · {2} sual · orta ümumi net {3}",
 "{0}. ders": "{0}. fənn",
 "Örn. Matematik": "Məs. Riyaziyyat",
-"Öğrenci sıralaması": "Şagird sıralaması"
+"Öğrenci sıralaması": "Şagird sıralaması",
+"Değer": "Dəyər",
+"Gösterge": "Göstərici",
+"Ort. doğru": "Orta doğru",
+"Ort. yanlış": "Orta səhv",
+"Word belgesi kaydedildi.": "Word sənədi saxlanıldı.",
+"Word belgesi kaydedilemedi.": "Word sənədi saxlanıla bilmədi.",
+"Word olarak kaydet": "Word kimi saxla",
+"Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin": "Kitabçanı və hesabatları redaktə edilə bilən Word (.docx) sənədi kimi saxlayın"
 }

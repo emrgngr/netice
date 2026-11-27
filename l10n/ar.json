@@ -3175,5 +3175,13 @@
 "{0} öğrenci · {1} ders · {2} soru · ortalama toplam net {3}": "{0} طالبًا · {1} مواد · {2} سؤالًا · متوسط الصافي الكلي {3}",
 "{0}. ders": "المادة {0}",
 "Örn. Matematik": "مثال: الرياضيات",
-"Öğrenci sıralaması": "ترتيب الطلاب"
+"Öğrenci sıralaması": "ترتيب الطلاب",
+"Değer": "القيمة",
+"Gösterge": "المؤشر",
+"Ort. doğru": "متوسط الصحيح",
+"Ort. yanlış": "متوسط الخطأ",
+"Word belgesi kaydedildi.": "تم حفظ مستند Word.",
+"Word belgesi kaydedilemedi.": "تعذر حفظ مستند Word.",
+"Word olarak kaydet": "حفظ بصيغة Word",
+"Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin": "احفظ الكراسة والتقارير كمستند Word ‏(.docx) قابل للتعديل"
 }

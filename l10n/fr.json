@@ -3175,5 +3175,13 @@
 "{0} öğrenci · {1} ders · {2} soru · ortalama toplam net {3}": "{0} élèves · {1} matières · {2} questions · net total moyen {3}",
 "{0}. ders": "Matière {0}",
 "Örn. Matematik": "ex. Mathématiques",
-"Öğrenci sıralaması": "Classement des élèves"
+"Öğrenci sıralaması": "Classement des élèves",
+"Değer": "Valeur",
+"Gösterge": "Indicateur",
+"Ort. doğru": "Moy. bonnes",
+"Ort. yanlış": "Moy. mauvaises",
+"Word belgesi kaydedildi.": "Document Word enregistré.",
+"Word belgesi kaydedilemedi.": "Impossible d'enregistrer le document Word.",
+"Word olarak kaydet": "Enregistrer en Word",
+"Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin": "Enregistrez livrets et rapports en document Word (.docx) modifiable"
 }

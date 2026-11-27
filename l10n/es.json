@@ -3175,5 +3175,13 @@
 "{0} öğrenci · {1} ders · {2} soru · ortalama toplam net {3}": "{0} alumnos · {1} asignaturas · {2} preguntas · neto total medio {3}",
 "{0}. ders": "Asignatura {0}",
 "Örn. Matematik": "p. ej. Matemáticas",
-"Öğrenci sıralaması": "Clasificación de alumnos"
+"Öğrenci sıralaması": "Clasificación de alumnos",
+"Değer": "Valor",
+"Gösterge": "Indicador",
+"Ort. doğru": "Media aciertos",
+"Ort. yanlış": "Media errores",
+"Word belgesi kaydedildi.": "Documento de Word guardado.",
+"Word belgesi kaydedilemedi.": "No se pudo guardar el documento de Word.",
+"Word olarak kaydet": "Guardar como Word",
+"Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin": "Guarde cuadernillos e informes como documento de Word (.docx) editable"
 }

@@ -3175,5 +3175,13 @@
 "{0} öğrenci · {1} ders · {2} soru · ortalama toplam net {3}": "生徒 {0} 人 · {1} 科目 · {2} 問 · 平均合計ネット {3}",
 "{0}. ders": "第 {0} 科目",
 "Örn. Matematik": "例：数学",
-"Öğrenci sıralaması": "生徒の順位"
+"Öğrenci sıralaması": "生徒の順位",
+"Değer": "値",
+"Gösterge": "指標",
+"Ort. doğru": "平均正答",
+"Ort. yanlış": "平均誤答",
+"Word belgesi kaydedildi.": "Word 文書を保存しました。",
+"Word belgesi kaydedilemedi.": "Word 文書を保存できませんでした。",
+"Word olarak kaydet": "Word で保存",
+"Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin": "問題冊子とレポートを編集可能な Word (.docx) 文書で保存"
 }

@@ -3104,5 +3104,13 @@
 "{0} öğrenci · {1} ders · {2} soru · ortalama toplam net {3}": "{0} alunos · {1} disciplinas · {2} questões · líquido total médio {3}",
 "{0}. ders": "Disciplina {0}",
 "Örn. Matematik": "ex.: Matemática",
-"Öğrenci sıralaması": "Classificação dos alunos"
+"Öğrenci sıralaması": "Classificação dos alunos",
+"Değer": "Valor",
+"Gösterge": "Indicador",
+"Ort. doğru": "Média acertos",
+"Ort. yanlış": "Média erros",
+"Word belgesi kaydedildi.": "Documento do Word salvo.",
+"Word belgesi kaydedilemedi.": "Não foi possível salvar o documento do Word.",
+"Word olarak kaydet": "Salvar como Word",
+"Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin": "Salve cadernos e relatórios como documento do Word (.docx) editável"
 }

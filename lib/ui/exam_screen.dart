@@ -1,3 +1,4 @@
+import '../reports/report_docx.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -298,7 +299,8 @@ class ExamScreen extends StatelessWidget {
               results: results,
               students: store.studentById,
               school: store.reportSchool,
-              classHistory: exam.kidStyle ? classHistoryOf(store, exam) : const []));
+              classHistory: exam.kidStyle ? classHistoryOf(store, exam) : const []),
+          word: () => buildResultsDocx(exam: exam, results: results, students: store.studentById, school: store.reportSchool));
     }
 
     Future<void> studentCards() async {
@@ -349,7 +351,8 @@ class ExamScreen extends StatelessWidget {
         await ReportPreviewScreen.open(context,
             title: tr('e-Okul listesi'),
             fileName: '${_safe(exam.name)}_eokul.pdf',
-            build: () => buildEokulPdf(exam: exam, results: results, classStudents: cls, school: store.reportSchool));
+            build: () => buildEokulPdf(exam: exam, results: results, classStudents: cls, school: store.reportSchool),
+            word: () => buildEokulDocx(exam: exam, rows: eokulRows(exam, results, cls), school: store.reportSchool));
       } else if (choice == 'xls') {
         await FilePicker.saveFile(
           fileName: '${_safe(exam.name)}_eokul.csv',

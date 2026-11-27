@@ -3175,5 +3175,13 @@
 "{0} öğrenci · {1} ders · {2} soru · ortalama toplam net {3}": "{0} students · {1} subjects · {2} questions · average total net {3}",
 "{0}. ders": "Subject {0}",
 "Örn. Matematik": "e.g. Mathematics",
-"Öğrenci sıralaması": "Student ranking"
+"Öğrenci sıralaması": "Student ranking",
+"Değer": "Value",
+"Gösterge": "Indicator",
+"Ort. doğru": "Avg. correct",
+"Ort. yanlış": "Avg. wrong",
+"Word belgesi kaydedildi.": "Word document saved.",
+"Word belgesi kaydedilemedi.": "The Word document could not be saved.",
+"Word olarak kaydet": "Save as Word",
+"Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin": "Save booklets and reports as editable Word (.docx) documents"
 }

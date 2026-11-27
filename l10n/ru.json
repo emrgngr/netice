@@ -3175,5 +3175,13 @@
 "{0} öğrenci · {1} ders · {2} soru · ortalama toplam net {3}": "Учеников: {0} · предметов: {1} · вопросов: {2} · среднее общее нетто {3}",
 "{0}. ders": "Предмет {0}",
 "Örn. Matematik": "Напр. Математика",
-"Öğrenci sıralaması": "Рейтинг учеников"
+"Öğrenci sıralaması": "Рейтинг учеников",
+"Değer": "Значение",
+"Gösterge": "Показатель",
+"Ort. doğru": "Ср. верных",
+"Ort. yanlış": "Ср. неверных",
+"Word belgesi kaydedildi.": "Документ Word сохранён.",
+"Word belgesi kaydedilemedi.": "Не удалось сохранить документ Word.",
+"Word olarak kaydet": "Сохранить в Word",
+"Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin": "Сохраняйте буклеты и отчёты как редактируемый документ Word (.docx)"
 }

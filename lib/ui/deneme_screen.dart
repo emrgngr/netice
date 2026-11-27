@@ -1,5 +1,6 @@
 // Çok dersli deneme sınavı sonuçları: ders ortalamaları, ders başarı
 // sıralaması ve öğrenci sıralaması (ders ders D/Y/N, toplam net, puan).
+import '../reports/report_docx.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../core/deneme.dart';
@@ -39,7 +40,8 @@ class DenemeScreen extends StatelessWidget {
     Future<void> pdf() => ReportPreviewScreen.open(context,
         title: tr('Deneme sonuç listesi'),
         fileName: '${exam.name.replaceAll(RegExp(r'[^\wğüşıöçĞÜŞİÖÇ -]'), '').replaceAll(' ', '_')}_deneme.pdf',
-        build: () => buildDenemePdf(report: rep, students: students, school: store.reportSchool));
+        build: () => buildDenemePdf(report: rep, students: students, school: store.reportSchool),
+        word: () => buildDenemeDocx(report: rep, students: students, school: store.reportSchool));
 
     final ranked = rep.ranked;
     final w = exam.hasWeightedScore;

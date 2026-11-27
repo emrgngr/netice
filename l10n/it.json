@@ -3175,5 +3175,13 @@
 "{0} öğrenci · {1} ders · {2} soru · ortalama toplam net {3}": "{0} studenti · {1} materie · {2} domande · netto totale medio {3}",
 "{0}. ders": "Materia {0}",
 "Örn. Matematik": "es. Matematica",
-"Öğrenci sıralaması": "Classifica studenti"
+"Öğrenci sıralaması": "Classifica studenti",
+"Değer": "Valore",
+"Gösterge": "Indicatore",
+"Ort. doğru": "Media giuste",
+"Ort. yanlış": "Media sbagliate",
+"Word belgesi kaydedildi.": "Documento Word salvato.",
+"Word belgesi kaydedilemedi.": "Impossibile salvare il documento Word.",
+"Word olarak kaydet": "Salva come Word",
+"Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin": "Salva fascicoli e report come documento Word (.docx) modificabile"
 }

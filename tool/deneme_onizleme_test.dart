@@ -11,6 +11,7 @@ import 'package:netice/core/models.dart';
 import 'package:netice/core/store.dart';
 import 'package:netice/main.dart';
 import 'package:netice/reports/pdf_documents.dart';
+import 'package:netice/reports/report_docx.dart';
 import 'package:netice/ui/deneme_screen.dart';
 import 'package:netice/ui/sections_screen.dart';
 import 'package:netice/ui/theme.dart';
@@ -83,5 +84,11 @@ void main() {
     final rep = DenemeReport.build(exam, store.resultsOf(exam));
     final bytes = await tester.runAsync(() => buildDenemePdf(report: rep, students: store.studentById));
     File('build/screenshots/deneme.pdf').writeAsBytesSync(bytes!);
+    // Word sürümleri (resmî başlıklı okul bilgisiyle).
+    const school = SchoolInfo(
+        province: 'Ankara', district: 'Çankaya', name: 'Atatürk Anadolu Lisesi', principal: 'Ayşe Demir', teacher: 'Mehmet Kaya', officialHeader: true);
+    File('build/screenshots/deneme.docx').writeAsBytesSync(buildDenemeDocx(report: rep, students: store.studentById, school: school));
+    File('build/screenshots/sinav_raporu.docx').writeAsBytesSync(
+        buildResultsDocx(exam: exam, results: store.resultsOf(exam), students: store.studentById, school: school));
   });
 }

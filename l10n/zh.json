@@ -3175,5 +3175,13 @@
 "{0} öğrenci · {1} ders · {2} soru · ortalama toplam net {3}": "{0} 名学生 · {1} 个科目 · {2} 题 · 平均总净分 {3}",
 "{0}. ders": "第 {0} 科",
 "Örn. Matematik": "例如：数学",
-"Öğrenci sıralaması": "学生排名"
+"Öğrenci sıralaması": "学生排名",
+"Değer": "数值",
+"Gösterge": "指标",
+"Ort. doğru": "平均答对",
+"Ort. yanlış": "平均答错",
+"Word belgesi kaydedildi.": "Word 文档已保存。",
+"Word belgesi kaydedilemedi.": "无法保存 Word 文档。",
+"Word olarak kaydet": "另存为 Word",
+"Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin": "将试卷和报告保存为可编辑的 Word (.docx) 文档"
 }

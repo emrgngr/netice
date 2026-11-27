@@ -3104,5 +3104,13 @@
 "{0} öğrenci · {1} ders · {2} soru · ortalama toplam net {3}": "학생 {0}명 · {1}과목 · {2}문항 · 평균 총 순점수 {3}",
 "{0}. ders": "{0}번째 과목",
 "Örn. Matematik": "예: 수학",
-"Öğrenci sıralaması": "학생 순위"
+"Öğrenci sıralaması": "학생 순위",
+"Değer": "값",
+"Gösterge": "지표",
+"Ort. doğru": "평균 정답",
+"Ort. yanlış": "평균 오답",
+"Word belgesi kaydedildi.": "Word 문서를 저장했습니다.",
+"Word belgesi kaydedilemedi.": "Word 문서를 저장하지 못했습니다.",
+"Word olarak kaydet": "Word로 저장",
+"Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin": "문제지와 보고서를 편집 가능한 Word(.docx) 문서로 저장"
 }

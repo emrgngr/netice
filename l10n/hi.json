@@ -3104,5 +3104,13 @@
 "{0} öğrenci · {1} ders · {2} soru · ortalama toplam net {3}": "{0} छात्र · {1} विषय · {2} प्रश्न · औसत कुल नेट {3}",
 "{0}. ders": "विषय {0}",
 "Örn. Matematik": "जैसे गणित",
-"Öğrenci sıralaması": "छात्र रैंकिंग"
+"Öğrenci sıralaması": "छात्र रैंकिंग",
+"Değer": "मान",
+"Gösterge": "संकेतक",
+"Ort. doğru": "औसत सही",
+"Ort. yanlış": "औसत गलत",
+"Word belgesi kaydedildi.": "Word दस्तावेज़ सहेजा गया।",
+"Word belgesi kaydedilemedi.": "Word दस्तावेज़ सहेजा नहीं जा सका।",
+"Word olarak kaydet": "Word के रूप में सहेजें",
+"Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin": "पुस्तिका और रिपोर्ट को संपादन योग्य Word (.docx) दस्तावेज़ के रूप में सहेजें"
 }

@@ -32,7 +32,7 @@ enum ProFeature {
   studyTips('Zayıf konu föyü', 'Zayıf konuların hap bilgileri karnede ve çalışma föyünde'),
   personalReview('Kişiye özel tekrar testi', 'Her öğrenciye kendi yanlışlarının benzer soruları, soru bankasından'),
   outcomeTracking('Kazanım takip çizelgesi', 'Dönem boyunca her kazanımın sınıf ve öğrenci bazında gelişimi'),
-  wordExport('Word\'e aktarma', 'Kitapçığı düzenlenebilir Word (.docx) belgesi olarak kaydedin'),
+  wordExport('Word\'e aktarma', 'Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin'),
   lanSync('Wi-Fi ile eşitleme', 'Aynı ağdaki öğretmenlerle internetsiz, dosyasız sonuç toplama'),
   bulkParent('Velilere toplu gönderim', 'Bütün sınıfın karnelerini sırayla, hazır mesajla gönderin'),
   balancedBlueprint('Dengeli belirtke tablosu', 'Otomatik seçim soruları konulara ve düşünme düzeylerine dengeli dağıtır'),
