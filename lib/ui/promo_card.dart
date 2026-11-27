@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../core/ads.dart';
 import '../core/promo.dart';
 import '../main.dart';
 import 'theme.dart';
@@ -8,6 +9,7 @@ import 'widgets.dart';
 import '../l10n/l10n.dart';
 
 /// Ana sayfanın altındaki sade, kapatılabilir öneri kartı.
+/// Uygulama sahibi Reklam yönetimi > Ayarlar'dan herkes için kapatabilir.
 class PromoCard extends StatefulWidget {
   const PromoCard({super.key});
 
@@ -18,9 +20,20 @@ class PromoCard extends StatefulWidget {
 class _PromoCardState extends State<PromoCard> {
   PromoFeed _feed = PromoService.instance.feed;
 
+  void _adsChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    AdService.instance.removeListener(_adsChanged);
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
+    AdService.instance.addListener(_adsChanged);
     PromoService.instance.load(onUpdate: (f) {
       if (mounted) setState(() => _feed = f);
     }).then((f) {
@@ -39,6 +52,7 @@ class _PromoCardState extends State<PromoCard> {
 
   @override
   Widget build(BuildContext context) {
+    if (!AdService.instance.activeSettings.promoCard) return const SizedBox.shrink();
     final t = Theme.of(context);
     final muted = t.colorScheme.onSurface.withValues(alpha: 0.55);
     final items = _feed.items;
@@ -131,6 +145,7 @@ class _Product extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!AdService.instance.activeSettings.promoCard) return const SizedBox.shrink();
     final t = Theme.of(context);
     Widget placeholder() => Container(
           color: NColors.emerald.withValues(alpha: 0.08),

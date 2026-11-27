@@ -23,7 +23,10 @@ String _pct(double r) => '%${(r * 100).toStringAsFixed(r >= 0.1 ? 1 : 2).replace
 class AdStatsScreen extends StatefulWidget {
   /// Testler ve önizleme için hazır veri.
   final Map<String, AdStats>? initial;
-  const AdStatsScreen({super.key, this.initial});
+
+  /// Reklam yönetimi ekranının sekmesi olarak (başlık çubuğu olmadan).
+  final bool embedded;
+  const AdStatsScreen({super.key, this.initial, this.embedded = false});
 
   @override
   State<AdStatsScreen> createState() => _AdStatsScreenState();
@@ -74,6 +77,101 @@ class _AdStatsScreenState extends State<AdStatsScreen> {
       ..sort((x, y) => y.$2.total.views.compareTo(x.$2.total.views));
     final gone = stats.entries.where((e) => !known.contains(e.key)).fold(const AdCounts(), (s, e) => s + e.value.total);
 
+    final daily = <String, AdCounts>{};
+    for (final st in stats.values) {
+      for (final e in st.daily.entries) {
+        daily[e.key] = (daily[e.key] ?? const AdCounts()) + e.value;
+      }
+    }
+    final body = RefreshIndicator(
+      onRefresh: _load,
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+        children: [
+          SegmentedButton<int>(
+            showSelectedIcon: false,
+            segments: const [
+              ButtonSegment(value: 1, label: Text('Bugün')),
+              ButtonSegment(value: 7, label: Text('7 gün')),
+              ButtonSegment(value: 30, label: Text('30 gün')),
+              ButtonSegment(value: 90, label: Text('90 gün')),
+            ],
+            selected: {_days},
+            onSelectionChanged: (s) {
+              _days = s.first;
+              _load();
+            },
+          ),
+          const SizedBox(height: 12),
+          if (_loading) const LinearProgressIndicator(),
+          if (_error != null)
+            Card(
+              color: NColors.amber.withValues(alpha: 0.18),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  children: [
+                    const Icon(Icons.info_outline_rounded, color: NColors.amber),
+                    const SizedBox(width: 10),
+                    Expanded(child: Text(_error!)),
+                  ],
+                ),
+              ),
+            ),
+          Row(
+            children: [
+              Expanded(
+                child: _Tile(label: 'Görülme', value: _n(total.views)),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _Tile(label: 'Tıklama', value: _n(total.clicks)),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _Tile(label: 'Tıklama oranı', value: _pct(total.rate)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Sayılar kimliksizdir: her reklamın günlük toplamı tutulur, kimin gördüğü bilinmez. '
+            'Pro kullanıcılar reklam görmediği için sayılmaz. Yeni sayılar birkaç dakika gecikmeyle gelir.',
+            style: TextStyle(color: muted, fontSize: 12),
+          ),
+          if (_days > 1 && daily.isNotEmpty)
+            Card(
+              margin: const EdgeInsets.only(top: 12),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Günlük görülme (tüm reklamlar)', style: TextStyle(fontWeight: FontWeight.w800)),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      height: 110,
+                      child: _DailyBars(daily: daily, days: _days),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          SectionTitle('Reklamlar'),
+          if (rows.isEmpty) Text('Yayında reklam yok.', style: TextStyle(color: muted)),
+          for (final (a, s) in rows) _AdCard(ad: a, stats: s, days: _days, onKeep: _keep),
+          if (gone.views > 0)
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(
+                'Silinmiş reklamlar: ${_n(gone.views)} görülme, ${_n(gone.clicks)} tıklama',
+                style: TextStyle(color: muted, fontSize: 12.5),
+              ),
+            ),
+        ],
+      ),
+    );
+    if (widget.embedded) return body;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Reklam istatistikleri'),
@@ -81,76 +179,7 @@ class _AdStatsScreenState extends State<AdStatsScreen> {
           IconButton(tooltip: 'Yenile', onPressed: _loading ? null : _load, icon: const Icon(Icons.refresh_rounded)),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: _load,
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-          children: [
-            SegmentedButton<int>(
-              showSelectedIcon: false,
-              segments: const [
-                ButtonSegment(value: 1, label: Text('Bugün')),
-                ButtonSegment(value: 7, label: Text('7 gün')),
-                ButtonSegment(value: 30, label: Text('30 gün')),
-                ButtonSegment(value: 90, label: Text('90 gün')),
-              ],
-              selected: {_days},
-              onSelectionChanged: (s) {
-                _days = s.first;
-                _load();
-              },
-            ),
-            const SizedBox(height: 12),
-            if (_loading) const LinearProgressIndicator(),
-            if (_error != null)
-              Card(
-                color: NColors.amber.withValues(alpha: 0.18),
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.info_outline_rounded, color: NColors.amber),
-                      const SizedBox(width: 10),
-                      Expanded(child: Text(_error!)),
-                    ],
-                  ),
-                ),
-              ),
-            Row(
-              children: [
-                Expanded(
-                  child: _Tile(label: 'Görülme', value: _n(total.views)),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _Tile(label: 'Tıklama', value: _n(total.clicks)),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _Tile(label: 'Tıklama oranı', value: _pct(total.rate)),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Sayılar kimliksizdir: her reklamın günlük toplamı tutulur, kimin gördüğü bilinmez. '
-              'Pro kullanıcılar reklam görmediği için sayılmaz. Yeni sayılar birkaç dakika gecikmeyle gelir.',
-              style: TextStyle(color: muted, fontSize: 12),
-            ),
-            SectionTitle('Reklamlar'),
-            if (rows.isEmpty) Text('Yayında reklam yok.', style: TextStyle(color: muted)),
-            for (final (a, s) in rows) _AdCard(ad: a, stats: s, days: _days, onKeep: _keep),
-            if (gone.views > 0)
-              Padding(
-                padding: const EdgeInsets.only(top: 6),
-                child: Text(
-                  'Silinmiş reklamlar: ${_n(gone.views)} görülme, ${_n(gone.clicks)} tıklama',
-                  style: TextStyle(color: muted, fontSize: 12.5),
-                ),
-              ),
-          ],
-        ),
-      ),
+      body: body,
     );
   }
 }

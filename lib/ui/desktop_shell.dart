@@ -5,6 +5,7 @@ import '../core/models.dart';
 import '../core/pro.dart';
 import '../l10n/l10n.dart';
 import '../main.dart';
+import 'ad_admin_screen.dart';
 import 'exam_screen.dart';
 import 'illustrations.dart';
 import 'new_exam_screen.dart';
@@ -120,14 +121,15 @@ class DesktopSidebar extends StatelessWidget {
     if (compact) {
       return const Padding(
         padding: EdgeInsets.fromLTRB(0, 22, 0, 6),
-        child: Center(child: AppLogo(size: 42)),
+        child: Center(child: SecretAdminTap(child: AppLogo(size: 42))),
       );
     }
     return Padding(
       padding: const EdgeInsetsDirectional.fromSTEB(24, 24, 16, 8),
       child: Row(
         children: [
-          const AppLogo(size: 42),
+          // Gizli hareket: logoya 4 sn içinde 5 tıklama → Reklam yönetimi.
+          const SecretAdminTap(child: AppLogo(size: 42)),
           const SizedBox(width: 12),
           Expanded(
             child: Column(

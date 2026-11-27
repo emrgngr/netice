@@ -46,3 +46,38 @@ test("özet: sürüm ve gün toplamları", () => {
   assert.deepEqual(s.r1.b, { g: 8, t: 2 });
   assert.deepEqual(s.r1.gunluk["2026-11-26"], { g: 8, t: 2 });
 });
+
+import { BASVURU_ID_RE, newApplicationId, parseApplication } from "../src/lib.js";
+
+test("başvuru doğrulanır ve temizlenir", () => {
+  const b = parseApplication({
+    ad: "  Ayşe Yılmaz ",
+    firma: "Ayşe Kırtasiye",
+    telefon: "+90 532 111 22 33",
+    eposta: "AYSE@ornek.com",
+    mesaj: "Ana sayfa kartı için fiyat alabilir miyim?",
+    alan: "ana_sayfa/card",
+    dil: "tr",
+    ulke: "TR",
+  });
+  assert.equal(b.ad, "Ayşe Yılmaz");
+  assert.equal(b.eposta, "ayse@ornek.com");
+  assert.equal(b.alan, "ana_sayfa/card");
+});
+
+test("eksik ya da hatalı başvuru reddedilir", () => {
+  const ok = { ad: "Ali", telefon: "05321112233", mesaj: "Merhaba, reklam" };
+  assert.throws(() => parseApplication({ ...ok, ad: "" }), RequestError);
+  assert.throws(() => parseApplication({ ...ok, mesaj: "hi" }), RequestError);
+  assert.throws(() => parseApplication({ ...ok, telefon: "" }), RequestError);
+  assert.throws(() => parseApplication({ ...ok, telefon: "abc" }), RequestError);
+  assert.throws(() => parseApplication({ ...ok, eposta: "yok" }), RequestError);
+  assert.throws(() => parseApplication({ ...ok, web: "http://spam" }), RequestError);
+  assert.equal(parseApplication({ ...ok, alan: "../x" }).alan, "");
+  assert.equal(parseApplication({ ...ok, mesaj: "x".repeat(5000) }).mesaj.length, 1000);
+});
+
+test("başvuru kimliği biçimi", () => {
+  assert.match(newApplicationId(), BASVURU_ID_RE);
+  assert.ok(!BASVURU_ID_RE.test("ba_../../x"));
+});

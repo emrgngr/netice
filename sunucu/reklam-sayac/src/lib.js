@@ -61,3 +61,50 @@ export function summarize(rows) {
   }
   return out;
 }
+
+// ---- Reklam başvuruları ("Burada reklamınız olsun" formu) ----
+
+export const BASVURU_LIMITS = { ad: 80, firma: 100, telefon: 30, eposta: 120, mesaj: 1000 };
+
+const clean = (v, max) =>
+  String(v ?? "")
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "")
+    .trim()
+    .slice(0, max);
+
+/**
+ * Formdan gelen başvuruyu doğrular.
+ * Biçim: {"ad":"…","firma":"…","telefon":"…","eposta":"…","mesaj":"…","alan":"home/card","dil":"tr","ulke":"TR"}
+ * Ad ve mesaj zorunlu; telefon ya da e-postadan en az biri gerekir.
+ * "web" alanı (görünmez tuzak) doluysa istek yok sayılır.
+ */
+export function parseApplication(body) {
+  if (!body || typeof body !== "object") throw new RequestError("bad_request", "Invalid body");
+  if (String(body.web ?? "").trim()) throw new RequestError("spam", "Rejected", 400);
+  const out = {
+    ad: clean(body.ad, BASVURU_LIMITS.ad),
+    firma: clean(body.firma, BASVURU_LIMITS.firma),
+    telefon: clean(body.telefon, BASVURU_LIMITS.telefon),
+    eposta: clean(body.eposta, BASVURU_LIMITS.eposta).toLowerCase(),
+    mesaj: clean(body.mesaj, BASVURU_LIMITS.mesaj),
+    alan: /^[a-z_]{2,20}\/(card|banner)$/.test(String(body.alan ?? "")) ? String(body.alan) : "",
+    dil: /^[a-z]{2}$/.test(String(body.dil ?? "")) ? String(body.dil) : "",
+    ulke: /^[A-Z]{2}$/.test(String(body.ulke ?? "")) ? String(body.ulke) : "",
+  };
+  if (out.ad.length < 2) throw new RequestError("name_required", "Name required");
+  if (out.mesaj.length < 5) throw new RequestError("message_required", "Message required");
+  if (out.telefon && !/^[0-9+()\-.\s]{6,30}$/.test(out.telefon)) throw new RequestError("bad_phone", "Invalid phone");
+  if (out.eposta && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(out.eposta)) throw new RequestError("bad_email", "Invalid email");
+  if (!out.telefon && !out.eposta) throw new RequestError("contact_required", "Phone or email required");
+  return out;
+}
+
+/** Başvuru kimliği: ba_ + 12 harf/rakam. */
+export const BASVURU_ID_RE = /^ba_[a-z0-9]{12}$/;
+
+export function newApplicationId(rand = Math.random) {
+  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+  let s = "ba_";
+  for (let i = 0; i < 12; i++) s += chars[Math.floor(rand() * chars.length)];
+  return s;
+}
