@@ -394,17 +394,30 @@ table.cmp { min-width: 640px; }
 [dir="rtl"] .hero-art { right: auto; left: 0; transform: scaleX(-1); }
 [dir="rtl"] .phone-float { right: auto; left: 18px; }
 
-/* Örnek raporlar galerisi: yuvarlak kartlar, üstte kâğıdın ilk sayfası. */
+/* Kılavuz ve örnek belgeler: yuvarlak kartlar, üstte kâğıdın ilk sayfası, altta indir/paylaş. */
 .rapor-grid { display: grid; gap: 22px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
 .rapor {
-  display: grid; gap: 8px; align-content: start; text-decoration: none; color: inherit;
-  background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 18px 18px 22px;
+  display: grid; gap: 8px; grid-template-rows: auto auto 1fr auto; color: inherit;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 18px 18px 18px;
   box-shadow: 0 10px 30px -22px rgba(15,27,61,.45); transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
 }
 .rapor:hover { transform: translateY(-4px); border-color: var(--mint); box-shadow: var(--shadow); }
-.rapor .kagit { display: block; background: #fff; border-radius: 10px; overflow: hidden; aspect-ratio: 4 / 3; border: 1px solid var(--line); box-shadow: 0 8px 20px -14px rgba(15,27,61,.5); margin-bottom: 8px; }
+.rapor .kagit { display: block; background: #fff; border-radius: 10px; overflow: hidden; aspect-ratio: 4 / 3; border: 1px solid var(--line); box-shadow: 0 8px 20px -14px rgba(15,27,61,.5); margin-bottom: 8px; cursor: zoom-in; }
 .rapor .kagit img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
 .rapor p { color: var(--muted); font-size: .95rem; }
+.dugmeler { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.btn-k {
+  display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 999px; font: inherit; font-weight: 700; font-size: .88rem;
+  text-decoration: none; cursor: pointer; border: 1px solid var(--line); background: var(--chip); color: var(--fg);
+}
+.btn-k.indir { background: var(--mint-fill); border-color: var(--mint-fill); color: #fff; }
+.btn-k.indir:hover { background: #047857; }
+.btn-k.indir::before { content: ""; width: 14px; height: 14px; background: currentColor; -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 3v12m0 0-5-5m5 5 5-5M4 21h16' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 3v12m0 0-5-5m5 5 5-5M4 21h16' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat; }
+.btn-k.paylas:hover { border-color: var(--mint); }
+.kilavuz-kart { display: grid; gap: 36px; align-items: center; grid-template-columns: 1fr; background: var(--surface); border: 1px solid var(--line); border-radius: 28px; padding: clamp(20px, 4vw, 40px); box-shadow: var(--shadow); }
+.kilavuz-kart .kapak { display: block; max-width: 300px; justify-self: center; border-radius: 14px; overflow: hidden; box-shadow: 0 24px 50px -20px rgba(15,27,61,.55); transform: rotate(-2deg); transition: transform .2s ease; }
+.kilavuz-kart .kapak:hover { transform: rotate(0) scale(1.02); }
+@media (min-width: 820px) { .kilavuz-kart { grid-template-columns: 300px 1fr; } }
 dialog.buyut { border: 0; padding: 0; background: transparent; max-width: min(920px, 94vw); max-height: 94vh; overflow: auto; }
 dialog.buyut::backdrop { background: rgba(7, 13, 32, .82); }
 dialog.buyut img { width: 100%; height: auto; border-radius: 12px; background: #fff; }

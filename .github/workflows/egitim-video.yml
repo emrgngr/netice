@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       dil:
-        description: 'Dil (egitim_<dil>.json olmalı)'
+        description: 'Dil (egitim_<dil>.json olmalı) ya da hepsi'
         default: 'tr'
   push:
     branches: [ilk-surum, 'claude/**']
@@ -21,10 +21,33 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  video:
+  diller:
     runs-on: ubuntu-latest
+    outputs:
+      liste: ${{ steps.l.outputs.liste }}
+    steps:
+      - uses: actions/checkout@v5
+      - id: l
+        # Elle çalıştırmada seçilen dil (ya da hepsi); push'ta tüm diller.
+        run: |
+          sec="${{ inputs.dil || 'hepsi' }}"
+          if [ "$sec" = "hepsi" ]; then
+            liste=$(ls tool/video/egitim_*.json | sed 's#.*/egitim_\(.*\)\.json#\1#' | python3 -c "import sys,json;print(json.dumps(sys.stdin.read().split()))")
+          else
+            liste="[\"$sec\"]"
+          fi
+          echo "liste=$liste" >> "$GITHUB_OUTPUT"
+
+  video:
+    needs: diller
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        lang: ${{ fromJson(needs.diller.outputs.liste) }}
     env:
-      lang: ${{ inputs.dil || 'tr' }}
+      lang: ${{ matrix.lang }}
     steps:
       - uses: actions/checkout@v5
       - uses: subosito/flutter-action@v2

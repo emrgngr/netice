@@ -46,10 +46,10 @@ DIR = 'rtl' if RTL else None
 FADE = 0.45  # sahneler arası geçiş
 TAIL = 0.7   # anlatım bittikten sonra sahnenin kalma süresi
 
-UI = {
-    'tr': {'adim': 'ADIM', 'site': 'Kâğıttan sonuca, saniyeler içinde.'},
-    'en': {'adim': 'STEP', 'site': 'From paper to results in seconds.'},
-}.get(LANG, {'adim': 'STEP', 'site': ''})
+UI = {'adim': {
+    'tr': 'ADIM', 'en': 'STEP', 'az': 'ADDIM', 'de': 'SCHRITT', 'es': 'PASO', 'fr': 'ÉTAPE', 'it': 'FASE',
+    'pt': 'ETAPA', 'ru': 'ШАГ', 'ar': 'الخطوة', 'hi': 'चरण', 'id': 'LANGKAH', 'ja': 'STEP', 'ko': '단계', 'zh': '步骤',
+}.get(LANG, 'STEP')}
 
 
 def F(size, bold=False):
@@ -237,7 +237,11 @@ def left_column(frame, sc, t, top=230, col_w=COL_W):
     else:
         d.rounded_rectangle([TEXT_X, y, TEXT_X + lw, y + 6], 3, fill=EMERALD)
     y += 50
-    item_f = F(36)
+    # Uzun maddeler (Almanca vb.) sütuna sığana kadar küçültülür.
+    size = 36
+    while size > 26 and max((d.textlength(f, font=F(size), direction=DIR) for f in sc.get('faydalar', [])), default=0) > col_w - 110:
+        size -= 1
+    item_f = F(size)
     for i, f in enumerate(sc.get('faydalar', [])):
         k = (t - 0.9 - i * sc['_aralik']) / 0.5
         a = ease_out(k)
@@ -458,7 +462,7 @@ def scene_cta(frame, sc, t, dur):
 
 
 def scene_promise(frame, sc, t, dur):
-    left_column(frame, sc, t)
+    left_column(frame, sc, t, col_w=680)
     cx = 1390 if not RTL else 530
     lap = laptop_layer('ana_sayfa', 900)
     place_device(frame, lap, cx - 40, 470, t, dur, appear=0.15, zoom=0.02)

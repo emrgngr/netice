@@ -7,6 +7,8 @@ import '../core/deneme.dart';
 import '../core/models.dart';
 import '../l10n/l10n.dart';
 import '../main.dart';
+import '../core/pro.dart';
+import 'pro_screen.dart';
 import 'theme.dart';
 import 'widgets.dart';
 
@@ -14,8 +16,11 @@ class SectionsScreen extends StatefulWidget {
   final String examId;
   const SectionsScreen({super.key, required this.examId});
 
-  static Future<void> open(BuildContext context, String examId) =>
-      Navigator.of(context).push(MaterialPageRoute(builder: (_) => SectionsScreen(examId: examId)));
+  /// Ders bölümleri (çok dersli deneme) Pro özelliğidir.
+  static Future<void> open(BuildContext context, String examId) async {
+    if (!await requirePro(context, ProFeature.denemeExam) || !context.mounted) return;
+    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => SectionsScreen(examId: examId)));
+  }
 
   @override
   State<SectionsScreen> createState() => _SectionsScreenState();

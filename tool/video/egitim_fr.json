@@ -1,0 +1,208 @@
+{
+ "_not": "Çeviri: egitim_tr.json ile aynı yapı (tool/video/egitim.py).",
+ "sahneler": [
+  {
+   "id": "kanca",
+   "tur": "kanca",
+   "ust": "Le vrai coût d’un examen pour un enseignant",
+   "eski": "Des heures",
+   "yeni": "Des minutes",
+   "alt": "Écrire les questions, monter les livrets, corriger, analyser, rédiger",
+   "metin": "Écrire les questions, monter les livrets, corriger les copies une à une, analyser, rédiger les bulletins. Un seul examen coûte des heures à un enseignant. Avec Netice, ces heures deviennent des minutes."
+  },
+  {
+   "id": "vaat",
+   "tur": "vaat",
+   "ust": "Qu’est-ce que Netice ?",
+   "baslik": "Tout l’examen dans une seule appli",
+   "faydalar": [
+    "De la question au bulletin, chaque étape",
+    "Pour enseignants et élèves",
+    "Sur téléphone, tablette et ordinateur"
+   ],
+   "ekran": "02_ana",
+   "metin": "Netice réunit tout le parcours d’un examen dans une seule application : il prépare les questions, lit les feuilles de réponses, analyse les résultats et rédige le rapport. Sur votre téléphone, votre tablette et votre ordinateur."
+  },
+  {
+   "id": "dongu",
+   "tur": "dongu",
+   "ust": "En quatre étapes",
+   "baslik": "Préparer, scanner, comprendre, partager",
+   "kartlar": [
+    [
+     "Préparer",
+     "Questions, livrets et corrigés à partir de notes"
+    ],
+    [
+     "Scanner",
+     "Toute grille-réponse, quelques secondes"
+    ],
+    [
+     "Analyser",
+     "Élève, classe et établissement"
+    ],
+    [
+     "Rapporter",
+     "Rapports officiels, bulletins, infos parents"
+    ]
+   ],
+   "metin": "Netice fonctionne en quatre étapes. Préparer, scanner, analyser et rapporter. Voyons ce que vous gagnez à chaque étape."
+  },
+  {
+   "id": "hazirla_soru",
+   "tur": "adim",
+   "adim": 1,
+   "ust": "Préparer",
+   "baslik": "Des questions à partir de vos notes",
+   "faydalar": [
+    "PDF, Word, Excel ou une photo",
+    "QCM, texte à trous, appariement",
+    "Niveaux facile, moyen et difficile"
+   ],
+   "rozetler": [
+    "Vrai / Faux",
+    "Question ouverte",
+    "Remise en ordre"
+   ],
+   "ekran": "k_yz_soru",
+   "hedef": null,
+   "metin": "Importez vos notes de cours : PDF, Word, Excel ou photo d’une page. Netice en tire des QCM, des textes à trous, des appariements et des questions ouvertes. Vous choisissez simplement celles qui vous plaisent."
+  },
+  {
+   "id": "hazirla_kitapcik",
+   "tur": "adim",
+   "adim": 1,
+   "ust": "Préparer",
+   "baslik": "Livret, corrigé et feuille de réponses",
+   "faydalar": [
+    "Versions mélangées de A à H",
+    "Corrigé détaillé par thème",
+    "Une grille-réponse propre à l’examen"
+   ],
+   "ekran": "k_kitapcik_turu",
+   "metin": "Créez un livret d’examen depuis votre banque de questions en quelques gestes. Huit versions de livret, un corrigé détaillé par thème et une grille-réponse propre à l’examen sont prêts en même temps. En Word ou en PDF."
+  },
+  {
+   "id": "okut",
+   "tur": "adim",
+   "adim": 2,
+   "ust": "Scanner",
+   "baslik": "Quelle que soit la grille-réponse",
+   "faydalar": [
+    "Votre grille ou celle d’un éditeur",
+    "Numéro d’identité, nom, date de naissance",
+    "Lecture groupée de PDF scannés"
+   ],
+   "ekran": "07_okut_ekrani",
+   "metin": "Placez l’appareil photo au-dessus de la feuille : chaque copie est lue en quelques secondes. Votre propre grille, celle d’un éditeur ou celle de votre établissement, peu importe. Les champs codés comme le numéro d’identité, le nom et la date de naissance sont lus aussi. Vous pouvez importer des PDF scannés en lot."
+  },
+  {
+   "id": "analiz",
+   "tur": "masaustu",
+   "adim": 3,
+   "ust": "Analyser",
+   "baslik": "Une analyse aux normes internationales",
+   "faydalar": [
+    "Difficulté et discrimination de chaque question",
+    "Fiabilité, erreur de mesure, distracteurs",
+    "Réussite par thème et par objectif"
+   ],
+   "rozetler": [
+    "Fiabilité KR-20",
+    "Discrimination",
+    "Erreur de mesure"
+   ],
+   "ekran": "masaustu:analiz",
+   "metin": "Netice utilise des méthodes reconnues dans le monde entier en mesure et évaluation. Il montre la difficulté et le pouvoir discriminant de chaque question, la fiabilité de l’examen et l’efficacité des distracteurs. Vous voyez d’un coup d’œil quel thème et quel objectif restent à travailler."
+  },
+  {
+   "id": "analiz_genel",
+   "tur": "adim",
+   "adim": 3,
+   "ust": "Analyser",
+   "baslik": "De l’élève à l’établissement",
+   "faydalar": [
+    "La courbe de progrès de chaque élève",
+    "Comparaison des classes",
+    "Vue d’ensemble de l’établissement"
+   ],
+   "ekran": "10_ogrenci",
+   "metin": "L’analyse ne s’arrête pas à la classe. Suivez les progrès de chaque élève, comparez les classes et examinez tout l’établissement sur grand écran. Netice vous indique qui a besoin d’aide."
+  },
+  {
+   "id": "raporla",
+   "tur": "masaustu",
+   "adim": 4,
+   "ust": "Rapporter",
+   "baslik": "Un rapport officiel en un geste",
+   "faydalar": [
+    "En-tête officiel et zone de signature",
+    "Bulletins, bilans de trimestre et d’objectifs",
+    "Aux parents via WhatsApp, Classroom, Moodle"
+   ],
+   "ekran": "masaustu:donem",
+   "metin": "Vos analyses deviennent des rapports avec l’en-tête officiel et la zone de signature de votre établissement. Bulletins, bilans de fin de trimestre et bilans d’objectifs sont prêts en un geste. Envoyez les résultats aux parents ou transférez-les vers Classroom et Moodle."
+  },
+  {
+   "id": "prova",
+   "tur": "masaustu",
+   "ust": "Une vraie répétition d’examen à la maison",
+   "baslik": "Préparez votre propre examen blanc",
+   "faydalar": [
+    "Importez vos notes et documents",
+    "Imprimez le livret et la grille",
+    "Scannez et voyez vos lacunes"
+   ],
+   "rozetler": [
+    "Livrets A–H",
+    "Durée de l’épreuve",
+    "Grille-réponse"
+   ],
+   "ekran": "masaustu:kitapcik",
+   "metin": "Netice n’est pas réservé aux enseignants. Toute personne qui prépare un examen peut importer ses notes, ses livres et ses documents et créer son propre examen blanc. Imprimez le livret et la grille, lancez le chronomètre et composez comme le jour J. Puis scannez la grille avec votre téléphone et découvrez aussitôt votre note et les thèmes à revoir."
+  },
+  {
+   "id": "kitle",
+   "tur": "kitle",
+   "ust": "Pour qui ?",
+   "baslik": "De l’école primaire à l’université",
+   "gruplar": [
+    "École primaire",
+    "Collège",
+    "Lycée",
+    "Formation professionnelle",
+    "Université",
+    "École de police",
+    "Écoles militaires",
+    "Cours et soutien scolaire",
+    "Candidats aux examens"
+   ],
+   "alt": "15 langues · Le système de notes de chaque pays · Modèles colorés pour enfants",
+   "metin": "Pour tous, de l’enseignant de primaire au professeur d’université, de l’école de police aux écoles militaires, des centres de soutien aux élèves qui préparent un examen chez eux. En quinze langues, avec le système de notes de chaque pays, et des modèles colorés pour les plus jeunes."
+  },
+  {
+   "id": "guven",
+   "tur": "guven",
+   "ust": "Confiance",
+   "baslik": "Les données des élèves restent chez vous",
+   "faydalar": [
+    "Fonctionne sans Internet",
+    "Aucun compte requis",
+    "Données uniquement sur votre appareil"
+   ],
+   "metin": "Les données des élèves sont sensibles. Netice fonctionne sans Internet et ne vous demande pas de créer de compte ; vos données restent uniquement sur votre appareil."
+  },
+  {
+   "id": "kapanis",
+   "tur": "kapanis",
+   "baslik": "Du papier au résultat, en quelques secondes.",
+   "faydalar": [
+    "La lecture est toujours gratuite",
+    "Essayez Pro gratuitement 14 jours"
+   ],
+   "adres": "neticeoptik.com",
+   "magazalar": "App Store · Google Play · Microsoft Store · Mac",
+   "metin": "La lecture est toujours gratuite. Et essayez aussi les fonctions Pro gratuitement pendant quatorze jours. Téléchargez Netice dès aujourd’hui : votre prochain examen passera du papier au résultat en quelques secondes."
+  }
+ ]
+}

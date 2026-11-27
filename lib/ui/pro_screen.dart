@@ -442,6 +442,7 @@ class _FeatureRow extends StatelessWidget {
     ProFeature.detailedStats: Icons.query_stats_rounded,
     ProFeature.officialHeader: Icons.account_balance_outlined,
     ProFeature.commonExam: Icons.hub_outlined,
+    ProFeature.denemeExam: Icons.view_column_outlined,
     ProFeature.adminPanel: Icons.dashboard_customize_outlined,
     ProFeature.bookletVariants: Icons.auto_stories_outlined,
     ProFeature.studyTips: Icons.lightbulb_outline_rounded,

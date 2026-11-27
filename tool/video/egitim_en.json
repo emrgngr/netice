@@ -1,0 +1,208 @@
+{
+ "_not": "Çeviri: egitim_tr.json ile aynı yapı (tool/video/egitim.py).",
+ "sahneler": [
+  {
+   "id": "kanca",
+   "tur": "kanca",
+   "ust": "The real cost of one exam for a teacher",
+   "eski": "Hours",
+   "yeni": "Minutes",
+   "alt": "Writing questions, building booklets, marking papers, analysis, reports",
+   "metin": "Writing questions, building booklets, marking papers one by one, analysing, writing reports. A single exam costs a teacher hours of work. With Netice, those hours become minutes."
+  },
+  {
+   "id": "vaat",
+   "tur": "vaat",
+   "ust": "What is Netice?",
+   "baslik": "The whole exam, in one app",
+   "faydalar": [
+    "Every step from question to report card",
+    "For teachers and students",
+    "On phone, tablet and computer"
+   ],
+   "ekran": "02_ana",
+   "metin": "Netice brings the whole journey of an exam into one app: it prepares the questions, reads the answer sheets, analyses the results and writes the report. On your phone, your tablet and your computer."
+  },
+  {
+   "id": "dongu",
+   "tur": "dongu",
+   "ust": "In four steps",
+   "baslik": "Prepare, scan, understand, share",
+   "kartlar": [
+    [
+     "Prepare",
+     "Questions, booklets and answer keys from notes"
+    ],
+    [
+     "Scan",
+     "Any answer sheet, seconds per paper"
+    ],
+    [
+     "Analyse",
+     "Student, class and school level"
+    ],
+    [
+     "Report",
+     "Official reports, report cards, parent updates"
+    ]
+   ],
+   "metin": "Netice works in four steps. Prepare, scan, analyse and report. Now let's see what you gain at each step."
+  },
+  {
+   "id": "hazirla_soru",
+   "tur": "adim",
+   "adim": 1,
+   "ust": "Prepare",
+   "baslik": "Questions from your notes in minutes",
+   "faydalar": [
+    "PDF, Word, Excel or a photo",
+    "Multiple choice, fill in the blank, matching",
+    "Easy, medium and hard levels"
+   ],
+   "rozetler": [
+    "True / False",
+    "Open-ended",
+    "Ordering"
+   ],
+   "ekran": "k_yz_soru",
+   "hedef": null,
+   "metin": "Upload your lesson notes; a PDF, Word, Excel file or a photo of a page. Netice turns them into multiple choice, fill in the blank, matching and open-ended questions. You simply pick the ones you like."
+  },
+  {
+   "id": "hazirla_kitapcik",
+   "tur": "adim",
+   "adim": 1,
+   "ust": "Prepare",
+   "baslik": "Booklet, answer key and answer sheet",
+   "faydalar": [
+    "Shuffled booklet versions A to H",
+    "Detailed answer key by topic",
+    "An answer sheet made for the exam"
+   ],
+   "ekran": "k_kitapcik_turu",
+   "metin": "Build a question booklet from your question bank in a few taps. Eight booklet versions, a detailed answer key by topic and an answer sheet made for the exam are prepared at once. Get them as Word or PDF."
+  },
+  {
+   "id": "okut",
+   "tur": "adim",
+   "adim": 2,
+   "ust": "Scan",
+   "baslik": "Whatever the answer sheet",
+   "faydalar": [
+    "Your own sheet or a publisher's",
+    "ID number, full name, date of birth",
+    "Batch reading of scanned PDFs"
+   ],
+   "ekran": "07_okut_ekrani",
+   "metin": "Hold the camera over the paper; each sheet is read in a few seconds. Your own sheet, a publisher's sheet or an institution's sheet, it makes no difference. Coded fields such as ID number, full name and date of birth are read too. You can upload scanned PDF files in bulk."
+  },
+  {
+   "id": "analiz",
+   "tur": "masaustu",
+   "adim": 3,
+   "ust": "Analyse",
+   "baslik": "Analysis by international measurement standards",
+   "faydalar": [
+    "Difficulty and discrimination for every item",
+    "Reliability, standard error, distractors",
+    "Success by topic and learning outcome"
+   ],
+   "rozetler": [
+    "KR-20 reliability",
+    "Discrimination",
+    "Standard error"
+   ],
+   "ekran": "masaustu:analiz",
+   "metin": "Netice uses methods accepted worldwide in measurement and assessment. It shows the difficulty and discrimination of every question, the reliability of the exam and whether the distractors work. You see at a glance which topic and which learning outcome needs more work."
+  },
+  {
+   "id": "analiz_genel",
+   "tur": "adim",
+   "adim": 3,
+   "ust": "Analyse",
+   "baslik": "From student to school, at every level",
+   "faydalar": [
+    "Each student's progress line",
+    "Class comparison",
+    "School-wide overview"
+   ],
+   "ekran": "10_ogrenci",
+   "metin": "Analysis doesn't stop at the class. Follow each student's progress, compare classes and review the whole school on a big screen. Netice tells you who needs support."
+  },
+  {
+   "id": "raporla",
+   "tur": "masaustu",
+   "adim": 4,
+   "ust": "Report",
+   "baslik": "Official reports in one tap",
+   "faydalar": [
+    "Official letterhead and signature block",
+    "Report cards, term and outcome reports",
+    "To parents via WhatsApp, Classroom and Moodle"
+   ],
+   "ekran": "masaustu:donem",
+   "metin": "Your analyses become reports with your institution's official letterhead and signature block. Report cards, end of term reports and learning outcome reports are ready in one tap. Send results to parents or export them to Classroom and Moodle."
+  },
+  {
+   "id": "prova",
+   "tur": "masaustu",
+   "ust": "A real exam rehearsal at home",
+   "baslik": "Build your own practice exam",
+   "faydalar": [
+    "Upload your notes and documents",
+    "Print the booklet and answer sheet",
+    "Scan it and see your gaps"
+   ],
+   "rozetler": [
+    "A–H booklets",
+    "Exam timer",
+    "Answer sheet"
+   ],
+   "ekran": "masaustu:kitapcik",
+   "metin": "Netice isn't only for teachers. Anyone preparing for an exam can upload their own notes, books and documents and build their own practice exam. Print the booklet and the answer sheet, set the timer and sit it like the real exam. Then scan the sheet with your phone and instantly see your score and the topics you need to work on."
+  },
+  {
+   "id": "kitle",
+   "tur": "kitle",
+   "ust": "Who is it for?",
+   "baslik": "From primary school to university, for everyone",
+   "gruplar": [
+    "Primary school",
+    "Middle school",
+    "High school",
+    "Vocational college",
+    "University",
+    "Police Academy",
+    "Military schools",
+    "Courses and tutoring centres",
+    "Students preparing for exams"
+   ],
+   "alt": "15 languages · Every country's grading system · Colourful templates for children",
+   "metin": "For everyone, from primary school teachers to university lecturers, from police academies to military schools, from tutoring centres to students preparing for exams at home. It works in fifteen languages with every country's grading system, and has colourful templates for young learners."
+  },
+  {
+   "id": "guven",
+   "tur": "guven",
+   "ust": "Trust",
+   "baslik": "Student data stays with you",
+   "faydalar": [
+    "Works without internet",
+    "No account needed",
+    "Data only on your device"
+   ],
+   "metin": "Student information is sensitive. Netice works without internet and doesn't ask you to create an account; your data stays only on your own device."
+  },
+  {
+   "id": "kapanis",
+   "tur": "kapanis",
+   "baslik": "From paper to results, in seconds.",
+   "faydalar": [
+    "Scanning is always free",
+    "Try Pro free for 14 days"
+   ],
+   "adres": "neticeoptik.com",
+   "magazalar": "App Store · Google Play · Microsoft Store · Mac",
+   "metin": "Scanning is always free. Try the Pro features free for fourteen days too. Download Netice today, and get your next exam from paper to results in seconds."
+  }
+ ]
+}

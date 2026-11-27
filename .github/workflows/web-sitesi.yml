@@ -7,6 +7,7 @@ name: Web sitesi
 
 on:
   workflow_dispatch:
+  # Kılavuz PDF'leri yenilenince kilavuz-pdf.yml bu işi (aynı dalda) yeniden başlatır.
   push:
     branches: [main, ilk-surum]
     paths:
@@ -79,7 +80,15 @@ jobs:
           sudo apt-get install -y -qq poppler-utils >/dev/null
           flutter pub get
           flutter test tool/ornek_raporlar_test.dart --dart-define=LANGS=tr,en,de,fr,es,it,pt,ru,ar,az,zh,ja,ko,hi,id
-          tool/site/ornek_raporlar.sh site build/site/img/raporlar
+          tool/site/ornek_raporlar.sh site build/site
+
+      - name: Kullanım kılavuzu PDF'leri (kilavuz-pdf sürümü)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p build/site/kilavuz
+          gh release download kilavuz-pdf -D build/site/kilavuz --clobber 2>/dev/null || echo "Henüz kılavuz sürümü yok; bağlantılar GitHub sürümüne gider."
+          ls -la build/site/kilavuz
 
       - name: 15 dile çevir (yalnız değişen cümleler çevrilir)
         env:
