@@ -11,6 +11,7 @@ import '../main.dart';
 import 'compare_screen.dart';
 import 'desktop_shell.dart';
 import 'section_icons.dart';
+import 'service_cards.dart';
 import 'general_stats_screen.dart';
 import 'profile_screen.dart';
 import 'onboarding_screen.dart';
@@ -308,7 +309,7 @@ class _DashboardState extends State<_Dashboard> {
 
     final stats = [
       StatCard(
-        label: tr('Okunan'),
+        label: tr('Okunan kâğıt'),
         value: '${store.readCount}',
         hint: tr('kâğıt · {0} sınav', [store.exams.length]),
         icon: Icons.description_outlined,
@@ -322,14 +323,14 @@ class _DashboardState extends State<_Dashboard> {
         accent: NColors.emerald,
       ),
       StatCard(
-        label: tr('Kontrol'),
+        label: tr('Kontrol bekleyen'),
         value: '$reviewCount',
         hint: reviewCount > 0 ? tr('kâğıt bekliyor') : tr('Her şey yolunda'),
         accent: reviewCount > 0 ? NColors.amber : NColors.emerald,
         icon: reviewCount > 0 ? Icons.priority_high_rounded : Icons.verified_outlined,
       ),
       StatCard(
-        label: tr('Kazanılan süre'),
+        label: tr('Kazandığınız zaman'),
         value: tr('{0} sa {1} dk', [saved.inHours, saved.inMinutes % 60]),
         hint: tr('Kâğıt başına elle ~1,5 dk'),
         icon: Icons.timer_outlined,
@@ -752,7 +753,7 @@ class _QuickActions extends StatelessWidget {
       ),
       (
         Section.compare,
-        tr('Sınıf sınıf analiz'),
+        tr('Şube karşılaştırması'),
         tr('Şubeleri yan yana karşılaştırın'),
         const Color(0xFF0F766E),
         () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CompareScreen())),
@@ -768,7 +769,7 @@ class _QuickActions extends StatelessWidget {
             items[3],
             (
               Section.stats,
-              tr('Genel istatistik'),
+              tr('Genel analiz'),
               '',
               const Color(0xFF0E7490),
               () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const GeneralStatsScreen())),
@@ -785,17 +786,11 @@ class _QuickActions extends StatelessWidget {
           );
         }
         final cols = c.maxWidth >= 860 ? 4 : 2;
-        const gap = 14.0;
-        final w = (c.maxWidth - gap * (cols - 1)) / cols;
-        return Wrap(
-          spacing: gap,
-          runSpacing: gap,
+        return ServiceGrid(
+          columns: cols,
           children: [
             for (final (i, (icon, title, sub, color, run)) in items.indexed)
-              SizedBox(
-                width: w,
-                child: _ActionTile(section: icon, title: title, subtitle: sub, color: color, onTap: run, hero: i == 0),
-              ),
+              ServiceCard(section: icon, title: title, subtitle: sub, accent: color, onTap: run, hero: i == 0),
           ],
         );
       },
@@ -892,92 +887,6 @@ class _MiniAction extends StatelessWidget {
   }
 }
 
-class _ActionTile extends StatefulWidget {
-  final Section section;
-  final String title;
-  final String subtitle;
-  final Color color;
-  final VoidCallback onTap;
-  final bool hero;
-  const _ActionTile({
-    required this.section,
-    required this.title,
-    required this.subtitle,
-    required this.color,
-    required this.onTap,
-    this.hero = false,
-  });
-
-  @override
-  State<_ActionTile> createState() => _ActionTileState();
-}
-
-class _ActionTileState extends State<_ActionTile> {
-  bool _hover = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = Theme.of(context);
-    final hero = widget.hero;
-    final fg = hero ? Colors.white : t.colorScheme.onSurface;
-    final sub = hero ? const Color(0xFFB9C3E2) : t.colorScheme.onSurface.withValues(alpha: 0.62);
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hover = true),
-      onExit: (_) => setState(() => _hover = false),
-      child: AnimatedSlide(
-        duration: const Duration(milliseconds: 160),
-        offset: Offset(0, _hover ? -0.03 : 0),
-        child: Material(
-          color: hero ? null : t.cardTheme.color ?? t.colorScheme.surface,
-          borderRadius: hero ? BorderRadius.circular(18) : null,
-          clipBehavior: Clip.antiAlias,
-          shape: hero
-              ? null
-              : RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  side: BorderSide(color: _hover ? widget.color.withValues(alpha: 0.6) : t.colorScheme.outlineVariant),
-                ),
-          child: Ink(
-            decoration: hero ? const BoxDecoration(gradient: inkGradient) : null,
-            child: InkWell(
-              onTap: widget.onTap,
-              child: Padding(
-                padding: const EdgeInsets.all(18),
-                child: Row(
-                  children: [
-                    SectionIcon(widget.section, size: 48),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            widget.title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(color: fg, fontWeight: FontWeight.w800, fontSize: 15),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            widget.subtitle,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(color: sub, fontSize: 12.5, height: 1.3),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 /// Erken uyarı listesi ve şube karşılaştırması kısayolu.
 class _Insights extends StatelessWidget {
   final List<EarlyWarning> warnings;
@@ -991,70 +900,45 @@ class _Insights extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (school.isEmpty) ...[
-          Card(
-            clipBehavior: Clip.antiAlias,
-            child: ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-              leading: const SectionIcon(Section.school, size: 42),
-              title: Text(
-                school.isEmpty ? tr('Kurum bilgilerini girin') : school.name,
-                style: const TextStyle(fontWeight: FontWeight.w700),
-              ),
-              subtitle: Text(
-                school.isEmpty
-                    ? tr('Raporlarda resmi yazı başlığı olarak kullanılır')
-                    : [
-                        if (school.district.isNotEmpty || school.province.isNotEmpty)
-                          [school.district, school.province].where((e) => e.isNotEmpty).join(' / '),
-                        if (school.subject.isNotEmpty) school.subject,
-                        school.official ? tr('Resmi başlık açık') : tr('Resmi başlık kapalı'),
-                      ].join(' · '),
-              ),
-              trailing: const Icon(Icons.chevron_right),
+        ServiceGrid(
+          columns: 2,
+          children: [
+            ServiceCard(
+              section: Section.compare,
+              title: tr('Şube karşılaştırması'),
+              subtitle: tr('Şubeleri ortalama, yayılım, düzey ve soru soru yan yana görün'),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CompareScreen())),
+            ),
+            ServiceCard(
+              section: Section.stats,
+              title: tr('Genel analiz'),
+              subtitle: tr('Tüm sınıflar ve sınava giren tüm öğrenciler bir arada'),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const GeneralStatsScreen())),
+            ),
+            ServiceCard(
+              section: Section.term,
+              title: tr('Dönem sonu raporu'),
+              subtitle: tr('Dönem sonu notu ve öğrenci kazanım karneleri'),
+              onTap: () async {
+                if (await requirePro(context, ProFeature.termReport) && context.mounted) {
+                  Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TermScreen()));
+                }
+              },
+            ),
+            ServiceCard(
+              section: Section.school,
+              title: school.isEmpty ? tr('Kurum bilgilerini girin') : school.name,
+              subtitle: school.isEmpty
+                  ? tr('Raporlarda resmi yazı başlığı olarak kullanılır')
+                  : [
+                      if (school.district.isNotEmpty || school.province.isNotEmpty)
+                        [school.district, school.province].where((e) => e.isNotEmpty).join(' / '),
+                      if (school.subject.isNotEmpty) school.subject,
+                      school.official ? tr('Resmi başlık açık') : tr('Resmi başlık kapalı'),
+                    ].join(' · '),
               onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SchoolScreen())),
             ),
-          ),
-          const SizedBox(height: 12),
-        ],
-        Card(
-          clipBehavior: Clip.antiAlias,
-          child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-            leading: const SectionIcon(Section.compare, size: 42),
-            title: Text(tr('Sınıf sınıf analiz'), style: TextStyle(fontWeight: FontWeight.w700)),
-            subtitle: Text(tr('Şubeleri ortalama, yayılım, düzey ve soru soru yan yana görün')),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CompareScreen())),
-          ),
-        ),
-        const SizedBox(height: 12),
-        Card(
-          clipBehavior: Clip.antiAlias,
-          child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-            leading: const SectionIcon(Section.stats, size: 42),
-            title: Text(tr('Genel istatistik'), style: TextStyle(fontWeight: FontWeight.w700)),
-            subtitle: Text(tr('Tüm sınıflar ve sınava giren tüm öğrenciler bir arada')),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const GeneralStatsScreen())),
-          ),
-        ),
-        const SizedBox(height: 12),
-        Card(
-          clipBehavior: Clip.antiAlias,
-          child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-            leading: const SectionIcon(Section.term, size: 42),
-            title: Text(tr('Dönem raporu'), style: TextStyle(fontWeight: FontWeight.w700)),
-            subtitle: Text(tr('Dönem sonu notu ve öğrenci kazanım karneleri')),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () async {
-              if (await requirePro(context, ProFeature.termReport) && context.mounted) {
-                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TermScreen()));
-              }
-            },
-          ),
+          ],
         ),
         if (warnings.isNotEmpty) ...[
           const SizedBox(height: 12),

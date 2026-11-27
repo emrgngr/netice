@@ -2983,5 +2983,10 @@
 "{0} kodlama alanı (doğum tarihi, cinsiyet gibi)": "{0} campos codificados (como data de nascimento, sexo)",
 "{0} seçenekten biri okunur.": "Uma de {0} opções é lida.",
 "{0} sütun; her sütundan bir karakter okunur ({1}).": "{0} colunas; um caractere é lido de cada coluna ({1}).",
-"Örn. Kadın, Erkek": "Ex.: Feminino, Masculino"
+"Örn. Kadın, Erkek": "Ex.: Feminino, Masculino",
+"Ana ekrandaki \"Dönem sonu raporu\"nu açın; sınıfı ve dönemi seçin.": "Abra \"Relatório de fim de período\" na tela inicial; escolha a turma e o período.",
+"Ana ekrandaki \"Genel analiz\" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.": "\"Análise geral\" na tela inicial mostra juntos os resultados de todas as turmas e de todos os alunos que fizeram provas.",
+"Dönem sonu raporu": "Relatório de fim de período",
+"Genel analiz": "Análise geral",
+"Kazandığınız zaman": "Tempo economizado"
 }

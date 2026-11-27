@@ -44,7 +44,7 @@ enum AdPage {
   classes('siniflar', 'Sınıflar'),
   exam('sinav', 'Sınav sonuçları'),
   student('ogrenci', 'Öğrenci ayrıntısı'),
-  term('donem', 'Dönem raporu'),
+  term('donem', 'Dönem sonu raporu'),
   compare('karsilastirma', 'Şube karşılaştırması'),
   help('yardim', 'Yardım'),
   profile('profil', 'Profil'),

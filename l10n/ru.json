@@ -3054,5 +3054,10 @@
 "{0} kodlama alanı (doğum tarihi, cinsiyet gibi)": "Полей кодирования: {0} (дата рождения, пол и т. п.)",
 "{0} seçenekten biri okunur.": "Читается один из вариантов: {0}.",
 "{0} sütun; her sütundan bir karakter okunur ({1}).": "Столбцов: {0}; из каждого столбца читается один символ ({1}).",
-"Örn. Kadın, Erkek": "Например, Женский, Мужской"
+"Örn. Kadın, Erkek": "Например, Женский, Мужской",
+"Ana ekrandaki \"Dönem sonu raporu\"nu açın; sınıfı ve dönemi seçin.": "Откройте «Итоговый отчёт за период» на главном экране; выберите класс и период.",
+"Ana ekrandaki \"Genel analiz\" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.": "«Общий анализ» на главном экране показывает вместе результаты всех классов и всех учеников, писавших работы.",
+"Dönem sonu raporu": "Итоговый отчёт за период",
+"Genel analiz": "Общий анализ",
+"Kazandığınız zaman": "Сэкономленное время"
 }

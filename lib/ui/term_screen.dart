@@ -145,7 +145,7 @@ class _TermScreenState extends State<TermScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(tr('Dönem raporu')),
+        title: Text(tr('Dönem sonu raporu')),
         actions: [IconButton(tooltip: tr('Excel'), onPressed: excel, icon: const Icon(Icons.table_view_outlined))],
       ),
       bottomNavigationBar: const AdBannerBar(AdPage.term),
