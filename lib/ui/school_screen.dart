@@ -6,6 +6,7 @@ import '../core/pro.dart';
 import '../core/titles.dart';
 import '../core/letterheads.dart';
 import 'pro_screen.dart';
+import 'service_cards.dart';
 import 'widgets.dart';
 import '../l10n/l10n.dart';
 
@@ -220,7 +221,7 @@ class _SchoolScreenState extends State<SchoolScreen> {
         ),
       ]),
       body: Watermark(
-        child: ListView(padding: EdgeInsets.fromLTRB(20, 8, 20, 40 + MediaQuery.paddingOf(context).bottom), children: [
+        child: SectionedList(padding: EdgeInsets.fromLTRB(20, 8, 20, 40 + MediaQuery.paddingOf(context).bottom), children: [
           Text(tr('Bu bilgiler sınav raporu, karne, not listesi, grup karşılaştırması ve optik formlarda başlık olarak yer alır. Boş bıraktığınız alanlar basılmaz.'),
               style: TextStyle(color: muted)),
           const SizedBox(height: 16),

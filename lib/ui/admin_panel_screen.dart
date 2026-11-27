@@ -7,6 +7,7 @@ import 'common_exam_ui.dart';
 import 'compare_screen.dart';
 import 'license_screen.dart';
 import 'student_detail_screen.dart';
+import 'service_cards.dart';
 import 'theme.dart';
 import 'widgets.dart';
 
@@ -47,7 +48,7 @@ class AdminPanelScreen extends StatelessWidget {
         ],
       ),
       body: Watermark(
-        child: ListView(padding: EdgeInsets.fromLTRB(20, 8, 20, 40 + MediaQuery.paddingOf(context).bottom), children: [
+        child: SectionedList(padding: EdgeInsets.fromLTRB(20, 8, 20, 40 + MediaQuery.paddingOf(context).bottom), children: [
           if (!store.isInstitutionAdmin)
             Card(
               color: NColors.amber.withValues(alpha: 0.12),

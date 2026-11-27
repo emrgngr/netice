@@ -278,9 +278,17 @@ class SectionedList extends StatelessWidget {
       while (items.isNotEmpty && items.last is SizedBox) {
         items.removeLast();
       }
-      return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        for (final (i, w) in items.indexed) ...[if (i > 0) const Divider(height: 1), w],
-      ]);
+      // Kartlar panelle birleşir (aralarında ince çizgi); açıklama, alan ve
+      // düğme gibi diğer öğeler kenardan içeride durur.
+      final out = <Widget>[];
+      for (final (i, w) in items.indexed) {
+        final card = w is Card;
+        if (card && i > 0 && items[i - 1] is Card) out.add(const Divider(height: 1));
+        final first = i == 0;
+        final last = i == items.length - 1;
+        out.add(card ? w : Padding(padding: EdgeInsets.fromLTRB(16, first ? 14 : 6, 16, last ? 14 : 6), child: w));
+      }
+      return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: out);
     }
 
     return ListView(padding: padding, children: [
