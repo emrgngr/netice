@@ -1964,5 +1964,17 @@
  "{0} harflik ad soyad alanı": "campo nome di {0} lettere",
  "Öğrenci numarası bu olsun": "Usa come numero studente",
  "İspanyol alfabesi (Ñ)": "Alfabeto spagnolo (Ñ)",
- "Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "Se il modulo ha una griglia di lettere per il nome o un secondo campo numero come il codice fiscale, trova anche questi. Se il numero non è nell'elenco, lo studente viene riconosciuto da quel numero o dal nome sul foglio; le lettere seguono la lingua dell'app."
+ "Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "Se il modulo ha una griglia di lettere per il nome o un secondo campo numero come il codice fiscale, trova anche questi. Se il numero non è nell'elenco, lo studente viene riconosciuto da quel numero o dal nome sul foglio; le lettere seguono la lingua dell'app.",
+ "Alan {0}": "Campo {0}",
+ "Alanın adı": "Nome del campo",
+ "Bu fotoğrafta okunan: {0}": "Letto in questa foto: {0}",
+ "Diğer kodlama alanları": "Altri campi codificati",
+ "Doğum tarihi": "Data di nascita",
+ "Doğum tarihi, cinsiyet, eğitim, sınıf gibi diğer kodlama alanları da bulunur ve her kâğıtta okunur. \"Diğer kodlama alanları\" bölümünde alana ad verin; seçenekli alanlarda seçeneklerin adlarını sırayla yazın (örn. Kadın, Erkek). Okunanlar öğrencinin sonucunda ve Excel listesinde görünür.": "Anche altri campi codificati come data di nascita, sesso, titolo di studio o classe vengono trovati e letti su ogni foglio. Date un nome al campo in \"Altri campi codificati\"; nei campi a scelta scrivete i nomi delle opzioni in ordine (es. Femmina, Maschio). I valori compaiono nel risultato dello studente e nell'elenco Excel.",
+ "Formda doğum tarihi, cinsiyet, sınıf, şube gibi başka kodlama alanları varsa kendiliğinden bulunur ve her kâğıtta okunur.": "Se il modulo ha altri campi codificati come data di nascita, sesso, classe o sezione, vengono trovati da soli e letti su ogni foglio.",
+ "Seçeneklerin adları (sırayla, virgülle)": "Nomi delle opzioni (in ordine, separati da virgola)",
+ "{0} kodlama alanı (doğum tarihi, cinsiyet gibi)": "{0} campi codificati (come data di nascita, sesso)",
+ "{0} seçenekten biri okunur.": "Viene letta una di {0} opzioni.",
+ "{0} sütun; her sütundan bir karakter okunur ({1}).": "{0} colonne; da ogni colonna si legge un carattere ({1}).",
+ "Örn. Kadın, Erkek": "Es. Femmina, Maschio"
 }

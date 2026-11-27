@@ -139,6 +139,7 @@ String exportCommonResults(AppStore store, Exam exam) {
           openScores: s.openScores,
           readNumber: s.readNumber,
           readName: s.readName,
+          fields: s.fields,
         ).toJson(),
     ],
   });
@@ -191,6 +192,7 @@ CommonImportSummary importCommonResults(AppStore store, String text) {
           openScores: s.openScores,
           readNumber: s.readNumber,
           readName: s.readName,
+          fields: s.fields,
         );
       }(),
   ];

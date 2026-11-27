@@ -2971,5 +2971,17 @@
 "{0} harflik ad soyad alanı": "kolom nama {0} huruf",
 "Öğrenci numarası bu olsun": "Jadikan nomor siswa",
 "İspanyol alfabesi (Ñ)": "Alfabet Spanyol (Ñ)",
-"Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "Jika lembar memiliki kisi huruf untuk nama atau kolom nomor kedua seperti NIK, keduanya juga ditemukan. Jika nomor tidak ada di daftar, siswa dikenali dari nomor itu atau dari nama di lembar; huruf mengikuti bahasa aplikasi."
+"Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "Jika lembar memiliki kisi huruf untuk nama atau kolom nomor kedua seperti NIK, keduanya juga ditemukan. Jika nomor tidak ada di daftar, siswa dikenali dari nomor itu atau dari nama di lembar; huruf mengikuti bahasa aplikasi.",
+"Alan {0}": "Kolom {0}",
+"Alanın adı": "Nama kolom",
+"Bu fotoğrafta okunan: {0}": "Terbaca di foto ini: {0}",
+"Diğer kodlama alanları": "Kolom kode lainnya",
+"Doğum tarihi": "Tanggal lahir",
+"Doğum tarihi, cinsiyet, eğitim, sınıf gibi diğer kodlama alanları da bulunur ve her kâğıtta okunur. \"Diğer kodlama alanları\" bölümünde alana ad verin; seçenekli alanlarda seçeneklerin adlarını sırayla yazın (örn. Kadın, Erkek). Okunanlar öğrencinin sonucunda ve Excel listesinde görünür.": "Kolom kode lain seperti tanggal lahir, jenis kelamin, pendidikan, dan kelas juga ditemukan dan dibaca di setiap lembar. Beri nama kolom di \"Kolom kode lainnya\"; untuk kolom pilihan, tulis nama pilihan secara berurutan (mis. Perempuan, Laki-laki). Hasilnya tampil di hasil siswa dan di daftar Excel.",
+"Formda doğum tarihi, cinsiyet, sınıf, şube gibi başka kodlama alanları varsa kendiliğinden bulunur ve her kâğıtta okunur.": "Jika lembar memiliki kolom kode lain seperti tanggal lahir, jenis kelamin, kelas, atau rombel, kolom itu ditemukan otomatis dan dibaca di setiap lembar.",
+"Seçeneklerin adları (sırayla, virgülle)": "Nama pilihan (berurutan, dipisah koma)",
+"{0} kodlama alanı (doğum tarihi, cinsiyet gibi)": "{0} kolom kode (seperti tanggal lahir, jenis kelamin)",
+"{0} seçenekten biri okunur.": "Satu dari {0} pilihan dibaca.",
+"{0} sütun; her sütundan bir karakter okunur ({1}).": "{0} kolom; satu karakter dibaca dari setiap kolom ({1}).",
+"Örn. Kadın, Erkek": "Mis. Perempuan, Laki-laki"
 }

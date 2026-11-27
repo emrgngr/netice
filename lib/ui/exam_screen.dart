@@ -773,6 +773,18 @@ void showSheetDetail(BuildContext context, Exam exam, Result r) {
               label: Text(tr('Bu okumayı sil')),
             ),
           ),
+          // Formun diğer kodlama alanlarından okunanlar (doğum tarihi, cinsiyet…).
+          if (r.sheet.fields.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Wrap(spacing: 16, runSpacing: 4, children: [
+                for (final e in r.sheet.fields.entries)
+                  Text.rich(TextSpan(children: [
+                    TextSpan(text: '${e.key}: ', style: Theme.of(ctx).textTheme.bodySmall),
+                    TextSpan(text: e.value.replaceAll('?', '•'), style: const TextStyle(fontWeight: FontWeight.w700)),
+                  ])),
+              ]),
+            ),
           const SizedBox(height: 12),
           Wrap(spacing: 6, runSpacing: 6, children: [
             for (var i = 0; i < exam.questionCount; i++)

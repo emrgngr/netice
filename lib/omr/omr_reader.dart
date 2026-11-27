@@ -138,6 +138,9 @@ class OmrResult {
   /// Diğer numara alanlarından okunan numaralar (TC kimlik no vb.).
   final List<String> otherNumbers;
 
+  /// Diğer kodlama alanlarından okunanlar (alan adı → değer; doğum tarihi, cinsiyet…).
+  final Map<String, String> fields;
+
   const OmrResult({
     required this.questions,
     required this.studentNumber,
@@ -148,6 +151,7 @@ class OmrResult {
     this.mini = false,
     this.name,
     this.otherNumbers = const [],
+    this.fields = const {},
   });
 
   List<Answer> get answers => questions.map((q) => q.answer).toList();

@@ -3042,5 +3042,17 @@
 "{0} harflik ad soyad alanı": "{0} 文字の氏名欄",
 "Öğrenci numarası bu olsun": "これを生徒番号にする",
 "İspanyol alfabesi (Ñ)": "スペイン語アルファベット（Ñ）",
-"Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "用紙に氏名の文字欄や身分証番号などの2つ目の番号欄があれば、それも見つけます。番号が名簿にない場合は、その番号や用紙の氏名から生徒を判別します。文字はアプリの言語に合わせて選ばれます。"
+"Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "用紙に氏名の文字欄や身分証番号などの2つ目の番号欄があれば、それも見つけます。番号が名簿にない場合は、その番号や用紙の氏名から生徒を判別します。文字はアプリの言語に合わせて選ばれます。",
+"Alan {0}": "項目 {0}",
+"Alanın adı": "項目名",
+"Bu fotoğrafta okunan: {0}": "この写真で読み取った値：{0}",
+"Diğer kodlama alanları": "その他のマーク欄",
+"Doğum tarihi": "生年月日",
+"Doğum tarihi, cinsiyet, eğitim, sınıf gibi diğer kodlama alanları da bulunur ve her kâğıtta okunur. \"Diğer kodlama alanları\" bölümünde alana ad verin; seçenekli alanlarda seçeneklerin adlarını sırayla yazın (örn. Kadın, Erkek). Okunanlar öğrencinin sonucunda ve Excel listesinde görünür.": "生年月日、性別、学歴、クラスなどその他のマーク欄も見つけ、各用紙で読み取ります。「その他のマーク欄」で項目に名前を付け、選択式の欄では選択肢の名前を順に入力してください（例：女性, 男性）。読み取った値は生徒の結果と Excel 一覧に表示されます。",
+"Formda doğum tarihi, cinsiyet, sınıf, şube gibi başka kodlama alanları varsa kendiliğinden bulunur ve her kâğıtta okunur.": "用紙に生年月日、性別、学年、組などその他のマーク欄があれば自動で見つけ、各用紙で読み取ります。",
+"Seçeneklerin adları (sırayla, virgülle)": "選択肢の名前（順に、カンマ区切り）",
+"{0} kodlama alanı (doğum tarihi, cinsiyet gibi)": "マーク欄 {0} 個（生年月日、性別など）",
+"{0} seçenekten biri okunur.": "{0} 個の選択肢から1つを読み取ります。",
+"{0} sütun; her sütundan bir karakter okunur ({1}).": "{0} 列。各列から1文字を読み取ります（{1}）。",
+"Örn. Kadın, Erkek": "例：女性, 男性"
 }

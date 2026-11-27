@@ -370,13 +370,16 @@ String resultsCsv(Exam exam, List<Result> results, Map<String, Student> students
   final stamp = '${L10n.date(now)} ${two(now.hour)}:${two(now.minute)}';
   String n(double v) => v.toStringAsFixed(2).replaceAll('.', L10n.decimal);
   final extra = exam.hasOpen ? exam.openQuestions.length + 2 : 0;
+  // Başka firma formlarındaki diğer kodlama alanları (doğum tarihi, cinsiyet…): en sonda.
+  final fieldNames = <String>{for (final r in results) ...r.sheet.fields.keys}.toList();
   final rows = <List<String>>[
     [tr('Sıra'), tr('Okul no'), 'Ad', tr('Soyad'), tr('Sınıf'), tr('Doğru'), tr('Yanlış'), tr('Boş'), tr('Net'),
       if (exam.hasOpen) ...[tr('Test puanı'), for (final q in exam.openQuestions) q.label, tr('Klasik toplam')],
       tr('Puan'), tr('Başarı %'), tr('Yüzdelik'),
       tr('T puanı'), tr('Düzey'),
       for (final o in report.outcomes) tr('Kazanım: {0} %', [o.code]),
-      for (final q in exam.questions) 'S${q.no}'],
+      for (final q in exam.questions) 'S${q.no}',
+      ...fieldNames],
     for (final st in report.standings)
       () {
         final r = st.result;
@@ -405,6 +408,7 @@ String resultsCsv(Exam exam, List<Result> results, Map<String, Student> students
           for (final o in report.outcomes) n(o.rateOf(exam, r) * 100),
           for (final a in r.sheet.answers)
             a.marked.isEmpty ? '' : a.marked.map((c) => String.fromCharCode(65 + c)).join('/'),
+          for (final f in fieldNames) r.sheet.fields[f] ?? '',
         ];
       }(),
     [],

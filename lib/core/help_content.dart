@@ -70,6 +70,7 @@ List<GuideSection> get guideSections => <GuideSection>[
       tr('Ayarlar > "Başka firma formları" > "Yeni şablon"a dokunun ve formun fotoğrafını seçin. Kâğıdı koyu bir zemine koyun; dört kenarı görünsün.'),
       tr('Netice formdaki cevap dairelerini, öğrenci numarasını ve kitapçık türünü kendisi bulur. Renkli halkalar dairelerin üstündeyse doğru bulunmuştur; soru numarası farklıysa bloğa dokunup ilk soru numarasını değiştirin.'),
       tr('Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.'),
+      tr('Doğum tarihi, cinsiyet, eğitim, sınıf gibi diğer kodlama alanları da bulunur ve her kâğıtta okunur. "Diğer kodlama alanları" bölümünde alana ad verin; seçenekli alanlarda seçeneklerin adlarını sırayla yazın (örn. Kadın, Erkek). Okunanlar öğrencinin sonucunda ve Excel listesinde görünür.'),
       tr('Yanlış bulunan bloğu kaldırıp "Cevap bloğu ekle" ile elle işaretleyin: ilk sorunun A şıkkına, sonra son sorunun son şıkkına dokunun.'),
       tr('Dolu bir formun fotoğrafıyla "Bu fotoğrafla dene"ye basın; yeşil daireler doğru yerlerdeyse kaydedin.'),
       tr('Sınav ayarları > "Form türü"nden şablonu seçin. Okutma, Netice formundaki gibi çalışır.'),
