@@ -1,106 +1,186 @@
 {
- "_not": "Eğitim ve tanıtım videosu (16:9, tool/video/egitim.py). Her sahne: 'metin' seslendirilir; 'ekran' telefon karesi (build/video/frames/<dil>/<ad>.png) ya da 'masaustu:<ad>' (build/screenshots/<dil>/masaustu_<ad>.png); 'hedef' hedefler.json'daki işaretin sırası; 'faydalar' sırayla beliren fayda maddeleri.",
+ "_not": "Eğitim ve tanıtım videosu (16:9, tool/video/egitim.py). Hikâye: sorun → tek uygulama vaadi → dört aşama (Hazırla, Okut, Analiz et, Raporla) → herkes için → güven → çağrı. Her sahne: 'metin' seslendirilir; 'ekran' telefon karesi (build/video/frames/<dil>/<ad>.png) ya da 'masaustu:<ad>' (build/screenshots/<dil>/masaustu_<ad>.png); 'hedef' hedefler.json'daki işaretin sırası (null: işaret yok); 'faydalar' sırayla beliren maddeler; 'rozetler' ekranın çevresinde beliren kısa etiketler; 'adim' aşama numarası (aynı aşamada birden çok sahne olabilir). 'dongu' sahnesinde 'kartlar' [başlık, alt yazı]; 'kitle' sahnesinde 'gruplar' ve 'alt'.",
  "sahneler": [
   {
    "id": "kanca",
    "tur": "kanca",
-   "ust": "Öğretmenin en uzun 45 dakikası",
-   "eski": "45 dakika",
-   "yeni": "1 dakika",
-   "alt": "30 kişilik bir sınıfın optik kâğıtları: elle okuma, puanlama ve rapor",
-   "metin": "Otuz kişilik bir sınıfın optik kâğıtlarını elle okumak, puanlamak ve rapora dökmek yaklaşık kırk beş dakika sürer. Netice ile aynı iş bir dakikada biter."
+   "ust": "Bir sınavın öğretmene gerçek maliyeti",
+   "eski": "Saatler",
+   "yeni": "Dakikalar",
+   "alt": "Soru yazmak, kitapçık dizmek, kâğıt okumak, analiz yapmak, rapor yazmak",
+   "metin": "Soru yazmak, kitapçık dizmek, kâğıtları tek tek okumak, analiz yapmak, rapor yazmak. Tek bir sınav, öğretmene saatlerce iş çıkarır. Netice ile bu saatler dakikalara iner."
   },
   {
    "id": "vaat",
    "tur": "vaat",
    "ust": "Netice nedir?",
-   "baslik": "Telefonunuz artık bir optik okuyucu",
-   "faydalar": ["Optik okuyucu cihaz gerekmez", "Kurulum ve hesap açma yok", "Telefon, tablet ve bilgisayarda"],
+   "baslik": "Sınavın tamamı, tek uygulamada",
+   "faydalar": [
+    "Sorudan karneye her adım",
+    "Her türlü optik formu okur",
+    "Telefon, tablet ve bilgisayarda"
+   ],
    "ekran": "02_ana",
-   "metin": "Netice, telefonunuzu bir optik okuyucuya dönüştürür. Ek cihaz almanız ya da hesap açmanız gerekmez. Uygulamayı indirin, ilk sınavınızı hemen okutun."
+   "metin": "Netice, sınavın bütün yolculuğunu tek uygulamada toplar: soruyu hazırlar, kâğıdı okur, sonucu analiz eder ve raporu yazar. Telefonunuzda, tabletinizde ve bilgisayarınızda."
   },
   {
-   "id": "adim1",
+   "id": "dongu",
+   "tur": "dongu",
+   "ust": "Dört adımda",
+   "baslik": "Hazırlayın, okutun, anlayın, paylaşın",
+   "kartlar": [
+    [
+     "Hazırla",
+     "Nottan soru, kitapçık ve cevap anahtarı"
+    ],
+    [
+     "Okut",
+     "Her optik form, kâğıt başına saniyeler"
+    ],
+    [
+     "Analiz et",
+     "Kişi, sınıf ve okul düzeyinde"
+    ],
+    [
+     "Raporla",
+     "Resmî rapor, karne ve veli bilgisi"
+    ]
+   ],
+   "metin": "Netice dört adımda çalışır. Hazırlayın, okutun, analiz edin, raporlayın. Şimdi her adımda size ne kazandırdığına bakalım."
+  },
+  {
+   "id": "hazirla_soru",
    "tur": "adim",
    "adim": 1,
-   "ust": "Sınavı kurun",
-   "baslik": "Sınavı bir dakikada hazırlayın",
-   "faydalar": ["Soru ve şık sayısını seçin", "Cevap anahtarını girin", "A–H kitapçık türleri"],
-   "ekran": "04_yeni_sinav",
-   "metin": "Birinci adım: sınavı kurun. Soru ve şık sayısını seçin, cevap anahtarını girin. Farklı kitapçık türleri kullanıyorsanız onları da burada tanımlarsınız."
+   "ust": "Hazırla",
+   "baslik": "Ders notunuzdan dakikalar içinde soru",
+   "faydalar": [
+    "PDF, Word, Excel ya da fotoğraf",
+    "Çoktan seçmeli, boşluk doldurma, eşleştirme",
+    "Kolay, orta ve zor düzeyde"
+   ],
+   "rozetler": [
+    "Doğru / Yanlış",
+    "Klasik",
+    "Sıralama"
+   ],
+   "ekran": "k_yz_soru",
+   "hedef": null,
+   "metin": "Ders notunuzu yükleyin; PDF, Word, Excel ya da bir sayfa fotoğrafı olabilir. Netice bu nottan çoktan seçmeli, boşluk doldurmalı, eşleştirmeli ve klasik sorular hazırlar. Siz yalnızca beğendiklerinizi seçersiniz."
   },
   {
-   "id": "adim2",
+   "id": "hazirla_kitapcik",
+   "tur": "adim",
+   "adim": 1,
+   "ust": "Hazırla",
+   "baslik": "Kitapçık, cevap anahtarı ve optik form",
+   "faydalar": [
+    "A'dan H'ye karışık kitapçık türleri",
+    "Konulara göre ayrıntılı cevap anahtarı",
+    "Sınava özel optik form"
+   ],
+   "ekran": "k_kitapcik_turu",
+   "metin": "Soru bankanızdan birkaç dokunuşla soru kitapçığı oluşturun. Sekiz farklı kitapçık türü, konulara göre ayrıntılı cevap anahtarı ve sınava özel optik form aynı anda hazırlanır. Word ya da PDF olarak alırsınız."
+  },
+  {
+   "id": "okut",
    "tur": "adim",
    "adim": 2,
-   "ust": "Formu yazdırın",
-   "baslik": "Kendi optik formunuzu basın",
-   "faydalar": ["Sıradan A4 kâğıt yeterli", "Kurumunuzun adıyla", "Yayınevi formları da okunur"],
-   "ekran": "05_form_yazdir",
-   "metin": "İkinci adım: formu yazdırın. Özel kâğıt gerekmez; form sıradan A4 kâğıda, kurumunuzun adıyla basılır. Yayınevi formlarını kullanıyorsanız Netice onları da tanır."
+   "ust": "Okut",
+   "baslik": "Hangi optik form olursa olsun",
+   "faydalar": [
+    "Kendi formunuz ya da yayınevi formu",
+    "T.C. kimlik no, ad soyad, doğum tarihi",
+    "Taranmış PDF'leri toplu okuma"
+   ],
+   "ekran": "07_okut_ekrani",
+   "metin": "Kamerayı kâğıda tutun; her kâğıt birkaç saniyede okunur. Kendi formunuz, yayınevi formu ya da kurum formu fark etmez. Kimlik numarası, ad soyad, doğum tarihi gibi tüm kodlamalı alanlar da okunur. Taranmış PDF dosyalarını toplu yükleyebilirsiniz."
   },
   {
-   "id": "adim3",
+   "id": "analiz",
+   "tur": "masaustu",
+   "adim": 3,
+   "ust": "Analiz et",
+   "baslik": "Uluslararası ölçme ölçütleriyle analiz",
+   "faydalar": [
+    "Her soru için güçlük ve ayırt edicilik",
+    "Güvenirlik, ölçme hatası, çeldiriciler",
+    "Konu ve kazanım bazında başarı"
+   ],
+   "rozetler": [
+    "KR-20 güvenirlik",
+    "Ayırt edicilik",
+    "Ölçme hatası"
+   ],
+   "ekran": "masaustu:analiz",
+   "metin": "Netice, ölçme ve değerlendirmede dünyada kabul gören yöntemleri kullanır. Her sorunun güçlüğünü ve ayırt ediciliğini, sınavın güvenirliğini ve çeldiricilerin işe yarayıp yaramadığını gösterir. Hangi konunun, hangi kazanımın eksik kaldığını tek bakışta görürsünüz."
+  },
+  {
+   "id": "analiz_genel",
    "tur": "adim",
    "adim": 3,
-   "ust": "Okutun",
-   "baslik": "Kâğıt başına birkaç saniye",
-   "faydalar": ["Kamerayı kâğıda tutun", "Taranmış PDF'leri toplu okutun", "Şüpheli işaretler size sorulur"],
-   "ekran": "07_okut_ekrani",
-   "metin": "Üçüncü adım: okutun. Kamerayı kâğıda tutmanız yeterli; her kâğıt birkaç saniyede okunur. Taranmış PDF dosyalarını toplu yükleyebilirsiniz. Emin olunamayan işaretler size tek tek gösterilir."
-  },
-  {
-   "id": "adim4",
-   "tur": "adim",
-   "adim": 4,
-   "ust": "Sonuçlar",
-   "baslik": "Puanlar ve sıralama anında hazır",
-   "faydalar": ["Doğru, yanlış, boş ve puan", "Ülkenize uygun not sistemi", "Excel'e tek dokunuşla"],
-   "ekran": "08_sonuclar",
-   "metin": "Dördüncü adım: sonuçlar. Okuma biter bitmez her öğrencinin doğru, yanlış, boş sayısı ve puanı hazırdır. Listeyi tek dokunuşla Excel'e aktarırsınız."
-  },
-  {
-   "id": "adim5",
-   "tur": "adim",
-   "adim": 5,
-   "ust": "Analiz",
-   "baslik": "Sınıfın nerede zorlandığını görün",
-   "faydalar": ["Soru soru başarı oranı", "Konu ve kazanım analizi", "Tekrar edilecek konular"],
-   "ekran": "09_analiz",
-   "metin": "Beşinci adım: analiz. Öğrencilerin hangi soruda, hangi konuda zorlandığını tek bakışta görürsünüz. Böylece bir sonraki dersinizi tahminle değil, veriyle planlarsınız."
-  },
-  {
-   "id": "adim6",
-   "tur": "adim",
-   "adim": 6,
-   "ust": "Paylaşın",
-   "baslik": "Karne ve veli bilgilendirmesi",
-   "faydalar": ["Öğrenci gelişim grafiği", "Resmi başlıklı PDF raporlar", "Veliye WhatsApp ile gönderim"],
+   "ust": "Analiz et",
+   "baslik": "Öğrenciden okula, her düzeyde",
+   "faydalar": [
+    "Öğrencinin gelişim çizgisi",
+    "Şube karşılaştırması",
+    "Tüm okulun genel analizi"
+   ],
    "ekran": "10_ogrenci",
-   "metin": "Altıncı adım: paylaşın. Öğrencinin gelişimini izleyin, resmi başlıklı raporları ve karneleri PDF olarak alın, sonuçları velilere tek dokunuşla gönderin."
+   "metin": "Analiz yalnızca sınıfla sınırlı değil. Her öğrencinin gelişimini izleyin, şubeleri karşılaştırın, tüm okulun genel tablosunu büyük ekranda inceleyin. Kimin desteğe ihtiyacı olduğunu Netice size söyler."
   },
   {
-   "id": "masaustu",
+   "id": "raporla",
    "tur": "masaustu",
-   "ust": "Bilgisayarda",
-   "baslik": "Büyük ekranda tüm sınıflarınız",
-   "faydalar": ["Windows ve Mac", "Şube karşılaştırması ve genel analiz", "Telefonla Wi-Fi üzerinden eşitleme"],
-   "ekran": "masaustu:ana_sayfa",
-   "metin": "Bilgisayarda çalışmayı seviyorsanız Netice Windows ve Mac'te de var. Şubeleri karşılaştırın, genel analizi büyük ekranda inceleyin, telefonunuzla aynı Wi-Fi üzerinden eşitleyin."
+   "adim": 4,
+   "ust": "Raporla",
+   "baslik": "Resmî rapor tek dokunuşla hazır",
+   "faydalar": [
+    "Resmî yazı başlığı ve imza alanı",
+    "Karne, dönem sonu ve kazanım raporu",
+    "Veliye WhatsApp, Classroom ve Moodle"
+   ],
+   "ekran": "masaustu:donem",
+   "metin": "Analizler, kurumunuzun resmî yazı başlığı ve imza alanıyla rapora dönüşür. Karne, dönem sonu raporu ve kazanım karnesi tek dokunuşla hazırdır. Sonuçları velilere gönderin ya da Classroom ve Moodle'a aktarın."
+  },
+  {
+   "id": "kitle",
+   "tur": "kitle",
+   "ust": "Kimler için?",
+   "baslik": "İlkokuldan üniversiteye, herkes için",
+   "gruplar": [
+    "İlkokul",
+    "Ortaokul",
+    "Lise",
+    "Meslek yüksekokulu",
+    "Üniversite",
+    "Polis Akademisi",
+    "Askerî okullar",
+    "Kurs ve dershaneler"
+   ],
+   "alt": "15 dil · Her ülkenin not sistemi · Çocuklara özel renkli şablonlar",
+   "metin": "İlkokul öğretmeninden üniversite hocasına, polis akademisinden askerî okullara ve kurslara kadar herkes için. On beş dilde, her ülkenin not sistemiyle çalışır; küçük öğrencilere özel renkli şablonlar da vardır."
   },
   {
    "id": "guven",
    "tur": "guven",
    "ust": "Güven",
    "baslik": "Öğrenci verileri sizde kalır",
-   "faydalar": ["İnternet olmadan çalışır", "Veriler yalnızca cihazınızda", "Reklam ağı ve izleme yok"],
-   "metin": "Öğrenci bilgileri hassastır. Netice internet olmadan çalışır; verileriniz yalnızca sizin cihazınızda kalır ve hiçbir reklam ağına gönderilmez."
+   "faydalar": [
+    "İnternet olmadan çalışır",
+    "Hesap açmak gerekmez",
+    "Veriler yalnızca cihazınızda"
+   ],
+   "metin": "Öğrenci bilgileri hassastır. Netice internet olmadan çalışır, hesap açmanızı istemez; verileriniz yalnızca sizin cihazınızda kalır."
   },
   {
    "id": "kapanis",
    "tur": "kapanis",
    "baslik": "Kâğıttan sonuca, saniyeler içinde.",
-   "faydalar": ["Okumak her zaman ücretsiz", "Pro'yu 14 gün ücretsiz deneyin"],
+   "faydalar": [
+    "Okumak her zaman ücretsiz",
+    "Pro'yu 14 gün ücretsiz deneyin"
+   ],
    "adres": "neticeoptik.com",
    "magazalar": "App Store · Google Play · Microsoft Store · Mac",
    "metin": "Okumak her zaman ücretsiz. Pro özelliklerini de on dört gün ücretsiz deneyin. Netice'yi bugün indirin; bir sonraki sınavınız kâğıttan sonuca saniyeler içinde hazır olsun."
