@@ -355,7 +355,7 @@ def scene_promise(frame, sc, t, dur):
     lap = laptop_layer('ana_sayfa', 900)
     place_device(frame, lap, cx - 40, 470, t, dur, appear=0.15, zoom=0.02)
     ph = phone_layer(sc['ekran'], 560)
-    place_device(frame, ph, cx - 400, 580, t, dur, appear=0.55, zoom=0.03)
+    place_device(frame, ph, cx - 290, 590, t, dur, appear=0.55, zoom=0.03)
 
 
 RENDER = {'adim': scene_step, 'masaustu': scene_step, 'kanca': scene_hook, 'vaat': scene_promise,
