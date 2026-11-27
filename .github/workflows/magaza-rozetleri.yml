@@ -1,5 +1,7 @@
-# Google Play ve App Store'un resmî "indir" rozetlerini (15 dil) indirip
-# assets/badges/ klasörüne koyar ve aynı dala gönderir. Rozetler resmî
+# Google Play, App Store, Mac App Store ve Microsoft Store'un resmî "indir"
+# rozetlerini (15 dil) indirip assets/badges/ klasörüne koyar. Uygulama
+# içinde SVG çizilemediği için SVG rozetlerin PNG kopyası da üretilir
+# (yükseklik 180 px, değiştirilmeden). ve aynı dala gönderir. Rozetler resmî
 # kaynaklardan değiştirilmeden alınır (marka kuralları gereği yeniden çizilmez).
 name: Mağaza rozetleri
 
@@ -17,6 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq librsvg2-bin >/dev/null
       - name: Rozetleri indir
         run: |
           set -euo pipefail
@@ -37,6 +40,23 @@ jobs:
               echo "App Store rozeti yok: $a → İngilizce"
               curl -fsSL -o "assets/badges/app_store_$dil.svg" "https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg"
             fi
+            ok=0
+            for url in "https://toolbox.marketingtools.apple.com/api/v2/badges/download-on-the-mac-app-store/black/$a" \
+                       "https://toolbox.marketingtools.apple.com/api/badges/download-on-the-mac-app-store/black/$a" \
+                       "https://toolbox.marketingtools.apple.com/api/v2/badges/download-on-the-mac-app-store/black/en-us"; do
+              if curl -fsSL -o "assets/badges/mac_app_store_$dil.svg" "$url" && grep -q '<svg' "assets/badges/mac_app_store_$dil.svg"; then ok=1; break; fi
+            done
+            [ $ok = 1 ] || { echo "Mac App Store rozeti alınamadı: $a"; rm -f "assets/badges/mac_app_store_$dil.svg"; }
+            # Microsoft Store "Get it from Microsoft" rozeti (koyu).
+            m=$a; [ "$dil" = az ] && m=en-us
+            if ! { curl -fsSL -o "assets/badges/microsoft_$dil.svg" "https://get.microsoft.com/images/${m}%20dark.svg" && grep -q '<svg' "assets/badges/microsoft_$dil.svg"; }; then
+              echo "Microsoft rozeti yok: $m → en-us"
+              curl -fsSL -o "assets/badges/microsoft_$dil.svg" "https://get.microsoft.com/images/en-us%20dark.svg" || rm -f "assets/badges/microsoft_$dil.svg"
+            fi
+          done
+          # PNG kopyaları (uygulama ve video için).
+          for f in assets/badges/*.svg; do
+            rsvg-convert -h 180 -o "${f%.svg}.png" "$f"
           done
           file assets/badges/* | sed 's/^/  /'
           for f in assets/badges/*.png; do file "$f" | grep -q PNG || { echo "PNG değil: $f"; exit 1; }; done

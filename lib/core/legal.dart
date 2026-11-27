@@ -14,6 +14,19 @@ const androidPackage = 'com.netice.netice';
 const appStoreUrl = '';
 const playStoreUrl = 'https://play.google.com/store/apps/details?id=$androidPackage';
 
+/// App Store kaydı (iPhone, iPad ve Mac aynı kayıt). Yayına girince
+/// [appStoreLive] true yapılır; o zamana kadar rozet "Yakında" görünür.
+const appStoreLive = false;
+String get appStoreLink => appStoreUrl.isNotEmpty ? appStoreUrl : 'https://apps.apple.com/app/id6838423827';
+
+/// Microsoft Store sayfası (ör. https://apps.microsoft.com/detail/9N…).
+/// Boşken rozet sitenin indirme sayfasına gider ve "Yakında" görünür.
+const msStoreUrl = '';
+
+/// Karekodun ve "indir" bağlantılarının gittiği sayfa: her cihaz kendi
+/// mağazasını orada bulur.
+String get downloadPageUrl => '$websiteUrl/indir.html';
+
 /// Belgelerin ve paylaşım mesajlarının altındaki indirme bağlantısı:
 /// tanıtım sayfası varsa o, yoksa Google Play sayfası.
 String get downloadUrl => websiteUrl.isNotEmpty ? websiteUrl : playStoreUrl;

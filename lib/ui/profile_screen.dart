@@ -12,6 +12,7 @@ import 'license_screen.dart';
 import 'pro_screen.dart';
 import 'school_screen.dart';
 import 'service_cards.dart';
+import 'download_links.dart';
 import 'section_icons.dart';
 import 'theme.dart';
 import 'why_screen.dart';
@@ -119,6 +120,8 @@ class ProfileScreen extends StatelessWidget {
               ServiceCard(icon: Icons.wifi_rounded, color: const Color(0xFF0E7490), title: tr('Wi-Fi ile ortak sınav al'),
                   subtitle: tr('Aynı ağdaki öğretmenden, internetsiz ve dosyasız'), onTap: () => openLanSync(context)),
             ]),
+            SectionTitle(tr('Netice\'yi indirin')),
+            const RoundedPanel(child: DownloadLinksPanel()),
             SectionTitle(tr('Hesap')),
             const RoundedPanel(child: AccountCard()),
           ]);
@@ -171,6 +174,8 @@ class ProfileScreen extends StatelessWidget {
         const WhyNeticeBanner(),
         const SizedBox(height: 10),
         const SampleReportsCard(),
+        SectionTitle(tr('Netice\'yi indirin')),
+        const RoundedPanel(child: DownloadLinksPanel()),
         SectionTitle(tr('Hesap')),
         const AccountCard(),
         SectionTitle(tr('Kurum')),
