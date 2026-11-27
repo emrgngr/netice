@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       dil:
-        description: 'Dil (egitim_<dil>.json olmalı) ya da hepsi'
+        description: 'Dil (egitim_<dil>.json olmalı), virgülle birkaç dil ya da hepsi'
         default: 'tr'
   push:
     branches: [ilk-surum, 'claude/**']
@@ -34,7 +34,8 @@ jobs:
           if [ "$sec" = "hepsi" ]; then
             liste=$(ls tool/video/egitim_*.json | sed 's#.*/egitim_\(.*\)\.json#\1#' | python3 -c "import sys,json;print(json.dumps(sys.stdin.read().split()))")
           else
-            liste="[\"$sec\"]"
+            # Virgülle birden çok dil: es,fr,it
+            liste=$(echo "$sec" | python3 -c "import sys,json;print(json.dumps([x.strip() for x in sys.stdin.read().split(',') if x.strip()]))")
           fi
           echo "liste=$liste" >> "$GITHUB_OUTPUT"
 
