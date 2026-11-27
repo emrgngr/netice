@@ -195,3 +195,34 @@ jobs:
             /usr/libexec/PlistBuddy -c "Add :GIDClientID string $IOS_CLIENT_ID" ios/Runner/Info.plist
           fi
       - run: flutter build ios --release --no-codesign --build-number=${{ github.run_number }} --dart-define=GOOGLE_IOS_CLIENT_ID=${{ secrets.GOOGLE_IOS_CLIENT_ID }}
+
+  paket:
+    # Elle çalıştırıldığında (workflow_dispatch) bütün kurulum dosyalarını
+    # "son-surum" sürüm sayfasına koyar; tek tek artifact indirmek gerekmez.
+    name: Son sürüm paketi
+    if: github.event_name == 'workflow_dispatch'
+    needs: [windows, macos, android]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          path: d
+      - name: Dosyaları sürüm sayfasına yükle
+        env:
+          GH_TOKEN: ${{ github.token }}
+          R: ${{ github.repository }}
+        run: |
+          mkdir -p out
+          cp d/Netice-GooglePlay-AAB/app-release.aab out/Netice-GooglePlay-${{ github.run_number }}.aab
+          cp d/Netice-Android/app-release.apk out/Netice-Android-${{ github.run_number }}.apk
+          cp d/Netice-Windows-Kurulum/Netice-Kurulum.exe out/Netice-Windows-Kurulum.exe
+          for f in d/Netice-MicrosoftStore-MSIX/*.msix; do [ -f "$f" ] && cp "$f" out/Netice-MicrosoftStore.msix; done
+          cp d/Netice-Mac/Netice-Mac.dmg out/Netice-Mac.dmg
+          (cd d/Netice-Windows-Klasor && zip -qr ../../out/Netice-Windows-Klasor.zip .)
+          ls -la out
+          gh release view son-surum -R "$R" >/dev/null 2>&1 || \
+            gh release create son-surum -R "$R" --target "${{ github.sha }}" --prerelease --title "Son sürüm" --notes "Elle başlatılan son derlemenin kurulum dosyaları."
+          gh release edit son-surum -R "$R" --notes "Derleme ${{ github.run_number }} · ${{ github.ref_name }} · ${{ github.sha }}"
+          gh release upload son-surum -R "$R" --clobber out/*
