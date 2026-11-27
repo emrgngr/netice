@@ -10,6 +10,7 @@ import 'widgets.dart';
 import '../l10n/l10n.dart';
 import '../core/ads.dart';
 import 'ad_slot.dart';
+import 'sample_reports_screen.dart';
 
 /// Kullanma kılavuzu ve sık sorulan sorular (aramalı).
 class HelpScreen extends StatefulWidget {
@@ -91,6 +92,7 @@ class _HelpScreenState extends State<HelpScreen> {
         ),
       ),
       const Padding(padding: EdgeInsets.fromLTRB(16, 12, 16, 0), child: VideoGuideCard()),
+      const Padding(padding: EdgeInsets.fromLTRB(16, 10, 16, 0), child: SampleReportsCard()),
       const AdSlot.card(AdPage.help, padding: EdgeInsets.fromLTRB(16, 12, 16, 0)),
       search(tr('Kılavuzda ara (ör. yedek, kitapçık)')),
       TwoColumns(wide: wide, children: [

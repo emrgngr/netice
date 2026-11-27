@@ -15,6 +15,9 @@ Sitenin asıl metni Türkçedir (web-sitesi/*.html). Bu betik:
   4. Türkçe sayfalara ziyaretçinin tarayıcı diline göre otomatik yönlendirme ekler
      (ziyaretçi menüden dil seçerse seçimi hatırlanır).
 
+Örnek rapor görselleri: <çıktı>/img/raporlar/<dil>/<ad>.jpg varsa o dilin
+sayfası onları gösterir (tool/site/ornek_raporlar.sh); yoksa Türkçe görseller kalır.
+
 Videolar: <çıktı>/video/<dil>/telefon.mp4 ve bilgisayar.mp4 (ve .jpg kapakları)
 varsa o dilin sayfası onları gösterir; yoksa Türkçe videolar kalır.
 """
@@ -371,6 +374,16 @@ def sayfa_yaz(kaynak_html, sayfa, dil, bellek, cikti):
                     s['src'] = f'../video/{dil}/{ad}.mp4'
                 if ad == 'telefon':
                     v['class'] = (v.get('class') or []) + ['dikey']
+    # Örnek raporlar: o dilde üretilmiş görsel varsa onu göster (ornek_raporlar.sh);
+    # yalnız bir ülkeye ait kartlar (ör. e-Okul) diğer dillerde kaldırılır.
+    for el in soup.find_all(attrs={'data-yalniz': True}):
+        if dil not in el['data-yalniz'].split():
+            el.decompose()
+    for el in soup.find_all(True):
+        for a in ('src', 'href'):
+            m = re.search(r'img/raporlar/([\w-]+)\.jpg$', el.get(a) or '')
+            if m and os.path.exists(os.path.join(cikti, 'img', 'raporlar', dil, m.group(1) + '.jpg')):
+                el[a] = f'{kok}img/raporlar/{dil}/{m.group(1)}.jpg'
     html = soup.html
     html['lang'] = dil
     if dil == 'ar':

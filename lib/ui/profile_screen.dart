@@ -20,6 +20,7 @@ import 'widgets.dart';
 import '../l10n/l10n.dart';
 import '../core/ads.dart';
 import 'ad_slot.dart';
+import 'sample_reports_screen.dart';
 
 /// Profil sekmesi: öğretmen kimliği, Netice Pro durumu, Google hesabı ve
 /// yedek, okul bilgileri tek yerde.
@@ -101,6 +102,8 @@ class ProfileScreen extends StatelessWidget {
                     subtitle: tr('Arkadaşınıza %15 indirim, size 1 ay ek Pro'), onTap: () => push(const InviteScreen())),
               ServiceCard(section: Section.why, title: tr('Neden Netice?'),
                   subtitle: tr('Benzer uygulamalarla özellik ve fiyat karşılaştırması'), onTap: () => push(const WhyNeticeScreen())),
+              ServiceCard(section: Section.samples, title: tr('Örnek raporlar'),
+                  subtitle: tr('Netice\'nin hazırladığı tüm raporları örnekleriyle görün'), onTap: () => push(const SampleReportsScreen())),
               ServiceCard(section: Section.school, title: tr('Kurum bilgileri'),
                   subtitle: school.isEmpty ? tr('Raporlarda resmi başlık için girin') : school.name,
                   onTap: () => push(const SchoolScreen())),
@@ -169,6 +172,8 @@ class ProfileScreen extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         const WhyNeticeBanner(),
+        const SizedBox(height: 10),
+        const SampleReportsCard(),
         SectionTitle(tr('Netice\'yi indirin')),
         const RoundedPanel(child: DownloadLinksPanel()),
         SectionTitle(tr('Hesap')),

@@ -20,3 +20,12 @@ yazın. Türkçe sayfaya ilk kez gelen ziyaretçi tarayıcı diline göre kendi 
 
 Her dilin videoları `site-videolari.yml` ile üretilir (o dilde sesli bilgisayar tanıtımı ve
 telefon rehber videosu) ve yayında `video/<dil>/` altına konur.
+
+## Örnek raporlar sayfası
+
+`ornek-raporlar.html` uygulamanın ürettiği raporların ilk sayfalarını gösterir. Rapor listesi
+uygulamadaki "Örnek raporlar" ekranıyla aynıdır (`lib/ui/sample_reports.dart`). Yayın sırasında
+`tool/ornek_raporlar_test.dart` raporları 15 dilde üretir, `tool/site/ornek_raporlar.sh` ilk
+sayfaları `img/raporlar/<dil>/` altına JPG olarak koyar; her dil sayfası kendi görsellerini
+gösterir. `img/raporlar/*.jpg` Türkçe görsellerdir ve bu adım çalışmazsa yedek olarak kalır.
+Yalnız bir ülkeye ait kartlara `data-yalniz="tr"` yazılır (ör. e-Okul); diğer dillerde kaldırılır.

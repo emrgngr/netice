@@ -49,4 +49,20 @@
     };
     ogr.addEventListener('input', calc); sinav.addEventListener('input', calc); calc();
   }
+  // Örnek raporlar: karta tıklayınca sayfa büyük açılır (tarayıcı desteklemiyorsa görsel ayrı açılır).
+  var dlg = document.getElementById('buyut');
+  if (dlg && typeof dlg.showModal === 'function') {
+    var big = dlg.querySelector('img');
+    document.querySelectorAll('[data-rapor]').forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        var im = a.querySelector('img');
+        big.src = a.getAttribute('href');
+        big.alt = im ? im.alt : '';
+        dlg.showModal();
+      });
+    });
+    dlg.querySelector('.kapat').addEventListener('click', function () { dlg.close(); });
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+  }
 })();
