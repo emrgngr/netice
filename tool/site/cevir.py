@@ -327,7 +327,7 @@ def dil_menusu(soup, sayfa, dil):
 
 
 YONLENDIR = """(function(){try{var D=%s,k='netice-dil',s=localStorage.getItem(k),r=document.referrer||'';
-if(s||r.indexOf(location.host)>=0)return;var w='en',L=navigator.languages||[navigator.language||''];
+if(s||r.indexOf(location.host)>=0||/bot|crawl|spider|slurp|google|bing|yandex|lighthouse|headless/i.test(navigator.userAgent))return;var w='en',L=navigator.languages||[navigator.language||''];
 for(var i=0;i<L.length;i++){var c=(L[i]||'').toLowerCase().split('-')[0];if(D.indexOf(c)>=0){w=c;break}}
 if(w!=='tr'){var p=location.pathname.split('/').pop()||'index.html';location.replace('/'+w+'/'+p+location.hash)}}catch(e){}})();"""
 SECIM = """document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('[data-dil]');
@@ -376,10 +376,12 @@ def sayfa_yaz(kaynak_html, sayfa, dil, bellek, cikti):
     if dil == 'ar':
         html['dir'] = 'rtl'
     head = soup.head
-    # Arama motorları için dil karşılıkları.
+    # Arama motorları için: bu sayfanın kendi adresi ve dil karşılıkları.
+    def adres(k):
+        return SITE + ('/' if k in ('tr', 'x-default') else f'/{k}/') + ('' if sayfa == 'index.html' else sayfa)
+    head.append(soup.new_tag('link', attrs={'rel': 'canonical', 'href': adres(dil)}))
     for k in KODLAR + ['x-default']:
-        link = soup.new_tag('link', attrs={'rel': 'alternate', 'hreflang': k,
-                                           'href': SITE + ('/' if k in ('tr', 'x-default') else f'/{k}/') + sayfa})
+        link = soup.new_tag('link', attrs={'rel': 'alternate', 'hreflang': k, 'href': adres(k)})
         head.append(link)
     if dil in YAZI_TIPI:
         head.append(soup.new_tag('link', attrs={'rel': 'stylesheet',
