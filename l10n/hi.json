@@ -2991,5 +2991,10 @@
 "Ana ekrandaki \"Genel analiz\" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.": "होम स्क्रीन पर \"समग्र विश्लेषण\" सभी कक्षाओं और परीक्षा देने वाले सभी छात्रों के परिणाम एक साथ दिखाता है।",
 "Dönem sonu raporu": "सत्रांत रिपोर्ट",
 "Genel analiz": "समग्र विश्लेषण",
-"Kazandığınız zaman": "आपका बचाया समय"
+"Kazandığınız zaman": "आपका बचाया समय",
+"Videoyu indir": "वीडियो डाउनलोड करें",
+"Video indiriliyor…": "वीडियो डाउनलोड हो रहा है…",
+"Video kaydedildi: {0}": "वीडियो सहेजा गया: {0}",
+"Video indirilemedi. İnternet bağlantınızı kontrol edin.": "वीडियो डाउनलोड नहीं हो सका। अपना इंटरनेट कनेक्शन जाँचें।",
+"Video yükleniyor… %{0}": "वीडियो लोड हो रहा है… {0}%"
 }

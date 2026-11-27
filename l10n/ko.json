@@ -2991,5 +2991,10 @@
 "Ana ekrandaki \"Genel analiz\" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.": "홈 화면의 \"전체 분석\"에서 모든 반과 시험에 응시한 모든 학생의 결과를 한곳에서 볼 수 있습니다.",
 "Dönem sonu raporu": "기말 보고서",
 "Genel analiz": "전체 분석",
-"Kazandığınız zaman": "절약한 시간"
+"Kazandığınız zaman": "절약한 시간",
+"Videoyu indir": "동영상 다운로드",
+"Video indiriliyor…": "동영상 다운로드 중…",
+"Video kaydedildi: {0}": "동영상 저장됨: {0}",
+"Video indirilemedi. İnternet bağlantınızı kontrol edin.": "동영상을 다운로드할 수 없습니다. 인터넷 연결을 확인하세요.",
+"Video yükleniyor… %{0}": "동영상 불러오는 중… {0}%"
 }

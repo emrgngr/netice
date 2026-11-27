@@ -3058,9 +3058,14 @@
 "Netice Pro ve kurum": "Netice Pro und Einrichtung",
 "Ödeme Microsoft hesabınızdan": "Die Zahlung erfolgt über Ihr Microsoft-Konto",
 "Microsoft hesabı > Hizmetler ve abonelikler": "Microsoft-Konto > Dienste & Abonnements",
-"Ana ekrandaki \"Dönem sonu raporu\"nu açın; sınıfı ve dönemi seçin.": "Öffnen Sie auf dem Startbildschirm „Abschlussbericht“; wählen Sie Klasse und Halbjahr.",
+"Ana ekrandaki \"Dönem sonu raporu\"nu açın; sınıfı ve dönemi seçin.": "Öffnen Sie auf dem Startbildschirm „Halbjahres-Abschlussbericht“; wählen Sie Klasse und Halbjahr.",
 "Ana ekrandaki \"Genel analiz\" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.": "„Gesamtanalyse“ auf dem Startbildschirm zeigt die Ergebnisse aller Klassen und aller Schüler, die an Prüfungen teilgenommen haben, zusammen.",
-"Dönem sonu raporu": "Abschlussbericht",
+"Dönem sonu raporu": "Halbjahres-Abschlussbericht",
 "Genel analiz": "Gesamtanalyse",
-"Kazandığınız zaman": "Gesparte Zeit"
+"Kazandığınız zaman": "Gesparte Zeit",
+"Videoyu indir": "Video herunterladen",
+"Video indiriliyor…": "Video wird heruntergeladen…",
+"Video kaydedildi: {0}": "Video gespeichert: {0}",
+"Video indirilemedi. İnternet bağlantınızı kontrol edin.": "Das Video konnte nicht heruntergeladen werden. Prüfen Sie Ihre Internetverbindung.",
+"Video yükleniyor… %{0}": "Video wird geladen… {0} %"
 }

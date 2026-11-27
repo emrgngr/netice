@@ -54,6 +54,11 @@ def voice_id():
 
 
 def main(lang):
+    if '--egitim' in sys.argv:
+        # Eğitim ve tanıtım videosu (tool/video/egitim.py): her sahnenin metni seslendirilir.
+        scenes = json.load(open(f'tool/video/egitim_{lang}.json', encoding='utf-8'))['sahneler']
+        produce(lang, [(f'egitim_{s["id"]}', s['metin'], f'build/video/audio/{lang}/egitim_{s["id"]}.mp3') for s in scenes])
+        return
     base = json.load(open(f'tool/video/anlatim_{lang}.json', encoding='utf-8'))
     ses = json.load(open(f'tool/video/ses_{lang}.json'))
     order = list(base.keys())
@@ -67,6 +72,10 @@ def main(lang):
         for k, name in json.load(open(kp)).items():
             if name == 'elevenlabs':
                 jobs.append((k, extra[k], f'build/video/audio/{lang}/{k}.mp3'))
+    produce(lang, jobs)
+
+
+def produce(lang, jobs):
     if not jobs:
         return
     os.makedirs(f'build/video/audio/{lang}', exist_ok=True)

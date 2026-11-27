@@ -3058,9 +3058,14 @@
 "Netice Pro ve kurum": "Netice Pro и учреждение",
 "Ödeme Microsoft hesabınızdan": "Оплата списывается с вашей учётной записи Microsoft",
 "Microsoft hesabı > Hizmetler ve abonelikler": "Учётная запись Microsoft > Службы и подписки",
-"Ana ekrandaki \"Dönem sonu raporu\"nu açın; sınıfı ve dönemi seçin.": "Откройте «Итоговый отчёт за период» на главном экране; выберите класс и период.",
+"Ana ekrandaki \"Dönem sonu raporu\"nu açın; sınıfı ve dönemi seçin.": "Откройте «Итоговый отчёт за полугодие» на главном экране; выберите класс и период.",
 "Ana ekrandaki \"Genel analiz\" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.": "«Общий анализ» на главном экране показывает вместе результаты всех классов и всех учеников, писавших работы.",
-"Dönem sonu raporu": "Итоговый отчёт за период",
+"Dönem sonu raporu": "Итоговый отчёт за полугодие",
 "Genel analiz": "Общий анализ",
-"Kazandığınız zaman": "Сэкономленное время"
+"Kazandığınız zaman": "Сэкономленное время",
+"Videoyu indir": "Скачать видео",
+"Video indiriliyor…": "Видео загружается…",
+"Video kaydedildi: {0}": "Видео сохранено: {0}",
+"Video indirilemedi. İnternet bağlantınızı kontrol edin.": "Не удалось скачать видео. Проверьте подключение к интернету.",
+"Video yükleniyor… %{0}": "Загрузка видео… {0}%"
 }

@@ -3062,5 +3062,10 @@
 "Ana ekrandaki \"Genel analiz\" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.": "\"Overall analysis\" on the home screen shows the results of all classes and all students who took exams together.",
 "Dönem sonu raporu": "End-of-term report",
 "Genel analiz": "Overall analysis",
-"Kazandığınız zaman": "Time you saved"
+"Kazandığınız zaman": "Time you saved",
+"Videoyu indir": "Download video",
+"Video indiriliyor…": "Downloading video…",
+"Video kaydedildi: {0}": "Video saved: {0}",
+"Video indirilemedi. İnternet bağlantınızı kontrol edin.": "The video could not be downloaded. Check your internet connection.",
+"Video yükleniyor… %{0}": "Loading video… {0}%"
 }

@@ -17,8 +17,8 @@
    "vurgu": 2,
    "metin": "Ana sayfadan Kâğıt okut'a tıklayın; taranmış formları ve PDF dosyalarını toplu okutun. Kazandığınız zamanı da hemen burada görürsünüz.",
    "isaret": [
-    {"hedef": [583, 212, 1123, 393], "etiket": "Tek tıkla okut", "kelime": "Kâğıt okut"},
-    {"hedef": [2282, 432, 2822, 706], "etiket": "Kazandığınız zaman", "kelime": "Kazandığınız"}
+    {"hedef": [583, 212, 1125, 564], "etiket": "Tek tıkla okut", "kelime": "Kâğıt okut"},
+    {"hedef": [2284, 602, 2824, 880], "etiket": "Kazandığınız zaman", "kelime": "Kazandığınız"}
    ]
   },
   {
@@ -84,10 +84,10 @@
   {
    "kare": "istatistik",
    "bolum": "compare",
-   "ust": "07 · GENEL İSTATİSTİK",
+   "ust": "07 · GENEL ANALİZ",
    "baslik": ["BÜTÜN", "SINIFLAR", "tek bakışta"],
    "vurgu": 2,
-   "metin": "Genel istatistikte bütün sınıflar tek bakışta. Genel başarı, medyan, standart sapma ve katılım hep birlikte.",
+   "metin": "Genel analizde bütün sınıflar tek bakışta. Genel başarı, medyan, standart sapma ve katılım hep birlikte.",
    "isaret": [
     {"hedef": [40, 420, 2840, 757], "etiket": "Genel başarı", "kelime": "bütün sınıflar"},
     {"hedef": [40, 862, 2840, 1132], "etiket": "Medyan · sapma · katılım", "kelime": "medyan"}
@@ -96,10 +96,10 @@
   {
    "kare": "donem",
    "bolum": "term",
-   "ust": "08 · DÖNEM RAPORU",
+   "ust": "08 · DÖNEM SONU RAPORU",
    "baslik": ["DÖNEM NOTU", "ve", "KAZANIM KARNESİ"],
    "vurgu": 1,
-   "metin": "Dönem raporu, ağırlıklı dönem notunu kendisi hesaplar. Kazanım karnelerini ve takip çizelgesini de tek tıkla hazırlar.",
+   "metin": "Dönem sonu raporu, ağırlıklı dönem notunu kendisi hesaplar. Kazanım karnelerini ve takip çizelgesini de tek tıkla hazırlar.",
    "isaret": [
     {"hedef": [40, 340, 2840, 420], "etiket": "1. dönem · 2. dönem · tüm yıl", "kelime": "ağırlıklı"},
     {"hedef": [40, 966, 1390, 1072], "etiket": "Karne ve çizelge", "kelime": "Kazanım karnelerini"}

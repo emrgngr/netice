@@ -59,8 +59,57 @@ class VideoGuide {
   static String defaultLang() =>
       languages.contains(L10n.code) ? L10n.code : (languages.contains('en') ? 'en' : languages.first);
 
-  /// Uygulama içinde oynatılabilir mi (Windows ve Linux'ta tarayıcıda açılır).
-  static bool get inApp => !(Platform.isWindows || Platform.isLinux);
+  /// Uygulama içinde oynatılabilir mi (yalnız Linux'ta tarayıcıda açılır).
+  static bool get inApp => !Platform.isLinux;
+
+  /// Bilgisayarda video önce bu cihaza indirilip dosyadan oynatılır (Windows'un
+  /// oynatıcısı yönlendirmeli adresleri her zaman açamıyor); sonraki açılışta
+  /// indirmeden oynar.
+  static bool get playFromFile => Platform.isWindows || Platform.isMacOS;
+
+  static Future<File> cacheFile(String lang, [String? section]) async {
+    final dir = Directory('${(await getApplicationSupportDirectory()).path}/rehber_videolari');
+    await dir.create(recursive: true);
+    return File('${dir.path}/${urlFor(lang, section).split('/').last}');
+  }
+
+  /// Videoyu bu cihaza indirir ([onProgress] 0–1). İndirilmişse yeniden indirmez.
+  static Future<File> fetch(String lang, String? section, {void Function(double)? onProgress}) async {
+    final f = await cacheFile(lang, section);
+    if (await f.exists() && await f.length() > 0) return f;
+    final client = http.Client();
+    try {
+      final res = await client.send(http.Request('GET', Uri.parse(urlFor(lang, section))));
+      if (res.statusCode != 200) throw HttpException('${res.statusCode}');
+      final total = res.contentLength ?? 0;
+      final tmp = File('${f.path}.part');
+      final sink = tmp.openWrite();
+      var got = 0;
+      await for (final chunk in res.stream) {
+        sink.add(chunk);
+        got += chunk.length;
+        if (total > 0) onProgress?.call(got / total);
+      }
+      await sink.close();
+      return await tmp.rename(f.path);
+    } finally {
+      client.close();
+    }
+  }
+
+  /// Videoyu İndirilenler klasörüne (yoksa belgeler klasörüne) kaydeder.
+  static Future<void> download(BuildContext context, {required String lang, String? section}) async {
+    toast(context, tr('Video indiriliyor…'));
+    try {
+      final src = await fetch(lang, section);
+      final dir = await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
+      final name = 'Netice_${urlFor(lang, section).split('/').last}';
+      final out = await src.copy('${dir.path}${Platform.pathSeparator}$name');
+      if (context.mounted) toast(context, tr('Video kaydedildi: {0}', [out.path]));
+    } catch (_) {
+      if (context.mounted) toast(context, tr('Video indirilemedi. İnternet bağlantınızı kontrol edin.'));
+    }
+  }
 }
 
 /// Yardım ekranındaki "Video rehber" kartı.
@@ -133,6 +182,7 @@ class _VideoGuideScreenState extends State<VideoGuideScreen> {
   late String _lang = VideoGuide.defaultLang();
   VideoPlayerController? _c;
   bool _error = false;
+  double? _progress;
 
   @override
   void initState() {
@@ -145,9 +195,25 @@ class _VideoGuideScreenState extends State<VideoGuideScreen> {
     setState(() {
       _c = null;
       _error = false;
+      _progress = null;
     });
     await old?.dispose();
-    final c = VideoPlayerController.networkUrl(Uri.parse(VideoGuide.urlFor(_lang, widget.section)));
+    VideoPlayerController c;
+    try {
+      if (VideoGuide.playFromFile) {
+        final lang = _lang;
+        final f = await VideoGuide.fetch(lang, widget.section, onProgress: (p) {
+          if (mounted && lang == _lang) setState(() => _progress = p);
+        });
+        if (!mounted || lang != _lang) return;
+        c = VideoPlayerController.file(f);
+      } else {
+        c = VideoPlayerController.networkUrl(Uri.parse(VideoGuide.urlFor(_lang, widget.section)));
+      }
+    } catch (_) {
+      if (mounted) setState(() => _error = true);
+      return;
+    }
     try {
       await c.initialize();
       if (!mounted) {
@@ -183,6 +249,11 @@ class _VideoGuideScreenState extends State<VideoGuideScreen> {
         foregroundColor: Colors.white,
         title: Text(widget.title ?? tr('Video rehber')),
         actions: [
+          IconButton(
+            tooltip: tr('Videoyu indir'),
+            icon: const Icon(Icons.download_rounded),
+            onPressed: () => VideoGuide.download(context, lang: _lang, section: widget.section),
+          ),
           Builder(
             builder: (ctx) => IconButton(
               tooltip: tr('Videoyu paylaş'),
@@ -224,7 +295,14 @@ class _VideoGuideScreenState extends State<VideoGuideScreen> {
                       ]),
                     )
                   : c == null
-                      ? const CircularProgressIndicator(color: NColors.emerald)
+                      ? Column(mainAxisSize: MainAxisSize.min, children: [
+                          CircularProgressIndicator(color: NColors.emerald, value: _progress),
+                          if (_progress != null) ...[
+                            const SizedBox(height: 14),
+                            Text(tr('Video yükleniyor… %{0}', [(_progress! * 100).round()]),
+                                style: const TextStyle(color: Colors.white70)),
+                          ],
+                        ])
                       : GestureDetector(
                           onTap: () => c.value.isPlaying ? c.pause() : c.play(),
                           child: AspectRatio(

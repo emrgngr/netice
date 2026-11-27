@@ -2991,5 +2991,10 @@
 "Ana ekrandaki \"Genel analiz\" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.": "\"Análise geral\" na tela inicial mostra juntos os resultados de todas as turmas e de todos os alunos que fizeram provas.",
 "Dönem sonu raporu": "Relatório de fim de período",
 "Genel analiz": "Análise geral",
-"Kazandığınız zaman": "Tempo economizado"
+"Kazandığınız zaman": "Tempo economizado",
+"Videoyu indir": "Baixar vídeo",
+"Video indiriliyor…": "Baixando vídeo…",
+"Video kaydedildi: {0}": "Vídeo salvo: {0}",
+"Video indirilemedi. İnternet bağlantınızı kontrol edin.": "Não foi possível baixar o vídeo. Verifique sua conexão com a internet.",
+"Video yükleniyor… %{0}": "Carregando vídeo… {0}%"
 }

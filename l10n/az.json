@@ -3058,9 +3058,14 @@
 "Netice Pro ve kurum": "Netice Pro və qurum",
 "Ödeme Microsoft hesabınızdan": "Ödəniş Microsoft hesabınızdan",
 "Microsoft hesabı > Hizmetler ve abonelikler": "Microsoft hesabı > Xidmətlər və abunəliklər",
-"Ana ekrandaki \"Dönem sonu raporu\"nu açın; sınıfı ve dönemi seçin.": "Ana ekranda \"Dövr sonu hesabatı\"nı açın; sinfi və yarımili seçin.",
+"Ana ekrandaki \"Dönem sonu raporu\"nu açın; sınıfı ve dönemi seçin.": "Ana ekranda \"Yarımil sonu hesabatı\"nı açın; sinfi və yarımili seçin.",
 "Ana ekrandaki \"Genel analiz\" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.": "Ana ekrandakı \"Ümumi təhlil\" bütün siniflərin və imtahana girən bütün şagirdlərin nəticələrini bir yerdə göstərir.",
-"Dönem sonu raporu": "Dövr sonu hesabatı",
+"Dönem sonu raporu": "Yarımil sonu hesabatı",
 "Genel analiz": "Ümumi təhlil",
-"Kazandığınız zaman": "Qazandığınız vaxt"
+"Kazandığınız zaman": "Qazandığınız vaxt",
+"Videoyu indir": "Videonu yüklə",
+"Video indiriliyor…": "Video yüklənir…",
+"Video kaydedildi: {0}": "Video saxlanıldı: {0}",
+"Video indirilemedi. İnternet bağlantınızı kontrol edin.": "Video yüklənmədi. İnternet bağlantınızı yoxlayın.",
+"Video yükleniyor… %{0}": "Video yüklənir… {0}%"
 }

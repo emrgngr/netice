@@ -1,0 +1,71 @@
+name: Eğitim ve tanıtım videosu
+
+# Pazarlama odaklı, adım adım eğitim videosu (16:9): tool/video/egitim.py.
+# Seslendirme ElevenLabs'tan (tool/video/seslendir.py --egitim); video iş
+# çıktısı (artifact) olarak kalır, uygulamanın rehber videolarını değiştirmez.
+on:
+  workflow_dispatch:
+    inputs:
+      dil:
+        description: 'Dil (egitim_<dil>.json olmalı)'
+        default: 'tr'
+  push:
+    branches: [ilk-surum, 'claude/**']
+    paths: ['tool/video/egitim*', '.github/workflows/egitim-video.yml']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: egitim-video-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  video:
+    runs-on: ubuntu-latest
+    env:
+      lang: ${{ inputs.dil || 'tr' }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.50.0
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: |
+          for i in 1 2 3 4 5; do
+            sudo apt-get update -qq && sudo apt-get install -y -qq -o Acquire::Retries=5 ffmpeg libraqm0 >/dev/null && break
+            sleep $((i*20))
+          done
+      - run: pip install --quiet pillow numpy
+      - name: Ekranlar
+        run: |
+          ICON=$(dirname "$(which flutter)")/cache/artifacts/material_fonts/MaterialIcons-Regular.otf
+          flutter test tool/video_test.dart --dart-define=LANG_SHOT=$lang --dart-define=ICON_FONT="$ICON" || true
+          test -f build/video/frames/$lang/hedefler.json
+          flutter test tool/magaza/genis_ekranlar_test.dart --dart-define=LANG_SHOT=$lang
+      - name: Seslendirme ve video
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          ELEVENLABS_VOICE_ID: ${{ vars.ELEVENLABS_VOICE_ID }}
+        run: |
+          B=https://d8j0ntlcm91z4.cloudfront.net/user_3HBbhHFwxHnCS5yFDPNhwCMiEXw
+          mkdir -p build/video/audio/$lang
+          curl -sSf --retry 3 -o build/video/muzik.mp3 "$B/$(python3 -c "import json;print(json.load(open('tool/video/muzik.json'))['muzik'])")"
+          python3 tool/video/seslendir.py $lang --egitim
+          python3 tool/video/egitim.py $lang
+      - uses: actions/upload-artifact@v5
+        with:
+          name: egitim_${{ env.lang }}
+          path: build/video/egitim_${{ env.lang }}.mp4
+          compression-level: 0
+      - name: Sürüme yükle (önizleme ve paylaşım için)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view egitim-videolari >/dev/null 2>&1 || \
+            gh release create egitim-videolari --title "Netice eğitim ve tanıtım videoları" \
+              --notes "Pazarlama ve eğitim videoları (16:9). Uygulamanın rehber videolarından ayrıdır." --prerelease --target "${{ github.sha }}"
+          gh release upload egitim-videolari build/video/egitim_${lang}.mp4 --clobber
