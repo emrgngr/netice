@@ -100,12 +100,18 @@ class _ReviewCardState extends State<_ReviewCard> {
               onTap: () => _assignStudent(s.id),
             ),
           );
+      final readName = sheet.readName;
       return ListView(padding: const EdgeInsets.all(20), children: [
         Text(
             read == null
                 ? tr('Bu kâğıttaki öğrenci numarası okunamadı.')
                 : tr('Kâğıtta okunan numara: {0}', [read.replaceAll('?', '•')]),
             style: t.textTheme.titleMedium),
+        if (readName != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(tr('Kâğıtta okunan ad: {0}', [readName.replaceAll('?', '•')]), style: t.textTheme.titleMedium),
+          ),
         const SizedBox(height: 4),
         Text(
             read != null && read.contains('?')
@@ -249,7 +255,8 @@ class _ReviewCardState extends State<_ReviewCard> {
 /// Eşleşmeyen kâğıt için kısa etiket (okunan numarayla).
 String unmatchedLabel(Sheet s) {
   final r = s.readNumber;
-  return r == null ? tr('Öğrenci eşleşmedi') : tr('Öğrenci eşleşmedi · no {0}', [r.replaceAll('?', '•')]);
+  final base = r == null ? tr('Öğrenci eşleşmedi') : tr('Öğrenci eşleşmedi · no {0}', [r.replaceAll('?', '•')]);
+  return s.readName == null ? base : '$base · ${s.readName!.replaceAll('?', '•')}';
 }
 
 /// Öğrenci numarasını, okunan numarayla farklı rakamları vurgulayarak gösterir.

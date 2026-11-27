@@ -670,6 +670,9 @@ class Sheet {
   /// Öğrenci eşleşmediğinde kâğıttan okunan numara ('?' = okunamayan rakam).
   final String? readNumber;
 
+  /// Formun ad soyad alanından okunan ad (yalnızca başka firma formlarında).
+  final String? readName;
+
   /// Kâğıt çeyrek A4 kısa quiz formuydu (işaretli görüntü buna göre çizilir).
   final bool mini;
 
@@ -685,6 +688,7 @@ class Sheet {
     this.openScores = const [],
     this.imageId,
     this.readNumber,
+    this.readName,
     this.mini = false,
     this.rubricLevels = const {},
   });
@@ -707,6 +711,7 @@ class Sheet {
         openScores: openScores ?? this.openScores,
         imageId: imageId ?? this.imageId,
         readNumber: readNumber,
+        readName: readName,
         mini: mini,
         rubricLevels: rubricLevels ?? this.rubricLevels,
       );
@@ -719,6 +724,7 @@ class Sheet {
         if (openScores.isNotEmpty) 'openScores': openScores,
         if (imageId != null) 'imageId': imageId,
         if (readNumber != null) 'readNumber': readNumber,
+        if (readName != null) 'readName': readName,
         if (mini) 'mini': true,
         if (rubricLevels.isNotEmpty) 'rubricLevels': {for (final e in rubricLevels.entries) '${e.key}': e.value},
       };
@@ -733,6 +739,7 @@ class Sheet {
         openScores: [for (final v in (j['openScores'] as List?) ?? const []) (v as num?)?.toDouble()],
         imageId: j['imageId'] as String?,
         readNumber: j['readNumber'] as String?,
+        readName: j['readName'] as String?,
         mini: j['mini'] as bool? ?? false,
         rubricLevels: {
           for (final e in ((j['rubricLevels'] as Map?) ?? const {}).entries)

@@ -20,28 +20,24 @@ class DetectedForm {
   final List<TemplateBlock> blocks;
   final NumberBlock? number;
   final BookletBlock? booklet;
+  final NameBlock? name;
+  final List<NumberBlock> extraNumbers;
 
   /// Bulunan ama kullanılmayan ızgaralar (ad soyad, sınıf, cinsiyet…).
   final int ignored;
 
-  const DetectedForm({this.blocks = const [], this.number, this.booklet, this.ignored = 0});
+  const DetectedForm({this.blocks = const [], this.number, this.booklet, this.name, this.extraNumbers = const [], this.ignored = 0});
 
   bool get isEmpty => blocks.isEmpty && number == null && booklet == null;
 
   int get questionCount => blocks.fold(0, (m, b) => math.max(m, b.start + b.count - 1));
 
-  FormTemplate applyTo(FormTemplate t) => FormTemplate(
-        id: t.id,
-        name: t.name,
-        aspect: t.aspect,
-        blocks: blocks,
-        number: number,
-        booklet: booklet,
-      );
+  FormTemplate applyTo(FormTemplate t) =>
+      FormTemplate(id: t.id, name: t.name, aspect: t.aspect, blocks: blocks, number: number, booklet: booklet, nameGrid: name, extraNumbers: extraNumbers);
 }
 
 /// Fotoğraftaki formun ızgaralarını bulur ([corners]: sayfanın dört köşesi).
-DetectedForm detectFormGrids(GrayImage g, List<Pt> corners, {double aspect = 297 / 210}) {
+DetectedForm detectFormGrids(GrayImage g, List<Pt> corners, {double aspect = 297 / 210, String lang = 'tr'}) {
   final page = rectifyPage(g, corners, aspect: aspect, width: FormTemplate.width.round());
   final w = page.width, h = page.height;
   final px = Uint8List(w * h);
@@ -50,7 +46,7 @@ DetectedForm detectFormGrids(GrayImage g, List<Pt> corners, {double aspect = 297
       px[y * w + x] = page.getPixel(x, y).r.toInt();
     }
   }
-  return GridDetector(px, w, h).detect();
+  return GridDetector(px, w, h, lang: lang).detect();
 }
 
 class _Blob {
@@ -80,7 +76,10 @@ class _Grid {
 class GridDetector {
   final Uint8List px;
   final int w, h;
-  GridDetector(this.px, this.w, this.h);
+
+  /// Ad soyad alfabesini seçmek için uygulama dili.
+  final String lang;
+  GridDetector(this.px, this.w, this.h, {this.lang = 'tr'});
 
   DetectedForm detect() {
     // Üç yol denenir, en çok daireyi yerleştiren seçilir:
@@ -95,7 +94,11 @@ class GridDetector {
       final gr = _complete(_grids(bl), bl);
       _allBlobs = bl;
       final d = _classify(gr);
-      final cells = d.blocks.fold(0, (n, b) => n + b.count * b.choices) + (d.number == null ? 0 : d.number!.digits * 10);
+      final cells =
+          d.blocks.fold(0, (n, b) => n + b.count * b.choices) +
+          (d.number == null ? 0 : d.number!.digits * 10) +
+          // Eşitlikte ad soyad alanını da bulan yol seçilsin.
+          (d.name == null ? 0 : d.name!.columns);
       if (cells > bestCells) {
         bestCells = cells;
         best = d;
@@ -152,15 +155,19 @@ class GridDetector {
     for (var r = 5; r <= 22; r++) {
       final ring = <List<int>>[]; // her açı için r-1, r, r+1 kaydırmaları
       final inner = <int>[];
+      final outer = <int>[];
       for (var k = 0; k < n; k++) {
         final a = 2 * math.pi * k / n, c = math.cos(a), s = math.sin(a);
-        ring.add([for (final rr in [r - 1.0, r.toDouble(), r + 1.0]) (s * rr).round() * w + (c * rr).round()]);
+        ring.add([
+          for (final rr in [r - 1.0, r.toDouble(), r + 1.0]) (s * rr).round() * w + (c * rr).round(),
+        ]);
         inner.add((s * r * 0.62).round() * w + (c * r * 0.62).round());
+        outer.add((s * (r + 3.5)).round() * w + (c * (r + 3.5)).round());
       }
       final quick = [ring[0], ring[4], ring[8], ring[12]];
       bool hit(int i, List<int> offs) => dark[i + offs[0]] == 1 || dark[i + offs[1]] == 1 || dark[i + offs[2]] == 1;
-      for (var y = r + 2; y < h - r - 2; y++) {
-        for (var x = r + 2; x < w - r - 2; x++) {
+      for (var y = r + 5; y < h - r - 5; y++) {
+        for (var x = r + 5; x < w - r - 5; x++) {
           final i = y * w + x;
           var q = 0;
           for (final o in quick) {
@@ -176,7 +183,17 @@ class GridDetector {
           for (final o in inner) {
             if (dark[i + o] == 1) inn++;
           }
-          if (inn > 7) continue;
+          if (inn > 7) {
+            // Doldurulmuş daire: içi tamamen koyu, hemen dışı açık.
+            if (inn < 15 || y < r + 5 || y >= h - r - 5 || x < r + 5 || x >= w - r - 5) continue;
+            var out = 0;
+            for (final o in outer) {
+              if (dark[i + o] == 1) out++;
+            }
+            if (out > 3) continue;
+            cand.add((cov - 2.0 + r * 0.01, x, y, r));
+            continue;
+          }
           cand.add((cov - 0.5 * inn + r * 0.01, x, y, r));
         }
       }
@@ -213,8 +230,8 @@ class GridDetector {
   }
 
   /// Çember var mı? (Kesintili de olsa; ±2 piksel kaymaya izin verilir.)
-  bool _ringAt(double cx, double cy, double r) {
-    final dark = _ringMask;
+  bool _ringAt(double cx, double cy, double r, {Uint8List? mask}) {
+    final dark = mask ?? _ringMask;
     const n = 16;
     var best = 0;
     for (var oy = -2; oy <= 2 && best < 11; oy += 2) {
@@ -225,7 +242,7 @@ class GridDetector {
           var hit = false;
           for (final rr in [r - 1, r, r + 1]) {
             final x = (cx + ox + c * rr).round(), y = (cy + oy + s * rr).round();
-            if (x >= 0 && y >= 0 && x < w && y < h && _ringMask[y * w + x] == 1) {
+            if (x >= 0 && y >= 0 && x < w && y < h && dark[y * w + x] == 1) {
               hit = true;
               break;
             }
@@ -272,8 +289,12 @@ class GridDetector {
       // Dairenin içindeki rakam/harf çember sanılmış olabilir: yaygın boyu kullan.
       final size = (g.bw + g.bh) / 2;
       final r = (size < dom * 0.75 ? dom : size) / 2;
-      bool okCol(double x) => x > r && x < w - r && ys.where((y) => _ringAt(x, y, r)).length >= ys.length * 0.6;
-      bool okRow(double y) => y > r && y < h - r && xs.where((x) => _ringAt(x, y, r)).length >= xs.length * 0.6;
+      // Ad soyad gibi uzun ızgaralarda ışık bir yandan azalabilir: soluk
+      // çemberler de sayılır, sütunun yarısı yeterli.
+      final tall = ys.length >= 20;
+      bool ring(double x, double y) => _ringAt(x, y, r) || (tall && _ringAt(x, y, r, mask: _faint));
+      bool okCol(double x) => x > r && x < w - r && ys.where((y) => ring(x, y)).length >= ys.length * (tall ? 0.5 : 0.6);
+      bool okRow(double y) => y > r && y < h - r && xs.where((x) => ring(x, y)).length >= xs.length * (tall ? 0.5 : 0.6);
       for (var guard = 0; guard < 80; guard++) {
         var grew = false;
         if (okCol(xs.first - px)) {
@@ -302,8 +323,7 @@ class GridDetector {
     final kept = <_Grid>[];
     for (final g in out) {
       final cx = (g.left + g.right) / 2, cy = (g.top + g.bottom) / 2;
-      final inside = kept.any((k) =>
-          cx >= k.left - k.bw / 2 && cx <= k.right + k.bw / 2 && cy >= k.top - k.bh / 2 && cy <= k.bottom + k.bh / 2);
+      final inside = kept.any((k) => cx >= k.left - k.bw / 2 && cx <= k.right + k.bw / 2 && cy >= k.top - k.bh / 2 && cy <= k.bottom + k.bh / 2);
       if (!inside) kept.add(g);
     }
     return kept;
@@ -397,8 +417,7 @@ class GridDetector {
     out.sort((a, b) => b.size.compareTo(a.size));
     final kept = <_Blob>[];
     for (final b in out) {
-      final inside = kept.any((k) =>
-          k.size > b.size * 1.3 && (b.cx - k.cx).abs() < k.bw / 2 && (b.cy - k.cy).abs() < k.bh / 2);
+      final inside = kept.any((k) => k.size > b.size * 1.3 && (b.cx - k.cx).abs() < k.bw / 2 && (b.cy - k.cy).abs() < k.bh / 2);
       if (!inside) kept.add(b);
     }
     return kept;
@@ -453,8 +472,20 @@ class GridDetector {
             if (cells < 2 || part.length < cells * 0.7) continue;
             if (!_regular(cs) || !_regular(rs)) continue;
             // Her sütun/satır merkezini o sütundaki dairelerden yeniden hesapla, doğruya uydur.
-            final xs = _fit([for (final c in cs) _median([for (final b in part) if ((b.cx - c).abs() < 0.45 * bw) b.cx])]);
-            final ys = _fit([for (final r in rs) _median([for (final b in part) if ((b.cy - r).abs() < 0.45 * bh) b.cy])]);
+            final xs = _fit([
+              for (final c in cs)
+                _median([
+                  for (final b in part)
+                    if ((b.cx - c).abs() < 0.45 * bw) b.cx,
+                ]),
+            ]);
+            final ys = _fit([
+              for (final r in rs)
+                _median([
+                  for (final b in part)
+                    if ((b.cy - r).abs() < 0.45 * bh) b.cy,
+                ]),
+            ]);
             grids.add(_Grid(xs, ys, bw, bh, alone: g.length <= part.length + 1));
           }
         }
@@ -470,7 +501,11 @@ class GridDetector {
     final parts = _splitByGap(centers);
     if (parts.length == 1) return [g];
     return [
-      for (final p in parts) [for (final b in g) if (axis(b) >= p.first - 0.45 * size && axis(b) <= p.last + 0.45 * size) b]
+      for (final p in parts)
+        [
+          for (final b in g)
+            if (axis(b) >= p.first - 0.45 * size && axis(b) <= p.last + 0.45 * size) b,
+        ],
     ];
   }
 
@@ -540,14 +575,57 @@ class GridDetector {
   // -------------------------------------------------------------------------
   // 3. Sınıflama
 
+  /// Dilin alfabesine 1–2 satır eksik harf ızgarasını aşağı doğru tamamlar:
+  /// harfin içi çemberi bozabildiği için soluk satırda sütunların beşte biri,
+  /// eklenen satırların toplamında üçte biri yeter.
+  _Grid _fitAlphabet(_Grid g) {
+    final own = NameBlock.alphabets.where((a) => a.$1 == lang).map((a) => a.$2.length).toList();
+    if (own.isEmpty) own.add(NameBlock.english.length);
+    if (own.contains(g.nr) || own.contains(g.nr - 1)) return g;
+    final py = (g.bottom - g.top) / (g.nr - 1);
+    final r = (g.bw + g.bh) / 4;
+    for (final want in own) {
+      final miss = want - g.nr;
+      if (miss < 1 || miss > 2) continue;
+      final ys = [...g.ys];
+      var ok = true, all = 0;
+      for (var k = 0; k < miss && ok; k++) {
+        final y = ys.last + py;
+        final hits = y < h - r ? g.xs.where((x) => _ringAt(x, y, r, mask: _faint) || _ringAt(x, y, r, mask: _dark)).length : 0;
+        all += hits;
+        if (hits >= g.nc / 5) {
+          ys.add(y);
+        } else {
+          ok = false;
+        }
+      }
+      ok = ok && all >= miss * g.nc / 3;
+      if (ok) return _Grid(g.xs, ys, g.bw, g.bh);
+    }
+    return g;
+  }
+
   DetectedForm _classify(List<_Grid> grids) {
     final answers = <(_Grid, bool)>[]; // (ızgara, şıklar yan yana mı)
     final numbers = <_Grid>[];
     final singles = <_Grid>[];
     var ignored = 0;
+    final names = <_Grid>[];
     for (final g in grids) {
       final nr = g.nr, nc = g.nc;
-      if (nr == 1 || nc == 1) {
+      if (nr >= 24 && nr <= 34 && nc >= 6) {
+        // Son harf satırları (Y, Z gibi) çoğu formda soluk basılır ya da
+        // ışık azalır: dilin alfabesine 1–2 satır eksikse alt satırlar denenir.
+        final ng = _fitAlphabet(g);
+        // Ad soyad harf ızgarası; üstte harflerin yazıldığı kutular da sayılmış olabilir.
+        if (NameBlock.alphabetFor(ng.nr, lang) != null) {
+          names.add(ng);
+        } else if (NameBlock.alphabetFor(ng.nr - 1, lang) != null) {
+          names.add(_Grid(ng.xs, ng.ys.sublist(1), ng.bw, ng.bh));
+        } else {
+          ignored++;
+        }
+      } else if (nr == 1 || nc == 1) {
         if (nr * nc >= 2 && nr * nc <= 6) {
           singles.add(g);
         } else {
@@ -608,11 +686,14 @@ class GridDetector {
     }
 
     NumberBlock? number;
+    final extraNumbers = <NumberBlock>[];
     if (numbers.isNotEmpty) {
       numbers.sort((a, b) => b.nc.compareTo(a.nc));
       final g = numbers.first;
       number = NumberBlock(digits: g.nc, first: g.first, last: g.last);
-      ignored += numbers.length - 1;
+      for (final o in numbers.skip(1)) {
+        extraNumbers.add(NumberBlock(digits: o.nc, first: o.first, last: o.last));
+      }
     }
 
     // Kitapçık: sayfanın üst yarısındaki tek sıra 2–6 daire; en kalabalığı,
@@ -628,36 +709,63 @@ class GridDetector {
       final horizontal = s.nr == 1;
       final size = (s.bw + s.bh) / 2;
       final step = horizontal ? (s.nc >= 2 ? (s.right - s.left) / (s.nc - 1) : size * 1.3) : (s.nr >= 2 ? (s.bottom - s.top) / (s.nr - 1) : size * 1.3);
-      var near = 0, total = 0;
+      // Üstte (ya da solda) "KİTAPÇIK" gibi bir başlık yazısı olabilir; bir
+      // yanı boş olması yeter. Bir ızgaranın parçası olan sıranın iki yanı da doludur.
+      final near = [0, 0];
+      var total = 0;
       for (final x in s.xs) {
         for (final y in s.ys) {
-          for (final d in [-step, step]) {
-            total++;
+          total++;
+          for (var k = 0; k < 2; k++) {
+            final d = k == 0 ? -step : step;
             final px = horizontal ? x : x + d, py = horizontal ? y + d : y;
-            if (_ringAt(px, py, size / 2) ||
-                _allBlobs.any((b) => (b.cx - px).abs() < size * 0.5 && (b.cy - py).abs() < size * 0.5)) {
-              near++;
+            // Yalnız benzer boydaki daireler sayılır.
+            if (_ringAt(px, py, size / 2, mask: _dark) ||
+                _allBlobs.any((b) => (b.cx - px).abs() < size * 0.5 && (b.cy - py).abs() < size * 0.5 && (b.size - size).abs() <= size * 0.25)) {
+              near[k]++;
             }
           }
         }
       }
-      return near <= total * 0.25;
+      return math.min(near[0], near[1]) <= total * 0.25;
     }
 
     final cands = singles
-        .where((s) =>
-            s.top < pageH * 0.6 &&
-            math.min(s.bw, s.bh) >= minSize &&
-            (refSize == 0 || ((s.bw + s.bh) / 2 - refSize).abs() <= refSize * 0.25) &&
-            !answers.any((a) =>
-                s.left <= a.$1.right + a.$1.bw && s.right >= a.$1.left - a.$1.bw && s.top <= a.$1.bottom + a.$1.bh && s.bottom >= a.$1.top - a.$1.bh) &&
-            isolated(s))
+        .where(
+          (s) =>
+              s.top < pageH * 0.6 &&
+              math.min(s.bw, s.bh) >= minSize &&
+              (refSize == 0 || ((s.bw + s.bh) / 2 - refSize).abs() <= refSize * 0.25) &&
+              // Yazıdaki harfler sık dizilir; kitapçık daireleri arasında boşluk vardır.
+              (s.nr * s.nc < 2 || (s.nr == 1 ? (s.right - s.left) / (s.nc - 1) : (s.bottom - s.top) / (s.nr - 1)) >= 1.6 * (s.bw + s.bh) / 2) &&
+              !answers.any(
+                (a) => s.left <= a.$1.right + a.$1.bw && s.right >= a.$1.left - a.$1.bw && s.top <= a.$1.bottom + a.$1.bh && s.bottom >= a.$1.top - a.$1.bh,
+              ) &&
+              isolated(s),
+        )
         .toList();
     if (cands.isNotEmpty) {
+      double boxDist(_Grid s, double l, double t, double r, double b) {
+        final x = (s.left + s.right) / 2, y = (s.top + s.bottom) / 2;
+        final dx = x < l ? l - x : (x > r ? x - r : 0.0), dy = y < t ? t - y : (y > b ? y - b : 0.0);
+        return math.sqrt(dx * dx + dy * dy);
+      }
+
       double distToNumber(_Grid s) {
-        if (number == null) return s.top;
-        final c = Pt((number.first.x + number.last.x) / 2, (number.first.y + number.last.y) / 2);
-        return math.sqrt(math.pow(s.xs.first - c.x, 2) + math.pow(s.ys.first - c.y, 2));
+        final toAnswers = answers.isEmpty ? double.infinity : answers.map((a) => boxDist(s, a.$1.left, a.$1.top, a.$1.right, a.$1.bottom)).reduce(math.min);
+        if (number != null) {
+          return math.min(
+            toAnswers,
+            boxDist(
+              s,
+              math.min(number.first.x, number.last.x),
+              math.min(number.first.y, number.last.y),
+              math.max(number.first.x, number.last.x),
+              math.max(number.first.y, number.last.y),
+            ),
+          );
+        }
+        return answers.isEmpty ? s.top : toAnswers;
       }
 
       cands.sort((a, b) {
@@ -665,11 +773,17 @@ class GridDetector {
         // daireler genelde cinsiyet, öğrenim gibi alanlardır.
         final hz = (b.nr == 1 ? 1 : 0).compareTo(a.nr == 1 ? 1 : 0);
         if (hz != 0) return hz;
-        final c = (b.nr * b.nc).compareTo(a.nr * a.nc);
-        if (c != 0) return c;
-        if ((a.top - b.top).abs() > 20) return a.top.compareTo(b.top);
-        return distToNumber(a).compareTo(distToNumber(b));
+        // Sonra numara alanına (yoksa cevap alanına) en yakın olan: başlık
+        // yazısındaki harfler gibi uzaktaki "daireler" elenir.
+        final da = distToNumber(a), db = distToNumber(b);
+        if ((da - db).abs() > 10) return da.compareTo(db);
+        // Daha çok daireli sıra (A B C D) iki daireli kırıntıdan önce gelir.
+        final cnt = (b.nr * b.nc).compareTo(a.nr * a.nc);
+        if (cnt != 0) return cnt;
+        // Eşit uzaklıkta üstteki (cinsiyet gibi alanlar genelde daha aşağıda).
+        return a.top.compareTo(b.top);
       });
+
       final g = cands.first;
       booklet = BookletBlock(count: g.nr * g.nc, first: g.first, last: g.last);
     }
@@ -680,9 +794,7 @@ class GridDetector {
     answers.sort((a, b) => a.$1.left.compareTo(b.$1.left));
     final columns = <List<(_Grid, bool)>>[];
     for (final a in answers) {
-      final col = columns
-          .where((c) => c.any((o) => a.$1.left - a.$1.bw < o.$1.right + o.$1.bw && o.$1.left - o.$1.bw < a.$1.right + a.$1.bw))
-          .firstOrNull;
+      final col = columns.where((c) => c.any((o) => a.$1.left - a.$1.bw < o.$1.right + o.$1.bw && o.$1.left - o.$1.bw < a.$1.right + a.$1.bw)).firstOrNull;
       if (col != null) {
         col.add(a);
       } else {
@@ -700,7 +812,13 @@ class GridDetector {
         start += count;
       }
     }
-    return DetectedForm(blocks: blocks, number: number, booklet: booklet, ignored: ignored);
+    NameBlock? name;
+    if (names.isNotEmpty) {
+      names.sort((a, b) => (b.nr * b.nc).compareTo(a.nr * a.nc));
+      final g = names.first;
+      name = NameBlock(columns: g.nc, letters: NameBlock.alphabetFor(g.nr, lang)!, first: g.first, last: g.last);
+    }
+    return DetectedForm(blocks: blocks, number: number, booklet: booklet, name: name, extraNumbers: extraNumbers, ignored: ignored);
   }
 
   /// Düzenli formlarda bloklar bir tablo gibi dizilir (ör. 6 sütun × 5 sıra
@@ -713,7 +831,10 @@ class GridDetector {
       shapes['${g.nr}x${g.nc}'] = (shapes['${g.nr}x${g.nc}'] ?? 0) + 1;
     }
     final shape = shapes.entries.reduce((a, b) => b.value > a.value ? b : a).key;
-    final same = [for (final a in answers) if ('${a.$1.nr}x${a.$1.nc}' == shape) a.$1];
+    final same = [
+      for (final a in answers)
+        if ('${a.$1.nr}x${a.$1.nc}' == shape) a.$1,
+    ];
     if (same.length < 3) return;
     final nr = same.first.nr, nc = same.first.nc;
     final bw = _median([for (final g in same) g.right - g.left]), bh = _median([for (final g in same) g.bottom - g.top]);
@@ -740,8 +861,7 @@ class GridDetector {
     final r = size / 2;
     for (var ci = 0; ci < cols.length; ci++) {
       for (var ri = 0; ri < rows.length; ri++) {
-        final exists = answers.any((a) =>
-            (a.$1.left - colX[ci]).abs() < bw * 0.5 + size && (a.$1.top - rowY[ri]).abs() < bh * 0.5 + size);
+        final exists = answers.any((a) => (a.$1.left - colX[ci]).abs() < bw * 0.5 + size && (a.$1.top - rowY[ri]).abs() < bh * 0.5 + size);
         if (exists) continue;
         // Bu sıradaki bloklar sütun ortalamasından ne kadar kaymış (eğik kâğıt)?
         final dx = rows[ri].map((g) => g.left - colX[cols.indexWhere((c) => c.contains(g))]);

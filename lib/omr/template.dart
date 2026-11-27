@@ -25,6 +25,13 @@ class FormTemplate {
   /// Kitapçık türü daireleri (A, B, C…); yoksa null.
   final BookletBlock? booklet;
 
+  /// Ad soyad harf ızgarası (her sütun bir harf); yoksa null.
+  final NameBlock? nameGrid;
+
+  /// Öğrenci numarası dışındaki numara alanları (TC kimlik no, okul no…).
+  /// Öğrenci eşleştirmede numara bulunamazsa bunlar da denenir.
+  final List<NumberBlock> extraNumbers;
+
   const FormTemplate({
     required this.id,
     required this.name,
@@ -32,6 +39,8 @@ class FormTemplate {
     this.blocks = const [],
     this.number,
     this.booklet,
+    this.nameGrid,
+    this.extraNumbers = const [],
   });
 
   static const width = 1000.0;
@@ -51,7 +60,10 @@ class FormTemplate {
           NumberBlock? number,
           bool clearNumber = false,
           BookletBlock? booklet,
-          bool clearBooklet = false}) =>
+          bool clearBooklet = false,
+          NameBlock? nameGrid,
+          bool clearNameGrid = false,
+          List<NumberBlock>? extraNumbers}) =>
       FormTemplate(
         id: id ?? this.id,
         name: name ?? this.name,
@@ -59,6 +71,8 @@ class FormTemplate {
         blocks: blocks ?? this.blocks,
         number: clearNumber ? null : (number ?? this.number),
         booklet: clearBooklet ? null : (booklet ?? this.booklet),
+        nameGrid: clearNameGrid ? null : (nameGrid ?? this.nameGrid),
+        extraNumbers: extraNumbers ?? this.extraNumbers,
       );
 
   Map<String, dynamic> toJson() => {
@@ -68,6 +82,8 @@ class FormTemplate {
         'blocks': blocks.map((b) => b.toJson()).toList(),
         if (number != null) 'number': number!.toJson(),
         if (booklet != null) 'booklet': booklet!.toJson(),
+        if (nameGrid != null) 'nameGrid': nameGrid!.toJson(),
+        if (extraNumbers.isNotEmpty) 'extraNumbers': [for (final n in extraNumbers) n.toJson()],
       };
 
   factory FormTemplate.fromJson(Map<String, dynamic> j) => FormTemplate(
@@ -77,6 +93,8 @@ class FormTemplate {
         blocks: [for (final b in (j['blocks'] as List?) ?? const []) TemplateBlock.fromJson(b as Map<String, dynamic>)],
         number: j['number'] == null ? null : NumberBlock.fromJson(j['number'] as Map<String, dynamic>),
         booklet: j['booklet'] == null ? null : BookletBlock.fromJson(j['booklet'] as Map<String, dynamic>),
+        nameGrid: j['nameGrid'] == null ? null : NameBlock.fromJson(j['nameGrid'] as Map<String, dynamic>),
+        extraNumbers: [for (final n in (j['extraNumbers'] as List?) ?? const []) NumberBlock.fromJson(n as Map<String, dynamic>)],
       );
 
   /// Paylaşım dosyası (başka öğretmene gönderilen şablon).
@@ -96,6 +114,56 @@ class FormTemplate {
       return null;
     }
   }
+}
+
+/// Ad soyad harf ızgarası: her sütun bir harf, harfler yukarıdan aşağı.
+class NameBlock {
+  /// Optik formlarda kullanılan alfabeler: (dil kodu, harfler).
+  static const alphabets = <(String, String)>[
+    ('tr', 'ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ'),
+    ('en', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+    ('es', 'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ'),
+    ('de', 'ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜ'),
+    ('az', 'ABCÇDEƏFGĞHXIİJKQLMNOÖPRSŞTUÜVYZ'),
+    ('ru', 'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ'),
+    ('ru', 'АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ'),
+    ('ar', 'ابتثجحخدذرزسشصضطظعغفقكلمنهوي'),
+  ];
+  static String get turkish => alphabets[0].$2;
+  static String get english => alphabets[1].$2;
+
+  /// [rows] harfli ızgara için alfabe: önce uygulama dili, sonra sıradaki ilk uyan.
+  static String? alphabetFor(int rows, String lang) {
+    final fit = alphabets.where((a) => a.$2.length == rows).toList();
+    if (fit.isEmpty) return null;
+    return (fit.where((a) => a.$1 == lang).firstOrNull ?? (lang == 'pt' || lang == 'id' || lang == 'fr' || lang == 'it'
+            ? fit.where((a) => a.$1 == 'en').firstOrNull
+            : null) ??
+        fit.first).$2;
+  }
+
+  final int columns;
+  final String letters;
+
+  /// İlk sütunun ilk harfi ve son sütunun son harfinin merkezleri.
+  final Pt first, last;
+
+  const NameBlock({required this.columns, required this.letters, required this.first, required this.last});
+
+  int get rows => letters.length;
+
+  Pt bubble(int col, int row) {
+    final fx = columns <= 1 ? 0.0 : col / (columns - 1);
+    final fy = rows <= 1 ? 0.0 : row / (rows - 1);
+    return Pt(first.x + (last.x - first.x) * fx, first.y + (last.y - first.y) * fy);
+  }
+
+  double get radius => _radius(first, last, columns, rows);
+
+  Map<String, dynamic> toJson() => {'columns': columns, 'letters': letters, 'first': [first.x, first.y], 'last': [last.x, last.y]};
+
+  factory NameBlock.fromJson(Map<String, dynamic> j) => NameBlock(
+      columns: j['columns'] as int, letters: j['letters'] as String, first: _pt(j['first']), last: _pt(j['last']));
 }
 
 /// Kitapçık türü daireleri: tek sıra (yan yana ya da alt alta) A, B, C…
@@ -481,7 +549,14 @@ class TemplateReader {
       final base = _baseline([for (final f in raw.values) ...f]);
       for (final e in raw.entries) {
         final fills = _rebase(e.value, base);
-        answers[e.key] = OmrQuestion(helper.classify(fills), fills);
+        var a = helper.classify(fills);
+        if (a.state == MarkState.blank || a.state == MarkState.uncertain) {
+          // Açık kurşun kalemle küçük işaret: satırın diğer şıklarından
+          // belirgin biçimde koyuysa işaretli say.
+          final pick = _relativePick(fills);
+          if (pick != null && (a.state == MarkState.blank || a.marked.length == 1)) a = Answer(MarkState.filled, {pick});
+        }
+        answers[e.key] = OmrQuestion(a, fills);
       }
     }
 
@@ -494,10 +569,7 @@ class TemplateReader {
       if (a.state == MarkState.filled) booklet = a.marked.first;
     }
 
-    String? number;
-    String? pattern;
-    final nb = template.number;
-    if (nb != null) {
+    (String?, String?) readNumber(NumberBlock nb) {
       final digits = StringBuffer();
       var ok = true;
       final rawDigits = [
@@ -508,8 +580,12 @@ class TemplateReader {
         final fills = _rebase(rawDigits[d], base);
         final order = [for (var v = 0; v < 10; v++) v]..sort((x, y) => fills[y].compareTo(fills[x]));
         final best = fills[order[0]], second = fills[order[1]];
+        final rel = _relativePick(fills);
         if (best >= 0.25 && best - second >= 0.18 && second < thresholds.empty + 0.05) {
           digits.write(order[0]);
+        } else if (rel != null) {
+          // Açık kurşun kalemle küçük işaret: sütunun diğerlerinden belirgin koyu.
+          digits.write(rel);
         } else if (best < thresholds.empty) {
           // Boş bırakılmış basamak (kısa numara): atla.
           digits.write('-');
@@ -521,8 +597,41 @@ class TemplateReader {
       // Baştaki/sondaki boş basamaklar sıfır gibi sayılır (numara sağa ya da sola yaslanmış olabilir).
       final raw = digits.toString().replaceAll('-', '');
       final p = raw.padLeft(FormLayout.studentDigits, '0');
-      pattern = raw.isEmpty || raw.replaceAll('?', '').isEmpty ? null : p;
-      number = ok && raw.isNotEmpty ? p : null;
+      return (ok && raw.isNotEmpty ? p : null, raw.isEmpty || raw.replaceAll('?', '').isEmpty ? null : p);
+    }
+
+    String? number;
+    String? pattern;
+    final nb = template.number;
+    if (nb != null) (number, pattern) = readNumber(nb);
+    // Diğer numara alanları (ör. TC kimlik no ile okul numarası ayrı).
+    final others = <String>[
+      for (final x in template.extraNumbers) ?readNumber(x).$1
+    ];
+
+    String? name;
+    final na = template.nameGrid;
+    if (na != null) {
+      final raw = [
+        for (var c = 0; c < na.columns; c++) [for (var r = 0; r < na.rows; r++) fillAt(na.bubble(c, r), na.radius)]
+      ];
+      final base = _baseline([for (final f in raw) ...f]);
+      final buf = StringBuffer();
+      for (final col in raw) {
+        final fills = _rebase(col, base);
+        final pick = _relativePick(fills);
+        if (pick != null) {
+          buf.write(na.letters[pick]);
+        } else if (fills.reduce(math.max) < thresholds.empty) {
+          buf.write(' ');
+        } else {
+          final sorted = [...fills]..sort();
+          // Belirgin bir işaret yok: boşluk say; birden çok koyu varsa okunamadı.
+          buf.write(sorted.last - sorted[sorted.length ~/ 2] < 0.08 ? ' ' : '?');
+        }
+      }
+      final text = buf.toString().trim().replaceAll(RegExp(r' +'), ' ');
+      if (text.replaceAll(RegExp(r'[ ?]'), '').length >= 2) name = text;
     }
 
     return OmrResult(
@@ -531,7 +640,20 @@ class TemplateReader {
       numberPattern: pattern,
       markers: page,
       booklet: booklet,
+      name: name,
+      otherNumbers: others,
     );
+  }
+
+  /// Bir sırada (satır ya da sütun) diğerlerinden belirgin biçimde koyu tek
+  /// daire varsa onun sırası. Açık kurşun kalem ve küçük işaretler için.
+  static int? _relativePick(List<double> f) {
+    if (f.length < 3) return null;
+    final sorted = [...f]..sort();
+    final best = sorted.last, second = sorted[sorted.length - 2], mid = sorted[sorted.length ~/ 2];
+    final gap = best - mid;
+    if (gap < 0.12 || best - second < gap * 0.6) return null;
+    return f.indexOf(best);
   }
 
   /// Boş dairelerin dolulukta görünen düzeyi: değerlerin alt çeyreği.

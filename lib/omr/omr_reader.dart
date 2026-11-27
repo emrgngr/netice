@@ -132,6 +132,12 @@ class OmrResult {
   /// Çeyrek A4 kısa quiz formundan mı okundu?
   final bool mini;
 
+  /// Formun ad soyad alanından okunan ad ('?' = okunamayan harf); alan yoksa null.
+  final String? name;
+
+  /// Diğer numara alanlarından okunan numaralar (TC kimlik no vb.).
+  final List<String> otherNumbers;
+
   const OmrResult({
     required this.questions,
     required this.studentNumber,
@@ -140,6 +146,8 @@ class OmrResult {
     this.booklet,
     this.numberPattern,
     this.mini = false,
+    this.name,
+    this.otherNumbers = const [],
   });
 
   List<Answer> get answers => questions.map((q) => q.answer).toList();
