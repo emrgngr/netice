@@ -24,6 +24,7 @@ enum Section {
   help,
   pro,
   why,
+  samples,
 }
 
 class SectionStyle {
@@ -55,6 +56,7 @@ extension SectionInfo on Section {
     Section.help => const SectionStyle(Icons.help_rounded, Color(0xFF38BDF8), Color(0xFF0369A1)),
     Section.pro => const SectionStyle(Icons.diamond_rounded, Color(0xFFF7D774), Color(0xFFD99A2B)),
     Section.why => const SectionStyle(Icons.emoji_events_rounded, Color(0xFF10B981), Color(0xFF0F1B3D)),
+    Section.samples => const SectionStyle(Icons.auto_stories_rounded, Color(0xFF818CF8), Color(0xFF4338CA)),
   };
 
   /// Bölümün kullanıcıya görünen adı.
@@ -76,6 +78,7 @@ extension SectionInfo on Section {
     Section.help => tr('Yardım'),
     Section.pro => tr('Netice Pro'),
     Section.why => tr('Neden Netice?'),
+    Section.samples => tr('Örnek raporlar'),
   };
 }
 

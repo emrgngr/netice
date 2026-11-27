@@ -12,11 +12,17 @@ on:
     paths:
       - 'web-sitesi/**'
       - 'tool/site/**'
+      - 'tool/ornek_raporlar_test.dart'
+      - 'lib/ui/sample_reports.dart'
+      - 'lib/reports/**'
       - '.github/workflows/web-sitesi.yml'
   pull_request:
     paths:
       - 'web-sitesi/**'
       - 'tool/site/**'
+      - 'tool/ornek_raporlar_test.dart'
+      - 'lib/ui/sample_reports.dart'
+      - 'lib/reports/**'
       - '.github/workflows/web-sitesi.yml'
 
 concurrency:
@@ -58,6 +64,22 @@ jobs:
             mkdir -p "build/site/video/$dil" && mv "$f" "build/site/video/$dil/$ad"
           done
           ls -R build/site/video | head -50
+
+      # Örnek raporlar sayfasının görselleri her dilde, uygulamanın kendi PDF'lerinden.
+      # Bu adım başarısız olursa site Türkçe görsellerle (web-sitesi/img/raporlar) yayınlanır.
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.50.0
+          channel: stable
+          cache: true
+      - name: Örnek rapor görselleri (15 dil)
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          sudo apt-get install -y -qq poppler-utils >/dev/null
+          flutter pub get
+          flutter test tool/ornek_raporlar_test.dart --dart-define=LANGS=tr,en,de,fr,es,it,pt,ru,ar,az,zh,ja,ko,hi,id
+          tool/site/ornek_raporlar.sh site build/site/img/raporlar
 
       - name: 15 dile çevir (yalnız değişen cümleler çevrilir)
         env:
