@@ -61,3 +61,11 @@ jobs:
           name: egitim_${{ env.lang }}
           path: build/video/egitim_${{ env.lang }}.mp4
           compression-level: 0
+      - name: Sürüme yükle (önizleme ve paylaşım için)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view egitim-videolari >/dev/null 2>&1 || \
+            gh release create egitim-videolari --title "Netice eğitim ve tanıtım videoları" \
+              --notes "Pazarlama ve eğitim videoları (16:9). Uygulamanın rehber videolarından ayrıdır." --prerelease --target "${{ github.sha }}"
+          gh release upload egitim-videolari build/video/egitim_${lang}.mp4 --clobber
