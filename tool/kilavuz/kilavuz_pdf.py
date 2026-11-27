@@ -411,27 +411,138 @@ def _parilti(c, x, y, r0):
         c.circle(x, y, r0 - i * r0 / 5, stroke=0, fill=1)
 
 
-def magaza_rozetleri(c, x, y, h=30):
-    """Google Play ve App Store rozetleri (bu dilde). Dönüş: kapladığı genişlik."""
-    rozet_dir = os.path.join(KOK, 'assets', 'badges')
-    gp = os.path.join(rozet_dir, f'google_play_{DIL}.png')
-    if not os.path.exists(gp):
-        gp = os.path.join(rozet_dir, 'google_play_en.png')
-    img = ImageReader(gp)
-    iw, ih = img.getSize()
-    gw = h * iw / ih
-    c.drawImage(img, x, y, gw, h, mask='auto')
-    x2 = x + gw + 10
-    asvg = os.path.join(rozet_dir, f'app_store_{DIL}.svg')
-    if not os.path.exists(asvg):
-        asvg = os.path.join(rozet_dir, 'app_store_en.svg')
+ROZET_ORAN = 3.4  # dört rozet aynı en/boyda (dile göre değişmez)
+APP_STORE_URL = 'https://apps.apple.com/app/id6838423827'
+PLAY_URL = 'https://play.google.com/store/apps/details?id=com.netice.netice'
+INDIR_URL = 'https://www.neticeoptik.com/indir.html'
+_ROZET_DIR = os.path.join(KOK, 'assets', 'badges')
+
+
+def _rozet_dosyasi(ad, uzanti):
+    yol = os.path.join(_ROZET_DIR, f'{ad}_{DIL}.{uzanti}')
+    return yol if os.path.exists(yol) else os.path.join(_ROZET_DIR, f'{ad}_en.{uzanti}')
+
+
+def _rozet_zemini(c, x, y, w, h):
+    c.setFillColor(HexColor('#000000'))
+    c.setStrokeColor(HexColor('#A6A6A6'))
+    c.setLineWidth(h * 0.025)
+    c.roundRect(x, y, w, h, h * 0.18, stroke=1, fill=1)
+
+
+def _svg_ici(yol, sec):
+    """SVG rozetinden çerçeveyi atıp yalnız sec(sınırlar, genişlik) ile seçilen parçaları bırakır."""
     from svglib.svglib import svg2rlg
+    from reportlab.graphics.shapes import Group
+    d = svg2rlg(yol)
+    yapraklar = []
+
+    def topla(g):
+        for k in g.contents:
+            if isinstance(k, Group):
+                topla(k)
+            else:
+                yapraklar.append(k.getBounds())
+    topla(d)
+    genislik = max(b[2] for b in yapraklar) - min(b[0] for b in yapraklar)
+
+    def suz(g):
+        yeni = []
+        for k in g.contents:
+            if isinstance(k, Group):
+                suz(k)
+                if k.contents:
+                    yeni.append(k)
+            elif sec(k.getBounds(), genislik):
+                yeni.append(k)
+        g.contents = yeni
+    suz(d)
+    return d
+
+
+def _svg_ortala(c, d, x, y, w, h, yukseklik):
+    """Çizimi yukseklik ölçeğiyle (svg boyu = yukseklik) rozetin ortasına koyar."""
     from reportlab.graphics import renderPDF
-    d = svg2rlg(asvg)
-    k = h / d.height
+    k = yukseklik / d.height
+    bx0, by0, bx1, by1 = d.getBounds()
+    ox = x + (w - (bx1 - bx0) * k) / 2 - bx0 * k
+    oy = y + (h - yukseklik) / 2
     d.scale(k, k)
-    renderPDF.draw(d, c, x2, y)
-    return gw + 10 + d.width * k
+    renderPDF.draw(d, c, ox, oy)
+
+
+def _elma(c, x, y, boy):
+    """Apple logosu (resmi rozetten); sol alt köşesi (x, y), yüksekliği boy."""
+    from reportlab.graphics import renderPDF
+    d = _svg_ici(os.path.join(_ROZET_DIR, 'app_store_en.svg'), lambda b, W: b[2] < W * 0.25 and b[2] - b[0] < W * 0.5)
+    bx0, by0, bx1, by1 = d.getBounds()
+    k = boy / (by1 - by0)
+    d.scale(k, k)
+    renderPDF.draw(d, c, x - bx0 * k, y - by0 * k)
+
+
+def _rozet_yazi(c, x, y, w, h, ust_satir, alt_satir):
+    c.setFillColor(white)
+    c.setFont('J5', h * 0.2)
+    yaz(c, x + h * 0.95, y + h * 0.6, ust_satir)
+    c.setFont('J7', h * 0.4)
+    yaz(c, x + h * 0.95, y + h * 0.2, alt_satir)
+
+
+def rozet_ciz(c, tur, x, y, h):
+    """Aynı ölçüde indirme rozeti: 'play', 'appstore', 'windows', 'mac'."""
+    w = h * ROZET_ORAN
+    _rozet_zemini(c, x, y, w, h)
+    if tur == 'appstore':
+        d = _svg_ici(_rozet_dosyasi('app_store', 'svg'), lambda b, W: b[2] - b[0] < W * 0.8)
+        _svg_ortala(c, d, x, y, w, h, h)
+        url = APP_STORE_URL
+    elif tur == 'play':
+        from PIL import Image
+        im = Image.open(_rozet_dosyasi('google_play', 'png')).convert('RGBA')
+        im = im.crop(im.getbbox())
+        # Gri çerçevenin içindeki siyah alanı bul; ortak çerçeve kullanılır.
+        orta_y, orta_x = im.height // 2, im.width // 2
+
+        def koyu(px):
+            return px[3] > 200 and sum(px[:3]) < 60
+        sol = next(i for i in range(im.width) if koyu(im.getpixel((i, orta_y))))
+        ust_ = next(i for i in range(im.height) if koyu(im.getpixel((orta_x, i))))
+        pay = 3
+        im = im.crop((sol + pay, ust_ + pay, im.width - sol - pay, im.height - ust_ - pay))
+        ih = h * 0.84
+        iw = ih * im.width / im.height
+        if iw > w * 0.96:
+            iw = w * 0.96
+            ih = iw * im.height / im.width
+        c.drawImage(ImageReader(im), x + (w - iw) / 2, y + (h - ih) / 2, iw, ih, mask='auto')
+        url = PLAY_URL
+    elif tur == 'mac':
+        _elma(c, x + h * 0.33, y + h * 0.22, h * 0.56)
+        _rozet_yazi(c, x, y, w, h, T('Bilgisayara indirin'), 'Mac')
+        url = INDIR_URL
+    else:
+        s = h * 0.19  # Windows logosu: dört kare
+        lx, ly = x + h * 0.32, y + h / 2 - s - h * 0.015
+        c.setFillColor(white)
+        for dx in (0, 1):
+            for dy in (0, 1):
+                c.rect(lx + dx * (s + h * 0.03), ly + dy * (s + h * 0.03), s, s, stroke=0, fill=1)
+        _rozet_yazi(c, x, y, w, h, T('Bilgisayara indirin'), 'Windows')
+        url = INDIR_URL
+    c.linkURL(url, (x, y, x + w, y + h), relative=0)
+    return w
+
+
+def magaza_rozetleri(c, x, y, h=30, sutun=4, bosluk=8):
+    """Google Play, App Store, Windows ve Mac rozetleri; hepsi aynı ölçüde,
+    her biri indirme sayfasına bağlantılı. sutun=2 ise iki satır."""
+    w = h * ROZET_ORAN
+    for i, tur in enumerate(('play', 'appstore', 'windows', 'mac')):
+        sx = x + (i % sutun) * (w + bosluk)
+        sy = y - (i // sutun) * (h + bosluk)
+        rozet_ciz(c, tur, sx, sy, h)
+    return min(4, sutun) * (w + bosluk) - bosluk
 
 
 def karekod(c, url, x, y, boyut):
@@ -509,15 +620,16 @@ def kapak(c):
     c.rect(0, 0, W, 118, stroke=0, fill=1)
     c.setFillColor(white)
     c.setFont('J8', 13)
-    yaz(c, M, 84, T('Ücretsiz indirin'))
-    magaza_rozetleri(c, M, 38, 32)
+    yaz(c, M, 88, T('Ücretsiz indirin'))
     c.setFillColor(EMERALD)
     c.setFont('J7', 12)
-    yaz(c, W - M, 78, SITE, sag=True)
+    yaz(c, W - M, 88, SITE, sag=True)
+    rh = (W - 2 * M - 3 * 8) / 4 / ROZET_ORAN
+    magaza_rozetleri(c, M, 44, rh)
     c.setFillColor(HexColor('#8C97B8'))
-    c.setFont('J5', 9)
-    yaz(c, W - M, 60, T('Telefon, tablet ve bilgisayarda'), sag=True)
-    yaz(c, W - M, 30, T('Sürüm') + ' ' + date.today().strftime('%d.%m.%Y') + ' · ' + EPOSTA, sag=True)
+    c.setFont('J5', 8.5)
+    yaz(c, M, 20, T('Telefon, tablet ve bilgisayarda'))
+    yaz(c, W - M, 20, T('Sürüm') + ' ' + date.today().strftime('%d.%m.%Y') + ' · ' + EPOSTA, sag=True)
 
 
 ARKA_KARTLAR = [
@@ -585,17 +697,14 @@ def arka_kapak(c):
     x = M + 132
     c.setFillColor(white)
     c.setFont('J8', 13)
-    yaz(c, x, 146, T('Ücretsiz indirin'))
-    magaza_rozetleri(c, x, 104, 30)
+    yaz(c, x, 150, T('Ücretsiz indirin'))
+    magaza_rozetleri(c, x, 104, 36, sutun=2)
     c.setFillColor(EMERALD)
     c.setFont('J7', 12)
-    yaz(c, x, 80, SITE)
+    yaz(c, x, 46, SITE)
     c.setFillColor(HexColor('#C9D2EA'))
     c.setFont('J5', 9.5)
-    yaz(c, x, 63, T('İletişim:') + ' ' + EPOSTA)
-    c.setFillColor(HexColor('#8C97B8'))
-    c.setFont('J5', 9)
-    yaz(c, x, 46, 'Android · iPhone · iPad · Windows · Mac')
+    yaz(c, W - M, 46, T('İletişim:') + ' ' + EPOSTA, sag=True)
     c.setFillColor(EMERALD)
     c.setFont('J7', 10)
     yaz(c, W - M, 22, T('Kâğıttan sonuca, saniyeler içinde.'), sag=True)
