@@ -65,4 +65,20 @@
     dlg.querySelector('.kapat').addEventListener('click', function () { dlg.close(); });
     dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
   }
+  // Paylaş: telefonda paylaşım menüsü (WhatsApp, e-posta…); yoksa bağlantı kopyalanır.
+  document.querySelectorAll('[data-paylas]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var url = new URL(b.getAttribute('data-paylas'), location.href).href;
+      var title = b.getAttribute('data-baslik') || document.title;
+      var label = b.getAttribute('data-label') || b.textContent;
+      var done = function () { b.textContent = b.getAttribute('data-ok') || label; setTimeout(function () { b.textContent = label; }, 1800); };
+      if (navigator.share) {
+        navigator.share({ title: title, url: url }).catch(function () {});
+        return;
+      }
+      try {
+        navigator.clipboard.writeText(url).then(done, function () { window.prompt('', url); });
+      } catch (e) { window.prompt('', url); }
+    });
+  });
 })();

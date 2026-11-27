@@ -15,8 +15,9 @@ Sitenin asıl metni Türkçedir (web-sitesi/*.html). Bu betik:
   4. Türkçe sayfalara ziyaretçinin tarayıcı diline göre otomatik yönlendirme ekler
      (ziyaretçi menüden dil seçerse seçimi hatırlanır).
 
-Örnek rapor görselleri: <çıktı>/img/raporlar/<dil>/<ad>.jpg varsa o dilin
-sayfası onları gösterir (tool/site/ornek_raporlar.sh); yoksa Türkçe görseller kalır.
+Örnek belgeler: <çıktı>/img/raporlar/<dil>/<ad>.jpg ve <çıktı>/belgeler/<dil>/<ad>.pdf varsa
+o dilin sayfası onları gösterir (tool/site/ornek_raporlar.sh); yoksa Türkçeleri kalır.
+Kılavuz: <çıktı>/kilavuz/Netice_Kullanim_Kilavuzu_<dil>.pdf (kilavuz-pdf.yml sürümünden).
 
 Videolar: <çıktı>/video/<dil>/telefon.mp4 ve bilgisayar.mp4 (ve .jpg kapakları)
 varsa o dilin sayfası onları gösterir; yoksa Türkçe videolar kalır.
@@ -36,6 +37,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 BELLEK = os.path.join(HERE, 'ceviri')
 SITE = 'https://www.neticeoptik.com'
 RELEASE = 'site-ceviri'
+KILAVUZ_SURUM = 'https://github.com/emrgngr/netice/releases/download/kilavuz-pdf'
 MODEL = 'claude-opus-5-5'
 
 # (kod, menüde görünen ad, çeviri isteminde dilin adı)
@@ -380,10 +382,21 @@ def sayfa_yaz(kaynak_html, sayfa, dil, bellek, cikti):
         if dil not in el['data-yalniz'].split():
             el.decompose()
     for el in soup.find_all(True):
-        for a in ('src', 'href'):
-            m = re.search(r'img/raporlar/([\w-]+)\.jpg$', el.get(a) or '')
-            if m and os.path.exists(os.path.join(cikti, 'img', 'raporlar', dil, m.group(1) + '.jpg')):
-                el[a] = f'{kok}img/raporlar/{dil}/{m.group(1)}.jpg'
+        for a in ('src', 'href', 'data-paylas'):
+            v = el.get(a) or ''
+            # img/raporlar/<ad>.jpg ve belgeler/<ad>.pdf|docx|csv: o dilin klasörü varsa onu kullan.
+            m = re.search(r'(img/raporlar|belgeler)/([\w-]+\.\w+)$', v)
+            if m and os.path.exists(os.path.join(cikti, m.group(1), dil, m.group(2))):
+                el[a] = f'{kok}{m.group(1)}/{dil}/{m.group(2)}'
+            # Kullanım kılavuzu: kilavuz-pdf sürümünden indirilen o dilin PDF'i ve kapağı;
+            # sitede yoksa doğrudan GitHub sürümünden.
+            m = re.search(r'kilavuz/Netice_Kullanim_Kilavuzu_tr\.pdf$', v)
+            if m:
+                ad = f'Netice_Kullanim_Kilavuzu_{dil}.pdf'
+                el[a] = (f'{kok}kilavuz/{ad}' if os.path.exists(os.path.join(cikti, 'kilavuz', ad))
+                         else f'{KILAVUZ_SURUM}/{ad}')
+            if re.search(r'img/kilavuz_kapak\.jpg$', v) and os.path.exists(os.path.join(cikti, 'kilavuz', f'kapak_{dil}.jpg')):
+                el[a] = f'{kok}kilavuz/kapak_{dil}.jpg'
     html = soup.html
     html['lang'] = dil
     if dil == 'ar':

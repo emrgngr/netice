@@ -1,0 +1,83 @@
+# Kullanım kılavuzu PDF'ini 15 dilde üretir ve "kilavuz-pdf" sürümüne koyar:
+#   Netice_Kullanim_Kilavuzu_<dil>.pdf  ve  kapak_<dil>.jpg (ilk sayfanın görüntüsü)
+# Web sitesi yayını (web-sitesi.yml) bunları indirip "Kılavuz ve örnekler" sayfasında
+# indirme ve paylaşma için sunar; bu iş bitince site kendiliğinden yeniden yayınlanır.
+name: Kılavuz PDF
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ilk-surum, main]
+    paths:
+      - 'tool/kilavuz/**'
+      - 'tool/kilavuz_pdf_test.dart'
+      - 'tool/brand/**'
+      - '.github/workflows/kilavuz-pdf.yml'
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: kilavuz-pdf-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  hazirla:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Sürüm
+        run: |
+          gh release view kilavuz-pdf >/dev/null 2>&1 || \
+            gh release create kilavuz-pdf --title "Netice kullanım kılavuzu (PDF)" \
+              --notes "15 dilde kullanım kılavuzu. Web sitesindeki Kılavuz ve örnekler sayfası buradan indirir." \
+              --prerelease --target "${{ github.sha }}"
+
+  pdf:
+    needs: hazirla
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        dil: [tr, en, de, fr, es, it, pt, ru, ar, az, zh, ja, ko, hi, id]
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.50.0
+          channel: stable
+          cache: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Araçlar
+        run: |
+          sudo apt-get install -y -qq poppler-utils >/dev/null
+          pip install --quiet reportlab svglib pillow arabic-reshaper python-bidi uharfbuzz
+          flutter pub get
+      - name: Kılavuz (${{ matrix.dil }})
+        run: |
+          set -euo pipefail
+          export ICON_FONT=$(dirname "$(which flutter)")/cache/artifacts/material_fonts/MaterialIcons-Regular.otf
+          flutter test tool/kilavuz_pdf_test.dart --dart-define=KILAVUZ_DIL=${{ matrix.dil }}
+          python3 tool/kilavuz/kilavuz_pdf.py ${{ matrix.dil }}
+          pdf=build/kilavuz/Netice_Kullanim_Kilavuzu_${{ matrix.dil }}.pdf
+          pdftoppm -f 1 -l 1 -r 60 -jpeg -jpegopt quality=82 -singlefile "$pdf" build/kilavuz/kapak_${{ matrix.dil }}
+          ls -la build/kilavuz
+          gh release upload kilavuz-pdf "$pdf" build/kilavuz/kapak_${{ matrix.dil }}.jpg --clobber
+
+  # PDF'ler sürüme girince site yeniden yayınlansın (yeni kılavuz sitede de görünsün).
+  site:
+    needs: pdf
+    if: always()
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - run: gh workflow run web-sitesi.yml --repo "${{ github.repository }}" --ref "${{ github.ref_name }}"
