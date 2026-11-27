@@ -32,6 +32,9 @@ class FormTemplate {
   /// Öğrenci eşleştirmede numara bulunamazsa bunlar da denenir.
   final List<NumberBlock> extraNumbers;
 
+  /// Diğer kodlama alanları (doğum tarihi, cinsiyet, sınıf, şube…).
+  final List<CodedField> fields;
+
   const FormTemplate({
     required this.id,
     required this.name,
@@ -41,6 +44,7 @@ class FormTemplate {
     this.booklet,
     this.nameGrid,
     this.extraNumbers = const [],
+    this.fields = const [],
   });
 
   static const width = 1000.0;
@@ -63,7 +67,8 @@ class FormTemplate {
           bool clearBooklet = false,
           NameBlock? nameGrid,
           bool clearNameGrid = false,
-          List<NumberBlock>? extraNumbers}) =>
+          List<NumberBlock>? extraNumbers,
+          List<CodedField>? fields}) =>
       FormTemplate(
         id: id ?? this.id,
         name: name ?? this.name,
@@ -73,6 +78,7 @@ class FormTemplate {
         booklet: clearBooklet ? null : (booklet ?? this.booklet),
         nameGrid: clearNameGrid ? null : (nameGrid ?? this.nameGrid),
         extraNumbers: extraNumbers ?? this.extraNumbers,
+        fields: fields ?? this.fields,
       );
 
   Map<String, dynamic> toJson() => {
@@ -84,6 +90,7 @@ class FormTemplate {
         if (booklet != null) 'booklet': booklet!.toJson(),
         if (nameGrid != null) 'nameGrid': nameGrid!.toJson(),
         if (extraNumbers.isNotEmpty) 'extraNumbers': [for (final n in extraNumbers) n.toJson()],
+        if (fields.isNotEmpty) 'fields': [for (final f in fields) f.toJson()],
       };
 
   factory FormTemplate.fromJson(Map<String, dynamic> j) => FormTemplate(
@@ -95,6 +102,7 @@ class FormTemplate {
         booklet: j['booklet'] == null ? null : BookletBlock.fromJson(j['booklet'] as Map<String, dynamic>),
         nameGrid: j['nameGrid'] == null ? null : NameBlock.fromJson(j['nameGrid'] as Map<String, dynamic>),
         extraNumbers: [for (final n in (j['extraNumbers'] as List?) ?? const []) NumberBlock.fromJson(n as Map<String, dynamic>)],
+        fields: [for (final f in (j['fields'] as List?) ?? const []) CodedField.fromJson(f as Map<String, dynamic>)],
       );
 
   /// Paylaşım dosyası (başka öğretmene gönderilen şablon).
@@ -164,6 +172,86 @@ class NameBlock {
 
   factory NameBlock.fromJson(Map<String, dynamic> j) => NameBlock(
       columns: j['columns'] as int, letters: j['letters'] as String, first: _pt(j['first']), last: _pt(j['last']));
+}
+
+/// Formdaki diğer bir kodlama alanı: doğum tarihi, cinsiyet, sınıf, şube…
+///
+/// [perColumn] true ise her sütun bir karakterdir (rakam ya da harf;
+/// [options] satırların karşılığı). false ise tüm daireler tek bir seçimdir
+/// (Kadın/Erkek gibi; [options] her dairenin adı, sütun sütun).
+class CodedField {
+  final String label;
+  final int columns, rows;
+  final bool perColumn;
+  final List<String> options;
+
+  /// İlk sütunun ilk dairesi ve son sütunun son dairesinin merkezleri.
+  final Pt first, last;
+
+  /// Ölçülen daire yarıçapı (aralıklı seçeneklerde aralıktan hesaplanan
+  /// yarıçap çok büyük kalır); yoksa aralıktan.
+  final double? bubbleRadius;
+
+  const CodedField(
+      {required this.label,
+      required this.columns,
+      required this.rows,
+      required this.perColumn,
+      required this.options,
+      required this.first,
+      required this.last,
+      this.bubbleRadius});
+
+  static const digits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+  /// Tek seçimli alanda varsayılan seçenek adları: A, B, C…
+  static List<String> letterOptions(int n) => [for (var i = 0; i < n; i++) String.fromCharCode(65 + i)];
+
+  int get cells => columns * rows;
+
+  Pt bubble(int col, int row) {
+    final fx = columns <= 1 ? 0.0 : col / (columns - 1);
+    final fy = rows <= 1 ? 0.0 : row / (rows - 1);
+    return Pt(first.x + (last.x - first.x) * fx, first.y + (last.y - first.y) * fy);
+  }
+
+  double get radius {
+    final r = _radius(first, last, columns, rows);
+    final b = bubbleRadius;
+    return b == null ? r : math.min(r, b * 0.95);
+  }
+
+  CodedField copyWith({String? label, List<String>? options}) => CodedField(
+      label: label ?? this.label,
+      columns: columns,
+      rows: rows,
+      perColumn: perColumn,
+      options: options ?? this.options,
+      first: first,
+      last: last,
+      bubbleRadius: bubbleRadius);
+
+  Map<String, dynamic> toJson() => {
+        'label': label,
+        'columns': columns,
+        'rows': rows,
+        'perColumn': perColumn,
+        'options': options,
+        'first': [first.x, first.y],
+        'last': [last.x, last.y],
+        if (bubbleRadius != null) 'r': bubbleRadius,
+      };
+
+  factory CodedField.fromJson(Map<String, dynamic> j) => CodedField(
+        label: j['label'] as String? ?? '',
+        columns: j['columns'] as int,
+        rows: j['rows'] as int,
+        perColumn: j['perColumn'] as bool? ?? false,
+        options: [for (final o in (j['options'] as List?) ?? const []) '$o'],
+        first: _pt(j['first']),
+        last: _pt(j['last']),
+        bubbleRadius: (j['r'] as num?)?.toDouble(),
+      );
 }
 
 /// Kitapçık türü daireleri: tek sıra (yan yana ya da alt alta) A, B, C…
@@ -634,6 +722,63 @@ class TemplateReader {
       if (text.replaceAll(RegExp(r'[ ?]'), '').length >= 2) name = text;
     }
 
+    // Diğer kodlama alanları: her sütun bir karakter ya da tek seçim.
+    final fields = <String, String>{};
+    for (final f in template.fields) {
+      if (f.cells < 2) continue;
+      final raw = [
+        for (var c = 0; c < f.columns; c++) [for (var r = 0; r < f.rows; r++) fillAt(f.bubble(c, r), f.radius)]
+      ];
+      String? value;
+      if (f.perColumn) {
+        final base = _baseline([for (final col in raw) ...col]);
+        final buf = StringBuffer();
+        var any = false;
+        for (final col in raw) {
+          final fills = _rebase(col, base);
+          final pick = _relativePick(fills);
+          if (pick != null) {
+            buf.write(pick < f.options.length ? f.options[pick] : '?');
+            any = true;
+          } else if (fills.reduce(math.max) < thresholds.empty) {
+            buf.write(' ');
+          } else {
+            final sorted = [...fills]..sort();
+            buf.write(sorted.last - sorted[sorted.length ~/ 2] < 0.08 ? ' ' : '?');
+          }
+        }
+        if (any) value = buf.toString().trim();
+      } else {
+        final flat = [for (final col in raw) ...col];
+        final fills = _rebase(flat, flat.reduce(math.min));
+        var a = helper.classify(fills);
+        if (a.state != MarkState.filled) {
+          // İki seçenekli alanlarda (Kadın/Erkek) göreli seçim yapılamaz:
+          // tek işaret diğerlerinden belirgin koyuysa yeter.
+          final s = [...fills]..sort();
+          if (a.state == MarkState.uncertain && a.marked.length == 1 && s.last - s[s.length - 2] >= 0.25) {
+            a = Answer(MarkState.filled, a.marked);
+          }
+          final pick = a.state == MarkState.filled ? null : _relativePick(fills);
+          if (pick != null && (a.state == MarkState.blank || a.marked.length == 1)) a = Answer(MarkState.filled, {pick});
+        }
+        if (a.state == MarkState.filled && a.marked.length == 1) {
+          final k = a.marked.first;
+          value = k < f.options.length ? f.options[k] : '${k + 1}';
+        } else if (a.marked.length > 1) {
+          value = '?';
+        }
+      }
+      if (value != null && value.isNotEmpty) {
+        // Aynı adlı iki alan birbirini silmesin.
+        var key = f.label.trim().isEmpty ? '#${template.fields.indexOf(f) + 1}' : f.label.trim();
+        for (var n = 2; fields.containsKey(key); n++) {
+          key = '${f.label.trim()} ($n)';
+        }
+        fields[key] = value;
+      }
+    }
+
     return OmrResult(
       questions: answers,
       studentNumber: number,
@@ -642,6 +787,7 @@ class TemplateReader {
       booklet: booklet,
       name: name,
       otherNumbers: others,
+      fields: fields,
     );
   }
 

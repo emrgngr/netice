@@ -23,17 +23,34 @@ class DetectedForm {
   final NameBlock? name;
   final List<NumberBlock> extraNumbers;
 
+  /// Diğer kodlama alanları (doğum tarihi, cinsiyet, eğitim…). Adları
+  /// [CodedField.label]: 'date' (doğum tarihi gibi) ya da boş; ekran adlandırır.
+  final List<CodedField> fields;
+
   /// Bulunan ama kullanılmayan ızgaralar (ad soyad, sınıf, cinsiyet…).
   final int ignored;
 
-  const DetectedForm({this.blocks = const [], this.number, this.booklet, this.name, this.extraNumbers = const [], this.ignored = 0});
+  const DetectedForm(
+      {this.blocks = const [], this.number, this.booklet, this.name, this.extraNumbers = const [], this.fields = const [], this.ignored = 0});
+
+  DetectedForm withFields(List<CodedField> f, List<NumberBlock> extras) =>
+      DetectedForm(blocks: blocks, number: number, booklet: booklet, name: name, extraNumbers: extras, fields: f, ignored: ignored);
 
   bool get isEmpty => blocks.isEmpty && number == null && booklet == null;
 
   int get questionCount => blocks.fold(0, (m, b) => math.max(m, b.start + b.count - 1));
 
   FormTemplate applyTo(FormTemplate t) =>
-      FormTemplate(id: t.id, name: t.name, aspect: t.aspect, blocks: blocks, number: number, booklet: booklet, nameGrid: name, extraNumbers: extraNumbers);
+      FormTemplate(
+          id: t.id,
+          name: t.name,
+          aspect: t.aspect,
+          blocks: blocks,
+          number: number,
+          booklet: booklet,
+          nameGrid: name,
+          extraNumbers: extraNumbers,
+          fields: fields);
 }
 
 /// Fotoğraftaki formun ızgaralarını bulur ([corners]: sayfanın dört köşesi).
@@ -87,12 +104,14 @@ class GridDetector {
     //  * genişletmeden (daireleri birbirine çok yakın sık formlar),
     //  * çember arama (ince, soluk çemberler; numarası daireye değen formlar).
     DetectedForm? best;
-    var bestCells = -1;
+    var bestCells = -1, bestRef = 0.0;
+    final everyGrid = <_Grid>[];
     for (final mode in const [0, 1, 2, 3]) {
       _ringMaskOverride = mode == 3 ? _faint : null;
       final bl = mode >= 2 ? _rings() : _blobs(grow: mode == 0);
       final gr = _complete(_grids(bl), bl);
       _allBlobs = bl;
+      everyGrid.addAll(gr);
       final d = _classify(gr);
       final cells =
           d.blocks.fold(0, (n, b) => n + b.count * b.choices) +
@@ -102,11 +121,18 @@ class GridDetector {
       if (cells > bestCells) {
         bestCells = cells;
         best = d;
+        bestRef = _lastRef;
       }
     }
     _ringMaskOverride = null;
-    return best!;
+    // Kalan ızgaralardan diğer kodlama alanları: her yolun bulduğu birlikte
+    // değerlendirilir (bir alan yalnız bir yolda görünebilir).
+    final (extras, fields) = _codedFields(best!, everyGrid, bestRef);
+    return best.withFields(fields, extras);
   }
+
+  /// Son sınıflamada cevap dairelerinin ortalama boyu.
+  double _lastRef = 0;
 
   Uint8List? _darkCache;
   Uint8List? _faintCache;
@@ -575,6 +601,151 @@ class GridDetector {
   // -------------------------------------------------------------------------
   // 3. Sınıflama
 
+  /// Cevap, numara, kitapçık ve ad dışında kalan kodlama alanları:
+  ///  * tek sıra 2–8 daire: tek seçim (cinsiyet, eğitim, sınıf…),
+  ///  * 0–9 sütunları: her sütun bir rakam (doğum tarihi, okul kodu…),
+  ///  * tek sütun harf dizisi: şube gibi.
+  (List<NumberBlock>, List<CodedField>) _codedFields(DetectedForm d, List<_Grid> grids, double ref) {
+    if (ref <= 0) return (d.extraNumbers, const []);
+    bool ringAny(double x, double y, double r) =>
+        x > r && x < w - r && y > r && y < h - r && (_ringAt(x, y, r, mask: _dark) || _ringAt(x, y, r, mask: _faint));
+    // Doğum tarihi de 0–9 sütunlarıdır: ilk sütunu kısa (gün 0–3) olan "diğer
+    // numara" alanı numara değil, tarih alanıdır.
+    final extras = <NumberBlock>[];
+    final dateGrids = <_Grid>[];
+    for (final x in d.extraNumbers) {
+      final xs = [for (var k = 0; k < x.digits; k++) x.bubble(k, 0).x];
+      final ys = [for (var v = 0; v < 10; v++) x.bubble(0, v).y];
+      final r = ref / 2;
+      final firstRings = [for (final y in ys) if (ringAny(xs.first, y, r)) y].length;
+      if (firstRings <= 5) {
+        dateGrids.add(_Grid(xs, ys, ref, ref));
+      } else {
+        extras.add(x);
+      }
+    }
+    final taken = <(double, double, double, double)>[];
+    void take(Pt a, Pt b, double pad) =>
+        taken.add((math.min(a.x, b.x) - pad, math.min(a.y, b.y) - pad, math.max(a.x, b.x) + pad, math.max(a.y, b.y) + pad));
+    for (final b in d.blocks) {
+      take(b.first, b.last, ref);
+    }
+    final nb = d.number;
+    if (nb != null) take(nb.first, nb.last, ref);
+    for (final x in extras) {
+      take(x.first, x.last, ref);
+    }
+    final bb = d.booklet;
+    if (bb != null) take(bb.first, bb.last, ref * 0.6);
+    final na = d.name;
+    if (na != null) take(na.first, na.last, ref);
+    bool free(_Grid g) => !taken.any((t) => g.left <= t.$3 && g.right >= t.$1 && g.top <= t.$4 && g.bottom >= t.$2);
+
+    // Basılı daire içi açıktır (zamanlama işaretleri, kalın yazı dolu görünür).
+    bool hollow(double x, double y, double r) {
+      final rr = math.max(1.5, r * 0.3);
+      var dark = 0, all = 0;
+      for (var dy = -rr; dy <= rr; dy++) {
+        for (var dx = -rr; dx <= rr; dx++) {
+          if (dx * dx + dy * dy > rr * rr) continue;
+          final xx = (x + dx).round(), yy = (y + dy).round();
+          if (xx < 0 || yy < 0 || xx >= w || yy >= h) continue;
+          all++;
+          if (_dark[yy * w + xx] == 1) dark++;
+        }
+      }
+      return all > 0 && dark < all * 0.5;
+    }
+
+    // Küçük ızgaralar (yanında yazısı olan seçenek sütunu gibi) satır ve
+    // sütunlarına da ayrılıp denenir.
+    final pool = [...grids];
+    for (final g in grids) {
+      if (g.nr >= 2 && g.nc >= 2 && g.nr * g.nc <= 16) {
+        for (final x in g.xs) {
+          pool.add(_Grid([x], g.ys, g.bw, g.bh));
+        }
+        for (final y in g.ys) {
+          pool.add(_Grid(g.xs, [y], g.bw, g.bh));
+        }
+      }
+    }
+    final found = <(_Grid, bool, String)>[]; // (ızgara, sütun sütun mu, ipucu)
+    // Tarih alanları önce (en büyükler arasında öne alınır).
+    final sorted = [...dateGrids, ...(pool..sort((a, b) => (b.nr * b.nc).compareTo(a.nr * a.nc)))];
+    for (final g0 in sorted) {
+      final size = (g0.bw + g0.bh) / 2;
+      if ((size - ref).abs() > ref * 0.22) continue;
+      final r = size / 2;
+      var g = g0;
+      bool perColumn;
+      var hint = '';
+      if (g.nr == 1 || g.nc == 1) {
+        final n = g.nr * g.nc;
+        if (n >= 2 && n <= 8) {
+          final pitch = g.nr == 1 ? (g.right - g.left) / (n - 1) : (g.bottom - g.top) / (n - 1);
+          // Yazıdaki harfler sık dizilir; çok uzak daireler ayrı alanlardır.
+          if (pitch < 1.2 * size || pitch > 3.5 * size) continue;
+          perColumn = false;
+        } else if (g.nc == 1 && NameBlock.alphabetFor(g.nr, lang) != null) {
+          perColumn = true;
+        } else {
+          continue;
+        }
+      } else if (g.nr >= 10 && g.nr <= 12 && g.nc <= 12) {
+        // Üstte rakamın yazıldığı kutular da daire sanılmış olabilir: alttaki 10 satır.
+        final ys = g.ys.sublist(g.nr - 10);
+        final xs = [...g.xs];
+        final px = g.nc >= 2 ? (g.right - g.left) / (g.nc - 1) : (ys.last - ys.first) / 9;
+        // Kısa sütunlar (gün 0–3, ay 0–1) yalnız üst satırlarda daire taşır.
+        bool shortCol(double x) => ringAny(x, ys[0], r) && ringAny(x, ys[1], r);
+        while (xs.length < 12 && shortCol(xs.first - px)) {
+          xs.insert(0, xs.first - px);
+        }
+        while (xs.length < 12 && shortCol(xs.last + px)) {
+          xs.add(xs.last + px);
+        }
+        g = _Grid(xs, ys, g.bw, g.bh);
+        perColumn = true;
+        final firstRings = ys.where((y) => ringAny(xs.first, y, r)).length;
+        if ((xs.length == 6 || xs.length == 8) && firstRings <= 4) hint = 'date';
+      } else {
+        continue;
+      }
+      var rings = 0, open = 0;
+      for (final x in g.xs) {
+        for (final y in g.ys) {
+          if (ringAny(x, y, r)) rings++;
+          if (hollow(x, y, r)) open++;
+        }
+      }
+      final cells = g.nr * g.nc;
+      if (rings < cells * (perColumn ? 0.5 : 0.75) || open < cells * 0.5) continue;
+      if (!free(g)) continue;
+      if (found.any((f) => g.left <= f.$1.right + size && g.right >= f.$1.left - size && g.top <= f.$1.bottom + size && g.bottom >= f.$1.top - size)) {
+        continue;
+      }
+      found.add((g, perColumn, hint));
+    }
+    // Sayfadaki sırasıyla: yukarıdan aşağı, soldan sağa.
+    found.sort((a, b) => (a.$1.top - b.$1.top).abs() > ref * 2 ? a.$1.top.compareTo(b.$1.top) : a.$1.left.compareTo(b.$1.left));
+    return (extras, [
+      for (final (g, perColumn, hint) in found)
+        CodedField(
+          label: hint,
+          columns: g.nc,
+          rows: g.nr,
+          perColumn: perColumn,
+          options: perColumn
+              ? (g.nr == 10 ? CodedField.digits : NameBlock.alphabetFor(g.nr, lang)!.split(''))
+              : CodedField.letterOptions(g.nr * g.nc),
+          first: g.first,
+          last: g.last,
+          bubbleRadius: (g.bw + g.bh) / 4,
+        ),
+    ]);
+  }
+
   /// Dilin alfabesine 1–2 satır eksik harf ızgarasını aşağı doğru tamamlar:
   /// harfin içi çemberi bozabildiği için soluk satırda sütunların beşte biri,
   /// eklenen satırların toplamında üçte biri yeter.
@@ -702,6 +873,7 @@ class GridDetector {
     final pageH = h.toDouble();
     final ref = [for (final (g, _) in answers) (g.bw + g.bh) / 2, if (number != null) (numbers.first.bw + numbers.first.bh) / 2];
     final refSize = ref.isEmpty ? 0.0 : ref.reduce((a, b) => a + b) / ref.length;
+    _lastRef = refSize;
     final minSize = 0.85 * refSize;
     // Kitapçık sırası tek başınadır: hemen üstünde/altında (yan yana sırada)
     // ya da solunda/sağında (alt alta sırada) başka daire yoktur.
