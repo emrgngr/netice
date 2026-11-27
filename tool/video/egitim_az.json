@@ -1,0 +1,208 @@
+{
+ "_not": "Çeviri: egitim_tr.json ile aynı yapı (tool/video/egitim.py).",
+ "sahneler": [
+  {
+   "id": "kanca",
+   "tur": "kanca",
+   "ust": "Bir imtahanın müəllimə real dəyəri",
+   "eski": "Saatlar",
+   "yeni": "Dəqiqələr",
+   "alt": "Sual yazmaq, kitabça düzmək, vərəq oxumaq, təhlil etmək, hesabat yazmaq",
+   "metin": "Sual yazmaq, kitabça düzmək, vərəqləri bir-bir oxumaq, təhlil etmək, hesabat yazmaq. Tək bir imtahan müəllimə saatlarla iş çıxarır. Netice ilə bu saatlar dəqiqələrə enir."
+  },
+  {
+   "id": "vaat",
+   "tur": "vaat",
+   "ust": "Netice nədir?",
+   "baslik": "İmtahanın hamısı bir tətbiqdə",
+   "faydalar": [
+    "Sualdan qiymət kartına hər addım",
+    "Müəllim və şagird üçün",
+    "Telefon, planşet və kompüterdə"
+   ],
+   "ekran": "02_ana",
+   "metin": "Netice imtahanın bütün yolunu bir tətbiqdə toplayır: sualları hazırlayır, cavab vərəqlərini oxuyur, nəticəni təhlil edir və hesabatı yazır. Telefonunuzda, planşetinizdə və kompüterinizdə."
+  },
+  {
+   "id": "dongu",
+   "tur": "dongu",
+   "ust": "Dörd addımda",
+   "baslik": "Hazırlayın, oxudun, anlayın, paylaşın",
+   "kartlar": [
+    [
+     "Hazırla",
+     "Qeyddən sual, kitabça və cavab açarı"
+    ],
+    [
+     "Oxut",
+     "Hər optik forma, vərəq başına saniyələr"
+    ],
+    [
+     "Təhlil et",
+     "Şagird, sinif və məktəb səviyyəsində"
+    ],
+    [
+     "Hesabat",
+     "Rəsmi hesabat, qiymət kartı, valideyn məlumatı"
+    ]
+   ],
+   "metin": "Netice dörd addımda işləyir. Hazırlayın, oxudun, təhlil edin, hesabat çıxarın. İndi hər addımda sizə nə qazandırdığına baxaq."
+  },
+  {
+   "id": "hazirla_soru",
+   "tur": "adim",
+   "adim": 1,
+   "ust": "Hazırla",
+   "baslik": "Dərs qeydinizdən dəqiqələr içində sual",
+   "faydalar": [
+    "PDF, Word, Excel və ya foto",
+    "Çoxseçimli, boşluq doldurma, uyğunlaşdırma",
+    "Asan, orta və çətin səviyyədə"
+   ],
+   "rozetler": [
+    "Doğru / Yanlış",
+    "Açıq sual",
+    "Sıralama"
+   ],
+   "ekran": "k_yz_soru",
+   "hedef": null,
+   "metin": "Dərs qeydinizi yükləyin; PDF, Word, Excel və ya bir səhifənin fotosu ola bilər. Netice bu qeyddən çoxseçimli, boşluq doldurmalı, uyğunlaşdırmalı və açıq suallar hazırlayır. Siz yalnız bəyəndiklərinizi seçirsiniz."
+  },
+  {
+   "id": "hazirla_kitapcik",
+   "tur": "adim",
+   "adim": 1,
+   "ust": "Hazırla",
+   "baslik": "Kitabça, cavab açarı və optik forma",
+   "faydalar": [
+    "A-dan H-yə qarışıq kitabça növləri",
+    "Mövzulara görə ətraflı cavab açarı",
+    "İmtahana xüsusi optik forma"
+   ],
+   "ekran": "k_kitapcik_turu",
+   "metin": "Sual bankınızdan bir neçə toxunuşla sual kitabçası yaradın. Səkkiz kitabça növü, mövzulara görə ətraflı cavab açarı və imtahana xüsusi optik forma eyni anda hazırlanır. Word və ya PDF kimi alırsınız."
+  },
+  {
+   "id": "okut",
+   "tur": "adim",
+   "adim": 2,
+   "ust": "Oxut",
+   "baslik": "Hansı optik forma olursa olsun",
+   "faydalar": [
+    "Öz formanız və ya nəşriyyat forması",
+    "Şəxsiyyət nömrəsi, ad soyad, doğum tarixi",
+    "Skan edilmiş PDF-lərin toplu oxunması"
+   ],
+   "ekran": "07_okut_ekrani",
+   "metin": "Kameranı vərəqə tutun; hər vərəq bir neçə saniyədə oxunur. Öz formanız, nəşriyyat forması və ya qurum forması fərq etməz. Şəxsiyyət nömrəsi, ad soyad, doğum tarixi kimi bütün kodlaşdırılmış sahələr də oxunur. Skan edilmiş PDF faylları toplu yükləyə bilərsiniz."
+  },
+  {
+   "id": "analiz",
+   "tur": "masaustu",
+   "adim": 3,
+   "ust": "Təhlil et",
+   "baslik": "Beynəlxalq ölçmə meyarları ilə təhlil",
+   "faydalar": [
+    "Hər sual üçün çətinlik və ayırdetmə",
+    "Etibarlılıq, ölçmə xətası, yayındırıcılar",
+    "Mövzu və nəticə üzrə uğur"
+   ],
+   "rozetler": [
+    "KR-20 etibarlılıq",
+    "Ayırdetmə",
+    "Ölçmə xətası"
+   ],
+   "ekran": "masaustu:analiz",
+   "metin": "Netice ölçmə və qiymətləndirmədə dünyada qəbul olunmuş üsullardan istifadə edir. Hər sualın çətinliyini və ayırdetməsini, imtahanın etibarlılığını və yayındırıcıların işə yarayıb-yaramadığını göstərir. Hansı mövzunun, hansı təlim nəticəsinin əskik qaldığını bir baxışda görürsünüz."
+  },
+  {
+   "id": "analiz_genel",
+   "tur": "adim",
+   "adim": 3,
+   "ust": "Təhlil et",
+   "baslik": "Şagirddən məktəbə, hər səviyyədə",
+   "faydalar": [
+    "Şagirdin inkişaf xətti",
+    "Siniflərin müqayisəsi",
+    "Bütün məktəbin ümumi təhlili"
+   ],
+   "ekran": "10_ogrenci",
+   "metin": "Təhlil yalnız siniflə məhdud deyil. Hər şagirdin inkişafını izləyin, sinifləri müqayisə edin, bütün məktəbin ümumi mənzərəsini böyük ekranda araşdırın. Kimin dəstəyə ehtiyacı olduğunu Netice sizə deyir."
+  },
+  {
+   "id": "raporla",
+   "tur": "masaustu",
+   "adim": 4,
+   "ust": "Hesabat",
+   "baslik": "Rəsmi hesabat bir toxunuşla hazır",
+   "faydalar": [
+    "Rəsmi blank və imza sahəsi",
+    "Qiymət kartı, dövr sonu və nəticə hesabatı",
+    "Valideynə WhatsApp, Classroom və Moodle"
+   ],
+   "ekran": "masaustu:donem",
+   "metin": "Təhlillər qurumunuzun rəsmi blankı və imza sahəsi ilə hesabata çevrilir. Qiymət kartı, dövr sonu hesabatı və təlim nəticəsi kartı bir toxunuşla hazırdır. Nəticələri valideynlərə göndərin və ya Classroom və Moodle-a köçürün."
+  },
+  {
+   "id": "prova",
+   "tur": "masaustu",
+   "ust": "Evdə əsl imtahan məşqi",
+   "baslik": "Öz sınaq imtahanınızı özünüz hazırlayın",
+   "faydalar": [
+    "Qeydlərinizi və sənədlərinizi yükləyin",
+    "Kitabçanı və formanı çap edin",
+    "Oxudun, əskiklərinizi görün"
+   ],
+   "rozetler": [
+    "A–H kitabça",
+    "İmtahan müddəti",
+    "Optik forma"
+   ],
+   "ekran": "masaustu:kitapcik",
+   "metin": "Netice yalnız müəllimlər üçün deyil. İmtahana hazırlaşan hər kəs öz qeydlərini, kitablarını və sənədlərini yükləyib öz sınaq imtahanını hazırlaya bilər. Kitabçanı və optik formanı çap edin, vaxtı tutun, əsl imtahan kimi həll edin. Sonra formanı telefonla oxudun; balınızı və əskik mövzularınızı dərhal görün."
+  },
+  {
+   "id": "kitle",
+   "tur": "kitle",
+   "ust": "Kimlər üçün?",
+   "baslik": "İbtidai məktəbdən universitetə, hamı üçün",
+   "gruplar": [
+    "İbtidai məktəb",
+    "Ümumi orta məktəb",
+    "Tam orta məktəb",
+    "Kollec",
+    "Universitet",
+    "Polis Akademiyası",
+    "Hərbi məktəblər",
+    "Kurslar və hazırlıq mərkəzləri",
+    "İmtahana hazırlaşan şagirdlər"
+   ],
+   "alt": "15 dil · Hər ölkənin qiymət sistemi · Uşaqlar üçün rəngli şablonlar",
+   "metin": "İbtidai sinif müəllimindən universitet müəlliminə, polis akademiyasından hərbi məktəblərə, kurslardan evdə imtahana hazırlaşan şagirdlərə qədər hamı üçün. On beş dildə, hər ölkənin qiymət sistemi ilə işləyir; kiçik şagirdlər üçün rəngli şablonlar da var."
+  },
+  {
+   "id": "guven",
+   "tur": "guven",
+   "ust": "Etibar",
+   "baslik": "Şagird məlumatları sizdə qalır",
+   "faydalar": [
+    "İnternetsiz işləyir",
+    "Hesab açmaq lazım deyil",
+    "Məlumatlar yalnız cihazınızda"
+   ],
+   "metin": "Şagird məlumatları həssasdır. Netice internetsiz işləyir, hesab açmağınızı istəmir; məlumatlarınız yalnız sizin cihazınızda qalır."
+  },
+  {
+   "id": "kapanis",
+   "tur": "kapanis",
+   "baslik": "Kağızdan nəticəyə, saniyələr içində.",
+   "faydalar": [
+    "Oxumaq həmişə pulsuzdur",
+    "Pro-nu 14 gün pulsuz sınayın"
+   ],
+   "adres": "neticeoptik.com",
+   "magazalar": "App Store · Google Play · Microsoft Store · Mac",
+   "metin": "Oxumaq həmişə pulsuzdur. Pro imkanlarını da on dörd gün pulsuz sınayın. Netice-ni bu gün yükləyin; növbəti imtahanınız kağızdan nəticəyə saniyələr içində hazır olsun."
+  }
+ ]
+}
