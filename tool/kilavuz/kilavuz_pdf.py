@@ -405,31 +405,200 @@ def adim_sayfasi(c, s, no):
         ipucu_kutusu(c, s['ipucu'], M, alt - 26, W - 2 * M)
 
 
-def kapak(c):
-    c.setFillColor(INK)
-    c.rect(0, 0, W, H, stroke=0, fill=1)
+def _parilti(c, x, y, r0):
     for i, a in enumerate([0.05, 0.05, 0.06, 0.07]):
         c.setFillColor(Color(0.06, 0.73, 0.5, alpha=a))
-        c.circle(W * 0.88, H * 0.32, 300 - i * 60, stroke=0, fill=1)
+        c.circle(x, y, r0 - i * r0 / 5, stroke=0, fill=1)
+
+
+def magaza_rozetleri(c, x, y, h=30):
+    """Google Play ve App Store rozetleri (bu dilde). Dönüş: kapladığı genişlik."""
+    rozet_dir = os.path.join(KOK, 'assets', 'badges')
+    gp = os.path.join(rozet_dir, f'google_play_{DIL}.png')
+    if not os.path.exists(gp):
+        gp = os.path.join(rozet_dir, 'google_play_en.png')
+    img = ImageReader(gp)
+    iw, ih = img.getSize()
+    gw = h * iw / ih
+    c.drawImage(img, x, y, gw, h, mask='auto')
+    x2 = x + gw + 10
+    asvg = os.path.join(rozet_dir, f'app_store_{DIL}.svg')
+    if not os.path.exists(asvg):
+        asvg = os.path.join(rozet_dir, 'app_store_en.svg')
+    from svglib.svglib import svg2rlg
+    from reportlab.graphics import renderPDF
+    d = svg2rlg(asvg)
+    k = h / d.height
+    d.scale(k, k)
+    renderPDF.draw(d, c, x2, y)
+    return gw + 10 + d.width * k
+
+
+def karekod(c, url, x, y, boyut):
+    from reportlab.graphics.barcode.qr import QrCodeWidget
+    from reportlab.graphics.shapes import Drawing
+    from reportlab.graphics import renderPDF
+    q = QrCodeWidget(url, barLevel='M')
+    b = q.getBounds()
+    w, h = b[2] - b[0], b[3] - b[1]
+    d = Drawing(boyut, boyut, transform=[boyut / w, 0, 0, boyut / h, 0, 0])
+    d.add(q)
+    renderPDF.draw(d, c, x, y)
+
+
+def cip(c, x, y, metin, renk=EMERALD_D, yazi=white, boy=10):
+    """Dolu, yuvarlak köşeli etiket (yeşil zeminde yazı beyaz). Dönüş: genişlik."""
+    c.setFont('J7', boy)
+    w = pdfmetrics.stringWidth(gorsel(metin), 'J7', boy) + 24
+    c.setFillColor(renk)
+    c.roundRect(x, y, w, boy + 13, (boy + 13) / 2, stroke=0, fill=1)
+    c.setFillColor(yazi)
+    yaz(c, x + w / 2, y + 7, metin, orta=True)
+    return w
+
+
+st_slogan = ParagraphStyle('sl', fontName='J8', fontSize=24, leading=30, textColor=white, shaping=int(SHAPE))
+st_kart_b = ParagraphStyle('kb', fontName='J7', fontSize=11, leading=14, textColor=white, shaping=int(SHAPE))
+st_kart = ParagraphStyle('kt', fontName='J', fontSize=9, leading=12.5, textColor=HexColor('#C9D2EA'), shaping=int(SHAPE))
+st_pro_b = ParagraphStyle('pb', fontName='J8', fontSize=13, leading=17, textColor=HexColor('#3A2800'), shaping=int(SHAPE))
+st_pro = ParagraphStyle('pt', fontName='J', fontSize=9.5, leading=13, textColor=HexColor('#3A2800'), shaping=int(SHAPE))
+if CJK:
+    for _st in (st_slogan, st_kart_b, st_kart, st_pro_b, st_pro):
+        _st.wordWrap = 'CJK'
+
+SITE = 'www.neticeoptik.com'
+EPOSTA = 'info@neticeoptik.com'
+
+
+def kapak(c):
+    """Ön kapak: tanıtım odaklı (slogan, öne çıkan özellikler, mağaza rozetleri)."""
+    c.setFillColor(INK)
+    c.rect(0, 0, W, H, stroke=0, fill=1)
+    _parilti(c, W * 0.88, H * 0.36, 300)
+    _parilti(c, -40, H - 40, 160)
     logo = os.path.join(KOK, 'assets', 'icon', 'netice_icon_rounded_1024.png')
     c.setFillColor(white)
-    c.roundRect(M, H - 150, 76, 76, 20, stroke=0, fill=1)
+    c.roundRect(M, H - 130, 64, 64, 17, stroke=0, fill=1)
     if os.path.exists(logo):
-        c.drawImage(ImageReader(logo), M + 6, H - 144, 64, 64, mask='auto')
+        c.drawImage(ImageReader(logo), M + 5, H - 125, 54, 54, mask='auto')
     c.setFillColor(EMERALD)
     c.setFont('J7', 11)
-    yaz(c, M, H - 200, ust(T('Kullanım kılavuzu')))
+    yaz(c, M + 80, H - 92, ust(T('Kullanım kılavuzu')))
     c.setFillColor(white)
-    c.setFont('J8', 52)
-    c.drawString(M, H - 252, 'Netice')
-    para(c, T('Optik formu telefonla okuyun; puan, analiz, karne ve raporlar saniyeler içinde. '
-              'Bu kılavuz, uygulamayı ilk açılıştan rapor almaya kadar adım adım anlatır.'), st_kapak, M, H - 272, 300)
-    telefon(c, '13_sonuclar', W - M - 330, 400, 150)
-    telefon(c, '02_ana', W - M - 170, 450, 170)
+    c.setFont('J8', 22)
+    yaz(c, M + 80, H - 116, 'Netice')
+
+    # Slogan ve kısa tanıtım
+    y = H - 175
+    y -= para(c, T('Kâğıttan sonuca, saniyeler içinde.'), st_slogan, M, y, 300)
+    y -= 12
+    y -= para(c, T('Optik formları telefonla okuyun; puan, analiz, karne ve raporlar kendiliğinden hazırlansın. '
+                   'Bu kılavuz, ilk açılıştan rapor almaya kadar her adımı gösterir.'), st_kapak, M, y, 290)
+
+    # Öne çıkan dört özellik
+    y -= 26
+    for m in ('Telefonla optik okuma', 'Otomatik analiz ve karne', 'İnternetsiz çalışır', 'Kayıt gerekmez'):
+        cip(c, M, y - 23, T(m))
+        y -= 33
+
+    telefon(c, '13_sonuclar', W - M - 300, 470, 140)
+    telefon(c, '02_ana', W - M - 160, 520, 160)
+
+    # Alt şerit: indirme çağrısı
+    c.setFillColor(INK2)
+    c.rect(0, 0, W, 118, stroke=0, fill=1)
+    c.setFillColor(white)
+    c.setFont('J8', 13)
+    yaz(c, M, 84, T('Ücretsiz indirin'))
+    magaza_rozetleri(c, M, 38, 32)
+    c.setFillColor(EMERALD)
+    c.setFont('J7', 12)
+    yaz(c, W - M, 78, SITE, sag=True)
     c.setFillColor(HexColor('#8C97B8'))
     c.setFont('J5', 9)
-    yaz(c, M, 40, T('Sürüm') + ' ' + date.today().strftime('%d.%m.%Y'))
-    yaz(c, M, 26, T('İletişim:') + ' info@neticeoptik.com')
+    yaz(c, W - M, 60, T('Telefon, tablet ve bilgisayarda'), sag=True)
+    yaz(c, W - M, 30, T('Sürüm') + ' ' + date.today().strftime('%d.%m.%Y') + ' · ' + EPOSTA, sag=True)
+
+
+ARKA_KARTLAR = [
+    ('scan', 'Saniyeler içinde okuma', 'Kamerayı kâğıda tutun; cevaplar anında puana dönüşür.'),
+    ('report', 'Hazır raporlar', 'Öğrenci karnesi, sınıf analizi ve resmi rapor tek dokunuşla PDF olur.'),
+    ('compare', 'Derin analiz', 'Soru, kazanım ve sınıf bazında güçlü ve zayıf yönleri görün.'),
+    ('parents', 'Velilerle paylaşım', 'Karneleri velilere WhatsApp veya e-postayla gönderin.'),
+    ('offline', 'İnternetsiz çalışır', 'Verileriniz cihazınızda kalır; hesap açmanız gerekmez.'),
+    ('language', '15 dil, her kurum', 'Okul, üniversite, akademi ve kurslar için; ülkenize uygun not sistemi.'),
+]
+
+
+def arka_kapak(c):
+    """Bitiş sayfası: neden Netice, Pro denemesi, karekod ve iletişim."""
+    if not _SIMGE:
+        _SIMGE.update(simgeleri_hazirla(os.path.join(KOK, 'build', 'bolum_simgeleri')))
+    c.setFillColor(INK)
+    c.rect(0, 0, W, H, stroke=0, fill=1)
+    _parilti(c, W + 30, H - 60, 260)
+    _parilti(c, 40, 160, 180)
+
+    y = H - 70
+    c.setFillColor(EMERALD)
+    c.setFont('J7', 11)
+    yaz(c, M, y, ust(T('Neden Netice?')))
+    y -= 12
+    y -= para(c, T('Sınav kâğıtlarını okumaya bugün başlayın.'), st_slogan, M, y, W - 2 * M - 40)
+    y -= 8
+    y -= para(c, T('Kâğıtları okutun, gerisini Netice\'ye bırakın: puanlar, analizler ve raporlar kendiliğinden hazırlanır.'),
+              st_kapak, M, y, W - 2 * M - 40)
+
+    # 2 x 3 özellik kartı
+    y -= 22
+    kw = (W - 2 * M - 14) / 2
+    kh = 76
+    for i, (simge, baslik, metin) in enumerate(ARKA_KARTLAR):
+        x = M + (i % 2) * (kw + 14)
+        ky = y - (i // 2) * (kh + 12) - kh
+        c.setFillColor(INK2)
+        c.roundRect(x, ky, kw, kh, 14, stroke=0, fill=1)
+        c.drawImage(ImageReader(_SIMGE[simge]), x + 14, ky + kh - 50, 36, 36, mask='auto')
+        ty = ky + kh - 14
+        ty -= para(c, T(baslik), st_kart_b, x + 62, ty, kw - 76)
+        para(c, T(metin), st_kart, x + 62, ty - 3, kw - 76)
+    y -= 3 * (kh + 12) + 8
+
+    # Pro denemesi (altın zemin, koyu yazı)
+    ph = 74
+    c.setFillColor(HexColor('#F7D774'))
+    c.roundRect(M, y - ph, W - 2 * M, ph, 14, stroke=0, fill=1)
+    c.drawImage(ImageReader(_SIMGE['pro']), M + 14, y - ph + 19, 36, 36, mask='auto')
+    ty = y - 14
+    ty -= para(c, T('Netice Pro\'yu 14 gün ücretsiz deneyin'), st_pro_b, M + 62, ty, W - 2 * M - 76)
+    para(c, T('Dönem raporu, kazanım takibi, gelişmiş grafikler ve daha fazlası. Kredi kartı gerekmez.'),
+         st_pro, M + 62, ty - 2, W - 2 * M - 76)
+
+    # Alt bölüm: karekod + mağazalar + iletişim
+    c.setFillColor(white)
+    c.roundRect(M, 52, 110, 110, 12, stroke=0, fill=1)
+    karekod(c, 'https://' + SITE, M + 8, 60, 94)
+    c.setFillColor(HexColor('#8C97B8'))
+    c.setFont('J5', 8.5)
+    yaz(c, M + 55, 38, T('Kamerayla okutun'), orta=True)
+
+    x = M + 132
+    c.setFillColor(white)
+    c.setFont('J8', 13)
+    yaz(c, x, 146, T('Ücretsiz indirin'))
+    magaza_rozetleri(c, x, 104, 30)
+    c.setFillColor(EMERALD)
+    c.setFont('J7', 12)
+    yaz(c, x, 80, SITE)
+    c.setFillColor(HexColor('#C9D2EA'))
+    c.setFont('J5', 9.5)
+    yaz(c, x, 63, T('İletişim:') + ' ' + EPOSTA)
+    c.setFillColor(HexColor('#8C97B8'))
+    c.setFont('J5', 9)
+    yaz(c, x, 46, 'Android · iPhone · iPad · Windows · Mac')
+    c.setFillColor(EMERALD)
+    c.setFont('J7', 10)
+    yaz(c, W - M, 22, T('Kâğıttan sonuca, saniyeler içinde.'), sag=True)
 
 
 def bolum_kapagi(c, no, sayfa_baslari, sayfa_no):
@@ -591,8 +760,10 @@ def main():
             c.showPage()
         adim_sayfasi(c, s, basi['_s'][i])
         c.showPage()
+    arka_kapak(c)
+    c.showPage()
     c.save()
-    print(CIKTI, no - 1, 'sayfa')
+    print(CIKTI, no, 'sayfa')
 
 
 if __name__ == '__main__':
