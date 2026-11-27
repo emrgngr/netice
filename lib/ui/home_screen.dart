@@ -39,6 +39,7 @@ import 'why_screen.dart';
 import '../l10n/l10n.dart';
 import '../core/ads.dart';
 import 'ad_slot.dart';
+import 'sample_reports_screen.dart';
 
 /// Ana sayfa / pano. Geniş ekranda (masaüstü) yan menülü pano,
 /// dar ekranda (telefon) büyük "Okut" düğmeli mobil düzen.
@@ -133,6 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
             item(1, Section.classes),
             DesktopNavItem(section: Section.stats, onTap: () => push(const GeneralStatsScreen())),
             DesktopNavItem(section: Section.compare, onTap: () => push(const CompareScreen())),
+            DesktopNavItem(section: Section.samples, onTap: () => push(const SampleReportsScreen())),
             item(2, Section.library),
           ]),
           DesktopNavGroup(tr('Hesap'), [

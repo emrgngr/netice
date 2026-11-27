@@ -111,11 +111,22 @@ class _Fonts {
     final main = (bold ? this.bold : regular).getFont(ctx);
     if (t.runes.every(main.isRuneSupported)) return (main, t);
     final shaped = RegExp(r'[\u0600-\u06FF]').hasMatch(t) ? arabic_text.convert(t) : t;
-    for (final f in fallback) {
-      final font = f.getFont(ctx);
-      if (shaped.runes.every((r) => r == 32 || font.isRuneSupported(r))) return (font, shaped);
+    // Tek bir yazı tipi metnin tamamını kapsamıyorsa (ör. Korece alt kümesinde
+    // olmayan bir hece) en çok harfi kapsayanı seç; kapsamadığı harfleri at.
+    // Aksi hâlde PDF "Missing glyph" hatasıyla hiç oluşmuyordu.
+    PdfFont? best;
+    var bestCount = -1;
+    for (final f in [main, for (final f in fallback) f.getFont(ctx)]) {
+      final text = identical(f, main) ? t : shaped;
+      final n = text.runes.where((r) => r == 32 || f.isRuneSupported(r)).length;
+      if (n == text.runes.length) return (f, text);
+      if (n > bestCount) {
+        best = f;
+        bestCount = n;
+      }
     }
-    return (main, t);
+    final text = identical(best, main) ? t : shaped;
+    return (best!, String.fromCharCodes(text.runes.where((r) => r == 32 || best!.isRuneSupported(r))));
   }
 }
 
