@@ -7,6 +7,8 @@ import '../core/deneme.dart';
 import '../l10n/l10n.dart';
 import '../main.dart';
 import '../reports/pdf_documents.dart';
+import '../core/pro.dart';
+import 'pro_screen.dart';
 import 'report_preview_screen.dart';
 import 'sections_screen.dart';
 import 'student_detail_screen.dart';
@@ -19,8 +21,11 @@ class DenemeScreen extends StatelessWidget {
   final String examId;
   const DenemeScreen({super.key, required this.examId});
 
-  static Future<void> open(BuildContext context, String examId) =>
-      Navigator.of(context).push(MaterialPageRoute(builder: (_) => DenemeScreen(examId: examId)));
+  /// Çok dersli deneme sonuçları Pro özelliğidir.
+  static Future<void> open(BuildContext context, String examId) async {
+    if (!await requirePro(context, ProFeature.denemeExam) || !context.mounted) return;
+    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => DenemeScreen(examId: examId)));
+  }
 
   @override
   Widget build(BuildContext context) {

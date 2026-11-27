@@ -27,6 +27,7 @@ enum ProFeature {
   detailedStats('Ayrıntılı sınıf istatistikleri', 'Sınıf sınıf yayılım ve düzeyler, gelişim çizgileri, öğrenci sıralamaları'),
   officialHeader('Resmi yazı başlığı', 'Kurumunuzun resmi başlığı ve imza alanı'),
   commonExam('Ortak sınav', 'Tüm şubeler aynı sınavı okur, sonuçlar tek raporda birleşir'),
+  denemeExam('Çok dersli deneme sınavı', 'Ders ders net, toplam net, katsayılı puan ve sıralama; TYT ve LGS düzeni hazır'),
   adminPanel('Kurum yönetici paneli', 'Tüm şubeler, sınavlar ve risk altındaki öğrenciler tek ekranda'),
   bookletVariants('A–H kitapçık türleri', 'Soruları ve şıkları karıştırılmış sekize kadar kitapçık, hap bilgi eki'),
   studyTips('Zayıf konu föyü', 'Zayıf konuların hap bilgileri karnede ve çalışma föyünde'),
