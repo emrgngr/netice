@@ -52,10 +52,11 @@ class GoogleConfig {
 /// İzin kapsamları.
 class GoogleScopes {
   static const driveAppData = 'https://www.googleapis.com/auth/drive.appdata';
+  // classroom.profile.emails bilerek yok: Google'da "hassas" izin sayılır,
+  // doğrulama ve video ister. Öğrenciler adla eşleşir, gerisini öğretmen seçer.
   static const classroom = [
     'https://www.googleapis.com/auth/classroom.courses.readonly',
     'https://www.googleapis.com/auth/classroom.rosters.readonly',
-    'https://www.googleapis.com/auth/classroom.profile.emails',
     'https://www.googleapis.com/auth/classroom.coursework.students',
   ];
 }

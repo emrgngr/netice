@@ -2950,5 +2950,7 @@
 "İşlem doğruluğu": "Precisão nos cálculos",
 "İşlem hatası": "Erro de cálculo",
 "… ve {0} kazanım daha": "… e mais {0} habilidades",
-"Jandarma Okulları (Jandarma Okullar Komutanlığı)": "Escolas da Gendarmaria (Comando das Escolas da Gendarmaria)"
+"Jandarma Okulları (Jandarma Okullar Komutanlığı)": "Escolas da Gendarmaria (Comando das Escolas da Gendarmaria)",
+"Adı tutanlar kendiliğinden eşleşti. Eşleşmeyenleri listeden seçin.": "Alunos com nome correspondente foram pareados automaticamente. Escolha os demais na lista.",
+"Moodle'a not aktarırken öğrenciyi kesin eşleştirir.": "Pareia o aluno com precisão ao exportar notas para o Moodle."
 }

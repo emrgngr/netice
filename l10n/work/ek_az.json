@@ -1943,5 +1943,7 @@
  "İşlem doğruluğu": "Hesablama dəqiqliyi",
  "İşlem hatası": "Hesablama səhvi",
  "… ve {0} kazanım daha": "… və daha {0} nəticə",
- "Jandarma Okulları (Jandarma Okullar Komutanlığı)": "Jandarma məktəbləri (Jandarma Məktəbləri Komandanlığı)"
+ "Jandarma Okulları (Jandarma Okullar Komutanlığı)": "Jandarma məktəbləri (Jandarma Məktəbləri Komandanlığı)",
+ "Adı tutanlar kendiliğinden eşleşti. Eşleşmeyenleri listeden seçin.": "Adı uyğun gələnlər avtomatik uyğunlaşdırıldı. Qalanlarını siyahıdan seçin.",
+ "Moodle'a not aktarırken öğrenciyi kesin eşleştirir.": "Qiymətləri Moodle-a köçürərkən şagirdi dəqiq uyğunlaşdırır."
 }

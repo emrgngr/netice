@@ -2950,5 +2950,7 @@
 "İşlem doğruluğu": "Ketepatan hitungan",
 "İşlem hatası": "Salah hitung",
 "… ve {0} kazanım daha": "… dan {0} capaian lainnya",
-"Jandarma Okulları (Jandarma Okullar Komutanlığı)": "Sekolah Jandarmeri (Komando Sekolah Jandarmeri)"
+"Jandarma Okulları (Jandarma Okullar Komutanlığı)": "Sekolah Jandarmeri (Komando Sekolah Jandarmeri)",
+"Adı tutanlar kendiliğinden eşleşti. Eşleşmeyenleri listeden seçin.": "Siswa yang namanya cocok sudah dipasangkan otomatis. Pilih sisanya dari daftar.",
+"Moodle'a not aktarırken öğrenciyi kesin eşleştirir.": "Mencocokkan siswa secara pasti saat mengekspor nilai ke Moodle."
 }

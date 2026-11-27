@@ -180,7 +180,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
               TextField(controller: mail, keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
                       labelText: tr('Öğrenci e-postası (isteğe bağlı)'),
-                      helperText: tr('Google Classroom ve Moodle\'a not aktarırken öğrenciyi kesin eşleştirir.'),
+                      helperText: tr('Moodle\'a not aktarırken öğrenciyi kesin eşleştirir.'),
                       helperMaxLines: 2)),
               const SizedBox(height: 10),
               StatefulBuilder(

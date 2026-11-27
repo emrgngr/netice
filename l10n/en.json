@@ -3021,5 +3021,7 @@
 "İşlem doğruluğu": "Calculation accuracy",
 "İşlem hatası": "Calculation error",
 "… ve {0} kazanım daha": "… and {0} more outcomes",
-"Jandarma Okulları (Jandarma Okullar Komutanlığı)": "Gendarmerie schools (Gendarmerie Schools Command)"
+"Jandarma Okulları (Jandarma Okullar Komutanlığı)": "Gendarmerie schools (Gendarmerie Schools Command)",
+"Adı tutanlar kendiliğinden eşleşti. Eşleşmeyenleri listeden seçin.": "Students whose name matched were paired automatically. Pick the rest from the list.",
+"Moodle'a not aktarırken öğrenciyi kesin eşleştirir.": "Matches the student exactly when exporting grades to Moodle."
 }
