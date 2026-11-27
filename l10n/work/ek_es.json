@@ -1976,5 +1976,13 @@
  "{0} kodlama alanı (doğum tarihi, cinsiyet gibi)": "{0} campos codificados (como fecha de nacimiento, sexo)",
  "{0} seçenekten biri okunur.": "Se lee una de {0} opciones.",
  "{0} sütun; her sütundan bir karakter okunur ({1}).": "{0} columnas; se lee un carácter de cada columna ({1}).",
- "Örn. Kadın, Erkek": "P. ej. Mujer, Hombre"
+ "Örn. Kadın, Erkek": "P. ej. Mujer, Hombre",
+ "Netice Pro ve kurum": "Netice Pro e institución",
+ "Ödeme Microsoft hesabınızdan": "El pago se cobra en tu cuenta de Microsoft",
+ "Microsoft hesabı > Hizmetler ve abonelikler": "Cuenta de Microsoft > Servicios y suscripciones",
+ "Ana ekrandaki \"Dönem sonu raporu\"nu açın; sınıfı ve dönemi seçin.": "Abre \"Informe de fin de periodo\" en la pantalla de inicio; elige clase y trimestre.",
+ "Ana ekrandaki \"Genel analiz\" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.": "«Análisis general» en la pantalla de inicio muestra juntos los resultados de todas las clases y de todos los alumnos que hicieron exámenes.",
+ "Dönem sonu raporu": "Informe de fin de periodo",
+ "Genel analiz": "Análisis general",
+ "Kazandığınız zaman": "Tiempo ahorrado"
 }

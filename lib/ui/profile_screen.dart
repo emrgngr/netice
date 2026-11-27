@@ -11,6 +11,8 @@ import 'lan_sync_screen.dart';
 import 'license_screen.dart';
 import 'pro_screen.dart';
 import 'school_screen.dart';
+import 'service_cards.dart';
+import 'section_icons.dart';
 import 'theme.dart';
 import 'why_screen.dart';
 import 'widgets.dart';
@@ -33,10 +35,7 @@ class ProfileScreen extends StatelessWidget {
         .map((s) => s.trim())
         .firstWhere((s) => s.isNotEmpty, orElse: () => tr('Öğretmen'));
 
-    return Scaffold(
-      appBar: AppBar(title: Text(tr('Profil'))),
-      body: ListView(padding: EdgeInsets.fromLTRB(16, 8, 16, 40 + MediaQuery.paddingOf(context).bottom), children: [
-        HeroPanel(
+    final hero = HeroPanel(
           child: Row(children: [
             Container(
               width: 64,
@@ -74,7 +73,59 @@ class ProfileScreen extends StatelessWidget {
               ]),
             ),
           ]),
-        ),
+        );
+    final proSub = store.hasLicense
+        ? tr('Kurum lisansıyla etkin: {0}', [store.license!.institution])
+        : store.hasSubscription
+            ? tr('Aboneliğiniz etkin. Teşekkürler!')
+            : store.inTrial
+                ? tr('Ücretsiz deneme: {0} gün kaldı', [store.trialDaysLeft])
+                : tr('Dönem raporu, karne, veliye gönderme ve daha fazlası');
+    void push(Widget w, {bool dialog = false}) =>
+        Navigator.of(context).push(MaterialPageRoute(builder: (_) => w, fullscreenDialog: dialog));
+    if (wideLayout(context)) {
+      return Scaffold(
+        appBar: AppBar(title: Text(tr('Profil'))),
+        body: LayoutBuilder(builder: (context, c) {
+          final cols = serviceColumns(c.maxWidth - 32);
+          return ListView(padding: const EdgeInsets.fromLTRB(16, 8, 16, 40), children: [
+            hero,
+            const AdSlot.card(AdPage.profile, padding: EdgeInsets.only(top: 14)),
+            SectionTitle(tr('Netice Pro ve kurum')),
+            ServiceGrid(columns: cols, children: [
+              ServiceCard(section: Section.pro, title: tr('Netice Pro'), subtitle: proSub, hero: true,
+                  onTap: () => push(const ProScreen(), dialog: true)),
+              if (!ProService.salesDisabled)
+                ServiceCard(icon: Icons.card_giftcard_rounded, color: NColors.deepEmerald, title: tr('Arkadaşını davet et'),
+                    subtitle: tr('Arkadaşınıza %15 indirim, size 1 ay ek Pro'), onTap: () => push(const InviteScreen())),
+              ServiceCard(section: Section.why, title: tr('Neden Netice?'),
+                  subtitle: tr('Benzer uygulamalarla özellik ve fiyat karşılaştırması'), onTap: () => push(const WhyNeticeScreen())),
+              ServiceCard(section: Section.school, title: tr('Kurum bilgileri'),
+                  subtitle: school.isEmpty ? tr('Raporlarda resmi başlık için girin') : school.name,
+                  onTap: () => push(const SchoolScreen())),
+              ServiceCard(icon: Icons.apartment_rounded, color: const Color(0xFFB7791F), title: tr('Kurum lisansı'),
+                  subtitle: store.hasLicense
+                      ? tr('{0} · {1} gün kaldı', [store.license!.institution, store.license!.daysLeft(DateTime.now())])
+                      : tr('Kurum kodunu girin ya da kurumunuz için bilgi alın'),
+                  onTap: () => push(const LicenseScreen())),
+              ServiceCard(icon: Icons.dashboard_customize_rounded, color: const Color(0xFF4F46E5), title: tr('Yönetici paneli'),
+                  subtitle: tr('Tüm şubeler, ortak sınavlar ve destek gereken öğrenciler'),
+                  onTap: () => AdminPanelScreen.open(context)),
+              ServiceCard(icon: Icons.move_to_inbox_rounded, color: const Color(0xFF0369A1), title: tr('Ortak sınav dosyası aç'),
+                  subtitle: tr('Başka öğretmenden gelen sınav veya sonuç dosyası'), onTap: () => importNeticeFile(context)),
+              ServiceCard(icon: Icons.wifi_rounded, color: const Color(0xFF0E7490), title: tr('Wi-Fi ile ortak sınav al'),
+                  subtitle: tr('Aynı ağdaki öğretmenden, internetsiz ve dosyasız'), onTap: () => openLanSync(context)),
+            ]),
+            SectionTitle(tr('Hesap')),
+            const RoundedPanel(child: AccountCard()),
+          ]);
+        }),
+      );
+    }
+    return Scaffold(
+      appBar: AppBar(title: Text(tr('Profil'))),
+      body: ListView(padding: EdgeInsets.fromLTRB(16, 8, 16, 40 + MediaQuery.paddingOf(context).bottom), children: [
+        hero,
         const AdSlot.card(AdPage.profile, padding: EdgeInsets.only(top: 14)),
         SectionTitle(tr('Netice Pro')),
         Card(

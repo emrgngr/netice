@@ -1976,5 +1976,13 @@
  "{0} kodlama alanı (doğum tarihi, cinsiyet gibi)": "{0} 个填涂字段（如出生日期、性别）",
  "{0} seçenekten biri okunur.": "从 {0} 个选项中读取一个。",
  "{0} sütun; her sütundan bir karakter okunur ({1}).": "{0} 列；每列读取一个字符（{1}）。",
- "Örn. Kadın, Erkek": "如：女，男"
+ "Örn. Kadın, Erkek": "如：女，男",
+ "Netice Pro ve kurum": "Netice Pro 与机构",
+ "Ödeme Microsoft hesabınızdan": "通过您的 Microsoft 帐户付款",
+ "Microsoft hesabı > Hizmetler ve abonelikler": "Microsoft 帐户 > 服务和订阅",
+ "Ana ekrandaki \"Dönem sonu raporu\"nu açın; sınıfı ve dönemi seçin.": "在主屏幕打开“期末报告”，选择班级和学期。",
+ "Ana ekrandaki \"Genel analiz\" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.": "首页上的“总体分析”汇总显示所有班级和所有参加考试学生的成绩。",
+ "Dönem sonu raporu": "期末报告",
+ "Genel analiz": "总体分析",
+ "Kazandığınız zaman": "为您节省的时间"
 }

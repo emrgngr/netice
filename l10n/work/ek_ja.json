@@ -1976,5 +1976,13 @@
  "{0} kodlama alanı (doğum tarihi, cinsiyet gibi)": "マーク欄 {0} 個（生年月日、性別など）",
  "{0} seçenekten biri okunur.": "{0} 個の選択肢から1つを読み取ります。",
  "{0} sütun; her sütundan bir karakter okunur ({1}).": "{0} 列。各列から1文字を読み取ります（{1}）。",
- "Örn. Kadın, Erkek": "例：女性, 男性"
+ "Örn. Kadın, Erkek": "例：女性, 男性",
+ "Netice Pro ve kurum": "Netice Pro と機関",
+ "Ödeme Microsoft hesabınızdan": "お支払いは Microsoft アカウントに請求されます",
+ "Microsoft hesabı > Hizmetler ve abonelikler": "Microsoft アカウント > サービスとサブスクリプション",
+ "Ana ekrandaki \"Dönem sonu raporu\"nu açın; sınıfı ve dönemi seçin.": "ホーム画面で「期末レポート」を開き、クラスと学期を選びます。",
+ "Ana ekrandaki \"Genel analiz\" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.": "ホーム画面の「全体分析」では、すべてのクラスと受験したすべての生徒の結果をまとめて表示します。",
+ "Dönem sonu raporu": "期末レポート",
+ "Genel analiz": "全体分析",
+ "Kazandığınız zaman": "節約できた時間"
 }

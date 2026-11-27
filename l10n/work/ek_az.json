@@ -1976,5 +1976,13 @@
  "{0} kodlama alanı (doğum tarihi, cinsiyet gibi)": "{0} kodlama sahəsi (doğum tarixi, cins kimi)",
  "{0} seçenekten biri okunur.": "{0} seçimdən biri oxunur.",
  "{0} sütun; her sütundan bir karakter okunur ({1}).": "{0} sütun; hər sütundan bir simvol oxunur ({1}).",
- "Örn. Kadın, Erkek": "Məs. Qadın, Kişi"
+ "Örn. Kadın, Erkek": "Məs. Qadın, Kişi",
+ "Netice Pro ve kurum": "Netice Pro və qurum",
+ "Ödeme Microsoft hesabınızdan": "Ödəniş Microsoft hesabınızdan",
+ "Microsoft hesabı > Hizmetler ve abonelikler": "Microsoft hesabı > Xidmətlər və abunəliklər",
+ "Ana ekrandaki \"Dönem sonu raporu\"nu açın; sınıfı ve dönemi seçin.": "Ana ekranda \"Dövr sonu hesabatı\"nı açın; sinfi və yarımili seçin.",
+ "Ana ekrandaki \"Genel analiz\" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.": "Ana ekrandakı \"Ümumi təhlil\" bütün siniflərin və imtahana girən bütün şagirdlərin nəticələrini bir yerdə göstərir.",
+ "Dönem sonu raporu": "Dövr sonu hesabatı",
+ "Genel analiz": "Ümumi təhlil",
+ "Kazandığınız zaman": "Qazandığınız vaxt"
 }
