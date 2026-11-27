@@ -112,6 +112,11 @@ class _ReviewCardState extends State<_ReviewCard> {
             padding: const EdgeInsets.only(top: 4),
             child: Text(tr('Kâğıtta okunan ad: {0}', [readName.replaceAll('?', '•')]), style: t.textTheme.titleMedium),
           ),
+        for (final e in sheet.fields.entries)
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text('${e.key}: ${e.value.replaceAll('?', '•')}', style: t.textTheme.bodyMedium),
+          ),
         const SizedBox(height: 4),
         Text(
             read != null && read.contains('?')

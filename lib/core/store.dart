@@ -1028,6 +1028,7 @@ class AppStore extends ChangeNotifier {
       openScores: openScores,
       readNumber: studentId == null ? (r.numberPattern ?? r.studentNumber) : null,
       readName: studentId == null ? r.name : null,
+      fields: r.fields,
       mini: r.mini,
     );
     sheets.add(sheet);

@@ -3042,5 +3042,17 @@
 "{0} harflik ad soyad alanı": "{0} hərfli ad soyad sahəsi",
 "Öğrenci numarası bu olsun": "Şagird nömrəsi bu olsun",
 "İspanyol alfabesi (Ñ)": "İspan əlifbası (Ñ)",
-"Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "Formada ad soyad hərf sahəsi və ya FİN kimi ikinci nömrə sahəsi varsa, onları da tapır. Nömrə siyahıda yoxdursa, şagird FİN-dən və ya vərəqdəki adından tanınır; hərflər tətbiqin dilinə görə seçilir."
+"Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "Formada ad soyad hərf sahəsi və ya FİN kimi ikinci nömrə sahəsi varsa, onları da tapır. Nömrə siyahıda yoxdursa, şagird FİN-dən və ya vərəqdəki adından tanınır; hərflər tətbiqin dilinə görə seçilir.",
+"Alan {0}": "Sahə {0}",
+"Alanın adı": "Sahənin adı",
+"Bu fotoğrafta okunan: {0}": "Bu fotoşəkildə oxunan: {0}",
+"Diğer kodlama alanları": "Digər kodlama sahələri",
+"Doğum tarihi": "Doğum tarixi",
+"Doğum tarihi, cinsiyet, eğitim, sınıf gibi diğer kodlama alanları da bulunur ve her kâğıtta okunur. \"Diğer kodlama alanları\" bölümünde alana ad verin; seçenekli alanlarda seçeneklerin adlarını sırayla yazın (örn. Kadın, Erkek). Okunanlar öğrencinin sonucunda ve Excel listesinde görünür.": "Doğum tarixi, cins, təhsil, sinif kimi digər kodlama sahələri də tapılır və hər vərəqdə oxunur. \"Digər kodlama sahələri\" bölməsində sahəyə ad verin; seçimli sahələrdə seçimlərin adlarını ardıcıl yazın (məs. Qadın, Kişi). Oxunanlar şagirdin nəticəsində və Excel siyahısında görünür.",
+"Formda doğum tarihi, cinsiyet, sınıf, şube gibi başka kodlama alanları varsa kendiliğinden bulunur ve her kâğıtta okunur.": "Formada doğum tarixi, cins, sinif, bölmə kimi başqa kodlama sahələri varsa, avtomatik tapılır və hər vərəqdə oxunur.",
+"Seçeneklerin adları (sırayla, virgülle)": "Seçimlərin adları (ardıcıl, vergüllə)",
+"{0} kodlama alanı (doğum tarihi, cinsiyet gibi)": "{0} kodlama sahəsi (doğum tarixi, cins kimi)",
+"{0} seçenekten biri okunur.": "{0} seçimdən biri oxunur.",
+"{0} sütun; her sütundan bir karakter okunur ({1}).": "{0} sütun; hər sütundan bir simvol oxunur ({1}).",
+"Örn. Kadın, Erkek": "Məs. Qadın, Kişi"
 }

@@ -3042,5 +3042,17 @@
 "{0} harflik ad soyad alanı": "поле имени из {0} букв",
 "Öğrenci numarası bu olsun": "Сделать номером ученика",
 "İspanyol alfabesi (Ñ)": "Испанский алфавит (Ñ)",
-"Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "Если на бланке есть буквенная сетка для имени или второе поле номера, например номер удостоверения личности, они тоже находятся. Если номера нет в списке, ученик узнаётся по этому номеру или по имени на бланке; буквы выбираются по языку приложения."
+"Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "Если на бланке есть буквенная сетка для имени или второе поле номера, например номер удостоверения личности, они тоже находятся. Если номера нет в списке, ученик узнаётся по этому номеру или по имени на бланке; буквы выбираются по языку приложения.",
+"Alan {0}": "Поле {0}",
+"Alanın adı": "Название поля",
+"Bu fotoğrafta okunan: {0}": "Прочитано на этом фото: {0}",
+"Diğer kodlama alanları": "Другие поля кодирования",
+"Doğum tarihi": "Дата рождения",
+"Doğum tarihi, cinsiyet, eğitim, sınıf gibi diğer kodlama alanları da bulunur ve her kâğıtta okunur. \"Diğer kodlama alanları\" bölümünde alana ad verin; seçenekli alanlarda seçeneklerin adlarını sırayla yazın (örn. Kadın, Erkek). Okunanlar öğrencinin sonucunda ve Excel listesinde görünür.": "Другие поля кодирования, например дата рождения, пол, образование, класс, тоже находятся и читаются на каждом бланке. Назовите поле в разделе «Другие поля кодирования»; для полей с вариантами введите названия вариантов по порядку (например, Женский, Мужской). Значения видны в результате ученика и в списке Excel.",
+"Formda doğum tarihi, cinsiyet, sınıf, şube gibi başka kodlama alanları varsa kendiliğinden bulunur ve her kâğıtta okunur.": "Если на бланке есть другие поля кодирования, например дата рождения, пол, класс или параллель, они находятся автоматически и читаются на каждом бланке.",
+"Seçeneklerin adları (sırayla, virgülle)": "Названия вариантов (по порядку, через запятую)",
+"{0} kodlama alanı (doğum tarihi, cinsiyet gibi)": "Полей кодирования: {0} (дата рождения, пол и т. п.)",
+"{0} seçenekten biri okunur.": "Читается один из вариантов: {0}.",
+"{0} sütun; her sütundan bir karakter okunur ({1}).": "Столбцов: {0}; из каждого столбца читается один символ ({1}).",
+"Örn. Kadın, Erkek": "Например, Женский, Мужской"
 }

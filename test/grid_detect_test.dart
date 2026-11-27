@@ -40,7 +40,7 @@ class FakeForm {
   Pt gender(int k) => Pt(880 + k * 44.0, 420);
   Pt nameCell(int col, int row) => Pt(70 + col * 22.0, 140 + row * 19.0);
 
-  img.Image render({Map<int, int> marks = const {}, String number = '', int? bookletMark, String name = ''}) {
+  img.Image render({Map<int, int> marks = const {}, String number = '', int? bookletMark, String name = '', int? genderMark}) {
     final im = img.Image(width: w, height: h, numChannels: 3);
     img.fill(im, color: img.ColorRgb8(252, 251, 248));
     img.drawString(im, 'DENEME SINAVI CEVAP KAGIDI', font: img.arial24, x: 300, y: 40, color: img.ColorRgb8(20, 20, 20));
@@ -83,7 +83,7 @@ class FakeForm {
     }
     img.drawString(im, 'CINSIYET', font: img.arial14, x: 870, y: 380, color: ink);
     for (var k = 0; k < 2; k++) {
-      bubble(gender(k), 11, 11, 'EK'[k], false);
+      bubble(gender(k), 11, 11, 'EK'[k], genderMark == k);
     }
     for (var q = 0; q < questions; q++) {
       final p0 = answer(q, 0);
@@ -205,6 +205,25 @@ void main() {
     expect(d.name!.letters, NameBlock.turkish);
     final r = TemplateReader(d.applyTo(const FormTemplate(id: 'x', name: 'x')), questionCount: form.questions, choiceCount: 5).read(g);
     expect(r.name, 'ŞULE ÖZ');
+  });
+
+  test('diğer kodlama alanı (cinsiyet) bulunur, adlandırılır ve okunur', () {
+    final form = FakeForm();
+    final page = form.render(marks: {0: 1}, bookletMark: 0, genderMark: 1);
+    final im = photo(page, [Pt(210, 150), Pt(1300, 210), Pt(1350, 1830), Pt(160, 1770)], blur: 1);
+    final g = GrayImage.fromImage(im);
+    final d = detectFormGrids(g, PageFinder.find(g));
+    final gender = d.fields.where((f) => !f.perColumn && f.cells == 2 && (f.first.y - form.gender(0).y).abs() < 15).toList();
+    expect(gender, hasLength(1), reason: '${[for (final f in d.fields) '${f.columns}x${f.rows} ${f.first.x},${f.first.y}']}');
+    final t = d.applyTo(const FormTemplate(id: 'x', name: 'x'));
+    final named = t.copyWith(fields: [
+      for (final f in t.fields) identical(f, gender.first) ? f.copyWith(label: 'Cinsiyet', options: ['Kadın', 'Erkek']) : f
+    ]);
+    final r = TemplateReader(named, questionCount: form.questions, choiceCount: 5).read(g);
+    expect(r.fields['Cinsiyet'], 'Erkek');
+    // Şablon dosyasında alanlar korunur.
+    final back = FormTemplate.fromJson(named.toJson());
+    expect(back.fields.firstWhere((f) => f.label == 'Cinsiyet').options, ['Kadın', 'Erkek']);
   });
 
   test('ad soyad alfabesi satır sayısından ve dilden seçilir', () {

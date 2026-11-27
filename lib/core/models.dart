@@ -673,6 +673,10 @@ class Sheet {
   /// Formun ad soyad alanından okunan ad (yalnızca başka firma formlarında).
   final String? readName;
 
+  /// Başka firma formunun diğer kodlama alanlarından okunanlar
+  /// (alan adı → değer; doğum tarihi, cinsiyet, sınıf…).
+  final Map<String, String> fields;
+
   /// Kâğıt çeyrek A4 kısa quiz formuydu (işaretli görüntü buna göre çizilir).
   final bool mini;
 
@@ -689,6 +693,7 @@ class Sheet {
     this.imageId,
     this.readNumber,
     this.readName,
+    this.fields = const {},
     this.mini = false,
     this.rubricLevels = const {},
   });
@@ -712,6 +717,7 @@ class Sheet {
         imageId: imageId ?? this.imageId,
         readNumber: readNumber,
         readName: readName,
+        fields: fields,
         mini: mini,
         rubricLevels: rubricLevels ?? this.rubricLevels,
       );
@@ -725,6 +731,7 @@ class Sheet {
         if (imageId != null) 'imageId': imageId,
         if (readNumber != null) 'readNumber': readNumber,
         if (readName != null) 'readName': readName,
+        if (fields.isNotEmpty) 'fields': fields,
         if (mini) 'mini': true,
         if (rubricLevels.isNotEmpty) 'rubricLevels': {for (final e in rubricLevels.entries) '${e.key}': e.value},
       };
@@ -740,6 +747,7 @@ class Sheet {
         imageId: j['imageId'] as String?,
         readNumber: j['readNumber'] as String?,
         readName: j['readName'] as String?,
+        fields: {for (final e in ((j['fields'] as Map?) ?? const {}).entries) '${e.key}': '${e.value}'},
         mini: j['mini'] as bool? ?? false,
         rubricLevels: {
           for (final e in ((j['rubricLevels'] as Map?) ?? const {}).entries)

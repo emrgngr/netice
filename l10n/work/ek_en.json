@@ -1964,5 +1964,17 @@
  "{0} harflik ad soyad alanı": "{0}-letter name field",
  "Öğrenci numarası bu olsun": "Make this the student number",
  "İspanyol alfabesi (Ñ)": "Spanish alphabet (Ñ)",
- "Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "If the form has a name letter grid or a second number field such as a national ID number, those are found too. If the number is not in the list, the student is recognized by the ID number or by the name on the sheet; letters follow the app language."
+ "Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "If the form has a name letter grid or a second number field such as a national ID number, those are found too. If the number is not in the list, the student is recognized by the ID number or by the name on the sheet; letters follow the app language.",
+ "Alan {0}": "Field {0}",
+ "Alanın adı": "Field name",
+ "Bu fotoğrafta okunan: {0}": "Read in this photo: {0}",
+ "Diğer kodlama alanları": "Other coded fields",
+ "Doğum tarihi": "Date of birth",
+ "Doğum tarihi, cinsiyet, eğitim, sınıf gibi diğer kodlama alanları da bulunur ve her kâğıtta okunur. \"Diğer kodlama alanları\" bölümünde alana ad verin; seçenekli alanlarda seçeneklerin adlarını sırayla yazın (örn. Kadın, Erkek). Okunanlar öğrencinin sonucunda ve Excel listesinde görünür.": "Other coded fields such as date of birth, gender, education and class are also found and read on every sheet. Name each field under \"Other coded fields\"; for option fields, type the option names in order (e.g. Female, Male). The values appear in the student's result and in the Excel list.",
+ "Formda doğum tarihi, cinsiyet, sınıf, şube gibi başka kodlama alanları varsa kendiliğinden bulunur ve her kâğıtta okunur.": "If the form has other coded fields such as date of birth, gender, class or section, they are found automatically and read on every sheet.",
+ "Seçeneklerin adları (sırayla, virgülle)": "Option names (in order, comma-separated)",
+ "{0} kodlama alanı (doğum tarihi, cinsiyet gibi)": "{0} coded fields (like date of birth, gender)",
+ "{0} seçenekten biri okunur.": "One of {0} options is read.",
+ "{0} sütun; her sütundan bir karakter okunur ({1}).": "{0} columns; one character is read from each column ({1}).",
+ "Örn. Kadın, Erkek": "E.g. Female, Male"
 }

@@ -203,7 +203,7 @@ class _TemplateEditorScreenState extends State<TemplateEditorScreen> {
       _busy = false;
       _tap = _Tap.none;
       _test = null;
-      if (!d.isEmpty) _t = d.applyTo(_t);
+      if (!d.isEmpty) _t = d.applyTo(_t).copyWith(fields: nameDetectedFields(d.fields));
     });
     if (d.blocks.isEmpty) {
       toast(context, tr('Cevap daireleri kendiliğinden bulunamadı. Daha net, düz bir fotoğraf deneyin ya da blokları elle işaretleyin.'));
@@ -215,6 +215,7 @@ class _TemplateEditorScreenState extends State<TemplateEditorScreen> {
       if (d.booklet != null) tr('{0} kitapçık türü', [d.booklet!.count]),
       if (d.name != null) tr('ad soyad alanı'),
       if (d.extraNumbers.isNotEmpty) tr('{0} diğer numara alanı', [d.extraNumbers.length]),
+      if (d.fields.isNotEmpty) tr('{0} kodlama alanı (doğum tarihi, cinsiyet gibi)', [d.fields.length]),
     ];
     toast(context, tr('Bulundu: {0}. Renkli halkaların dairelerin üstünde olduğunu kontrol edin.', [parts.join(', ')]));
   }
@@ -470,7 +471,8 @@ class _TemplateEditorScreenState extends State<TemplateEditorScreen> {
       marked,
       (r.studentNumber == null ? '' : ' · numara ${int.parse(r.studentNumber!)}') +
           (r.booklet == null ? '' : ' · ${tr('kitapçık')} ${String.fromCharCode(65 + r.booklet!)}') +
-          (r.name == null ? '' : ' · ${r.name}')
+          (r.name == null ? '' : ' · ${r.name}') +
+          [for (final e in r.fields.entries) ' · ${e.key}: ${e.value}'].join()
     ]));
   }
 
@@ -671,6 +673,61 @@ class _TemplateEditorScreenState extends State<TemplateEditorScreen> {
             )
           else
             Text(tr('Formda ad soyad harf alanı varsa kendiliğinden bulunur; numara listede yoksa öğrenci adından tanınır.'), style: TextStyle(color: muted)),
+          SectionTitle(tr('Diğer kodlama alanları')),
+          if (_t.fields.isEmpty)
+            Text(tr('Formda doğum tarihi, cinsiyet, sınıf, şube gibi başka kodlama alanları varsa kendiliğinden bulunur ve her kâğıtta okunur.'),
+                style: TextStyle(color: muted)),
+          for (final (i, f) in _t.fields.indexed)
+            Card(
+              key: ValueKey('field_${f.first.x}_${f.first.y}_${f.columns}x${f.rows}'),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 8, 12),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                  Row(children: [
+                    Icon(f.perColumn ? Icons.dialpad_rounded : Icons.radio_button_checked_rounded, color: _fieldColor),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextFormField(
+                        initialValue: f.label,
+                        decoration: InputDecoration(labelText: tr('Alanın adı')),
+                        onChanged: (v) => _t = _t.copyWith(fields: [..._t.fields]..[i] = _t.fields[i].copyWith(label: v)),
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: tr('Kaldır'),
+                      onPressed: () => setState(() {
+                        _t = _t.copyWith(fields: [..._t.fields]..removeAt(i));
+                        _test = null;
+                      }),
+                      icon: const Icon(Icons.close_rounded),
+                    ),
+                  ]),
+                  const SizedBox(height: 4),
+                  Text(
+                      f.perColumn
+                          ? tr('{0} sütun; her sütundan bir karakter okunur ({1}).',
+                              [f.columns, '${f.options.first}–${f.options.last}'])
+                          : tr('{0} seçenekten biri okunur.', [f.cells]),
+                      style: TextStyle(color: muted)),
+                  if (!f.perColumn)
+                    TextFormField(
+                      initialValue: f.options.join(', '),
+                      decoration: InputDecoration(
+                          labelText: tr('Seçeneklerin adları (sırayla, virgülle)'), hintText: tr('Örn. Kadın, Erkek')),
+                      onChanged: (v) {
+                        final opts = [for (final o in v.split(',')) o.trim()];
+                        if (opts.length != f.cells || opts.any((o) => o.isEmpty)) return;
+                        _t = _t.copyWith(fields: [..._t.fields]..[i] = _t.fields[i].copyWith(options: opts));
+                      },
+                    ),
+                  if (_test?.fields[f.label.trim()] case final v?)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: Text(tr('Bu fotoğrafta okunan: {0}', [v]), style: const TextStyle(color: NColors.emerald, fontWeight: FontWeight.w700)),
+                    ),
+                ]),
+              ),
+            ),
           SectionTitle(tr('Kitapçık türü')),
           if (_t.booklet != null)
             Card(
@@ -854,6 +911,17 @@ class _TemplatePainter extends CustomPainter {
         }
       }
     }
+    for (final f in t.fields) {
+      final ring = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.4
+        ..color = _fieldColor;
+      for (var c = 0; c < f.columns; c++) {
+        for (var r = 0; r < f.rows; r++) {
+          canvas.drawCircle(at(f.bubble(c, r)), f.radius * k, ring);
+        }
+      }
+    }
     for (final x in t.extraNumbers) {
       final ring = Paint()
         ..style = PaintingStyle.stroke
@@ -914,6 +982,18 @@ DetectedForm _detect((GrayImage, List<Pt>, double, String) input) {
 }
 
 /// Ad soyad alanı alfabelerinin adı.
+/// Diğer kodlama alanlarının rengi (şablon ekranı).
+const _fieldColor = Color(0xFF14B8A6);
+
+/// Bulunan kodlama alanlarına ad verir: tarih gibi görünen "Doğum tarihi",
+/// diğerleri "Alan 1", "Alan 2"… (öğretmen değiştirir).
+List<CodedField> nameDetectedFields(List<CodedField> fields) {
+  var n = 0;
+  return [
+    for (final f in fields) f.copyWith(label: f.label == 'date' ? tr('Doğum tarihi') : tr('Alan {0}', [++n])),
+  ];
+}
+
 String alphabetLabel(String letters) {
   final i = NameBlock.alphabets.indexWhere((a) => a.$2 == letters);
   final code = i < 0 ? '' : NameBlock.alphabets[i].$1;

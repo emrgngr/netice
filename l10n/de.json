@@ -3042,5 +3042,17 @@
 "{0} harflik ad soyad alanı": "Namensfeld mit {0} Buchstaben",
 "Öğrenci numarası bu olsun": "Als Schülernummer verwenden",
 "İspanyol alfabesi (Ñ)": "Spanisches Alphabet (Ñ)",
-"Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "Hat der Bogen ein Buchstabenfeld für den Namen oder ein zweites Nummernfeld wie die Ausweisnummer, werden auch diese gefunden. Steht die Nummer nicht in der Liste, wird der Schüler an der Ausweisnummer oder am Namen auf dem Bogen erkannt; die Buchstaben richten sich nach der App-Sprache."
+"Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "Hat der Bogen ein Buchstabenfeld für den Namen oder ein zweites Nummernfeld wie die Ausweisnummer, werden auch diese gefunden. Steht die Nummer nicht in der Liste, wird der Schüler an der Ausweisnummer oder am Namen auf dem Bogen erkannt; die Buchstaben richten sich nach der App-Sprache.",
+"Alan {0}": "Feld {0}",
+"Alanın adı": "Feldname",
+"Bu fotoğrafta okunan: {0}": "In diesem Foto gelesen: {0}",
+"Diğer kodlama alanları": "Weitere Kodierfelder",
+"Doğum tarihi": "Geburtsdatum",
+"Doğum tarihi, cinsiyet, eğitim, sınıf gibi diğer kodlama alanları da bulunur ve her kâğıtta okunur. \"Diğer kodlama alanları\" bölümünde alana ad verin; seçenekli alanlarda seçeneklerin adlarını sırayla yazın (örn. Kadın, Erkek). Okunanlar öğrencinin sonucunda ve Excel listesinde görünür.": "Weitere Kodierfelder wie Geburtsdatum, Geschlecht, Schulabschluss oder Klasse werden ebenfalls gefunden und auf jedem Bogen gelesen. Benennen Sie das Feld unter „Weitere Kodierfelder“; bei Auswahlfeldern die Optionen der Reihe nach eintragen (z. B. Weiblich, Männlich). Die Werte erscheinen im Ergebnis des Schülers und in der Excel-Liste.",
+"Formda doğum tarihi, cinsiyet, sınıf, şube gibi başka kodlama alanları varsa kendiliğinden bulunur ve her kâğıtta okunur.": "Hat der Bogen weitere Kodierfelder wie Geburtsdatum, Geschlecht, Klasse oder Zug, werden sie automatisch gefunden und auf jedem Bogen gelesen.",
+"Seçeneklerin adları (sırayla, virgülle)": "Namen der Optionen (der Reihe nach, mit Komma)",
+"{0} kodlama alanı (doğum tarihi, cinsiyet gibi)": "{0} Kodierfelder (z. B. Geburtsdatum, Geschlecht)",
+"{0} seçenekten biri okunur.": "Eine von {0} Optionen wird gelesen.",
+"{0} sütun; her sütundan bir karakter okunur ({1}).": "{0} Spalten; aus jeder Spalte wird ein Zeichen gelesen ({1}).",
+"Örn. Kadın, Erkek": "z. B. Weiblich, Männlich"
 }
