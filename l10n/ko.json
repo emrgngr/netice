@@ -3112,5 +3112,20 @@
 "Word belgesi kaydedildi.": "Word 문서를 저장했습니다.",
 "Word belgesi kaydedilemedi.": "Word 문서를 저장하지 못했습니다.",
 "Word olarak kaydet": "Word로 저장",
-"Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin": "문제지와 보고서를 편집 가능한 Word(.docx) 문서로 저장"
+"Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin": "문제지와 보고서를 편집 가능한 Word(.docx) 문서로 저장",
+"Düşünme düzeyleri (Bloom)": "사고 수준(블룸)",
+"Düşünme düzeyleri kaydedildi.": "사고 수준을 저장했습니다.",
+"Her düzeyin yanına soru numaralarını yazın. Örn. 1-5, 9": "각 수준 옆에 문항 번호를 쓰세요. 예: 1-5, 9",
+"Kabul edilebilir": "수용 가능",
+"Madde-toplam korelasyonu (r)": "문항-총점 상관(r)",
+"Madde-toplam korelasyonu {0} · {1}": "문항-총점 상관 {0} · {1}",
+"Soruların düşünme düzeyini (Hatırlama, Anlama, Uygulama, Analiz, Değerlendirme, Yaratma) belirtirseniz her düzeyin başarısı burada ve raporda görünür. Soru bankasından hazırlanan kitapçıklarda kendiliğinden gelir.": "문항의 사고 수준(기억, 이해, 적용, 분석, 평가, 창안)을 지정하면 수준별 정답률이 여기와 보고서에 표시됩니다. 문항 은행으로 만든 문제지는 자동으로 들어갑니다.",
+"Sınıf temel bilgide (%{0}) iyi, üst düzey düşünmede (%{1}) zorlanıyor. Analiz ve yorum gerektiren etkinliklere ağırlık verin.": "학급은 기초 지식({0}%)은 좋지만 고차원적 사고({1}%)에 어려움을 겪습니다. 분석과 해석이 필요한 활동에 비중을 두세요.",
+"Temel bilgi %{0}, üst düzey düşünme %{1}.": "기초 지식 {0}%, 고차원적 사고 {1}%.",
+"Ters çalışıyor": "반대로 작동",
+"Yenilenmiş Bloom sınıflamasına göre her düzeydeki soruların sınıf doğru oranı": "개정 블룸 분류의 수준별 문항에 대한 학급 정답률",
+"Zayıf": "약함",
+"p = doğru oranı (güçlük) · D = ayırt edicilik (üst %27 − alt %27) · r = madde-toplam korelasyonu · Değerler öğretmene yol gösteren uyarılardır.": "p = 정답률(난이도) · D = 변별도(상위 27% − 하위 27%) · r = 문항-총점 상관 · 값은 교사를 위한 참고입니다.",
+"r, sorunun sınavın geri kalanıyla ne kadar uyumlu ölçtüğünü gösterir: 0,30 ve üstü iyi, 0,20–0,29 kabul edilebilir, 0,20 altı zayıf; eksi değer sorunun ters çalıştığını (iyi öğrencilerin yanlış yaptığını) gösterir.": "r은 문항이 시험의 나머지 부분과 얼마나 일관되게 측정하는지 보여 줍니다: 0.30 이상 양호, 0.20–0.29 수용 가능, 0.20 미만 약함, 음수는 문항이 반대로 작동함(우수 학생이 틀림)을 뜻합니다.",
+"{0} sorudan {1} tanesinin düzeyi belli.": "{0}문항 중 {1}문항의 수준이 지정되어 있습니다."
 }

@@ -3183,5 +3183,20 @@
 "Word belgesi kaydedildi.": "Word 文档已保存。",
 "Word belgesi kaydedilemedi.": "无法保存 Word 文档。",
 "Word olarak kaydet": "另存为 Word",
-"Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin": "将试卷和报告保存为可编辑的 Word (.docx) 文档"
+"Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin": "将试卷和报告保存为可编辑的 Word (.docx) 文档",
+"Düşünme düzeyleri (Bloom)": "思维层次（布鲁姆）",
+"Düşünme düzeyleri kaydedildi.": "思维层次已保存。",
+"Her düzeyin yanına soru numaralarını yazın. Örn. 1-5, 9": "在每个层次旁填写题号，例如 1-5, 9",
+"Kabul edilebilir": "可接受",
+"Madde-toplam korelasyonu (r)": "题总相关 (r)",
+"Madde-toplam korelasyonu {0} · {1}": "题总相关 {0} · {1}",
+"Soruların düşünme düzeyini (Hatırlama, Anlama, Uygulama, Analiz, Değerlendirme, Yaratma) belirtirseniz her düzeyin başarısı burada ve raporda görünür. Soru bankasından hazırlanan kitapçıklarda kendiliğinden gelir.": "为题目标注思维层次（记忆、理解、应用、分析、评价、创造）后，各层次的得分率会显示在这里和报告中。从题库生成的试卷会自动带上。",
+"Sınıf temel bilgide (%{0}) iyi, üst düzey düşünmede (%{1}) zorlanıyor. Analiz ve yorum gerektiren etkinliklere ağırlık verin.": "班级基础知识掌握较好（{0}%），但高阶思维较弱（{1}%）。请多安排需要分析和解释的活动。",
+"Temel bilgi %{0}, üst düzey düşünme %{1}.": "基础知识 {0}%，高阶思维 {1}%。",
+"Ters çalışıyor": "反向作用",
+"Yenilenmiş Bloom sınıflamasına göre her düzeydeki soruların sınıf doğru oranı": "按修订版布鲁姆分类，各层次题目的班级正确率",
+"Zayıf": "较弱",
+"p = doğru oranı (güçlük) · D = ayırt edicilik (üst %27 − alt %27) · r = madde-toplam korelasyonu · Değerler öğretmene yol gösteren uyarılardır.": "p = 正确率（难度）· D = 区分度（前 27% − 后 27%）· r = 题总相关 · 数值仅供教师参考。",
+"r, sorunun sınavın geri kalanıyla ne kadar uyumlu ölçtüğünü gösterir: 0,30 ve üstü iyi, 0,20–0,29 kabul edilebilir, 0,20 altı zayıf; eksi değer sorunun ters çalıştığını (iyi öğrencilerin yanlış yaptığını) gösterir.": "r 表示该题与试卷其余部分测量的一致程度：0.30 及以上为好，0.20–0.29 可接受，低于 0.20 较弱；负值表示该题反向作用（好学生反而答错）。",
+"{0} sorudan {1} tanesinin düzeyi belli.": "{0} 道题中有 {1} 道已标注层次。"
 }

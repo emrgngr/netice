@@ -124,6 +124,10 @@ class Question {
   /// Yanlış şıkların yakaladığı kavram yanılgıları (A sırasındaki şık → yanılgı).
   final Map<int, String> misconceptions;
 
+  /// Sorunun düşünme düzeyi (yenilenmiş Bloom: remember, understand, apply,
+  /// analyze, evaluate, create); bilinmiyorsa null.
+  final String? cognitive;
+
   const Question({
     required this.no,
     required this.correct,
@@ -132,12 +136,14 @@ class Question {
     this.outcomeCode,
     this.bankId,
     this.misconceptions = const {},
+    this.cognitive,
   });
 
   /// [choice] şıkkının yanılgısı (doğru şıksa ya da yazılmamışsa boş).
   String misconceptionOf(int choice) => correct.contains(choice) ? '' : (misconceptions[choice] ?? '').trim();
 
-  Question copyWith({Set<int>? correct, double? points, bool? cancelled, String? outcomeCode, Map<int, String>? misconceptions}) =>
+  Question copyWith(
+          {Set<int>? correct, double? points, bool? cancelled, String? outcomeCode, Map<int, String>? misconceptions, String? cognitive, bool clearCognitive = false}) =>
       Question(
         no: no,
         correct: correct ?? this.correct,
@@ -146,6 +152,7 @@ class Question {
         outcomeCode: outcomeCode ?? this.outcomeCode,
         bankId: bankId,
         misconceptions: misconceptions ?? this.misconceptions,
+        cognitive: clearCognitive ? null : (cognitive ?? this.cognitive),
       );
 
   Map<String, dynamic> toJson() => {
@@ -157,6 +164,7 @@ class Question {
         if (bankId != null) 'bankId': bankId,
         if (misconceptions.values.any((m) => m.trim().isNotEmpty))
           'misconceptions': {for (final e in misconceptions.entries) if (e.value.trim().isNotEmpty) '${e.key}': e.value},
+        if (cognitive != null) 'cognitive': cognitive,
       };
 
   factory Question.fromJson(Map<String, dynamic> j) => Question(
@@ -170,6 +178,7 @@ class Question {
           for (final e in ((j['misconceptions'] as Map?) ?? const {}).entries)
             if (int.tryParse('${e.key}') != null) int.parse('${e.key}'): '${e.value}'
         },
+        cognitive: j['cognitive'] as String?,
       );
 }
 
@@ -531,6 +540,7 @@ class Exam {
           misconceptions: {
             for (final e in questions[order[i]].misconceptions.entries) printedChoice(booklet, order[i], e.key): e.value
           },
+          cognitive: questions[order[i]].cognitive,
         ),
     ];
   }

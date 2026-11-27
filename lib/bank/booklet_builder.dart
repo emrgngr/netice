@@ -166,6 +166,11 @@ class BookletPlan {
     return BookletPlan._(test, open, variants, o, choiceCount, testPts, openPts);
   }
 
+  static String? _cognitive(BankQuestion q) {
+    final l = q.cognitive != CognitiveLevel.none ? q.cognitive : (q.parent?.cognitive ?? CognitiveLevel.none);
+    return l == CognitiveLevel.none ? null : l.name;
+  }
+
   /// Sorular birden çok dersten ve her ders tek bir blokta ise ders
   /// bölümleri (çok dersli deneme); değilse boş.
   List<ExamSection> subjectSections() {
@@ -207,6 +212,7 @@ class BookletPlan {
             for (var c = 0; c < testMaster[i].misconceptions.length; c++)
               if (testMaster[i].misconceptionOf(c).isNotEmpty) c: testMaster[i].misconceptionOf(c)
           },
+          cognitive: _cognitive(testMaster[i]),
         ),
     ];
     final orders = <List<int>>[];

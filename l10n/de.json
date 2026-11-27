@@ -3183,5 +3183,20 @@
 "Word belgesi kaydedildi.": "Word-Dokument gespeichert.",
 "Word belgesi kaydedilemedi.": "Das Word-Dokument konnte nicht gespeichert werden.",
 "Word olarak kaydet": "Als Word speichern",
-"Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin": "Hefte und Berichte als bearbeitbares Word-Dokument (.docx) speichern"
+"Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin": "Hefte und Berichte als bearbeitbares Word-Dokument (.docx) speichern",
+"Düşünme düzeyleri (Bloom)": "Denkstufen (Bloom)",
+"Düşünme düzeyleri kaydedildi.": "Denkstufen gespeichert.",
+"Her düzeyin yanına soru numaralarını yazın. Örn. 1-5, 9": "Schreiben Sie neben jede Stufe die Fragennummern, z. B. 1-5, 9",
+"Kabul edilebilir": "Akzeptabel",
+"Madde-toplam korelasyonu (r)": "Trennschärfe (Item-Total-Korrelation, r)",
+"Madde-toplam korelasyonu {0} · {1}": "Item-Total-Korrelation {0} · {1}",
+"Soruların düşünme düzeyini (Hatırlama, Anlama, Uygulama, Analiz, Değerlendirme, Yaratma) belirtirseniz her düzeyin başarısı burada ve raporda görünür. Soru bankasından hazırlanan kitapçıklarda kendiliğinden gelir.": "Wenn Sie die Denkstufe der Fragen angeben (Erinnern, Verstehen, Anwenden, Analysieren, Bewerten, Erschaffen), erscheint der Erfolg je Stufe hier und im Bericht. Bei Heften aus der Fragenbank geschieht das automatisch.",
+"Sınıf temel bilgide (%{0}) iyi, üst düzey düşünmede (%{1}) zorlanıyor. Analiz ve yorum gerektiren etkinliklere ağırlık verin.": "Die Klasse ist beim Grundwissen gut ({0} %), tut sich aber beim höheren Denken schwer ({1} %). Setzen Sie auf Aufgaben mit Analyse und Deutung.",
+"Temel bilgi %{0}, üst düzey düşünme %{1}.": "Grundwissen {0} %, höheres Denken {1} %.",
+"Ters çalışıyor": "Wirkt umgekehrt",
+"Yenilenmiş Bloom sınıflamasına göre her düzeydeki soruların sınıf doğru oranı": "Richtig-Quote der Klasse je Stufe der überarbeiteten Bloom-Taxonomie",
+"Zayıf": "Schwach",
+"p = doğru oranı (güçlük) · D = ayırt edicilik (üst %27 − alt %27) · r = madde-toplam korelasyonu · Değerler öğretmene yol gösteren uyarılardır.": "p = Lösungsquote (Schwierigkeit) · D = Trennschärfe (obere 27 % − untere 27 %) · r = Item-Total-Korrelation · Die Werte sind Hinweise für die Lehrkraft.",
+"r, sorunun sınavın geri kalanıyla ne kadar uyumlu ölçtüğünü gösterir: 0,30 ve üstü iyi, 0,20–0,29 kabul edilebilir, 0,20 altı zayıf; eksi değer sorunun ters çalıştığını (iyi öğrencilerin yanlış yaptığını) gösterir.": "r zeigt, wie stimmig eine Frage mit dem Rest der Prüfung misst: ab 0,30 gut, 0,20–0,29 akzeptabel, unter 0,20 schwach; ein negativer Wert heißt, die Frage wirkt umgekehrt (starke Schüler lösen sie falsch).",
+"{0} sorudan {1} tanesinin düzeyi belli.": "Bei {1} von {0} Fragen ist die Stufe bekannt."
 }

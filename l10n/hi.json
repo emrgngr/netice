@@ -3112,5 +3112,20 @@
 "Word belgesi kaydedildi.": "Word दस्तावेज़ सहेजा गया।",
 "Word belgesi kaydedilemedi.": "Word दस्तावेज़ सहेजा नहीं जा सका।",
 "Word olarak kaydet": "Word के रूप में सहेजें",
-"Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin": "पुस्तिका और रिपोर्ट को संपादन योग्य Word (.docx) दस्तावेज़ के रूप में सहेजें"
+"Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin": "पुस्तिका और रिपोर्ट को संपादन योग्य Word (.docx) दस्तावेज़ के रूप में सहेजें",
+"Düşünme düzeyleri (Bloom)": "चिंतन स्तर (ब्लूम)",
+"Düşünme düzeyleri kaydedildi.": "चिंतन स्तर सहेजे गए।",
+"Her düzeyin yanına soru numaralarını yazın. Örn. 1-5, 9": "हर स्तर के आगे प्रश्न संख्या लिखें, जैसे 1-5, 9",
+"Kabul edilebilir": "स्वीकार्य",
+"Madde-toplam korelasyonu (r)": "प्रश्न-कुल सहसंबंध (r)",
+"Madde-toplam korelasyonu {0} · {1}": "प्रश्न-कुल सहसंबंध {0} · {1}",
+"Soruların düşünme düzeyini (Hatırlama, Anlama, Uygulama, Analiz, Değerlendirme, Yaratma) belirtirseniz her düzeyin başarısı burada ve raporda görünür. Soru bankasından hazırlanan kitapçıklarda kendiliğinden gelir.": "यदि आप प्रश्नों का चिंतन स्तर (स्मरण, समझ, अनुप्रयोग, विश्लेषण, मूल्यांकन, सृजन) बताते हैं, तो हर स्तर की सफलता यहाँ और रिपोर्ट में दिखती है। प्रश्न बैंक से बनी पुस्तिकाओं में यह अपने आप आता है।",
+"Sınıf temel bilgide (%{0}) iyi, üst düzey düşünmede (%{1}) zorlanıyor. Analiz ve yorum gerektiren etkinliklere ağırlık verin.": "कक्षा बुनियादी ज्ञान में अच्छी है ({0}%), पर उच्च स्तरीय चिंतन में कठिनाई है ({1}%)। विश्लेषण और व्याख्या वाली गतिविधियों पर ज़ोर दें।",
+"Temel bilgi %{0}, üst düzey düşünme %{1}.": "बुनियादी ज्ञान {0}%, उच्च स्तरीय चिंतन {1}%।",
+"Ters çalışıyor": "उल्टा काम कर रहा है",
+"Yenilenmiş Bloom sınıflamasına göre her düzeydeki soruların sınıf doğru oranı": "संशोधित ब्लूम वर्गीकरण के हर स्तर के प्रश्नों में कक्षा का सही उत्तर अनुपात",
+"Zayıf": "कमज़ोर",
+"p = doğru oranı (güçlük) · D = ayırt edicilik (üst %27 − alt %27) · r = madde-toplam korelasyonu · Değerler öğretmene yol gösteren uyarılardır.": "p = सही अनुपात (कठिनाई) · D = विभेदन (ऊपरी 27% − निचले 27%) · r = प्रश्न-कुल सहसंबंध · मान शिक्षक के लिए संकेत हैं।",
+"r, sorunun sınavın geri kalanıyla ne kadar uyumlu ölçtüğünü gösterir: 0,30 ve üstü iyi, 0,20–0,29 kabul edilebilir, 0,20 altı zayıf; eksi değer sorunun ters çalıştığını (iyi öğrencilerin yanlış yaptığını) gösterir.": "r बताता है कि प्रश्न परीक्षा के बाकी हिस्से के साथ कितना संगत मापता है: 0.30 या अधिक अच्छा, 0.20–0.29 स्वीकार्य, 0.20 से कम कमज़ोर; ऋणात्मक मान का अर्थ है प्रश्न उल्टा काम कर रहा है (मज़बूत छात्र गलत करते हैं)।",
+"{0} sorudan {1} tanesinin düzeyi belli.": "{0} में से {1} प्रश्नों का स्तर ज्ञात है।"
 }

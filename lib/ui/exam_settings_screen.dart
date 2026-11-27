@@ -152,7 +152,8 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
           cancelled: _qs[i].cancelled,
           outcomeCode: code.isEmpty ? null : code,
           bankId: _qs[i].bankId,
-          misconceptions: _qs[i].misconceptions));
+          misconceptions: _qs[i].misconceptions,
+          cognitive: _qs[i].cognitive));
     }
     final open = <OpenQuestion>[];
     for (var i = 0; i < _open.length; i++) {

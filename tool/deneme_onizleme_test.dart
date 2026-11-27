@@ -13,6 +13,7 @@ import 'package:netice/main.dart';
 import 'package:netice/reports/pdf_documents.dart';
 import 'package:netice/reports/report_docx.dart';
 import 'package:netice/ui/deneme_screen.dart';
+import 'package:netice/ui/exam_screen.dart';
 import 'package:netice/ui/sections_screen.dart';
 import 'package:netice/ui/theme.dart';
 
@@ -90,5 +91,17 @@ void main() {
     File('build/screenshots/deneme.docx').writeAsBytesSync(buildDenemeDocx(report: rep, students: store.studentById, school: school));
     File('build/screenshots/sinav_raporu.docx').writeAsBytesSync(
         buildResultsDocx(exam: exam, results: store.resultsOf(exam), students: store.studentById, school: school));
+
+    // Analiz sekmesi: Bloom düzeyleri ve madde-toplam korelasyonu.
+    const lv = ['remember', 'understand', 'apply', 'analyze', 'evaluate'];
+    store.upsertExam(store.examById('deneme1')!.copyWith(questions: [
+      for (final q in store.examById('deneme1')!.questions) q.copyWith(cognitive: lv[(q.no * 7) % 5]),
+    ]));
+    await shot(tester, app(const ExamScreen(examId: 'deneme1'), false), const Size(1280, 4200), 'analiz_bloom',
+        then: () async {
+      await tester.tap(find.text('Analiz'));
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.text('Düşünme düzeyleri (Bloom)'), 400, scrollable: find.byType(Scrollable).last);
+    });
   });
 }

@@ -3183,5 +3183,20 @@
 "Word belgesi kaydedildi.": "Word sənədi saxlanıldı.",
 "Word belgesi kaydedilemedi.": "Word sənədi saxlanıla bilmədi.",
 "Word olarak kaydet": "Word kimi saxla",
-"Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin": "Kitabçanı və hesabatları redaktə edilə bilən Word (.docx) sənədi kimi saxlayın"
+"Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin": "Kitabçanı və hesabatları redaktə edilə bilən Word (.docx) sənədi kimi saxlayın",
+"Düşünme düzeyleri (Bloom)": "Düşüncə səviyyələri (Bloom)",
+"Düşünme düzeyleri kaydedildi.": "Düşüncə səviyyələri saxlanıldı.",
+"Her düzeyin yanına soru numaralarını yazın. Örn. 1-5, 9": "Hər səviyyənin yanına sual nömrələrini yazın. Məs. 1-5, 9",
+"Kabul edilebilir": "Qəbul edilə bilər",
+"Madde-toplam korelasyonu (r)": "Maddə-ümumi korrelyasiyası (r)",
+"Madde-toplam korelasyonu {0} · {1}": "Maddə-ümumi korrelyasiyası {0} · {1}",
+"Soruların düşünme düzeyini (Hatırlama, Anlama, Uygulama, Analiz, Değerlendirme, Yaratma) belirtirseniz her düzeyin başarısı burada ve raporda görünür. Soru bankasından hazırlanan kitapçıklarda kendiliğinden gelir.": "Sualların düşüncə səviyyəsini (Xatırlama, Anlama, Tətbiq, Təhlil, Qiymətləndirmə, Yaratma) qeyd etsəniz, hər səviyyənin uğuru burada və hesabatda görünür. Sual bankasından hazırlanan kitabçalarda avtomatik gəlir.",
+"Sınıf temel bilgide (%{0}) iyi, üst düzey düşünmede (%{1}) zorlanıyor. Analiz ve yorum gerektiren etkinliklere ağırlık verin.": "Sinif əsas biliklərdə (%{0}) yaxşıdır, yüksək səviyyəli düşüncədə (%{1}) çətinlik çəkir. Təhlil və şərh tələb edən fəaliyyətlərə üstünlük verin.",
+"Temel bilgi %{0}, üst düzey düşünme %{1}.": "Əsas bilik %{0}, yüksək səviyyəli düşüncə %{1}.",
+"Ters çalışıyor": "Tərsinə işləyir",
+"Yenilenmiş Bloom sınıflamasına göre her düzeydeki soruların sınıf doğru oranı": "Yenilənmiş Bloom təsnifatına görə hər səviyyədəki sualların sinif doğru nisbəti",
+"Zayıf": "Zəif",
+"p = doğru oranı (güçlük) · D = ayırt edicilik (üst %27 − alt %27) · r = madde-toplam korelasyonu · Değerler öğretmene yol gösteren uyarılardır.": "p = doğru nisbəti (çətinlik) · D = ayırdetmə (üst %27 − alt %27) · r = maddə-ümumi korrelyasiyası · Dəyərlər müəllimə yol göstərən xəbərdarlıqlardır.",
+"r, sorunun sınavın geri kalanıyla ne kadar uyumlu ölçtüğünü gösterir: 0,30 ve üstü iyi, 0,20–0,29 kabul edilebilir, 0,20 altı zayıf; eksi değer sorunun ters çalıştığını (iyi öğrencilerin yanlış yaptığını) gösterir.": "r sualın imtahanın qalan hissəsi ilə nə qədər uyğun ölçdüyünü göstərir: 0,30 və yuxarı yaxşı, 0,20–0,29 qəbul edilə bilər, 0,20-dən aşağı zəif; mənfi dəyər sualın tərsinə işlədiyini (güclü şagirdlərin səhv etdiyini) göstərir.",
+"{0} sorudan {1} tanesinin düzeyi belli.": "{0} sualdan {1} sualın səviyyəsi məlumdur."
 }

@@ -3183,5 +3183,20 @@
 "Word belgesi kaydedildi.": "Word 文書を保存しました。",
 "Word belgesi kaydedilemedi.": "Word 文書を保存できませんでした。",
 "Word olarak kaydet": "Word で保存",
-"Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin": "問題冊子とレポートを編集可能な Word (.docx) 文書で保存"
+"Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin": "問題冊子とレポートを編集可能な Word (.docx) 文書で保存",
+"Düşünme düzeyleri (Bloom)": "思考レベル（ブルーム）",
+"Düşünme düzeyleri kaydedildi.": "思考レベルを保存しました。",
+"Her düzeyin yanına soru numaralarını yazın. Örn. 1-5, 9": "各レベルの横に問題番号を入力してください。例：1-5, 9",
+"Kabul edilebilir": "許容範囲",
+"Madde-toplam korelasyonu (r)": "項目-全体相関 (r)",
+"Madde-toplam korelasyonu {0} · {1}": "項目-全体相関 {0} · {1}",
+"Soruların düşünme düzeyini (Hatırlama, Anlama, Uygulama, Analiz, Değerlendirme, Yaratma) belirtirseniz her düzeyin başarısı burada ve raporda görünür. Soru bankasından hazırlanan kitapçıklarda kendiliğinden gelir.": "問題の思考レベル（記憶、理解、応用、分析、評価、創造）を設定すると、レベルごとの正答率がここと報告書に表示されます。問題バンクから作った冊子では自動で入ります。",
+"Sınıf temel bilgide (%{0}) iyi, üst düzey düşünmede (%{1}) zorlanıyor. Analiz ve yorum gerektiren etkinliklere ağırlık verin.": "クラスは基礎知識（{0}%）はよくできていますが、高次の思考（{1}%）に苦戦しています。分析や解釈を求める活動を重視しましょう。",
+"Temel bilgi %{0}, üst düzey düşünme %{1}.": "基礎知識 {0}%、高次の思考 {1}%。",
+"Ters çalışıyor": "逆に作用",
+"Yenilenmiş Bloom sınıflamasına göre her düzeydeki soruların sınıf doğru oranı": "改訂版ブルーム分類の各レベルの問題に対するクラスの正答率",
+"Zayıf": "弱い",
+"p = doğru oranı (güçlük) · D = ayırt edicilik (üst %27 − alt %27) · r = madde-toplam korelasyonu · Değerler öğretmene yol gösteren uyarılardır.": "p = 正答率（難易度）· D = 識別力（上位 27% − 下位 27%）· r = 項目-全体相関 · 値は教員向けの目安です。",
+"r, sorunun sınavın geri kalanıyla ne kadar uyumlu ölçtüğünü gösterir: 0,30 ve üstü iyi, 0,20–0,29 kabul edilebilir, 0,20 altı zayıf; eksi değer sorunun ters çalıştığını (iyi öğrencilerin yanlış yaptığını) gösterir.": "r は問題が試験の残りの部分とどれだけ一貫して測定しているかを示します：0.30 以上は良好、0.20–0.29 は許容範囲、0.20 未満は弱い。負の値は問題が逆に作用している（成績上位者が間違える）ことを示します。",
+"{0} sorudan {1} tanesinin düzeyi belli.": "{0} 問中 {1} 問のレベルが設定済みです。"
 }

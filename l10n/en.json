@@ -3183,5 +3183,20 @@
 "Word belgesi kaydedildi.": "Word document saved.",
 "Word belgesi kaydedilemedi.": "The Word document could not be saved.",
 "Word olarak kaydet": "Save as Word",
-"Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin": "Save booklets and reports as editable Word (.docx) documents"
+"Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin": "Save booklets and reports as editable Word (.docx) documents",
+"Düşünme düzeyleri (Bloom)": "Thinking levels (Bloom)",
+"Düşünme düzeyleri kaydedildi.": "Thinking levels saved.",
+"Her düzeyin yanına soru numaralarını yazın. Örn. 1-5, 9": "Write question numbers next to each level, e.g. 1-5, 9",
+"Kabul edilebilir": "Acceptable",
+"Madde-toplam korelasyonu (r)": "Item-total correlation (r)",
+"Madde-toplam korelasyonu {0} · {1}": "Item-total correlation {0} · {1}",
+"Soruların düşünme düzeyini (Hatırlama, Anlama, Uygulama, Analiz, Değerlendirme, Yaratma) belirtirseniz her düzeyin başarısı burada ve raporda görünür. Soru bankasından hazırlanan kitapçıklarda kendiliğinden gelir.": "If you set each question's thinking level (Remember, Understand, Apply, Analyze, Evaluate, Create), the success at each level appears here and in the report. Booklets built from the question bank include it automatically.",
+"Sınıf temel bilgide (%{0}) iyi, üst düzey düşünmede (%{1}) zorlanıyor. Analiz ve yorum gerektiren etkinliklere ağırlık verin.": "The class does well on basic knowledge ({0}%) but struggles with higher-order thinking ({1}%). Focus on activities that require analysis and interpretation.",
+"Temel bilgi %{0}, üst düzey düşünme %{1}.": "Basic knowledge {0}%, higher-order thinking {1}%.",
+"Ters çalışıyor": "Works in reverse",
+"Yenilenmiş Bloom sınıflamasına göre her düzeydeki soruların sınıf doğru oranı": "Class correct rate of the questions at each level of the revised Bloom taxonomy",
+"Zayıf": "Weak",
+"p = doğru oranı (güçlük) · D = ayırt edicilik (üst %27 − alt %27) · r = madde-toplam korelasyonu · Değerler öğretmene yol gösteren uyarılardır.": "p = correct rate (difficulty) · D = discrimination (top 27% − bottom 27%) · r = item-total correlation · Values are guidance for the teacher.",
+"r, sorunun sınavın geri kalanıyla ne kadar uyumlu ölçtüğünü gösterir: 0,30 ve üstü iyi, 0,20–0,29 kabul edilebilir, 0,20 altı zayıf; eksi değer sorunun ters çalıştığını (iyi öğrencilerin yanlış yaptığını) gösterir.": "r shows how consistently a question measures with the rest of the exam: 0.30 and above is good, 0.20–0.29 acceptable, below 0.20 weak; a negative value means the question works in reverse (strong students get it wrong).",
+"{0} sorudan {1} tanesinin düzeyi belli.": "{1} of {0} questions have a level."
 }

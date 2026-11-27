@@ -3183,5 +3183,20 @@
 "Word belgesi kaydedildi.": "Document Word enregistré.",
 "Word belgesi kaydedilemedi.": "Impossible d'enregistrer le document Word.",
 "Word olarak kaydet": "Enregistrer en Word",
-"Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin": "Enregistrez livrets et rapports en document Word (.docx) modifiable"
+"Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin": "Enregistrez livrets et rapports en document Word (.docx) modifiable",
+"Düşünme düzeyleri (Bloom)": "Niveaux de réflexion (Bloom)",
+"Düşünme düzeyleri kaydedildi.": "Niveaux de réflexion enregistrés.",
+"Her düzeyin yanına soru numaralarını yazın. Örn. 1-5, 9": "Indiquez les numéros de questions pour chaque niveau, ex. 1-5, 9",
+"Kabul edilebilir": "Acceptable",
+"Madde-toplam korelasyonu (r)": "Corrélation item-total (r)",
+"Madde-toplam korelasyonu {0} · {1}": "Corrélation item-total {0} · {1}",
+"Soruların düşünme düzeyini (Hatırlama, Anlama, Uygulama, Analiz, Değerlendirme, Yaratma) belirtirseniz her düzeyin başarısı burada ve raporda görünür. Soru bankasından hazırlanan kitapçıklarda kendiliğinden gelir.": "Si vous indiquez le niveau de réflexion des questions (Mémoriser, Comprendre, Appliquer, Analyser, Évaluer, Créer), la réussite par niveau apparaît ici et dans le rapport. Les livrets issus de la banque de questions l'incluent automatiquement.",
+"Sınıf temel bilgide (%{0}) iyi, üst düzey düşünmede (%{1}) zorlanıyor. Analiz ve yorum gerektiren etkinliklere ağırlık verin.": "La classe réussit bien les connaissances de base ({0} %) mais peine sur la réflexion de haut niveau ({1} %). Privilégiez les activités d'analyse et d'interprétation.",
+"Temel bilgi %{0}, üst düzey düşünme %{1}.": "Connaissances de base {0} %, réflexion de haut niveau {1} %.",
+"Ters çalışıyor": "Fonctionne à l'envers",
+"Yenilenmiş Bloom sınıflamasına göre her düzeydeki soruların sınıf doğru oranı": "Taux de réussite de la classe par niveau de la taxonomie de Bloom révisée",
+"Zayıf": "Faible",
+"p = doğru oranı (güçlük) · D = ayırt edicilik (üst %27 − alt %27) · r = madde-toplam korelasyonu · Değerler öğretmene yol gösteren uyarılardır.": "p = taux de réussite (difficulté) · D = discrimination (27 % supérieurs − 27 % inférieurs) · r = corrélation item-total · Les valeurs sont des repères pour l'enseignant.",
+"r, sorunun sınavın geri kalanıyla ne kadar uyumlu ölçtüğünü gösterir: 0,30 ve üstü iyi, 0,20–0,29 kabul edilebilir, 0,20 altı zayıf; eksi değer sorunun ters çalıştığını (iyi öğrencilerin yanlış yaptığını) gösterir.": "r montre à quel point la question mesure de façon cohérente avec le reste de l'examen : 0,30 et plus bon, 0,20–0,29 acceptable, moins de 0,20 faible ; une valeur négative signifie que la question fonctionne à l'envers (les bons élèves se trompent).",
+"{0} sorudan {1} tanesinin düzeyi belli.": "{1} questions sur {0} ont un niveau."
 }

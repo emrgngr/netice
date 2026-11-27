@@ -3183,5 +3183,20 @@
 "Word belgesi kaydedildi.": "تم حفظ مستند Word.",
 "Word belgesi kaydedilemedi.": "تعذر حفظ مستند Word.",
 "Word olarak kaydet": "حفظ بصيغة Word",
-"Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin": "احفظ الكراسة والتقارير كمستند Word ‏(.docx) قابل للتعديل"
+"Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin": "احفظ الكراسة والتقارير كمستند Word ‏(.docx) قابل للتعديل",
+"Düşünme düzeyleri (Bloom)": "مستويات التفكير (بلوم)",
+"Düşünme düzeyleri kaydedildi.": "تم حفظ مستويات التفكير.",
+"Her düzeyin yanına soru numaralarını yazın. Örn. 1-5, 9": "اكتب أرقام الأسئلة بجانب كل مستوى، مثال: 1-5، 9",
+"Kabul edilebilir": "مقبول",
+"Madde-toplam korelasyonu (r)": "ارتباط البند بالدرجة الكلية (r)",
+"Madde-toplam korelasyonu {0} · {1}": "ارتباط البند بالدرجة الكلية {0} · {1}",
+"Soruların düşünme düzeyini (Hatırlama, Anlama, Uygulama, Analiz, Değerlendirme, Yaratma) belirtirseniz her düzeyin başarısı burada ve raporda görünür. Soru bankasından hazırlanan kitapçıklarda kendiliğinden gelir.": "إذا حددت مستوى التفكير لكل سؤال (التذكر، الفهم، التطبيق، التحليل، التقويم، الإبداع) يظهر النجاح في كل مستوى هنا وفي التقرير. يأتي تلقائيًا في الكراسات المعدة من بنك الأسئلة.",
+"Sınıf temel bilgide (%{0}) iyi, üst düzey düşünmede (%{1}) zorlanıyor. Analiz ve yorum gerektiren etkinliklere ağırlık verin.": "الصف جيد في المعرفة الأساسية (%{0}) لكنه يواجه صعوبة في التفكير العالي (%{1}). ركّز على أنشطة تتطلب التحليل والتفسير.",
+"Temel bilgi %{0}, üst düzey düşünme %{1}.": "المعرفة الأساسية %{0}، التفكير العالي %{1}.",
+"Ters çalışıyor": "يعمل بشكل معكوس",
+"Yenilenmiş Bloom sınıflamasına göre her düzeydeki soruların sınıf doğru oranı": "نسبة الإجابات الصحيحة للصف في أسئلة كل مستوى حسب تصنيف بلوم المعدل",
+"Zayıf": "ضعيف",
+"p = doğru oranı (güçlük) · D = ayırt edicilik (üst %27 − alt %27) · r = madde-toplam korelasyonu · Değerler öğretmene yol gösteren uyarılardır.": "p = نسبة الصحيح (الصعوبة) · D = التمييز (أعلى %27 − أدنى %27) · r = ارتباط البند بالدرجة الكلية · القيم تنبيهات إرشادية للمعلم.",
+"r, sorunun sınavın geri kalanıyla ne kadar uyumlu ölçtüğünü gösterir: 0,30 ve üstü iyi, 0,20–0,29 kabul edilebilir, 0,20 altı zayıf; eksi değer sorunun ters çalıştığını (iyi öğrencilerin yanlış yaptığını) gösterir.": "يبين r مدى اتساق قياس السؤال مع بقية الاختبار: 0.30 فأكثر جيد، 0.20–0.29 مقبول، أقل من 0.20 ضعيف؛ والقيمة السالبة تعني أن السؤال يعمل بشكل معكوس (يخطئ فيه الطلاب الأقوياء).",
+"{0} sorudan {1} tanesinin düzeyi belli.": "مستوى {1} من {0} سؤالًا معروف."
 }

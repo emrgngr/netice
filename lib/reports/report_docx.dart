@@ -7,6 +7,7 @@ import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
 
+import '../core/bloom.dart';
 import '../core/deneme.dart';
 import '../core/models.dart';
 import '../core/report.dart';
@@ -259,8 +260,10 @@ Uint8List buildResultsDocx({
   required List<Result> results,
   required Map<String, Student> students,
   SchoolInfo school = const SchoolInfo(),
+  String? Function(Question q)? cognitiveLookup,
 }) {
   final r = ExamReport.build(exam, results);
+  final bloom = BloomReport.build(exam, results, lookup: cognitiveLookup);
   final s = r.stats;
   final d = DocxReport(school);
   d.letterhead(docTitle: tr('Sınav Analiz Raporu'), classLine: school.classLine(exam.className), date: exam.date, info: _examInfo(exam));
@@ -298,6 +301,12 @@ Uint8List buildResultsDocx({
         [o.code, o.questionNos.join(', '), _pct(o.rate)],
     ], flex: [4, 2, 1.2], leftColumn: 0);
   }
+  if (bloom.rows.isNotEmpty) {
+    d.heading(tr('Düşünme düzeyleri (Bloom)'), tr('Yenilenmiş Bloom sınıflamasına göre her düzeydeki soruların sınıf doğru oranı'));
+    d.table([tr('Düzey'), tr('Soru'), tr('Doğru oranı')], [
+      for (final b in bloom.rows) [b.label, b.questionNos.join(', '), _pct(b.rate)],
+    ], flex: [2, 4, 1.2], leftColumn: 0);
+  }
   if (exam.isMultiSubject) {
     final dn = DenemeReport.build(exam, results);
     d.heading(tr('Ders ders sonuçlar'));
@@ -331,9 +340,9 @@ Uint8List buildResultsDocx({
     size: 8.5,
   );
   d.pageBreak();
-  d.heading(tr('Madde analizi'), tr('p = doğru oranı (güçlük) · D = ayırt edicilik (üst %27 − alt %27) · Değerler öğretmene yol gösteren uyarılardır.'));
+  d.heading(tr('Madde analizi'), tr('p = doğru oranı (güçlük) · D = ayırt edicilik (üst %27 − alt %27) · r = madde-toplam korelasyonu · Değerler öğretmene yol gösteren uyarılardır.'));
   d.table(
-    [tr('Soru'), tr('Anahtar'), 'p', 'D', for (var c = 0; c < exam.choiceCount; c++) _letter(c), tr('Boş'), tr('Yorum')],
+    [tr('Soru'), tr('Anahtar'), 'p', 'D', 'r', for (var c = 0; c < exam.choiceCount; c++) _letter(c), tr('Boş'), tr('Yorum')],
     [
       for (final it in r.items)
         () {
@@ -343,16 +352,17 @@ Uint8List buildResultsDocx({
             q.cancelled ? tr('İptal') : q.correct.map(_letter).join('/'),
             _f2(it.p),
             _f2(it.d),
+            it.rpb == null ? '–' : _f2(it.rpb!),
             for (var c = 0; c < exam.choiceCount; c++) q.correct.contains(c) ? '${it.choiceCounts[c]}*' : '${it.choiceCounts[c]}',
             '${it.blankCount}',
             it.suspiciousChoice != null
                 ? tr('Üst grup {0} seçti; anahtarı kontrol edin', [_letter(it.suspiciousChoice!)])
-                : '${it.difficultyLabel} · ${it.discriminationLabel}',
+                : '${it.difficultyLabel} · ${it.discriminationLabel}${(it.rpb ?? 0) < 0 ? ' · ${tr('Ters çalışıyor')}' : ''}',
           ];
         }(),
     ],
-    flex: [0.7, 1, 0.8, 0.8, for (var c = 0; c < exam.choiceCount; c++) 0.6, 0.7, 4],
-    leftColumn: 5 + exam.choiceCount,
+    flex: [0.7, 1, 0.8, 0.8, 0.8, for (var c = 0; c < exam.choiceCount; c++) 0.6, 0.7, 4],
+    leftColumn: 6 + exam.choiceCount,
     size: 8,
   );
   d.note(tr('* doğru şık'));

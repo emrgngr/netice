@@ -3112,5 +3112,20 @@
 "Word belgesi kaydedildi.": "Documento do Word salvo.",
 "Word belgesi kaydedilemedi.": "Não foi possível salvar o documento do Word.",
 "Word olarak kaydet": "Salvar como Word",
-"Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin": "Salve cadernos e relatórios como documento do Word (.docx) editável"
+"Kitapçığı ve raporları düzenlenebilir Word (.docx) belgesi olarak kaydedin": "Salve cadernos e relatórios como documento do Word (.docx) editável",
+"Düşünme düzeyleri (Bloom)": "Níveis de pensamento (Bloom)",
+"Düşünme düzeyleri kaydedildi.": "Níveis de pensamento salvos.",
+"Her düzeyin yanına soru numaralarını yazın. Örn. 1-5, 9": "Escreva os números das questões ao lado de cada nível, ex.: 1-5, 9",
+"Kabul edilebilir": "Aceitável",
+"Madde-toplam korelasyonu (r)": "Correlação item-total (r)",
+"Madde-toplam korelasyonu {0} · {1}": "Correlação item-total {0} · {1}",
+"Soruların düşünme düzeyini (Hatırlama, Anlama, Uygulama, Analiz, Değerlendirme, Yaratma) belirtirseniz her düzeyin başarısı burada ve raporda görünür. Soru bankasından hazırlanan kitapçıklarda kendiliğinden gelir.": "Se você indicar o nível de pensamento das questões (Lembrar, Compreender, Aplicar, Analisar, Avaliar, Criar), o desempenho por nível aparece aqui e no relatório. Nos cadernos do banco de questões isso vem automaticamente.",
+"Sınıf temel bilgide (%{0}) iyi, üst düzey düşünmede (%{1}) zorlanıyor. Analiz ve yorum gerektiren etkinliklere ağırlık verin.": "A turma vai bem no conhecimento básico ({0}%), mas tem dificuldade no pensamento de ordem superior ({1}%). Priorize atividades de análise e interpretação.",
+"Temel bilgi %{0}, üst düzey düşünme %{1}.": "Conhecimento básico {0}%, pensamento superior {1}%.",
+"Ters çalışıyor": "Funciona ao contrário",
+"Yenilenmiş Bloom sınıflamasına göre her düzeydeki soruların sınıf doğru oranı": "Taxa de acertos da turma em cada nível da taxonomia de Bloom revisada",
+"Zayıf": "Fraco",
+"p = doğru oranı (güçlük) · D = ayırt edicilik (üst %27 − alt %27) · r = madde-toplam korelasyonu · Değerler öğretmene yol gösteren uyarılardır.": "p = taxa de acertos (dificuldade) · D = discriminação (27% superiores − 27% inferiores) · r = correlação item-total · Os valores são orientações para o professor.",
+"r, sorunun sınavın geri kalanıyla ne kadar uyumlu ölçtüğünü gösterir: 0,30 ve üstü iyi, 0,20–0,29 kabul edilebilir, 0,20 altı zayıf; eksi değer sorunun ters çalıştığını (iyi öğrencilerin yanlış yaptığını) gösterir.": "r mostra o quanto a questão mede de forma coerente com o resto da prova: 0,30 ou mais é bom, 0,20–0,29 aceitável, abaixo de 0,20 fraco; valor negativo indica que a questão funciona ao contrário (alunos fortes erram).",
+"{0} sorudan {1} tanesinin düzeyi belli.": "{1} de {0} questões têm nível."
 }
