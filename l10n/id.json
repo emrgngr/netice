@@ -2996,5 +2996,15 @@
 "Video indiriliyor…": "Mengunduh video…",
 "Video kaydedildi: {0}": "Video disimpan: {0}",
 "Video indirilemedi. İnternet bağlantınızı kontrol edin.": "Video tidak dapat diunduh. Periksa koneksi internet Anda.",
-"Video yükleniyor… %{0}": "Memuat video… {0}%"
+"Video yükleniyor… %{0}": "Memuat video… {0}%",
+"Bağlantı kopyalandı.": "Tautan disalin.",
+"Bağlantıyı kopyala": "Salin tautan",
+"Bağlantıyı paylaş": "Bagikan tautan",
+"Karekodu okutun": "Pindai kode QR",
+"Mağaza bağlantıları ve karekod": "Tautan toko dan kode QR",
+"Netice telefonda, tablette ve bilgisayarda çalışır. Meslektaşlarınız karekodu okutarak ya da mağaza rozetine dokunarak indirebilir.": "Netice berjalan di ponsel, tablet, dan komputer. Rekan Anda dapat mengunduhnya dengan memindai kode QR atau mengetuk lencana toko.",
+"Netice'yi indirin": "Unduh Netice",
+"Telefonunuzun kamerasını tutun; cihazınıza uygun mağaza açılır.": "Arahkan kamera ponsel Anda; toko yang sesuai untuk perangkat Anda akan terbuka.",
+"Yakında": "Segera hadir",
+"Yakında: {0}": "Segera hadir: {0}"
 }

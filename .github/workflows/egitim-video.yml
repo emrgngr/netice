@@ -38,7 +38,7 @@ jobs:
             sudo apt-get update -qq && sudo apt-get install -y -qq -o Acquire::Retries=5 ffmpeg libraqm0 >/dev/null && break
             sleep $((i*20))
           done
-      - run: pip install --quiet pillow numpy
+      - run: pip install --quiet pillow numpy qrcode
       - name: Ekranlar
         run: |
           ICON=$(dirname "$(which flutter)")/cache/artifacts/material_fonts/MaterialIcons-Regular.otf

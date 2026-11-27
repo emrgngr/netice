@@ -3067,5 +3067,15 @@
 "Video indiriliyor…": "جار تنزيل الفيديو…",
 "Video kaydedildi: {0}": "تم حفظ الفيديو: {0}",
 "Video indirilemedi. İnternet bağlantınızı kontrol edin.": "تعذر تنزيل الفيديو. تحقق من اتصالك بالإنترنت.",
-"Video yükleniyor… %{0}": "جار تحميل الفيديو… {0}%"
+"Video yükleniyor… %{0}": "جار تحميل الفيديو… {0}%",
+"Bağlantı kopyalandı.": "تم نسخ الرابط.",
+"Bağlantıyı kopyala": "نسخ الرابط",
+"Bağlantıyı paylaş": "مشاركة الرابط",
+"Karekodu okutun": "امسح رمز QR",
+"Mağaza bağlantıları ve karekod": "روابط المتاجر ورمز QR",
+"Netice telefonda, tablette ve bilgisayarda çalışır. Meslektaşlarınız karekodu okutarak ya da mağaza rozetine dokunarak indirebilir.": "يعمل Netice على الهاتف والجهاز اللوحي والحاسوب. يمكن لزملائك تنزيله بمسح رمز QR أو بالنقر على شارة المتجر.",
+"Netice'yi indirin": "نزّل Netice",
+"Telefonunuzun kamerasını tutun; cihazınıza uygun mağaza açılır.": "وجّه كاميرا هاتفك إليه؛ يُفتح المتجر المناسب لجهازك.",
+"Yakında": "قريبًا",
+"Yakında: {0}": "قريبًا: {0}"
 }

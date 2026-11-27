@@ -3067,5 +3067,15 @@
 "Video indiriliyor…": "正在下载视频…",
 "Video kaydedildi: {0}": "视频已保存：{0}",
 "Video indirilemedi. İnternet bağlantınızı kontrol edin.": "无法下载视频。请检查网络连接。",
-"Video yükleniyor… %{0}": "正在加载视频… {0}%"
+"Video yükleniyor… %{0}": "正在加载视频… {0}%",
+"Bağlantı kopyalandı.": "链接已复制。",
+"Bağlantıyı kopyala": "复制链接",
+"Bağlantıyı paylaş": "分享链接",
+"Karekodu okutun": "扫描二维码",
+"Mağaza bağlantıları ve karekod": "应用商店链接和二维码",
+"Netice telefonda, tablette ve bilgisayarda çalışır. Meslektaşlarınız karekodu okutarak ya da mağaza rozetine dokunarak indirebilir.": "Netice 可在手机、平板和电脑上使用。同事扫描二维码或点击商店徽章即可下载。",
+"Netice'yi indirin": "下载 Netice",
+"Telefonunuzun kamerasını tutun; cihazınıza uygun mağaza açılır.": "用手机相机对准它，即会打开适合您设备的应用商店。",
+"Yakında": "即将推出",
+"Yakında: {0}": "即将推出：{0}"
 }
