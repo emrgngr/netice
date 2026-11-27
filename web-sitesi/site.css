@@ -116,8 +116,9 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .menu .btn.primary:hover { background: #047857; color: #fff; }
 .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 .badges { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-.badges img { height: 48px; width: auto; }
-.badges .gp { height: 70px; margin: -11px -10px; }
+/* Resmî mağaza rozetleri: hepsi aynı yükseklikte (Google Play'in saydam kenarı yayında kırpılır). */
+.badges img { height: 48px; width: auto; display: block; }
+.badges img.yakinda { opacity: .55; }
 
 /* ——— Kahraman ——— */
 .hero {
@@ -232,7 +233,9 @@ td.num { font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 7
 
 /* ——— İndir ——— */
 .dl { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
-.dl .card { gap: 12px; }
+.dl .card { gap: 12px; display: flex; flex-direction: column; }
+.dl .card .badges { margin-top: auto; }
+.dl .card .status { align-self: flex-start; }
 .status { font-family: var(--mono); font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; justify-self: start; }
 .status.live { background: var(--mint-soft); color: var(--mint); }
 .status.soon { background: var(--chip); color: var(--muted); }
@@ -310,13 +313,13 @@ table { min-width: 0; }
   .decorated .cta { max-width: 640px; margin-left: max(16px, calc(50% - 560px)); }
 }
 .stores { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: flex-start; margin-top: 8px; }
-.stores img { height: 46px; width: auto; }
+.stores img { height: 48px; width: auto; display: block; }
 .stores .ms { font-weight: 700; color: var(--fg); text-decoration: underline; text-underline-offset: 3px; }
 .buy ol { margin: 0; padding-left: 20px; display: grid; gap: 6px; color: var(--muted); }
 .buy ol b { color: var(--fg); }
 .buy .badge { height: 46px; width: auto; }
 .buy .note { font-size: .88rem; }
-.buy .btn, .buy .badge { justify-self: start; }
+.buy .btn, .buy .badge, .buy .badges { justify-self: start; }
 
 /* Bölüm simgeleri (uygulamadaki bölüm simgeleriyle aynı) */
 .ikon { width: 44px; height: 44px; flex: none; object-fit: contain; filter: drop-shadow(0 6px 10px rgba(15,27,61,.12)); }
