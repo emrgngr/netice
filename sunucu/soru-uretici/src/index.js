@@ -7,7 +7,20 @@
 // gizli değer (ANTHROPIC_API_KEY) olarak durur.
 
 import Anthropic from "@anthropic-ai/sdk";
-import { RequestError, SYSTEM_PROMPT, buildContent, cleanOutput, outputSchema, parseRequest, periods } from "./lib.js";
+import {
+  EXTRACT_PROMPT,
+  RequestError,
+  SYSTEM_PROMPT,
+  buildContent,
+  buildExtractContent,
+  cleanExtract,
+  cleanOutput,
+  extractSchema,
+  outputSchema,
+  parseRequest,
+  periods,
+  quotaCost,
+} from "./lib.js";
 
 const DEFAULT_APP_KEY = "netice-app-1";
 
@@ -72,10 +85,11 @@ export default {
       readCount(kv, keys.ip),
       readCount(kv, keys.all),
     ]);
-    if (usedDevice + req.count > limits.device) {
+    const ask = quotaCost(req, req.count);
+    if (usedDevice + ask > limits.device) {
       return json({ error: "quota", message: "Monthly limit reached", used: usedDevice, limit: limits.device }, 429);
     }
-    if (usedIp + req.count > limits.ip || usedAll + req.count > limits.all) {
+    if (usedIp + ask > limits.ip || usedAll + ask > limits.all) {
       return fail("busy", "Daily limit reached, try again tomorrow", 429);
     }
 
@@ -86,11 +100,11 @@ export default {
       const stream = client.beta.messages.stream({
         model: env.MODEL || "claude-opus-5-5",
         max_tokens: 32000,
-        system: SYSTEM_PROMPT,
-        messages: [{ role: "user", content: buildContent(req) }],
+        system: req.mode === "extract" ? EXTRACT_PROMPT : SYSTEM_PROMPT,
+        messages: [{ role: "user", content: req.mode === "extract" ? buildExtractContent(req) : buildContent(req) }],
         output_config: {
-          effort: "medium",
-          format: { type: "json_schema", schema: outputSchema() },
+          effort: req.mode === "extract" ? "low" : "medium",
+          format: { type: "json_schema", schema: req.mode === "extract" ? extractSchema() : outputSchema() },
         },
         // Yanlışlıkla reddedilen isteklerde başka modelle yeniden dener.
         betas: ["server-side-fallback-2026-07-01"],
@@ -125,16 +139,16 @@ export default {
       console.error("unparsable output", response.stop_reason);
       return fail("incomplete", "The answer was incomplete, try fewer questions", 502);
     }
-    const result = cleanOutput(parsed, req);
+    const result = req.mode === "extract" ? cleanExtract(parsed, req) : cleanOutput(parsed, req);
 
-    const n = result.questions.length;
+    const n = quotaCost(req, result.questions.length);
     await Promise.all([
       addCount(kv, keys.device, n, 40 * 24 * 3600),
       addCount(kv, keys.ip, n, 2 * 24 * 3600),
       addCount(kv, keys.all, n, 2 * 24 * 3600),
     ]);
-    console.log(JSON.stringify({ month, count: n, in: response.usage?.input_tokens, out: response.usage?.output_tokens }));
+    console.log(JSON.stringify({ month, mode: req.mode, count: result.questions.length, in: response.usage?.input_tokens, out: response.usage?.output_tokens }));
 
-    return json({ ...result, used: usedDevice + n, limit: limits.device });
+    return json({ ...result, cost: n, used: usedDevice + n, limit: limits.device });
   },
 };

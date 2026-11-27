@@ -123,3 +123,46 @@ test("yeni soru türleri: eşleştirme, D/Y tablosu, kelime havuzu, sıralama", 
   assert.deepEqual(out.questions[1].item_keys, [0, 1]);
   assert.equal(out.questions[3].items[0], "Tohum ekilir");
 });
+
+import { buildExtractContent, cleanExtract, quotaCost } from "../src/lib.js";
+
+test("ayıklama isteği: kısa belge kabul, 40'a kadar soru", () => {
+  const r = parseRequest({ mode: "extract", note: { text: "1) 2+2 kaçtır? A) 3 B) 4" } });
+  assert.equal(r.mode, "extract");
+  assert.equal(r.count, 40);
+  assert.equal(r.solve, true);
+  assert.throws(() => parseRequest({ mode: "extract", count: 41, note }), RequestError);
+  const off = parseRequest({ mode: "extract", solve: false, note });
+  assert.match(buildExtractContent(off).at(-1).text, /do not solve/);
+  // Eski istemci: mode yoksa üretme.
+  assert.equal(parseRequest({ count: 5, note }).mode, "generate");
+});
+
+test("ayıklanan sorular temizlenir, cevabı bilinmeyen tutulur", () => {
+  const req = parseRequest({ mode: "extract", solve: false, note });
+  const out = cleanExtract(
+    {
+      note_problem: "",
+      questions: [
+        { type: "multiple", number: "1", text: "2+2 kaçtır?", topic: "Toplama", choices: ["A) 3", "B) 4", "C) 5"], correct_index: 1, answer: "", answer_source: "document", needs_figure: false, difficulty: "easy", solution: "" },
+        { type: "multiple", number: "2", text: "3+3 kaçtır?", topic: "Toplama", choices: ["5", "6"], correct_index: 1, answer: "", answer_source: "solved", needs_figure: false, difficulty: "easy", solution: "3+3=6" },
+        { type: "multiple", number: "3", text: "Bozuk", topic: "", choices: ["tek"], correct_index: 0, answer: "", answer_source: "document", needs_figure: false, difficulty: "easy", solution: "" },
+        { type: "open", number: "4", text: "Açıklayınız.", topic: "", choices: [], correct_index: -1, answer: "", answer_source: "document", needs_figure: true, difficulty: "hard", solution: "" },
+      ],
+    },
+    req,
+  );
+  assert.equal(out.questions.length, 3);
+  assert.deepEqual(out.questions[0].choices, ["3", "4", "5"]);
+  assert.equal(out.questions[0].correct, 1);
+  assert.equal(out.questions[1].answer_source, "unknown");
+  assert.equal(out.questions[1].correct, -1);
+  assert.equal(out.questions[1].solution, "");
+  assert.equal(out.questions[2].answer_source, "unknown");
+  assert.equal(out.questions[2].needs_figure, true);
+});
+
+test("kota: ayıklamada 5 soru 1 hak", () => {
+  assert.equal(quotaCost({ mode: "extract" }, 11), 3);
+  assert.equal(quotaCost({ mode: "generate" }, 11), 11);
+});

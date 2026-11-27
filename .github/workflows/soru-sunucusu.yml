@@ -99,3 +99,15 @@ jobs:
           jq '{sorular: [.questions[] | {tur: .type, soru: .text, cevap: (if .type == "multiple" then .choices[.correct] elif .type == "true_false" then (if .correct == 0 then "Doğru" else "Yanlış" end) else .answer end), konu: .topic}], hata: .error, sorun: .problem}' cevap.json || cat cevap.json
           test "$KOD" = "200"
           test "$(jq '[.questions[].type] | unique | length' cevap.json)" -ge 3
+          # Belgeden ayıklama denemesi: iki hazır soru ve sondaki cevap anahtarı.
+          BELGE=$'TEST 1 — Hücre\n1) Hücrenin enerji santrali hangisidir?\nA) Ribozom B) Mitokondri C) Golgi D) Lizozom\n2) Bitki hücresinde bulunup hayvan hücresinde bulunmayan yapı hangisidir?\nA) Hücre zarı B) Çekirdek C) Hücre duvarı D) Sitoplazma\n\nCevap Anahtarı: 1-B 2-C'
+          jq -n --arg t "$BELGE" '{mode:"extract",solve:false,lang:"tr",note:{subject:"Biyoloji",text:$t}}' > ayikla.json
+          KOD=$(curl -sS -m 180 -o ayikla_cevap.json -w '%{http_code}' -X POST "$ADRES/uret" \
+            -H 'content-type: application/json' -H 'x-netice-app: netice-app-1' -H 'x-netice-device: github-deneme-01' \
+            --data @ayikla.json)
+          echo "Ayıklama HTTP $KOD"
+          jq '{sorular: [.questions[] | {no: .number, soru: .text, cevap: (if .correct >= 0 then .choices[.correct] else null end), kaynak: .answer_source}], hak: .cost, sorun: .problem}' ayikla_cevap.json || cat ayikla_cevap.json
+          test "$KOD" = "200"
+          test "$(jq '.questions | length' ayikla_cevap.json)" = "2"
+          test "$(jq -r '.questions[0].choices[.questions[0].correct]' ayikla_cevap.json)" = "Mitokondri"
+          test "$(jq -r '.questions[1].answer_source' ayikla_cevap.json)" = "document"
