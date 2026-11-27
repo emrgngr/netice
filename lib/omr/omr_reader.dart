@@ -14,7 +14,11 @@ class GrayImage {
   final int height;
   final Uint8List data;
 
-  GrayImage(this.width, this.height, this.data)
+  /// Renkli fotoğrafta her pikselin kırmızı − mavi farkı (sıcaklık). Kâğıdı
+  /// ahşap masa gibi sıcak renkli, açık tonlu zeminden ayırmak için kullanılır.
+  final Int16List? warmth;
+
+  GrayImage(this.width, this.height, this.data, {this.warmth})
       : assert(data.length == width * height);
 
   int at(int x, int y) => data[y * width + x];
@@ -78,11 +82,14 @@ class GrayImage {
 
   static GrayImage fromImage(img.Image im) {
     final out = Uint8List(im.width * im.height);
+    final color = im.numChannels >= 3;
+    final warm = color ? Int16List(im.width * im.height) : null;
     var i = 0;
     for (final p in im) {
+      if (warm != null) warm[i] = (p.r - p.b).round();
       out[i++] = (0.299 * p.r + 0.587 * p.g + 0.114 * p.b).round().clamp(0, 255);
     }
-    return GrayImage(im.width, im.height, out);
+    return GrayImage(im.width, im.height, out, warmth: warm);
   }
 }
 

@@ -228,6 +228,25 @@ class PageFinder {
         small[y * w + x] = image.at(x * f, y * f);
       }
     }
+    // Renkli fotoğrafta kâğıttan belirgin biçimde sıcak (kırmızımsı/kahverengi)
+    // pikseller zemindir: açık renkli ahşap masada da kâğıt ayrılsın.
+    final warm = image.warmth;
+    if (warm != null) {
+      final ref = <int>[];
+      for (var y = h * 3 ~/ 10; y < h * 7 ~/ 10; y += 2) {
+        for (var x = w * 3 ~/ 10; x < w * 7 ~/ 10; x += 2) {
+          ref.add(warm[(y * f) * image.width + x * f]);
+        }
+      }
+      ref.sort();
+      final paper = ref[ref.length ~/ 2];
+      for (var y = 0; y < h; y++) {
+        for (var x = 0; x < w; x++) {
+          final extra = warm[(y * f) * image.width + x * f] - paper - 10;
+          if (extra > 0) small[y * w + x] = math.max(0, small[y * w + x] - extra * 4);
+        }
+      }
+    }
     final t = _otsu(small);
     // Kenarlara değen parlak bölge yoksa ya da bölge tüm görüntüyse: tarama.
     final mask = Uint8List(w * h);
