@@ -4,6 +4,7 @@ import 'package:archive/archive.dart';
 import 'package:csv/csv.dart';
 import 'package:xml/xml.dart';
 
+import 'deneme.dart';
 import 'models.dart';
 import 'report.dart';
 import 'scoring.dart';
@@ -365,6 +366,7 @@ class StudentImport {
 /// Excel'in doğrudan açabildiği not listesi (UTF-8 BOM + noktalı virgül).
 String resultsCsv(Exam exam, List<Result> results, Map<String, Student> students) {
   final report = ExamReport.build(exam, results);
+  final deneme = exam.isMultiSubject ? DenemeReport.build(exam, results) : null;
   final now = DateTime.now();
   String two(int v) => v.toString().padLeft(2, '0');
   final stamp = '${L10n.date(now)} ${two(now.hour)}:${two(now.minute)}';
@@ -379,7 +381,13 @@ String resultsCsv(Exam exam, List<Result> results, Map<String, Student> students
       tr('T puanı'), tr('Düzey'),
       for (final o in report.outcomes) tr('Kazanım: {0} %', [o.code]),
       for (final q in exam.questions) 'S${q.no}',
-      ...fieldNames],
+      ...fieldNames,
+      if (deneme != null) ...[
+        for (final sec in exam.sections) ...['${sec.name} ${tr('D')}', '${sec.name} ${tr('Y')}', '${sec.name} ${tr('Net')}'],
+        tr('Toplam net'),
+        if (exam.hasWeightedScore) tr('Deneme puanı'),
+        tr('Deneme sırası'),
+      ]],
     for (final st in report.standings)
       () {
         final r = st.result;
@@ -409,6 +417,16 @@ String resultsCsv(Exam exam, List<Result> results, Map<String, Student> students
           for (final a in r.sheet.answers)
             a.marked.isEmpty ? '' : a.marked.map((c) => String.fromCharCode(65 + c)).join('/'),
           for (final f in fieldNames) r.sheet.fields[f] ?? '',
+          if (deneme != null)
+            ...() {
+              final d = deneme.rows.firstWhere((x) => identical(x.result, r), orElse: () => deneme.rowOf(r.sheet.studentId)!);
+              return [
+                for (final x in d.sections) ...['${x.correct}', '${x.wrong}', n(x.net)],
+                n(d.totalNet),
+                if (exam.hasWeightedScore) n(d.weighted!),
+                '${d.rank}',
+              ];
+            }(),
         ];
       }(),
     [],
@@ -420,6 +438,9 @@ String resultsCsv(Exam exam, List<Result> results, Map<String, Student> students
     [tr('Ayırt edicilik (D)'), '', '', '', '', '', '', '', '', '', '', '', '', '', for (var i = 0; i < extra; i++) '',
       for (final _ in report.outcomes) '',
       for (final it in report.items) n(it.d)],
+    [tr('Madde-toplam korelasyonu (r)'), '', '', '', '', '', '', '', '', '', '', '', '', '', for (var i = 0; i < extra; i++) '',
+      for (final _ in report.outcomes) '',
+      for (final it in report.items) it.rpb == null ? '' : n(it.rpb!)],
     [],
     [tr('Sınav'), exam.name, '', tr('Sınav tarihi'), L10n.date(exam.date), '',
       tr('Rapor tarihi'), stamp],

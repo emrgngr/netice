@@ -1,3 +1,4 @@
+import '../reports/report_docx.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -6,6 +7,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:printing/printing.dart';
 
 import '../core/analysis.dart';
+import '../core/bloom.dart';
 import '../core/common_exam.dart';
 import '../core/insights.dart';
 import '../core/progress.dart';
@@ -20,6 +22,8 @@ import '../main.dart';
 import '../reports/kid_reports_pdf.dart';
 import '../reports/pdf_documents.dart';
 import 'review_screen.dart';
+import 'deneme_screen.dart';
+import 'sections_screen.dart';
 import 'camera_scan_screen.dart';
 import 'exam_settings_screen.dart';
 import 'grade_export_screen.dart';
@@ -296,7 +300,10 @@ class ExamScreen extends StatelessWidget {
               results: results,
               students: store.studentById,
               school: store.reportSchool,
-              classHistory: exam.kidStyle ? classHistoryOf(store, exam) : const []));
+              classHistory: exam.kidStyle ? classHistoryOf(store, exam) : const [],
+              cognitiveLookup: bankCognitive),
+          word: () => buildResultsDocx(
+              exam: exam, results: results, students: store.studentById, school: store.reportSchool, cognitiveLookup: bankCognitive));
     }
 
     Future<void> studentCards() async {
@@ -347,7 +354,8 @@ class ExamScreen extends StatelessWidget {
         await ReportPreviewScreen.open(context,
             title: tr('e-Okul listesi'),
             fileName: '${_safe(exam.name)}_eokul.pdf',
-            build: () => buildEokulPdf(exam: exam, results: results, classStudents: cls, school: store.reportSchool));
+            build: () => buildEokulPdf(exam: exam, results: results, classStudents: cls, school: store.reportSchool),
+            word: () => buildEokulDocx(exam: exam, rows: eokulRows(exam, results, cls), school: store.reportSchool));
       } else if (choice == 'xls') {
         await FilePicker.saveFile(
           fileName: '${_safe(exam.name)}_eokul.csv',
@@ -408,6 +416,7 @@ class ExamScreen extends StatelessWidget {
           await Navigator.of(context).push(MaterialPageRoute(builder: (_) => OpenScoresScreen(examId: exam.id)));
         }),
       _Action(Icons.picture_as_pdf_outlined, tr('Sınav raporu'), pdfReport),
+      if (exam.isMultiSubject) _Action(Icons.view_column_outlined, tr('Ders ders sonuçlar'), () => DenemeScreen.open(context, exam.id)),
       _Action(Icons.badge_outlined, tr('Öğrenci karnesi'), studentCards),
       if (exam.kidStyle) _Action(Icons.workspace_premium_outlined, tr('Tebrik belgeleri'), certificates),
       _Action(Icons.table_view_outlined, tr('Excel'), excel),
@@ -420,6 +429,8 @@ class ExamScreen extends StatelessWidget {
       _Action(Icons.content_copy_rounded, tr('Eşdeğer telafi sınavı'), makeup),
       _Action(Icons.forward_to_inbox_rounded, tr('Velilere toplu gönder'), () => openBulkParentSend(context, exam)),
       _Action(Icons.hub_outlined, exam.isCommon ? tr('Ortak sınav') : tr('Ortak sınav yap'), () => openCommonExamMenu(context, exam)),
+      if (!exam.isMultiSubject)
+        _Action(Icons.view_column_outlined, tr('Deneme sınavı yap (ders bölümleri)'), () => SectionsScreen.open(context, exam.id)),
     ];
 
     return DefaultTabController(
@@ -617,6 +628,19 @@ class _ResultsTab extends StatelessWidget {
                     .push(MaterialPageRoute(builder: (_) => OpenScoresScreen(examId: exam.id))),
                 child: Text(tr('Gir')),
               ),
+            ),
+          ),
+        ),
+      if (exam.isMultiSubject)
+        Padding(
+          padding: const EdgeInsets.only(bottom: 14),
+          child: Card(
+            child: ListTile(
+              leading: const Icon(Icons.view_column_outlined),
+              title: Text(tr('Ders ders sonuçlar'), style: const TextStyle(fontWeight: FontWeight.w700)),
+              subtitle: Text(tr('{0} ders · net, sıralama ve ders başarı sıralaması', [exam.sections.length])),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () => DenemeScreen.open(context, exam.id),
             ),
           ),
         ),
@@ -882,6 +906,11 @@ class _AnalysisTab extends StatelessWidget {
     final rep = ExamReport.build(exam, results);
     final s = rep.stats;
     final items = rep.items;
+    final bloom = BloomReport.build(exam, results, lookup: bankCognitive);
+    final rpbCounts = <String, int>{};
+    for (final it in items) {
+      if (it.rpb != null && !exam.questions[it.no - 1].cancelled) rpbCounts[it.rpbLabel] = (rpbCounts[it.rpbLabel] ?? 0) + 1;
+    }
     final worst = [...items.where((i) => !exam.questions[i.no - 1].cancelled)]..sort((a, b) => a.p.compareTo(b.p));
     final t = Theme.of(context);
     final muted = t.colorScheme.onSurface.withValues(alpha: 0.6);
@@ -916,6 +945,10 @@ class _AnalysisTab extends StatelessWidget {
                       : tr('Ayırt edicilik {0} · {1}', [fmt2(it.d), it.discriminationLabel]),
                   style: TextStyle(color: warn ? NColors.amber : t.colorScheme.onSurface.withValues(alpha: 0.65)),
                 ),
+                if (it.rpb != null)
+                  Text(tr('Madde-toplam korelasyonu {0} · {1}', [fmt2(it.rpb!), it.rpbLabel]),
+                      style: TextStyle(
+                          color: it.rpb! < 0.20 ? NColors.coral : t.colorScheme.onSurface.withValues(alpha: 0.65))),
                 const SizedBox(height: 6),
                 Wrap(spacing: 10, children: [
                   for (var c = 0; c < exam.choiceCount; c++)
@@ -1146,7 +1179,74 @@ class _AnalysisTab extends StatelessWidget {
             Wrap(spacing: 8, runSpacing: 8, children: [
               for (final e in rep.discriminationCounts.entries) Chip(label: Text('${e.key}: ${e.value}')),
             ]),
+            if (rpbCounts.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Text(tr('Madde-toplam korelasyonu (r)'), style: t.textTheme.labelLarge?.copyWith(color: muted)),
+              const SizedBox(height: 6),
+              Wrap(spacing: 8, runSpacing: 8, children: [
+                for (final e in rpbCounts.entries) Chip(label: Text('${e.key}: ${e.value}')),
+              ]),
+              const SizedBox(height: 6),
+              Text(
+                  tr('r, sorunun sınavın geri kalanıyla ne kadar uyumlu ölçtüğünü gösterir: 0,30 ve üstü iyi, 0,20–0,29 kabul edilebilir, 0,20 altı zayıf; eksi değer sorunun ters çalıştığını (iyi öğrencilerin yanlış yaptığını) gösterir.'),
+                  style: t.textTheme.bodySmall?.copyWith(color: muted)),
+            ],
           ]),
+        ),
+      ),
+      SectionTitle(tr('Düşünme düzeyleri (Bloom)'),
+          trailing: TextButton.icon(
+            onPressed: () => _editCognitive(context),
+            icon: const Icon(Icons.edit_outlined, size: 18),
+            label: Text(tr('Düzenle')),
+          )),
+      Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: bloom.isEmpty
+              ? Text(tr('Soruların düşünme düzeyini (Hatırlama, Anlama, Uygulama, Analiz, Değerlendirme, Yaratma) belirtirseniz her düzeyin başarısı burada ve raporda görünür. Soru bankasından hazırlanan kitapçıklarda kendiliğinden gelir.'),
+                  style: TextStyle(color: muted))
+              : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  for (final b in bloom.rows)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Row(children: [
+                          Expanded(
+                              child: Text('${b.label}  ·  ${tr('{0} soru', [b.questionNos.length])}',
+                                  style: const TextStyle(fontWeight: FontWeight.w600))),
+                          Text(L10n.percent((b.rate * 100).round()),
+                              style: const TextStyle(fontWeight: FontWeight.w800, fontFeatures: tabular)),
+                        ]),
+                        const SizedBox(height: 6),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(6),
+                          child: LinearProgressIndicator(
+                            value: b.rate,
+                            minHeight: 10,
+                            color: b.rate >= 0.7 ? NColors.emerald : (b.rate >= 0.5 ? NColors.amber : NColors.coral),
+                            backgroundColor: t.colorScheme.surfaceContainerHighest,
+                          ),
+                        ),
+                      ]),
+                    ),
+                  if (bloom.lower != null && bloom.higher != null) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      bloom.higher! < bloom.lower! - 0.15
+                          ? tr('Sınıf temel bilgide (%{0}) iyi, üst düzey düşünmede (%{1}) zorlanıyor. Analiz ve yorum gerektiren etkinliklere ağırlık verin.',
+                              [(bloom.lower! * 100).round(), (bloom.higher! * 100).round()])
+                          : tr('Temel bilgi %{0}, üst düzey düşünme %{1}.', [(bloom.lower! * 100).round(), (bloom.higher! * 100).round()]),
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                  if (bloom.tagged < bloom.total)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: Text(tr('{0} sorudan {1} tanesinin düzeyi belli.', [bloom.total, bloom.tagged]),
+                          style: t.textTheme.bodySmall?.copyWith(color: muted)),
+                    ),
+                ]),
         ),
       ),
       SectionTitle(tr('Kazanım / konu analizi'),
@@ -1228,6 +1328,48 @@ class _AnalysisTab extends StatelessWidget {
     ]);
   }
 
+  Future<void> _editCognitive(BuildContext context) async {
+    final store = StoreScope.of(context);
+    final ctrls = {
+      for (final l in bloomLevels)
+        l: TextEditingController(text: formatNos([for (final q in exam.questions) if ((q.cognitive ?? bankCognitive(q)) == l) q.no]))
+    };
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(tr('Düşünme düzeyleri (Bloom)')),
+        content: SizedBox(
+          width: 440,
+          child: SingleChildScrollView(
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              Text(tr('Her düzeyin yanına soru numaralarını yazın. Örn. 1-5, 9')),
+              for (final l in bloomLevels)
+                Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: TextField(controller: ctrls[l], decoration: InputDecoration(labelText: bloomLabel(l), hintText: '1-5, 9')),
+                ),
+            ]),
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr('Vazgeç'))),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(tr('Kaydet'))),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    final m = <int, String>{};
+    for (final l in bloomLevels) {
+      for (final no in parseNos(ctrls[l]!.text, exam.questionCount)) {
+        m[no] = l;
+      }
+    }
+    store.upsertExam(exam.copyWith(questions: [
+      for (final q in exam.questions) m[q.no] == null ? q.copyWith(clearCognitive: true) : q.copyWith(cognitive: m[q.no]),
+    ]));
+    if (context.mounted) toast(context, tr('Düşünme düzeyleri kaydedildi.'));
+  }
+
   Future<void> _editOutcomes(BuildContext context) async {
     final store = StoreScope.of(context);
     final ctrl = TextEditingController(text: formatOutcomeRanges(exam));
@@ -1265,7 +1407,9 @@ class _AnalysisTab extends StatelessWidget {
             cancelled: q.cancelled,
             outcomeCode: m[q.no],
             bankId: q.bankId,
-            misconceptions: q.misconceptions),
+            misconceptions: q.misconceptions,
+            cognitive: q.cognitive,
+            multiSelect: q.multiSelect),
     ]));
     if (context.mounted) toast(context, tr('Kazanımlar kaydedildi.'));
   }
@@ -1604,4 +1748,41 @@ Future<void> deleteSheetWithUndo(BuildContext context, Sheet sheet) async {
       .then((reason) {
     if (reason != SnackBarClosedReason.action) store.forgetRemoved();
   });
+}
+
+
+/// Sınavda yazılı değilse sorunun düşünme düzeyi soru bankasından.
+String? bankCognitive(Question q) {
+  final b = BankStore.instance.questionById(q.bankId);
+  if (b == null || b.cognitive.name == 'none') return null;
+  return b.cognitive.name;
+}
+
+/// "1-5, 9" → {1,2,3,4,5,9} (1..n arası).
+Set<int> parseNos(String text, int n) {
+  final out = <int>{};
+  for (final part in text.split(RegExp(r'[,;\s]+'))) {
+    final m = RegExp(r'^(\d+)(?:[-–](\d+))?$').firstMatch(part.trim());
+    if (m == null) continue;
+    final a = int.parse(m.group(1)!), b = int.tryParse(m.group(2) ?? '') ?? a;
+    for (var i = a < b ? a : b; i <= (a < b ? b : a); i++) {
+      if (i >= 1 && i <= n) out.add(i);
+    }
+  }
+  return out;
+}
+
+/// {1,2,3,5} → "1-3, 5".
+String formatNos(List<int> nos) {
+  final s = [...nos]..sort();
+  final parts = <String>[];
+  for (var i = 0; i < s.length;) {
+    var j = i;
+    while (j + 1 < s.length && s[j + 1] == s[j] + 1) {
+      j++;
+    }
+    parts.add(i == j ? '${s[i]}' : '${s[i]}-${s[j]}');
+    i = j + 1;
+  }
+  return parts.join(', ');
 }

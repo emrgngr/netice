@@ -1,11 +1,31 @@
 import 'dart:typed_data';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 
+import '../core/pro.dart';
+import 'pro_screen.dart';
 import 'theme.dart';
+import 'widgets.dart';
 import '../l10n/l10n.dart';
+
+/// Raporun Word (.docx) sürümünü kaydeder (Pro).
+Future<void> saveReportDocx(BuildContext context, String pdfFileName, Uint8List Function() build) async {
+  if (!await requirePro(context, ProFeature.wordExport) || !context.mounted) return;
+  try {
+    final name = pdfFileName.toLowerCase().endsWith('.pdf') ? '${pdfFileName.substring(0, pdfFileName.length - 4)}.docx' : '$pdfFileName.docx';
+    final path = await FilePicker.saveFile(
+      fileName: name,
+      bytes: build(),
+      mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    );
+    if (path != null && context.mounted) toast(context, tr('Word belgesi kaydedildi.'));
+  } catch (_) {
+    if (context.mounted) toast(context, tr('Word belgesi kaydedilemedi.'));
+  }
+}
 
 /// PDF raporların paylaşmadan/yazdırmadan önce uygulama içinde
 /// sayfa sayfa önizlemesi. Üstteki [header] (ör. öğrenci seçici)
@@ -16,24 +36,41 @@ class ReportPreviewScreen extends StatelessWidget {
   final Future<Uint8List> Function() makePdf;
   final Widget? header;
 
+  /// Raporun Word sürümü (varsa üstte "Word" düğmesi çıkar).
+  final Uint8List Function()? makeDocx;
+
   const ReportPreviewScreen({
     super.key,
     required this.title,
     required this.fileName,
     required this.makePdf,
     this.header,
+    this.makeDocx,
   });
 
   static Future<void> open(BuildContext context,
-          {required String title, required String fileName, required Future<Uint8List> Function() build}) =>
+          {required String title,
+          required String fileName,
+          required Future<Uint8List> Function() build,
+          Uint8List Function()? word}) =>
       Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) => ReportPreviewScreen(title: title, fileName: fileName, makePdf: build)));
+          builder: (_) => ReportPreviewScreen(title: title, fileName: fileName, makePdf: build, makeDocx: word)));
 
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
+      appBar: AppBar(title: Text(title), actions: [
+        if (makeDocx != null)
+          Padding(
+            padding: const EdgeInsetsDirectional.only(end: 12),
+            child: OutlinedButton.icon(
+              onPressed: () => saveReportDocx(context, fileName, makeDocx!),
+              icon: const Icon(Icons.description_outlined),
+              label: Text(tr('Word olarak kaydet')),
+            ),
+          ),
+      ]),
       body: Column(children: [
         ?header,
         Expanded(

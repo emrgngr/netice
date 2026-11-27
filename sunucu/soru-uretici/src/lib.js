@@ -22,6 +22,8 @@ export const TYPES = ["multiple", "true_false", "fill", "open", "matching", "tf_
 
 export const LIMITS = {
   maxQuestions: 20,
+  // Belgeden ayıklamada bir istekte en fazla soru.
+  maxExtract: 40,
   maxTextChars: 60000,
   maxImages: 6,
   // base64 uzunluğu; ~1,5 MB görsel.
@@ -55,12 +57,19 @@ export function parseRequest(body) {
     }
     return { type, data };
   });
-  if (text.length < 40 && cleanImages.length === 0) {
+  if (text.length < 20 && cleanImages.length === 0) {
+    throw new RequestError("too_short", "The note is too short to write questions from");
+  }
+  if (body.mode !== "extract" && text.length < 40 && cleanImages.length === 0) {
     throw new RequestError("too_short", "The note is too short to write questions from");
   }
 
-  const count = Math.round(Number(body.count) || 5);
-  if (count < 1 || count > LIMITS.maxQuestions) throw new RequestError("bad_count", "count must be 1-20");
+  // "extract": soru bankası belgesindeki HAZIR soruları aynen ayıklar
+  // (soru yazmaz). Diğer her şey "generate" (nottan soru üretme).
+  const mode = body.mode === "extract" ? "extract" : "generate";
+  const maxCount = mode === "extract" ? LIMITS.maxExtract : LIMITS.maxQuestions;
+  const count = Math.round(Number(body.count) || (mode === "extract" ? maxCount : 5));
+  if (count < 1 || count > maxCount) throw new RequestError("bad_count", `count must be 1-${maxCount}`);
   const choices = Math.round(Number(body.choices) || 5);
   if (choices < 3 || choices > 5) throw new RequestError("bad_choices", "choices must be 3-5");
   const difficulty = DIFFICULTIES.includes(body.difficulty) ? body.difficulty : "mixed";
@@ -75,6 +84,10 @@ export function parseRequest(body) {
   const kids = body.audience === "kids";
 
   return {
+    mode,
+    // Belgede cevap yoksa model çözsün mü (yalnız ayıklamada).
+    solve: body.solve !== false,
+    keyPage: body.key_page === true && cleanImages.length > 1,
     count,
     choices,
     difficulty,
@@ -130,6 +143,134 @@ export const KIDS_PROMPT = `Audience: young primary-school children (about 6–1
 - Prefer positive stems. If a negative is unavoidable, write the negative word in capitals (e.g. "Which one is NOT a living thing?").
 - Each question tests one idea. No double negatives, no "all/none of the above", no long tables or calculations beyond the grade.
 - Solutions are one short, encouraging sentence a teacher can read to the child.`;
+
+// Soru bankası belgesinden hazır soruları ayıklama.
+export const EXTRACT_PROMPT = `You extract existing exam questions from a teacher's or student's question-bank document (a test book page, worksheet, past exam or practice test). The document is given as text and/or page images. You do NOT write new questions.
+
+For every complete question in the document, return it exactly as written:
+- "text": the question stem, copied faithfully (fix only obvious OCR or line-break errors). If several questions share a reading passage, table or situation, copy the shared part at the start of each question's stem so every question can stand alone. If the stem refers to a figure, graph or picture you cannot reproduce in text, keep the sentence and set "needs_figure" to true.
+- "type": "multiple" for multiple choice (2–5 options), "true_false" for a single true/false statement, "fill" for one blank, "open" for open-ended/short answer.
+- "choices": the options in printed order WITHOUT their letters (A), B) …). Empty for non-multiple types.
+- "correct_index": the 0-based correct option for "multiple", 0=TRUE/1=FALSE for "true_false", otherwise -1.
+- "answer": for "fill" and "open" the expected answer; otherwise empty.
+- "answer_source": "document" if the answer comes from the document itself (an answer key, marked option, or worked solution); "solved" if the document has no answer and you solved the question yourself; "unknown" if there is no answer in the document and you were told not to solve or cannot solve it with confidence (then "correct_index" is -1 and "answer" is empty).
+- "number": the question number printed in the document (e.g. "12"), or empty.
+- "topic": the sub-topic it tests as a short phrase (2–8 words), taken from the document's headings when possible.
+- "difficulty": your estimate, "easy", "medium" or "hard".
+- "solution": the document's own explanation if it has one; if you solved it, a 1–2 sentence explanation; otherwise empty.
+
+Rules:
+- Look for an answer key anywhere in the document (often at the end: "Cevap Anahtarı", "Answer key", "1-C 2-A …") and match it to question numbers.
+- Skip fragments, headers, instructions and questions whose options are cut off. Never invent missing options.
+- Keep the document's language. Use plain text; formulas with ordinary characters (x², √, π, ≤); no LaTeX, no Markdown.
+- Return questions in document order. If there are more than the requested maximum, return the first ones and say so in "note_problem".
+- If the document contains no questions at all, return none and explain briefly in "note_problem" (in the document's language). Otherwise "note_problem" is an empty string.`;
+
+/** Ayıklama isteğinin içerik blokları. */
+export function buildExtractContent(req) {
+  const n = req.note;
+  const blocks = [];
+  for (const im of n.images) {
+    blocks.push({ type: "image", source: { type: "base64", media_type: im.type, data: im.data } });
+  }
+  const meta = [n.subject && `Subject: ${n.subject}`, n.grade && `Grade / level: ${n.grade}`, n.title && `Document: ${n.title}`].filter(Boolean);
+  let text = "";
+  if (meta.length) text += meta.join("\n") + "\n\n";
+  if (n.text) text += `<document>\n${n.text}\n</document>\n\n`;
+  if (n.images.length) text += `The document also has ${n.images.length} page image(s) above.\n\n`;
+  if (req.keyPage) text += "The LAST image is the document's answer key page: use it only to find answers, do not extract questions from it.\n\n";
+  text += `Extract at most ${req.count} question(s). `;
+  text += req.solve
+    ? "If the document has no answer for a question, solve it yourself and mark answer_source \"solved\"."
+    : "If the document has no answer for a question, do not solve it: mark answer_source \"unknown\".";
+  text += ` If you have to write anything yourself (topic, solution, note_problem), write it in ${LANGUAGES[req.lang]} unless the document is in another language.`;
+  blocks.push({ type: "text", text });
+  return blocks;
+}
+
+/** Ayıklama çıktısının şeması. */
+export function extractSchema() {
+  return {
+    type: "object",
+    additionalProperties: false,
+    required: ["questions", "note_problem"],
+    properties: {
+      note_problem: { type: "string" },
+      questions: {
+        type: "array",
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["type", "number", "text", "topic", "choices", "correct_index", "answer", "answer_source", "needs_figure", "difficulty", "solution"],
+          properties: {
+            type: { type: "string", enum: ["multiple", "true_false", "fill", "open"] },
+            number: { type: "string" },
+            text: { type: "string" },
+            topic: { type: "string" },
+            choices: { type: "array", items: { type: "string" } },
+            correct_index: { type: "integer" },
+            answer: { type: "string" },
+            answer_source: { type: "string", enum: ["document", "solved", "unknown"] },
+            needs_figure: { type: "boolean" },
+            difficulty: { type: "string", enum: ["easy", "medium", "hard"] },
+            solution: { type: "string" },
+          },
+        },
+      },
+    },
+  };
+}
+
+/** Ayıklanan soruları temizler: bozukları atar, cevabı bilinmeyenleri tutar. */
+export function cleanExtract(parsed, req) {
+  const out = [];
+  const seen = new Set();
+  for (const q of Array.isArray(parsed?.questions) ? parsed.questions : []) {
+    const type = ["multiple", "true_false", "fill", "open"].includes(q?.type) ? q.type : "";
+    if (!type) continue;
+    const text = str(q?.text, 6000);
+    if (!text) continue;
+    let source = ["document", "solved", "unknown"].includes(q?.answer_source) ? q.answer_source : "unknown";
+    if (!req.solve && source === "solved") source = "unknown";
+    const idx = Number.isInteger(q?.correct_index) ? q.correct_index : -1;
+    let choices = [];
+    let correct = -1;
+    let answer = "";
+    if (type === "multiple") {
+      choices = (Array.isArray(q?.choices) ? q.choices : []).map((c) => str(c, 1000).replace(LETTER_PREFIX, ""));
+      if (choices.length < 2 || choices.length > 5 || choices.some((c) => !c)) continue;
+      correct = source !== "unknown" && idx >= 0 && idx < choices.length ? idx : -1;
+    } else if (type === "true_false") {
+      correct = source !== "unknown" && (idx === 0 || idx === 1) ? idx : -1;
+    } else {
+      answer = source !== "unknown" ? str(q?.answer, 3000) : "";
+    }
+    if (correct < 0 && !answer) source = "unknown";
+    const key = text.toLowerCase().replace(/\s+/g, " ");
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push({
+      type,
+      number: str(q?.number, 12),
+      text,
+      topic: str(q?.topic, 200),
+      choices,
+      correct,
+      answer,
+      answer_source: source,
+      needs_figure: q?.needs_figure === true,
+      difficulty: ["easy", "medium", "hard"].includes(q?.difficulty) ? q.difficulty : "medium",
+      solution: source === "unknown" ? "" : str(q?.solution, 2000),
+    });
+    if (out.length >= req.count) break;
+  }
+  return { questions: out, problem: str(parsed?.note_problem, 600) };
+}
+
+/** Kotadan düşülecek miktar: ayıklamada 5 soru = 1 hak (yukarı yuvarlanır). */
+export function quotaCost(req, n) {
+  return req.mode === "extract" ? Math.ceil(n / 5) : n;
+}
 
 /** Claude'a gönderilecek kullanıcı mesajının içerik blokları. */
 export function buildContent(req) {

@@ -6,6 +6,7 @@ import '../core/pro.dart';
 import 'key_from_photo.dart';
 import 'pro_screen.dart';
 import 'rubric_screen.dart';
+import 'sections_screen.dart';
 import 'bank/bank_widgets.dart' show SuggestField, bank;
 import 'theme.dart';
 import 'widgets.dart';
@@ -151,7 +152,9 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
           cancelled: _qs[i].cancelled,
           outcomeCode: code.isEmpty ? null : code,
           bankId: _qs[i].bankId,
-          misconceptions: _qs[i].misconceptions));
+          misconceptions: _qs[i].misconceptions,
+          cognitive: _qs[i].cognitive,
+          multiSelect: _qs[i].multiSelect));
     }
     final open = <OpenQuestion>[];
     for (var i = 0; i < _open.length; i++) {
@@ -186,7 +189,9 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
         orders.add(order);
       }
     }
-    StoreScope.of(context).upsertExam(_exam.copyWith(
+    // Ders bölümleri ayrı ekranda kaydedilir; en güncel sınavın üzerine yazılır.
+    final latest = StoreScope.of(context).examById(widget.examId) ?? _exam;
+    StoreScope.of(context).upsertExam(latest.copyWith(
       bookletOrders: orders,
       // Sıra elle değiştiyse kitapçık bankadan basılan karışık şık eşlemesi geçersizdir.
       bookletChoiceOrders: orders.toString() == _exam.bookletOrders.toString() ? _exam.bookletChoiceOrders : const [],
@@ -333,6 +338,24 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
                 ],
                 onChanged: (v) => setState(() => _wpc = v ?? 0),
               ),
+              SectionTitle(tr('Deneme sınavı')),
+              Builder(builder: (context) {
+                final ex = StoreScope.of(context).examById(widget.examId) ?? _exam;
+                return Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.view_column_outlined),
+                    title: Text(tr('Ders bölümleri'), style: const TextStyle(fontWeight: FontWeight.w700)),
+                    subtitle: Text(ex.isMultiSubject
+                        ? [for (final s in ex.sections) '${s.name} (${s.count})'].join(' · ')
+                        : tr('Birden çok ders varsa ders ders net, toplam net ve sıralama')),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () async {
+                      await SectionsScreen.open(context, widget.examId);
+                      if (mounted) setState(() {});
+                    },
+                  ),
+                );
+              }),
               SectionTitle(tr('Form türü')),
               Card(
                 child: Padding(
@@ -591,6 +614,22 @@ class _ExamSettingsScreenState extends State<ExamSettingsScreen> {
                             ]),
                           ),
                         ]),
+                        if (_qs[i].correct.length > 1)
+                          Padding(
+                            padding: const EdgeInsetsDirectional.only(start: 38, top: 6),
+                            child: Wrap(spacing: 6, runSpacing: 6, children: [
+                              ChoiceChip(
+                                label: Text(tr('Biri yeterli')),
+                                selected: !_qs[i].multiSelect,
+                                onSelected: (_) => setState(() => _qs[i] = _qs[i].copyWith(multiSelect: false)),
+                              ),
+                              ChoiceChip(
+                                label: Text(tr('Hepsi işaretlenmeli')),
+                                selected: _qs[i].multiSelect,
+                                onSelected: (_) => setState(() => _qs[i] = _qs[i].copyWith(multiSelect: true)),
+                              ),
+                            ]),
+                          ),
                         const SizedBox(height: 8),
                         Row(children: [
                           SizedBox(

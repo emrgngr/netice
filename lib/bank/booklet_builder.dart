@@ -34,6 +34,9 @@ class PrintedQuestion {
 
   /// Basılı sıradaki şık metinleri.
   List<String> get choices => [for (final i in choiceOrder) i < question.choices.length ? question.choices[i] : ''];
+
+  /// Basılı sıradaki şık görselleri (yoksa null).
+  List<String?> get choiceImages => [for (final i in choiceOrder) question.choiceImage(i)];
 }
 
 /// Bir kitapçık türü (A, B, C…).
@@ -60,7 +63,19 @@ class BookletPlan {
   final List<double> testPoints;
   final List<double> openPoints;
 
-  BookletPlan._(this.testMaster, this.openMaster, this.variants, this.options, this.choiceCount, this.testPoints, this.openPoints);
+  /// Sorulara bağlı okuma parçaları (kimlik → parça).
+  final Map<String, BankPassage> passages;
+
+  BookletPlan._(this.testMaster, this.openMaster, this.variants, this.options, this.choiceCount, this.testPoints, this.openPoints,
+      [this.passages = const {}]);
+
+  /// [p] sorusunun okuma parçası; parça yoksa ya da önceki soruyla aynıysa
+  /// (parça zaten basıldı) null. [prev]: aynı listede bir önceki soru.
+  BankPassage? passageStarting(BankQuestion q, BankQuestion? prev) {
+    final id = q.passageId;
+    if (id == null || prev?.passageId == id) return null;
+    return passages[id];
+  }
 
   int get questionCount => testMaster.length + openMaster.length;
 
@@ -87,7 +102,7 @@ class BookletPlan {
 
   /// [questions] seçilen sorular (öğretmenin sırasıyla).
   factory BookletPlan.build(List<BankQuestion> questions, BookletOptions o) {
-    final sorted = BankStore.sortQuestions(questions, o.order, seed: o.seed);
+    final sorted = groupByPassage(BankStore.sortQuestions(questions, o.order, seed: o.seed));
     // Eşleştirme, tablo ve kelime havuzu her maddesiyle ayrı optik satır olur;
     // sıralama sorusunun şıkları burada üretilir.
     final test = [for (final q in sorted.where((q) => q.type.optical)) ...q.expanded(kids: o.kids)];
@@ -123,7 +138,10 @@ class BookletPlan {
         final units = <List<int>>[];
         for (final i in order) {
           final g = test[i].parent;
-          if (g != null && g.type.grouped && units.isNotEmpty && test[units.last.last].parent == g) {
+          final pid = test[i].passageId;
+          if (units.isNotEmpty &&
+              ((g != null && g.type.grouped && test[units.last.last].parent == g) ||
+                  (pid != null && test[units.last.last].passageId == pid))) {
             units.last.add(i);
           } else {
             units.add([i]);
@@ -163,7 +181,51 @@ class BookletPlan {
       ];
       variants.add(BookletVariant(b, printed, opens));
     }
-    return BookletPlan._(test, open, variants, o, choiceCount, testPts, openPts);
+    final passages = <String, BankPassage>{};
+    for (final q in sorted) {
+      final p = BankStore.instance.passageById(q.passageId);
+      if (p != null) passages[p.id] = p;
+    }
+    return BookletPlan._(test, open, variants, o, choiceCount, testPts, openPts, passages);
+  }
+
+  static String? _cognitive(BankQuestion q) {
+    final l = q.cognitive != CognitiveLevel.none ? q.cognitive : (q.parent?.cognitive ?? CognitiveLevel.none);
+    return l == CognitiveLevel.none ? null : l.name;
+  }
+
+  /// Sorular birden çok dersten ve her ders tek bir blokta ise ders
+  /// bölümleri (çok dersli deneme); değilse boş.
+  List<ExamSection> subjectSections() {
+    final runs = <(String, int)>[];
+    for (final q in testMaster) {
+      final s = q.subject.trim();
+      if (runs.isNotEmpty && runs.last.$1 == s) {
+        runs[runs.length - 1] = (s, runs.last.$2 + 1);
+      } else {
+        runs.add((s, 1));
+      }
+    }
+    final names = runs.map((r) => r.$1).toList();
+    if (runs.length < 2 || names.toSet().length != names.length || names.any((n) => n.isEmpty)) return const [];
+    return ExamSection.fromCounts([for (final r in runs) (r.$1, r.$2, 0.0)]);
+  }
+
+  /// Aynı okuma parçasına bağlı soruları, parçanın ilk sorusunun yanına
+  /// toplar (diğer sıralama korunur).
+  static List<BankQuestion> groupByPassage(List<BankQuestion> list) {
+    if (!list.any((q) => q.passageId != null)) return list;
+    final out = <BankQuestion>[];
+    final done = <String>{};
+    for (final q in list) {
+      final pid = q.passageId;
+      if (pid == null) {
+        out.add(q);
+      } else if (done.add(pid)) {
+        out.addAll(list.where((x) => x.passageId == pid));
+      }
+    }
+    return out;
   }
 
   static List<double> _evenSplit(double total, int n) {
@@ -190,6 +252,8 @@ class BookletPlan {
             for (var c = 0; c < testMaster[i].misconceptions.length; c++)
               if (testMaster[i].misconceptionOf(c).isNotEmpty) c: testMaster[i].misconceptionOf(c)
           },
+          cognitive: _cognitive(testMaster[i]),
+          multiSelect: testMaster[i].multiSelect && testMaster[i].correct.length > 1,
         ),
     ];
     final orders = <List<int>>[];
@@ -222,6 +286,7 @@ class BookletPlan {
       kidForm: kidBox,
       kidReports: options.kids,
       kidTheme: options.kidTheme,
+      sections: subjectSections(),
       openQuestions: [
         for (var i = 0; i < openMaster.length; i++)
           OpenQuestion(label: _openLabel(openMaster[i], i), maxPoints: openPoints[i], bankId: openMaster[i].id),

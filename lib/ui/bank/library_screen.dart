@@ -11,6 +11,7 @@ import 'bank_analysis_view.dart';
 import 'bank_widgets.dart';
 import 'outcome_lists_screen.dart';
 import 'booklet_wizard_screen.dart';
+import 'extract_screen.dart';
 import 'import_screens.dart';
 import 'note_screens.dart';
 import 'question_editor_screen.dart';
@@ -48,6 +49,9 @@ class _LibraryScreenState extends State<LibraryScreen> with SingleTickerProvider
       ActionTileData(Icons.crop_rounded, tr('PDF ya da fotoğraftan kes'),
           tr('Kitap, deneme ya da yaprak test sayfasında soruları seçip hızla ekleyin'), () => CropImportScreen.start(context),
           color: NColors.ink),
+      ActionTileData(Icons.document_scanner_rounded, tr('Belgeden soruları ayıkla'),
+          tr('Test kitabı, yaprak test ya da çıkmış sınavdaki soruları cevaplarıyla otomatik alın'), () => ExtractQuestionsScreen.open(context),
+          color: const Color(0xFF0E7490)),
       ActionTileData(Icons.auto_awesome_rounded, tr('Ders notundan üret'),
           tr('Yapay zekâ notunuzdan çoktan seçmeli soru, cevap ve çözüm önerir'), () => pickNoteForAi(context),
           color: const Color(0xFF7C5CE0)),

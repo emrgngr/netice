@@ -1,3 +1,4 @@
+import '../reports/report_docx.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -84,6 +85,7 @@ class _TermScreenState extends State<TermScreen> {
         title: tr('Dönem not çizelgesi'),
         fileName: '${base}_not_cizelgesi.pdf',
         build: () => buildTermGradesPdf(report, school: store.reportSchool),
+        word: () => buildTermGradesDocx(report, school: store.reportSchool),
       );
     }
 

@@ -124,6 +124,15 @@ class Question {
   /// Yanlış şıkların yakaladığı kavram yanılgıları (A sırasındaki şık → yanılgı).
   final Map<int, String> misconceptions;
 
+  /// Sorunun düşünme düzeyi (yenilenmiş Bloom: remember, understand, apply,
+  /// analyze, evaluate, create); bilinmiyorsa null.
+  final String? cognitive;
+
+  /// Birden çok doğru şık işaretlenir: öğrenci doğruların hepsini (ve
+  /// yalnız onları) işaretlerse doğru sayılır. Kapalıyken [correct]'teki
+  /// şıklardan herhangi biri doğru kabul edilir.
+  final bool multiSelect;
+
   const Question({
     required this.no,
     required this.correct,
@@ -132,12 +141,15 @@ class Question {
     this.outcomeCode,
     this.bankId,
     this.misconceptions = const {},
+    this.cognitive,
+    this.multiSelect = false,
   });
 
   /// [choice] şıkkının yanılgısı (doğru şıksa ya da yazılmamışsa boş).
   String misconceptionOf(int choice) => correct.contains(choice) ? '' : (misconceptions[choice] ?? '').trim();
 
-  Question copyWith({Set<int>? correct, double? points, bool? cancelled, String? outcomeCode, Map<int, String>? misconceptions}) =>
+  Question copyWith(
+          {Set<int>? correct, double? points, bool? cancelled, String? outcomeCode, Map<int, String>? misconceptions, String? cognitive, bool clearCognitive = false, bool? multiSelect}) =>
       Question(
         no: no,
         correct: correct ?? this.correct,
@@ -146,6 +158,8 @@ class Question {
         outcomeCode: outcomeCode ?? this.outcomeCode,
         bankId: bankId,
         misconceptions: misconceptions ?? this.misconceptions,
+        cognitive: clearCognitive ? null : (cognitive ?? this.cognitive),
+        multiSelect: multiSelect ?? this.multiSelect,
       );
 
   Map<String, dynamic> toJson() => {
@@ -157,6 +171,8 @@ class Question {
         if (bankId != null) 'bankId': bankId,
         if (misconceptions.values.any((m) => m.trim().isNotEmpty))
           'misconceptions': {for (final e in misconceptions.entries) if (e.value.trim().isNotEmpty) '${e.key}': e.value},
+        if (cognitive != null) 'cognitive': cognitive,
+        if (multiSelect) 'multi': true,
       };
 
   factory Question.fromJson(Map<String, dynamic> j) => Question(
@@ -170,6 +186,8 @@ class Question {
           for (final e in ((j['misconceptions'] as Map?) ?? const {}).entries)
             if (int.tryParse('${e.key}') != null) int.parse('${e.key}'): '${e.value}'
         },
+        cognitive: j['cognitive'] as String?,
+        multiSelect: j['multi'] == true,
       );
 }
 
@@ -300,6 +318,55 @@ enum KidTheme {
   static KidTheme byName(Object? name) => KidTheme.values.asNameMap()[name] ?? KidTheme.rainbow;
 }
 
+/// Çok dersli deneme sınavında bir ders bölümü: A kitapçığındaki ardışık
+/// [count] soru ([start]'tan başlayarak, 0'dan) ve ağırlıklı puandaki katsayısı.
+class ExamSection {
+  final String name;
+  final int start;
+  final int count;
+
+  /// Ağırlıklı puanda bu dersin bir netinin değeri (ör. 3,3). 0 = puana katılmaz.
+  final double weight;
+
+  const ExamSection({required this.name, required this.start, required this.count, this.weight = 0});
+
+  int get end => start + count;
+
+  bool contains(int i) => i >= start && i < end;
+
+  Map<String, dynamic> toJson() => {'name': name, 'start': start, 'count': count, if (weight != 0) 'weight': weight};
+
+  factory ExamSection.fromJson(Map<String, dynamic> j) => ExamSection(
+        name: j['name'] as String? ?? '',
+        start: j['start'] as int? ?? 0,
+        count: j['count'] as int? ?? 0,
+        weight: (j['weight'] as num?)?.toDouble() ?? 0,
+      );
+
+  /// Adlar ve soru sayılarından ardışık bölümler kurar.
+  static List<ExamSection> fromCounts(List<(String, int, double)> parts) {
+    var at = 0;
+    return [
+      for (final p in parts) ExamSection(name: p.$1, start: (at += p.$2) - p.$2, count: p.$2, weight: p.$3),
+    ];
+  }
+
+  /// Bölümler geçerli mi? Ardışık, boşluksuz ve tam [questionCount] soruyu
+  /// kapsamalı. Sorun varsa açıklaması, yoksa null.
+  static String? validate(List<ExamSection> sections, int questionCount) {
+    if (sections.isEmpty) return null;
+    var at = 0;
+    for (final s in sections) {
+      if (s.name.trim().isEmpty) return tr('Her dersin bir adı olmalı.');
+      if (s.count <= 0) return tr('"{0}" dersinin soru sayısı en az 1 olmalı.', [s.name.trim()]);
+      if (s.start != at) return tr('Ders bölümleri ardışık olmalı.');
+      at = s.end;
+    }
+    if (at != questionCount) return tr('Derslerin soru sayıları toplamı {0}, sınavda {1} soru var.', [at, questionCount]);
+    return null;
+  }
+}
+
 class Exam {
   final String id;
   final String name;
@@ -358,6 +425,13 @@ class Exam {
   /// Çocuk görünümünün renk teması.
   final KidTheme kidTheme;
 
+  /// Çok dersli deneme sınavının ders bölümleri (boş = tek ders).
+  final List<ExamSection> sections;
+
+  /// Ağırlıklı puanın taban puanı (ör. 100). null = ağırlıklı puan yok;
+  /// doluysa puan = taban + Σ(ders neti × katsayı).
+  final double? baseScore;
+
   const Exam({
     required this.id,
     required this.name,
@@ -376,7 +450,23 @@ class Exam {
     this.kidForm = false,
     this.kidReports = false,
     this.kidTheme = KidTheme.rainbow,
+    this.sections = const [],
+    this.baseScore,
   });
+
+  /// Çok dersli deneme sınavı mı (en az iki ders bölümü)?
+  bool get isMultiSubject => sections.length > 1;
+
+  /// Ağırlıklı (katsayılı) puan hesaplanır mı?
+  bool get hasWeightedScore => isMultiSubject && baseScore != null;
+
+  /// A sırasındaki [i]. sorunun dersi (bölüm yoksa null).
+  ExamSection? sectionOf(int i) {
+    for (final s in sections) {
+      if (s.contains(i)) return s;
+    }
+    return null;
+  }
 
   bool get isCommon => commonId != null;
 
@@ -459,6 +549,8 @@ class Exam {
           misconceptions: {
             for (final e in questions[order[i]].misconceptions.entries) printedChoice(booklet, order[i], e.key): e.value
           },
+          cognitive: questions[order[i]].cognitive,
+          multiSelect: questions[order[i]].multiSelect,
         ),
     ];
   }
@@ -535,6 +627,9 @@ class Exam {
     bool? kidForm,
     bool? kidReports,
     KidTheme? kidTheme,
+    List<ExamSection>? sections,
+    double? baseScore,
+    bool clearBaseScore = false,
   }) =>
       Exam(
         id: id ?? this.id,
@@ -554,6 +649,8 @@ class Exam {
         kidForm: kidForm ?? this.kidForm,
         kidReports: kidReports ?? this.kidReports,
         kidTheme: kidTheme ?? this.kidTheme,
+        sections: sections ?? this.sections,
+        baseScore: clearBaseScore ? null : (baseScore ?? this.baseScore),
       );
 
   Map<String, dynamic> toJson() => {
@@ -579,6 +676,8 @@ class Exam {
         if (kidReports) 'kidReports': true,
         if (kidTheme != KidTheme.rainbow) 'kidTheme': kidTheme.name,
         if (openQuestions.isNotEmpty) 'openQuestions': openQuestions.map((q) => q.toJson()).toList(),
+        if (sections.isNotEmpty) 'sections': [for (final s in sections) s.toJson()],
+        if (baseScore != null) 'baseScore': baseScore,
       };
 
   factory Exam.fromJson(Map<String, dynamic> j) => Exam(
@@ -612,6 +711,8 @@ class Exam {
         openQuestions: [
           for (final e in (j['openQuestions'] as List?) ?? const []) OpenQuestion.fromJson(e as Map<String, dynamic>)
         ],
+        sections: [for (final e in (j['sections'] as List?) ?? const []) ExamSection.fromJson(e as Map<String, dynamic>)],
+        baseScore: (j['baseScore'] as num?)?.toDouble(),
       );
 }
 

@@ -17,7 +17,7 @@
    "baslik": "Sınavın tamamı, tek uygulamada",
    "faydalar": [
     "Sorudan karneye her adım",
-    "Her türlü optik formu okur",
+    "Öğretmen ve öğrenci için",
     "Telefon, tablet ve bilgisayarda"
    ],
    "ekran": "02_ana",
@@ -144,6 +144,24 @@
    "metin": "Analizler, kurumunuzun resmî yazı başlığı ve imza alanıyla rapora dönüşür. Karne, dönem sonu raporu ve kazanım karnesi tek dokunuşla hazırdır. Sonuçları velilere gönderin ya da Classroom ve Moodle'a aktarın."
   },
   {
+   "id": "prova",
+   "tur": "masaustu",
+   "ust": "Evde gerçek sınav provası",
+   "baslik": "Kendi deneme sınavınızı kendiniz hazırlayın",
+   "faydalar": [
+    "Notlarınızı ve belgelerinizi yükleyin",
+    "Kitapçığı ve formu yazdırın",
+    "Okutun, eksiklerinizi görün"
+   ],
+   "rozetler": [
+    "A–H kitapçık",
+    "Sınav süresi",
+    "Optik form"
+   ],
+   "ekran": "masaustu:kitapcik",
+   "metin": "Netice yalnızca öğretmenler için değil. Sınava hazırlanan herkes, kendi notlarını, kitaplarını ve belgelerini yükleyip kendi deneme sınavını hazırlayabilir. Kitapçığı ve optik formu yazdırın, süreyi tutun, gerçek sınav gibi çözün. Sonra formu telefonla okutun; puanınızı ve eksik konularınızı hemen görün."
+  },
+  {
    "id": "kitle",
    "tur": "kitle",
    "ust": "Kimler için?",
@@ -156,10 +174,11 @@
     "Üniversite",
     "Polis Akademisi",
     "Askerî okullar",
-    "Kurs ve dershaneler"
+    "Kurs ve dershaneler",
+    "Sınava hazırlanan öğrenciler"
    ],
    "alt": "15 dil · Her ülkenin not sistemi · Çocuklara özel renkli şablonlar",
-   "metin": "İlkokul öğretmeninden üniversite hocasına, polis akademisinden askerî okullara ve kurslara kadar herkes için. On beş dilde, her ülkenin not sistemiyle çalışır; küçük öğrencilere özel renkli şablonlar da vardır."
+   "metin": "İlkokul öğretmeninden üniversite hocasına, polis akademisinden askerî okullara, kurslardan evde sınava hazırlanan öğrencilere kadar herkes için. On beş dilde, her ülkenin not sistemiyle çalışır; küçük öğrencilere özel renkli şablonlar da vardır."
   },
   {
    "id": "guven",

@@ -200,18 +200,51 @@ Uint8List buildBookletDocx(
     }
   }
 
+  void passage(BankPassage pa, int from, int to) {
+    final instruction = from == to
+        ? tr('{0}. soruyu aşağıdaki metne göre cevaplayınız.', [from])
+        : tr('{0}–{1}. soruları aşağıdaki metne göre cevaplayınız.', [from, to]);
+    d.para(d.run(instruction, bold: true), before: 120, after: 40, keepNext: true, shade: 'EEF7F2');
+    if (pa.title.trim().isNotEmpty) d.para(d.run(pa.title.trim(), bold: true), align: 'center', after: 40, keepNext: true, shade: 'EEF7F2');
+    for (final t in pa.text.split(RegExp(r'\n\s*\n'))) {
+      if (t.trim().isNotEmpty) d.para(d.run(t.trim()), align: 'both', after: 60, shade: 'EEF7F2');
+    }
+    if (pa.imageId != null) d.image(image(pa.imageId), colW);
+  }
+
+  void withPassages(List<PrintedQuestion> list, void Function(PrintedQuestion p) each) {
+    for (var i = 0; i < list.length; i++) {
+      final p = list[i];
+      final pa = plan.passageStarting(p.question, i > 0 ? list[i - 1].question : null);
+      if (pa != null) {
+        var last = i;
+        while (last + 1 < list.length && list[last + 1].question.passageId == pa.id) {
+          last++;
+        }
+        passage(pa, p.no, list[last].no);
+      }
+      each(p);
+    }
+  }
+
   void question(PrintedQuestion p, {bool open = false, bool withAnswer = false}) {
     final q = p.question;
     const hang = 425;
     final pts = o.showPoints ? ' (${tr('{0} puan', [_fmt(p.points)])})' : '';
     d.para(d.run('${p.no}. ', bold: true) + d.run(q.text.trim()) + d.run(pts, size: fs - 1.5, color: '6B7280'),
         hanging: hang, before: 80, after: 40, keepNext: true);
+    if (q.multiSelect && q.correct.length > 1) {
+      d.para(d.run(tr('(Doğru olan bütün şıkları işaretleyiniz.)'), italic: true, bold: true, size: fs - 1), indent: hang, after: 40, keepNext: true);
+    }
     if (q.imageId != null) d.image(image(q.imageId), colW - hang, indent: hang);
     if (!open) {
-      final texts = q.type == QuestionType.trueFalse ? [tr('Doğru'), tr('Yanlış')] : p.choices;
-      if (texts.any((t) => t.trim().isNotEmpty)) {
+      final imgs = q.hasChoiceImages ? p.choiceImages : const <String?>[];
+      var texts = q.type == QuestionType.trueFalse ? [tr('Doğru'), tr('Yanlış')] : p.choices;
+      if (imgs.isNotEmpty && texts.length < imgs.length) texts = [...texts, for (var i = texts.length; i < imgs.length; i++) ''];
+      if (imgs.isNotEmpty || texts.any((t) => t.trim().isNotEmpty)) {
         for (var i = 0; i < texts.length; i++) {
-          d.para(d.run('${_letter(i)}) ', bold: true) + d.run(texts[i]), indent: hang, hanging: 340, after: 20);
+          d.para(d.run('${_letter(i)}) ', bold: true) + d.run(texts[i]), indent: hang, hanging: 340, after: 20, keepNext: i < imgs.length && imgs[i] != null);
+          if (i < imgs.length && imgs[i] != null) d.image(image(imgs[i]), (colW - hang - 340) ~/ 2, indent: hang + 340);
         }
       }
     } else if (!withAnswer) {
@@ -239,18 +272,16 @@ Uint8List buildBookletDocx(
     }
     final sections = o.sectionHeaders && runs.toSet().length > 1 && runs.length == runs.toSet().length;
     String? current;
-    for (final p in v.test) {
+    withPassages(v.test, (p) {
       if (sections && p.question.subject != current) {
         current = p.question.subject;
-        d.para(d.run(SchoolInfo.upper(current.isEmpty ? tr('Diğer') : current), bold: true), shade: 'F3F4F6', before: 120, keepNext: true);
+        d.para(d.run(SchoolInfo.upper(current!.isEmpty ? tr('Diğer') : current!), bold: true), shade: 'F3F4F6', before: 120, keepNext: true);
       }
       question(p);
-    }
+    });
     if (v.open.isNotEmpty) {
       d.para(d.run(SchoolInfo.upper(tr('Klasik sorular')), bold: true), shade: 'F3F4F6', before: 160, keepNext: true);
-      for (final p in v.open) {
-        question(p, open: true);
-      }
+      withPassages(v.open, (p) => question(p, open: true));
     }
     d.body.write(sect(columns: cols));
   }

@@ -27,6 +27,9 @@ class BankStore extends ChangeNotifier {
   final List<BankNote> notes = [];
   final List<Booklet> booklets = [];
 
+  /// Okuma parçaları (birden çok sorunun ortak metni / görseli).
+  final List<BankPassage> passages = [];
+
   /// İçe aktarılmış kazanım listeleri (müfredat).
   final List<OutcomeList> outcomeLists = [];
 
@@ -68,6 +71,7 @@ class BankStore extends ChangeNotifier {
     notes.clear();
     booklets.clear();
     outcomeLists.clear();
+    passages.clear();
     final f = _file!;
     if (await f.exists()) {
       try {
@@ -91,6 +95,7 @@ class BankStore extends ChangeNotifier {
         'notes': notes.map((n) => n.toJson()).toList(),
         'booklets': booklets.map((b) => b.toJson()).toList(),
         if (outcomeLists.isNotEmpty) 'outcomeLists': outcomeLists.map((l) => l.toJson()).toList(),
+        if (passages.isNotEmpty) 'passages': passages.map((p) => p.toJson()).toList(),
         'lastSubject': lastSubject,
         'lastGrade': lastGrade,
         'lastTopic': lastTopic,
@@ -101,6 +106,7 @@ class BankStore extends ChangeNotifier {
     notes.addAll([for (final e in (j['notes'] as List? ?? [])) BankNote.fromJson((e as Map).cast<String, dynamic>())]);
     booklets.addAll([for (final e in (j['booklets'] as List? ?? [])) Booklet.fromJson((e as Map).cast<String, dynamic>())]);
     outcomeLists.addAll([for (final e in (j['outcomeLists'] as List? ?? [])) OutcomeList.fromJson((e as Map).cast<String, dynamic>())]);
+    passages.addAll([for (final e in (j['passages'] as List? ?? [])) BankPassage.fromJson((e as Map).cast<String, dynamic>())]);
     lastSubject = j['lastSubject'] as String? ?? '';
     lastGrade = j['lastGrade'] as String? ?? '';
     lastTopic = j['lastTopic'] as String? ?? '';
@@ -174,6 +180,8 @@ class BankStore extends ChangeNotifier {
 
   Set<String> get _usedImages => {
         for (final q in questions) ...[if (q.imageId != null) q.imageId!, if (q.solutionImageId != null) q.solutionImageId!],
+        for (final q in questions) ...q.choiceImages.whereType<String>(),
+        for (final p in passages) ?p.imageId,
         for (final n in notes) ...n.imageIds,
       };
 
@@ -197,6 +205,37 @@ class BankStore extends ChangeNotifier {
   // ———————————————————————————— Sorular
 
   BankQuestion? questionById(String? id) => id == null ? null : questions.where((q) => q.id == id).firstOrNull;
+
+  // ———————————————————————————— Okuma parçaları
+
+  BankPassage? passageById(String? id) => id == null ? null : passages.where((p) => p.id == id).firstOrNull;
+
+  BankPassage newPassage() {
+    final now = DateTime.now();
+    return BankPassage(id: newId('p'), subject: lastSubject, created: now, updated: now);
+  }
+
+  void upsertPassage(BankPassage p) {
+    final i = passages.indexWhere((x) => x.id == p.id);
+    if (i < 0) {
+      passages.insert(0, p);
+    } else {
+      passages[i] = p;
+    }
+    _changed();
+  }
+
+  /// Parçaya bağlı sorular (bankadaki sırasıyla).
+  List<BankQuestion> questionsOfPassage(String id) => [for (final q in questions) if (q.passageId == id) q];
+
+  /// Parçayı siler; bağlı soruların bağı kaldırılır (sorular silinmez).
+  void removePassage(String id) {
+    passages.removeWhere((p) => p.id == id);
+    for (var i = 0; i < questions.length; i++) {
+      if (questions[i].passageId == id) questions[i] = questions[i].copyWith(clearPassage: true, updated: questions[i].updated);
+    }
+    _changed();
+  }
 
   BankQuestion newQuestion() {
     final now = DateTime.now();
@@ -564,8 +603,11 @@ class BankStore extends ChangeNotifier {
   Uint8List exportPack({Iterable<String>? questionIds, Iterable<String>? noteIds, bool booklets = true}) {
     final qs = questionIds == null ? questions : [for (final id in questionIds) ?questionById(id)];
     final ns = noteIds == null ? notes : [for (final id in noteIds) ?noteById(id)];
+    final ps = [for (final id in {for (final q in qs) ?q.passageId}) ?passageById(id)];
     final imgs = {
       for (final q in qs) ...[if (q.imageId != null) q.imageId!, if (q.solutionImageId != null) q.solutionImageId!],
+      for (final q in qs) ...q.choiceImages.whereType<String>(),
+      for (final p in ps) ?p.imageId,
       for (final n in ns) ...n.imageIds,
     };
     final a = Archive();
@@ -574,6 +616,7 @@ class BankStore extends ChangeNotifier {
       'version': 1,
       'questions': qs.map((q) => q.toJson()).toList(),
       'notes': ns.map((n) => n.toJson()).toList(),
+      if (ps.isNotEmpty) 'passages': ps.map((p) => p.toJson()).toList(),
       if (booklets && questionIds == null) 'booklets': this.booklets.map((b) => b.toJson()).toList(),
     }));
     a.addFile(ArchiveFile('banka.json', json.length, json));
@@ -602,7 +645,12 @@ class BankStore extends ChangeNotifier {
     var nq = 0, nn = 0, nb = 0;
     for (final e in (j['questions'] as List? ?? [])) {
       final m = (e as Map).cast<String, dynamic>();
-      final q = BankQuestion.fromJson({...m, 'imageId': mapId(m['imageId'] as String?), 'solutionImageId': mapId(m['solutionImageId'] as String?)});
+      final q = BankQuestion.fromJson({
+        ...m,
+        'imageId': mapId(m['imageId'] as String?),
+        'solutionImageId': mapId(m['solutionImageId'] as String?),
+        if (m['choiceImages'] is List) 'choiceImages': [for (final c in m['choiceImages'] as List) mapId(c as String?)],
+      });
       final i = questions.indexWhere((x) => x.id == q.id);
       if (i < 0) {
         questions.add(q);
@@ -610,6 +658,16 @@ class BankStore extends ChangeNotifier {
         questions[i] = q;
       }
       nq++;
+    }
+    for (final e in (j['passages'] as List? ?? [])) {
+      final m = (e as Map).cast<String, dynamic>();
+      final p = BankPassage.fromJson({...m, 'imageId': mapId(m['imageId'] as String?)});
+      final i = passages.indexWhere((x) => x.id == p.id);
+      if (i < 0) {
+        passages.add(p);
+      } else {
+        passages[i] = p;
+      }
     }
     for (final e in (j['notes'] as List? ?? [])) {
       final m = (e as Map).cast<String, dynamic>();
@@ -638,6 +696,7 @@ class BankStore extends ChangeNotifier {
     notes.clear();
     booklets.clear();
     outcomeLists.clear();
+    passages.clear();
     lastSubject = lastGrade = lastTopic = '';
     _memImages.clear();
     final d = _dir;
