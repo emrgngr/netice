@@ -982,11 +982,14 @@ class AppStore extends ChangeNotifier {
     final numbers = [
       if (r.studentNumber != null) int.tryParse(r.studentNumber!),
       code?.studentNumber,
+      for (final o in r.otherNumbers) int.tryParse(o),
     ].whereType<int>();
     for (final n in numbers) {
       st = studentsOf(target.className).where((s) => int.tryParse(s.number) == n).firstOrNull;
       if (st != null) break;
     }
+    // Numara yoksa ya da listede yoksa: formun ad soyad alanından okunan ad.
+    if (st == null && r.name != null) st = studentByReadName(target.className, r.name!);
     final codeBooklet = code?.resolve(FormCode.examCodeOf(target.id))?.booklet;
     var booklet = target.hasBooklets ? (r.booklet ?? codeBooklet ?? 0) : 0;
     if (booklet >= target.bookletCount) booklet = 0;
@@ -1024,6 +1027,7 @@ class AppStore extends ChangeNotifier {
       booklet: booklet,
       openScores: openScores,
       readNumber: studentId == null ? (r.numberPattern ?? r.studentNumber) : null,
+      readName: studentId == null ? r.name : null,
       mini: r.mini,
     );
     sheets.add(sheet);
@@ -1148,19 +1152,64 @@ class AppStore extends ChangeNotifier {
     return studentsOf(exam.className).where((s) => !have.contains(s.id)).toList();
   }
 
+  /// Ad karşılaştırması için: büyük harf, yalnız harfler. I/İ/ı/i aynı sayılır:
+  /// öğrenci listesi başka dilde yazılmış olabilir (Emine ↔ EMİNE).
+  static String normalizeName(String s) => s
+      .replaceAll(RegExp('[iıİ]'), 'I')
+      .toUpperCase()
+      .replaceAll(RegExp(r'[^\p{L}]', unicode: true), '');
+
+  /// Formdan okunan ada tam uyan tek öğrenci. Formdaki kutular bittiği için
+  /// ad kısalmış olabilir: okunan ad (en az 6 harf) öğrencinin adının başıysa da uyar.
+  Student? studentByReadName(String className, String read) {
+    if (read.contains('?')) return null;
+    final r = normalizeName(read);
+    if (r.length < 4) return null;
+    final list = studentsOf(className);
+    final exact = list.where((s) => normalizeName(s.fullName) == r || normalizeName('${s.lastName}${s.firstName}') == r).toList();
+    if (exact.length == 1) return exact.first;
+    if (exact.length > 1 || r.length < 6) return null;
+    final prefix = list.where((s) => normalizeName(s.fullName).startsWith(r)).toList();
+    return prefix.length == 1 ? prefix.first : null;
+  }
+
+  /// Okunan ada benzerlik (düzeltme sayısı); karşılaştırılamıyorsa null.
+  static int? nameDistance(String read, String full) {
+    final a = normalizeName(read.replaceAll('?', '')), b = normalizeName(full);
+    if (a.length < 3 || b.isEmpty) return null;
+    final prev = List<int>.generate(b.length + 1, (i) => i);
+    for (var i = 1; i <= a.length; i++) {
+      var diag = prev[0];
+      prev[0] = i;
+      for (var j = 1; j <= b.length; j++) {
+        final tmp = prev[j];
+        prev[j] = math.min(math.min(prev[j] + 1, prev[j - 1] + 1), diag + (a[i - 1] == b[j - 1] ? 0 : 1));
+        diag = tmp;
+      }
+    }
+    return prev[b.length];
+  }
+
   /// Eşleşmeyen kâğıt için olası öğrenciler: okunan numaraya en yakın olanlar
   /// (bu sınavda kâğıdı olmayanlar). Okunamayan rakamlar ('?') her rakama uyar;
   /// en fazla iki rakam farkı olanlar, en yakından uzağa sıralanır.
   List<Student> suggestStudents(Sheet sheet, {int limit = 3}) {
     final read = sheet.readNumber;
+    final name = sheet.readName;
     final exam = examById(sheet.examId);
-    if (read == null || exam == null) return const [];
+    if ((read == null && name == null) || exam == null) return const [];
     final taken = sheetsOf(exam.id).map((s) => s.studentId).toSet();
     final scored = <(Student, int)>[];
     for (final s in studentsOf(exam.className)) {
       if (taken.contains(s.id)) continue;
-      final d = numberDistance(read, s.number);
-      if (d != null && d <= 2) scored.add((s, d));
+      final d = read == null ? null : numberDistance(read, s.number);
+      if (d != null && d <= 2) {
+        scored.add((s, d));
+        continue;
+      }
+      // Okunan ada yakın adlar (en çok 3 harf farkı).
+      final n = name == null ? null : nameDistance(name, s.fullName);
+      if (n != null && n <= 3) scored.add((s, n + 1));
     }
     scored.sort((a, b) => a.$2.compareTo(b.$2));
     return [for (final e in scored.take(limit)) e.$1];

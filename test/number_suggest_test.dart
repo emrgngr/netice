@@ -33,4 +33,22 @@ void main() {
     // Kalıcı.
     expect(Sheet.fromJson(sheet.toJson()).readNumber, read);
   });
+
+  test('formdan okunan ad: tam, ters sıra, kısalmış ad ile öğrenci bulunur', () async {
+    expect(AppStore.normalizeName('şule öz'), 'ŞULEÖZ');
+    expect(AppStore.normalizeName('Işıl İnce'), AppStore.normalizeName('IŞIL INCE'));
+    expect(AppStore.normalizeName('Emine'), AppStore.normalizeName('EMİNE'));
+    final s = AppStore();
+    await s.load(dir: Directory.systemTemp.createTempSync('ad'));
+    final cls = s.exams.first.className;
+    final st = s.studentsOf(cls).first;
+    expect(s.studentByReadName(cls, st.fullName.toUpperCase())?.id, st.id);
+    expect(s.studentByReadName(cls, '${st.lastName} ${st.firstName}')?.id, st.id);
+    final short = AppStore.normalizeName(st.fullName);
+    if (short.length > 8) expect(s.studentByReadName(cls, short.substring(0, short.length - 1))?.id, st.id);
+    // Okunamayan harf varsa kesin eşleşme yapılmaz, yalnız öneri olur.
+    final broken = '${st.fullName.substring(0, 1)}?${st.fullName.substring(2)}';
+    expect(s.studentByReadName(cls, broken), isNull);
+    expect(AppStore.nameDistance(broken, st.fullName), lessThanOrEqualTo(1));
+  });
 }

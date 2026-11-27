@@ -40,7 +40,7 @@ class FakeForm {
   Pt gender(int k) => Pt(880 + k * 44.0, 420);
   Pt nameCell(int col, int row) => Pt(70 + col * 22.0, 140 + row * 19.0);
 
-  img.Image render({Map<int, int> marks = const {}, String number = '', int? bookletMark}) {
+  img.Image render({Map<int, int> marks = const {}, String number = '', int? bookletMark, String name = ''}) {
     final im = img.Image(width: w, height: h, numChannels: 3);
     img.fill(im, color: img.ColorRgb8(252, 251, 248));
     img.drawString(im, 'DENEME SINAVI CEVAP KAGIDI', font: img.arial24, x: 300, y: 40, color: img.ColorRgb8(20, 20, 20));
@@ -66,7 +66,7 @@ class FakeForm {
     for (var c = 0; c < 12; c++) {
       img.drawRect(im, x1: (nameCell(c, 0).x - 9).round(), y1: 110, x2: (nameCell(c, 0).x + 9).round(), y2: 128, color: ink);
       for (var r = 0; r < 29; r++) {
-        bubble(nameCell(c, r), 7, 7, '', false);
+        bubble(nameCell(c, r), 7, 7, '', c < name.length && NameBlock.turkish.indexOf(name[c]) == r);
       }
     }
     // Numara: yazı kutuları + 0–9.
@@ -79,7 +79,7 @@ class FakeForm {
     }
     img.drawString(im, 'KITAPCIK', font: img.arial14, x: 870, y: 190, color: ink);
     for (var k = 0; k < 2; k++) {
-      bubble(booklet(k), 13, 13, 'AB'[k], bookletMark == k);
+      bubble(booklet(k), 12, 12, 'AB'[k], bookletMark == k);
     }
     img.drawString(im, 'CINSIYET', font: img.arial14, x: 870, y: 380, color: ink);
     for (var k = 0; k < 2; k++) {
@@ -192,6 +192,30 @@ void main() {
       final a = r.questions[q].answer;
       expect(a.marked, key[q] == null ? isEmpty : {key[q]}, reason: 'soru ${q + 1} ${r.questions[q].fills}');
     }
+  });
+
+  test('ad soyad alanı bulunur ve okunur; numara yoksa öğrenci addan bulunur', () {
+    final form = FakeForm();
+    final page = form.render(marks: {0: 1}, name: 'ŞULE ÖZ', bookletMark: 0);
+    final im = photo(page, [Pt(210, 150), Pt(1300, 210), Pt(1350, 1830), Pt(160, 1770)], blur: 1);
+    final g = GrayImage.fromImage(im);
+    final d = detectFormGrids(g, PageFinder.find(g));
+    expect(d.name, isNotNull);
+    expect(d.name!.columns, 12);
+    expect(d.name!.letters, NameBlock.turkish);
+    final r = TemplateReader(d.applyTo(const FormTemplate(id: 'x', name: 'x')), questionCount: form.questions, choiceCount: 5).read(g);
+    expect(r.name, 'ŞULE ÖZ');
+  });
+
+  test('ad soyad alfabesi satır sayısından ve dilden seçilir', () {
+    expect(NameBlock.alphabetFor(29, 'tr'), NameBlock.turkish);
+    expect(NameBlock.alphabetFor(29, 'de'), contains('Ä'));
+    expect(NameBlock.alphabetFor(26, 'fr'), NameBlock.english);
+    expect(NameBlock.alphabetFor(27, 'es'), contains('Ñ'));
+    expect(NameBlock.alphabetFor(33, 'ru'), startsWith('АБВ'));
+    expect(NameBlock.alphabetFor(32, 'az'), contains('Ə'));
+    expect(NameBlock.alphabetFor(28, 'ar'), startsWith('ا'));
+    expect(NameBlock.alphabetFor(40, 'tr'), isNull);
   });
 
   test('şablon paylaşım dosyası yeni kimlikle açılır', () {

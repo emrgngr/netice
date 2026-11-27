@@ -197,7 +197,7 @@ class _TemplateEditorScreenState extends State<TemplateEditorScreen> {
     final g = _gray, c = _corners;
     if (g == null || c == null) return;
     setState(() => _busy = true);
-    final d = await compute(_detect, (g, c, _t.aspect));
+    final d = await compute(_detect, (g, c, _t.aspect, L10n.code));
     if (!mounted) return;
     setState(() {
       _busy = false;
@@ -213,6 +213,8 @@ class _TemplateEditorScreenState extends State<TemplateEditorScreen> {
       tr('{0} soru ({1} blok)', [d.questionCount, d.blocks.length]),
       if (d.number != null) tr('{0} haneli numara', [d.number!.digits]),
       if (d.booklet != null) tr('{0} kitapçık türü', [d.booklet!.count]),
+      if (d.name != null) tr('ad soyad alanı'),
+      if (d.extraNumbers.isNotEmpty) tr('{0} diğer numara alanı', [d.extraNumbers.length]),
     ];
     toast(context, tr('Bulundu: {0}. Renkli halkaların dairelerin üstünde olduğunu kontrol edin.', [parts.join(', ')]));
   }
@@ -467,7 +469,8 @@ class _TemplateEditorScreenState extends State<TemplateEditorScreen> {
     toast(context, tr('{0} soruda işaret bulundu{1}.', [
       marked,
       (r.studentNumber == null ? '' : ' · numara ${int.parse(r.studentNumber!)}') +
-          (r.booklet == null ? '' : ' · ${tr('kitapçık')} ${String.fromCharCode(65 + r.booklet!)}')
+          (r.booklet == null ? '' : ' · ${tr('kitapçık')} ${String.fromCharCode(65 + r.booklet!)}') +
+          (r.name == null ? '' : ' · ${r.name}')
     ]));
   }
 
@@ -603,6 +606,71 @@ class _TemplateEditorScreenState extends State<TemplateEditorScreen> {
             icon: const Icon(Icons.pin_outlined),
             label: Text(_t.number == null ? tr('Numara bloğu ekle') : tr('Numara bloğunu yeniden işaretle')),
           ),
+          for (final (i, x) in _t.extraNumbers.indexed)
+            Card(
+              child: ListTile(
+                dense: true,
+                leading: const Icon(Icons.badge_outlined, color: Color(0xFF0EA5E9)),
+                title: Text(tr('Diğer numara alanı · {0} hane', [x.digits])),
+                subtitle: Text(tr('Numara listede bulunamazsa bu da denenir (TC kimlik no gibi).')),
+                trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                  IconButton(
+                    tooltip: tr('Öğrenci numarası bu olsun'),
+                    onPressed: () => setState(() {
+                      final extras = [..._t.extraNumbers]..removeAt(i);
+                      if (_t.number != null) extras.insert(0, _t.number!);
+                      _t = _t.copyWith(number: x, extraNumbers: extras);
+                      _test = null;
+                    }),
+                    icon: const Icon(Icons.star_outline_rounded),
+                  ),
+                  IconButton(
+                    tooltip: tr('Kaldır'),
+                    onPressed: () => setState(() => _t = _t.copyWith(extraNumbers: [..._t.extraNumbers]..removeAt(i))),
+                    icon: const Icon(Icons.close_rounded),
+                  ),
+                ]),
+              ),
+            ),
+          SectionTitle(tr('Ad soyad')),
+          if (_t.nameGrid != null)
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 8, 12),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                  Row(children: [
+                    const Icon(Icons.abc_rounded, color: Color(0xFF3B82F6)),
+                    const SizedBox(width: 12),
+                    Expanded(child: Text(tr('{0} harflik ad soyad alanı', [_t.nameGrid!.columns]), style: const TextStyle(fontWeight: FontWeight.w700))),
+                    IconButton(
+                      tooltip: tr('Kaldır'),
+                      onPressed: () => setState(() => _t = _t.copyWith(clearNameGrid: true)),
+                      icon: const Icon(Icons.close_rounded),
+                    ),
+                  ]),
+                  DropdownButtonFormField<String>(
+                    isExpanded: true,
+                    initialValue: _t.nameGrid!.letters,
+                    decoration: InputDecoration(labelText: tr('Formdaki harfler')),
+                    items: [
+                      for (final a in {for (final a in NameBlock.alphabets) a.$2})
+                        if (a.length == _t.nameGrid!.rows || a == _t.nameGrid!.letters)
+                          DropdownMenuItem(value: a, child: Text(alphabetLabel(a), overflow: TextOverflow.ellipsis)),
+                    ],
+                    onChanged: (v) {
+                      if (v == null) return;
+                      final n = _t.nameGrid!;
+                      setState(() {
+                        _t = _t.copyWith(nameGrid: NameBlock(columns: n.columns, letters: v, first: n.first, last: n.last));
+                        _test = null;
+                      });
+                    },
+                  ),
+                ]),
+              ),
+            )
+          else
+            Text(tr('Formda ad soyad harf alanı varsa kendiliğinden bulunur; numara listede yoksa öğrenci adından tanınır.'), style: TextStyle(color: muted)),
           SectionTitle(tr('Kitapçık türü')),
           if (_t.booklet != null)
             Card(
@@ -774,6 +842,29 @@ class _TemplatePainter extends CustomPainter {
         }
       }
     }
+    final na = t.nameGrid;
+    if (na != null) {
+      final ring = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1
+        ..color = const Color(0xFF3B82F6).withValues(alpha: 0.8);
+      for (var c = 0; c < na.columns; c++) {
+        for (var r = 0; r < na.rows; r++) {
+          canvas.drawCircle(at(na.bubble(c, r)), na.radius * k, ring);
+        }
+      }
+    }
+    for (final x in t.extraNumbers) {
+      final ring = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.4
+        ..color = const Color(0xFF0EA5E9);
+      for (var d = 0; d < x.digits; d++) {
+        for (var v = 0; v < 10; v++) {
+          canvas.drawCircle(at(x.bubble(d, v)), x.radius * k, ring);
+        }
+      }
+    }
     final bb = t.booklet;
     if (bb != null) {
       final ring = Paint()
@@ -817,9 +908,26 @@ class _TemplatePainter extends CustomPainter {
   return (g, corners, Uint8List.fromList(img.encodePng(page)), found);
 }
 
-DetectedForm _detect((GrayImage, List<Pt>, double) input) {
-  final (g, c, aspect) = input;
-  return detectFormGrids(g, c, aspect: aspect);
+DetectedForm _detect((GrayImage, List<Pt>, double, String) input) {
+  final (g, c, aspect, lang) = input;
+  return detectFormGrids(g, c, aspect: aspect, lang: lang);
+}
+
+/// Ad soyad alanı alfabelerinin adı.
+String alphabetLabel(String letters) {
+  final i = NameBlock.alphabets.indexWhere((a) => a.$2 == letters);
+  final code = i < 0 ? '' : NameBlock.alphabets[i].$1;
+  final name = switch (code) {
+    'tr' => tr('Türk alfabesi'),
+    'en' => tr('Latin alfabesi (A–Z)'),
+    'es' => tr('İspanyol alfabesi (Ñ)'),
+    'de' => tr('Alman alfabesi (Ä Ö Ü)'),
+    'az' => tr('Azerbaycan alfabesi'),
+    'ru' => tr('Rus alfabesi'),
+    'ar' => tr('Arap alfabesi'),
+    _ => tr('Alfabe'),
+  };
+  return '$name · ${tr('{0} harf', [letters.length])}';
 }
 
 OmrResult _testRead((GrayImage, List<Pt>, FormTemplate) input) {
