@@ -3067,5 +3067,15 @@
 "Video indiriliyor…": "Video yüklənir…",
 "Video kaydedildi: {0}": "Video saxlanıldı: {0}",
 "Video indirilemedi. İnternet bağlantınızı kontrol edin.": "Video yüklənmədi. İnternet bağlantınızı yoxlayın.",
-"Video yükleniyor… %{0}": "Video yüklənir… {0}%"
+"Video yükleniyor… %{0}": "Video yüklənir… {0}%",
+"Bağlantı kopyalandı.": "Keçid kopyalandı.",
+"Bağlantıyı kopyala": "Keçidi kopyala",
+"Bağlantıyı paylaş": "Keçidi paylaş",
+"Karekodu okutun": "QR kodu oxudun",
+"Mağaza bağlantıları ve karekod": "Mağaza keçidləri və QR kod",
+"Netice telefonda, tablette ve bilgisayarda çalışır. Meslektaşlarınız karekodu okutarak ya da mağaza rozetine dokunarak indirebilir.": "Netice telefonda, planşetdə və kompüterdə işləyir. Həmkarlarınız QR kodu oxudaraq və ya mağaza nişanına toxunaraq yükləyə bilər.",
+"Netice'yi indirin": "Netice-ni yükləyin",
+"Telefonunuzun kamerasını tutun; cihazınıza uygun mağaza açılır.": "Telefonunuzun kamerasını tutun; cihazınıza uyğun mağaza açılır.",
+"Yakında": "Tezliklə",
+"Yakında: {0}": "Tezliklə: {0}"
 }

@@ -3067,5 +3067,15 @@
 "Video indiriliyor…": "Видео загружается…",
 "Video kaydedildi: {0}": "Видео сохранено: {0}",
 "Video indirilemedi. İnternet bağlantınızı kontrol edin.": "Не удалось скачать видео. Проверьте подключение к интернету.",
-"Video yükleniyor… %{0}": "Загрузка видео… {0}%"
+"Video yükleniyor… %{0}": "Загрузка видео… {0}%",
+"Bağlantı kopyalandı.": "Ссылка скопирована.",
+"Bağlantıyı kopyala": "Скопировать ссылку",
+"Bağlantıyı paylaş": "Поделиться ссылкой",
+"Karekodu okutun": "Отсканируйте QR-код",
+"Mağaza bağlantıları ve karekod": "Ссылки на магазины и QR-код",
+"Netice telefonda, tablette ve bilgisayarda çalışır. Meslektaşlarınız karekodu okutarak ya da mağaza rozetine dokunarak indirebilir.": "Netice работает на телефоне, планшете и компьютере. Коллеги могут скачать его, отсканировав QR-код или нажав на значок магазина.",
+"Netice'yi indirin": "Скачать Netice",
+"Telefonunuzun kamerasını tutun; cihazınıza uygun mağaza açılır.": "Наведите камеру телефона; откроется магазин для вашего устройства.",
+"Yakında": "Скоро",
+"Yakında: {0}": "Скоро: {0}"
 }

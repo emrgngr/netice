@@ -3067,5 +3067,15 @@
 "Video indiriliyor…": "動画をダウンロード中…",
 "Video kaydedildi: {0}": "動画を保存しました：{0}",
 "Video indirilemedi. İnternet bağlantınızı kontrol edin.": "動画をダウンロードできませんでした。インターネット接続を確認してください。",
-"Video yükleniyor… %{0}": "動画を読み込み中… {0}%"
+"Video yükleniyor… %{0}": "動画を読み込み中… {0}%",
+"Bağlantı kopyalandı.": "リンクをコピーしました。",
+"Bağlantıyı kopyala": "リンクをコピー",
+"Bağlantıyı paylaş": "リンクを共有",
+"Karekodu okutun": "QRコードを読み取る",
+"Mağaza bağlantıları ve karekod": "ストアのリンクとQRコード",
+"Netice telefonda, tablette ve bilgisayarda çalışır. Meslektaşlarınız karekodu okutarak ya da mağaza rozetine dokunarak indirebilir.": "Neticeはスマートフォン、タブレット、パソコンで使えます。同僚はQRコードを読み取るか、ストアのバッジをタップしてダウンロードできます。",
+"Netice'yi indirin": "Neticeをダウンロード",
+"Telefonunuzun kamerasını tutun; cihazınıza uygun mağaza açılır.": "スマートフォンのカメラを向けると、お使いの端末に合ったストアが開きます。",
+"Yakında": "近日公開",
+"Yakında: {0}": "近日公開：{0}"
 }

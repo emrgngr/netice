@@ -366,31 +366,95 @@ def scene_trust(frame, sc, t, dur):
     frame.alpha_composite(ov)
 
 
+_cta_cache = {}
+
+
+def cta_assets():
+    """Kapanış için resmî mağaza rozetleri (assets/badges, değiştirilmeden) ve
+    indirme sayfasının karekodu."""
+    if _cta_cache:
+        return _cta_cache
+    badges = []
+    for kind in ('google_play', 'app_store', 'mac_app_store', 'microsoft'):
+        for lg in (LANG, 'en'):
+            fp = f'{ROOT}/assets/badges/{kind}_{lg}.png'
+            if os.path.exists(fp):
+                im = Image.open(fp).convert('RGBA')
+                if kind == 'google_play':  # resmî PNG'deki saydam boşluk kırpılır
+                    im = im.crop(im.getbbox())
+                badges.append(im)
+                break
+    qr = None
+    try:
+        import qrcode
+        q = qrcode.QRCode(border=0, box_size=10, error_correction=qrcode.constants.ERROR_CORRECT_M)
+        q.add_data('https://www.neticeoptik.com/indir.html')
+        q.make(fit=True)
+        qr = q.make_image(fill_color=NAVY, back_color='white').convert('RGBA')
+    except ImportError:
+        print('qrcode yok: karekod çizilmeyecek')
+    _cta_cache.update(badges=badges, qr=qr)
+    return _cta_cache
+
+
 def scene_cta(frame, sc, t, dur):
     cx = W / 2
-    mark, tc = draw_mark(220, t)
-    frame.alpha_composite(mark, (int(cx - 110), 150))
+    mark, tc = draw_mark(170, t)
+    frame.alpha_composite(mark, (int(cx - 85), 90))
     a = ease_out((t - 1.3) / 0.6)
-    text(frame, (cx, 450 + 20 * (1 - a)), 'Netice', F(110, True), (255, 255, 255), a, anchor='mm')
+    text(frame, (cx, 340 + 20 * (1 - a)), 'Netice', F(96, True), (255, 255, 255), a, anchor='mm')
     a = ease_out((t - 1.7) / 0.6)
-    text(frame, (cx, 560), sc['baslik'], F(52, True), EMERALD, a, anchor='mm')
-    fy = 650
-    fx = cx
+    text(frame, (cx, 440), sc['baslik'], F(50, True), EMERALD, a, anchor='mm')
+    fy = 510
     d = ImageDraw.Draw(frame)
-    widths = [d.textlength(f, font=F(34)) + 90 for f in sc['faydalar']]
+    widths = [d.textlength(f, font=F(32)) + 90 for f in sc['faydalar']]
     total = sum(widths) + 40 * (len(widths) - 1)
     x = cx - total / 2
     for i, f in enumerate(sc['faydalar']):
         k = ease_out((t - 2.2 - i * 0.3) / 0.5)
         if k > 0:
-            check_icon(frame, x + 24, fy + 24, 22, k)
-            text(frame, (x + 60, fy + 24), f, F(34), (235, 240, 252), k, anchor='lm')
+            check_icon(frame, x + 24, fy + 22, 20, k)
+            text(frame, (x + 58, fy + 22), f, F(32), (235, 240, 252), k, anchor='lm')
         x += widths[i] + 40
-    k = ease_back((t - 3.0) / 0.6)
-    if k > 0:
-        pill(frame, cx - 220, 760, sc['adres'], F(44, True), EMERALD_D + (255,), a=clamp(k), pad=(60, 22))
-    k = ease_out((t - 3.5) / 0.6)
-    text(frame, (cx, 900), sc['magazalar'], F(30, True), SOFT, k, anchor='mm')
+    # Alt bölüm: solda karekod, sağda adres ve resmî mağaza rozetleri.
+    assets = cta_assets()
+    qs = 250
+    bh = 74
+    badges = [b.resize((round(b.width * bh / b.height), bh), Image.LANCZOS) for b in assets['badges']]
+    row1, row2 = badges[:2], badges[2:]
+    bw = max(sum(b.width for b in r) + 22 * (len(r) - 1) for r in (row1, row2)) if badges else 600
+    right_w = max(bw, 560)
+    block = (qs + 60 + right_w) if assets['qr'] is not None else right_w
+    x0 = cx - block / 2
+    y0 = 610
+    k = clamp(ease_back((t - 3.0) / 0.6))
+    if assets['qr'] is not None and k > 0:
+        card = Image.new('RGBA', (qs + 36, qs + 36), (0, 0, 0, 0))
+        ImageDraw.Draw(card).rounded_rectangle([0, 0, qs + 35, qs + 35], 30, fill=(255, 255, 255, 255))
+        card.paste(assets['qr'].resize((qs, qs), Image.NEAREST), (18, 18))
+        sc_k = 0.85 + 0.15 * k
+        card = card.resize((int(card.width * sc_k), int(card.height * sc_k)), Image.LANCZOS)
+        card.putalpha(card.getchannel('A').point(lambda v: int(v * k)))
+        frame.alpha_composite(card, (int(x0 + (qs + 36 - card.width) / 2), int(y0 + (qs + 36 - card.height) / 2)))
+        rx = x0 + qs + 60
+    else:
+        rx = x0
+    ka = clamp(ease_out((t - 3.3) / 0.5))
+    if ka > 0:
+        pill(frame, rx, y0 + 4, sc['adres'], F(42, True), EMERALD_D + (255,), a=ka, pad=(44, 18))
+    yy = y0 + 110
+    for ri, row in enumerate((row1, row2)):
+        bx = rx
+        for bi, b in enumerate(row):
+            kb = clamp(ease_out((t - 3.6 - (ri * 2 + bi) * 0.25) / 0.5))
+            if kb > 0:
+                im = b.copy()
+                im.putalpha(im.getchannel('A').point(lambda v: int(v * kb)))
+                frame.alpha_composite(im, (int(bx), int(yy + 14 * (1 - kb))))
+            bx += b.width + 22
+        yy += bh + 18
+    if not badges:
+        text(frame, (cx, 900), sc['magazalar'], F(30, True), SOFT, ka, anchor='mm')
 
 
 def scene_promise(frame, sc, t, dur):

@@ -11,6 +11,7 @@ import '../bank/bank_store.dart';
 import '../core/legal.dart';
 import '../main.dart';
 import 'onboarding_screen.dart';
+import 'download_links.dart';
 import 'rate_share.dart';
 import 'help_screen.dart';
 import 'scan_feedback.dart';
@@ -465,6 +466,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Column(children: [
               tile(Icons.share_rounded, NColors.emerald, tr('Uygulamayı paylaş'), tr('Meslektaşlarınıza WhatsApp veya e-postayla önerin'),
                   () => shareApp(context)),
+              const Divider(height: 1),
+              tile(Icons.qr_code_2_rounded, NColors.deepEmerald, tr('Netice\'yi indirin'), tr('Mağaza bağlantıları ve karekod'),
+                  () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const DownloadScreen()))),
               const Divider(height: 1),
               tile(Icons.star_rounded, NColors.amber, tr('Yıldız ver'),
                   StoreScope.of(context).rating == 0 ? tr('Görüşünüz bizim için değerli') : tr('Verdiğiniz puan: {0} yıldız', [StoreScope.of(context).rating]),
