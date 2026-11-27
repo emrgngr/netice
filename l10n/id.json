@@ -2988,5 +2988,10 @@
 "Ana ekrandaki \"Genel analiz\" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.": "\"Analisis keseluruhan\" di layar utama menampilkan hasil semua kelas dan semua siswa yang mengikuti ujian secara bersamaan.",
 "Dönem sonu raporu": "Laporan akhir semester",
 "Genel analiz": "Analisis keseluruhan",
-"Kazandığınız zaman": "Waktu yang Anda hemat"
+"Kazandığınız zaman": "Waktu yang Anda hemat",
+"Videoyu indir": "Unduh video",
+"Video indiriliyor…": "Mengunduh video…",
+"Video kaydedildi: {0}": "Video disimpan: {0}",
+"Video indirilemedi. İnternet bağlantınızı kontrol edin.": "Video tidak dapat diunduh. Periksa koneksi internet Anda.",
+"Video yükleniyor… %{0}": "Memuat video… {0}%"
 }

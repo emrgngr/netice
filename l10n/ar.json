@@ -3059,5 +3059,10 @@
 "Ana ekrandaki \"Genel analiz\" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.": "تعرض \"التحليل العام\" في الشاشة الرئيسية نتائج جميع الصفوف وجميع الطلاب الذين أدوا الاختبارات معا.",
 "Dönem sonu raporu": "تقرير نهاية الفصل",
 "Genel analiz": "التحليل العام",
-"Kazandığınız zaman": "الوقت الذي وفرته"
+"Kazandığınız zaman": "الوقت الذي وفرته",
+"Videoyu indir": "تنزيل الفيديو",
+"Video indiriliyor…": "جار تنزيل الفيديو…",
+"Video kaydedildi: {0}": "تم حفظ الفيديو: {0}",
+"Video indirilemedi. İnternet bağlantınızı kontrol edin.": "تعذر تنزيل الفيديو. تحقق من اتصالك بالإنترنت.",
+"Video yükleniyor… %{0}": "جار تحميل الفيديو… {0}%"
 }

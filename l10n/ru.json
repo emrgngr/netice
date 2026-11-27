@@ -3059,5 +3059,10 @@
 "Ana ekrandaki \"Genel analiz\" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.": "«Общий анализ» на главном экране показывает вместе результаты всех классов и всех учеников, писавших работы.",
 "Dönem sonu raporu": "Итоговый отчёт за полугодие",
 "Genel analiz": "Общий анализ",
-"Kazandığınız zaman": "Сэкономленное время"
+"Kazandığınız zaman": "Сэкономленное время",
+"Videoyu indir": "Скачать видео",
+"Video indiriliyor…": "Видео загружается…",
+"Video kaydedildi: {0}": "Видео сохранено: {0}",
+"Video indirilemedi. İnternet bağlantınızı kontrol edin.": "Не удалось скачать видео. Проверьте подключение к интернету.",
+"Video yükleniyor… %{0}": "Загрузка видео… {0}%"
 }

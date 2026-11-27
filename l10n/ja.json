@@ -3059,5 +3059,10 @@
 "Ana ekrandaki \"Genel analiz\" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.": "ホーム画面の「全体分析」では、すべてのクラスと受験したすべての生徒の結果をまとめて表示します。",
 "Dönem sonu raporu": "期末レポート",
 "Genel analiz": "全体分析",
-"Kazandığınız zaman": "節約できた時間"
+"Kazandığınız zaman": "節約できた時間",
+"Videoyu indir": "動画をダウンロード",
+"Video indiriliyor…": "動画をダウンロード中…",
+"Video kaydedildi: {0}": "動画を保存しました：{0}",
+"Video indirilemedi. İnternet bağlantınızı kontrol edin.": "動画をダウンロードできませんでした。インターネット接続を確認してください。",
+"Video yükleniyor… %{0}": "動画を読み込み中… {0}%"
 }

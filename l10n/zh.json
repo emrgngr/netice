@@ -3059,5 +3059,10 @@
 "Ana ekrandaki \"Genel analiz\" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.": "首页上的“总体分析”汇总显示所有班级和所有参加考试学生的成绩。",
 "Dönem sonu raporu": "期末报告",
 "Genel analiz": "总体分析",
-"Kazandığınız zaman": "为您节省的时间"
+"Kazandığınız zaman": "为您节省的时间",
+"Videoyu indir": "下载视频",
+"Video indiriliyor…": "正在下载视频…",
+"Video kaydedildi: {0}": "视频已保存：{0}",
+"Video indirilemedi. İnternet bağlantınızı kontrol edin.": "无法下载视频。请检查网络连接。",
+"Video yükleniyor… %{0}": "正在加载视频… {0}%"
 }
