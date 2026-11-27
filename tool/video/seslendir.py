@@ -21,6 +21,9 @@ import urllib.error
 import urllib.request
 
 RELEASE = 'rehber-videolari'
+# Eğitim videosu sesleri ayrı sürümde: rehber-videolari 1000 dosya sınırına ulaştı
+# (yüklenemeyen ses her çalışmada yeniden ücretle üretiliyordu).
+EGITIM_RELEASE = 'egitim-sesleri'
 MODEL = 'eleven_multilingual_v2'
 API = 'https://api.elevenlabs.io/v1'
 
@@ -35,6 +38,11 @@ def api(path, body=None):
                 return r.read()
         except urllib.error.HTTPError as e:
             if e.code not in (429, 500, 502, 503, 504) or attempt == 7:
+                # 401 çoğunlukla kredi bitti (quota_exceeded) demektir; nedeni yazdır.
+                try:
+                    print('ElevenLabs yanıtı:', e.read().decode()[:400])
+                except Exception:  # noqa: BLE001
+                    pass
                 raise
             wait = 5 * (attempt + 1)
             print(f'ElevenLabs {e.code}, {wait} sn sonra yeniden deneniyor')
@@ -57,7 +65,8 @@ def main(lang):
     if '--egitim' in sys.argv:
         # Eğitim ve tanıtım videosu (tool/video/egitim.py): her sahnenin metni seslendirilir.
         scenes = json.load(open(f'tool/video/egitim_{lang}.json', encoding='utf-8'))['sahneler']
-        produce(lang, [(f'egitim_{s["id"]}', s['metin'], f'build/video/audio/{lang}/egitim_{s["id"]}.mp3') for s in scenes])
+        produce(lang, [(f'egitim_{s["id"]}', s['metin'], f'build/video/audio/{lang}/egitim_{s["id"]}.mp3') for s in scenes],
+                release=EGITIM_RELEASE)
         return
     base = json.load(open(f'tool/video/anlatim_{lang}.json', encoding='utf-8'))
     ses = json.load(open(f'tool/video/ses_{lang}.json'))
@@ -75,16 +84,19 @@ def main(lang):
     produce(lang, jobs)
 
 
-def produce(lang, jobs):
+def produce(lang, jobs, release=RELEASE):
     if not jobs:
         return
     os.makedirs(f'build/video/audio/{lang}', exist_ok=True)
+    if release != RELEASE and subprocess.run(['gh', 'release', 'view', release], capture_output=True).returncode != 0:
+        subprocess.run(['gh', 'release', 'create', release, '--title', 'Eğitim videosu sesleri',
+                        '--notes', 'ElevenLabs seslendirme önbelleği (tool/video/seslendir.py --egitim).', '--prerelease'], check=False)
     vid = None
     for k, text, out in jobs:
         tag = hashlib.sha1(text.encode()).hexdigest()[:8]
         asset = f'ses_{lang}_{k}_{tag}.mp3'
-        got = subprocess.run(['gh', 'release', 'download', RELEASE, '-p', asset, '-O', out, '--clobber'],
-                             capture_output=True).returncode == 0
+        got = any(subprocess.run(['gh', 'release', 'download', r, '-p', asset, '-O', out, '--clobber'],
+                                 capture_output=True).returncode == 0 for r in dict.fromkeys([release, RELEASE]))
         if got:
             print('hazır:', asset)
             continue
@@ -101,7 +113,7 @@ def produce(lang, jobs):
         tmp = f'build/video/{asset}'
         with open(tmp, 'wb') as f:
             f.write(data)
-        subprocess.run(['gh', 'release', 'upload', RELEASE, tmp, '--clobber'], check=False)
+        subprocess.run(['gh', 'release', 'upload', release, tmp, '--clobber'], check=False)
         print('üretildi:', asset)
 
 
