@@ -422,7 +422,8 @@ def main():
     if os.path.abspath(kaynak) != os.path.abspath(cikti):
         # Önceden konmuş dil videolarını koru, gerisini kaynaktan kopyala.
         shutil.copytree(kaynak, cikti, dirs_exist_ok=True, ignore=shutil.ignore_patterns('BENIOKU.md'))
-    sayfalar = sorted(f for f in os.listdir(kaynak) if f.endswith('.html'))
+    # google*.html: Google Search Console doğrulama dosyası; olduğu gibi kopyalanır, çevrilmez.
+    sayfalar = sorted(f for f in os.listdir(kaynak) if f.endswith('.html') and not f.startswith('google'))
     kaynaklar = {s: open(os.path.join(kaynak, s), encoding='utf-8').read() for s in sayfalar}
     turkce = {}
     for s in sayfalar:
