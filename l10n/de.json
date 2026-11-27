@@ -3042,5 +3042,10 @@
 "{0} harflik ad soyad alanı": "Namensfeld mit {0} Buchstaben",
 "Öğrenci numarası bu olsun": "Als Schülernummer verwenden",
 "İspanyol alfabesi (Ñ)": "Spanisches Alphabet (Ñ)",
-"Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "Hat der Bogen ein Buchstabenfeld für den Namen oder ein zweites Nummernfeld wie die Ausweisnummer, werden auch diese gefunden. Steht die Nummer nicht in der Liste, wird der Schüler an der Ausweisnummer oder am Namen auf dem Bogen erkannt; die Buchstaben richten sich nach der App-Sprache."
+"Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "Hat der Bogen ein Buchstabenfeld für den Namen oder ein zweites Nummernfeld wie die Ausweisnummer, werden auch diese gefunden. Steht die Nummer nicht in der Liste, wird der Schüler an der Ausweisnummer oder am Namen auf dem Bogen erkannt; die Buchstaben richten sich nach der App-Sprache.",
+"Ana ekrandaki \"Dönem sonu raporu\"nu açın; sınıfı ve dönemi seçin.": "Öffnen Sie auf dem Startbildschirm „Abschlussbericht“; wählen Sie Klasse und Halbjahr.",
+"Ana ekrandaki \"Genel analiz\" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.": "„Gesamtanalyse“ auf dem Startbildschirm zeigt die Ergebnisse aller Klassen und aller Schüler, die an Prüfungen teilgenommen haben, zusammen.",
+"Dönem sonu raporu": "Abschlussbericht",
+"Genel analiz": "Gesamtanalyse",
+"Kazandığınız zaman": "Gesparte Zeit"
 }

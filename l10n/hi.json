@@ -2971,5 +2971,10 @@
 "{0} harflik ad soyad alanı": "{0} अक्षरों का नाम क्षेत्र",
 "Öğrenci numarası bu olsun": "इसे छात्र नंबर बनाएँ",
 "İspanyol alfabesi (Ñ)": "स्पेनिश वर्णमाला (Ñ)",
-"Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "अगर फ़ॉर्म पर नाम के अक्षरों का क्षेत्र या पहचान पत्र नंबर जैसा दूसरा नंबर क्षेत्र है तो वह भी मिल जाता है। अगर नंबर सूची में नहीं है तो छात्र को उस नंबर से या शीट पर लिखे नाम से पहचाना जाता है; अक्षर ऐप की भाषा के अनुसार चुने जाते हैं।"
+"Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "अगर फ़ॉर्म पर नाम के अक्षरों का क्षेत्र या पहचान पत्र नंबर जैसा दूसरा नंबर क्षेत्र है तो वह भी मिल जाता है। अगर नंबर सूची में नहीं है तो छात्र को उस नंबर से या शीट पर लिखे नाम से पहचाना जाता है; अक्षर ऐप की भाषा के अनुसार चुने जाते हैं।",
+"Ana ekrandaki \"Dönem sonu raporu\"nu açın; sınıfı ve dönemi seçin.": "होम स्क्रीन पर \"सत्रांत रिपोर्ट\" खोलें; कक्षा और सत्र चुनें।",
+"Ana ekrandaki \"Genel analiz\" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.": "होम स्क्रीन पर \"समग्र विश्लेषण\" सभी कक्षाओं और परीक्षा देने वाले सभी छात्रों के परिणाम एक साथ दिखाता है।",
+"Dönem sonu raporu": "सत्रांत रिपोर्ट",
+"Genel analiz": "समग्र विश्लेषण",
+"Kazandığınız zaman": "आपका बचाया समय"
 }

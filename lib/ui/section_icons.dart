@@ -59,17 +59,17 @@ extension SectionInfo on Section {
 
   /// Bölümün kullanıcıya görünen adı.
   String get label => switch (this) {
-    Section.dashboard => tr('Pano'),
+    Section.dashboard => tr('Ana sayfa'),
     Section.exams => tr('Sınavlar'),
     Section.newExam => tr('Yeni sınav'),
     Section.scan => tr('Kâğıt okut'),
     Section.review => tr('Kontrol bekleyen'),
     Section.classes => tr('Sınıflar ve öğrenciler'),
-    Section.stats => tr('Genel istatistik'),
-    Section.compare => tr('Sınıf sınıf analiz'),
+    Section.stats => tr('Genel analiz'),
+    Section.compare => tr('Şube karşılaştırması'),
     Section.library => tr('Kütüphane'),
     Section.booklet => tr('Kitapçık hazırla'),
-    Section.term => tr('Dönem raporu'),
+    Section.term => tr('Dönem sonu raporu'),
     Section.school => tr('Kurum bilgileri'),
     Section.profile => tr('Profil'),
     Section.settings => tr('Ayarlar'),

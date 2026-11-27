@@ -3042,5 +3042,10 @@
 "{0} harflik ad soyad alanı": "{0} 个字母的姓名区",
 "Öğrenci numarası bu olsun": "设为学生号",
 "İspanyol alfabesi (Ñ)": "西班牙语字母（Ñ）",
-"Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "如果答题卡上有姓名字母区或身份证号等第二个号码区，也会一并找到。如果号码不在名单中，则按身份证号或卡上的姓名识别学生；字母按应用语言选择。"
+"Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "如果答题卡上有姓名字母区或身份证号等第二个号码区，也会一并找到。如果号码不在名单中，则按身份证号或卡上的姓名识别学生；字母按应用语言选择。",
+"Ana ekrandaki \"Dönem sonu raporu\"nu açın; sınıfı ve dönemi seçin.": "在主屏幕打开“期末报告”，选择班级和学期。",
+"Ana ekrandaki \"Genel analiz\" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.": "首页上的“总体分析”汇总显示所有班级和所有参加考试学生的成绩。",
+"Dönem sonu raporu": "期末报告",
+"Genel analiz": "总体分析",
+"Kazandığınız zaman": "为您节省的时间"
 }

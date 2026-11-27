@@ -309,7 +309,7 @@ class _DashboardState extends State<_Dashboard> {
 
     final stats = [
       StatCard(
-        label: tr('Okunan'),
+        label: tr('Okunan kâğıt'),
         value: '${store.readCount}',
         hint: tr('kâğıt · {0} sınav', [store.exams.length]),
         icon: Icons.description_outlined,
@@ -323,14 +323,14 @@ class _DashboardState extends State<_Dashboard> {
         accent: NColors.emerald,
       ),
       StatCard(
-        label: tr('Kontrol'),
+        label: tr('Kontrol bekleyen'),
         value: '$reviewCount',
         hint: reviewCount > 0 ? tr('kâğıt bekliyor') : tr('Her şey yolunda'),
         accent: reviewCount > 0 ? NColors.amber : NColors.emerald,
         icon: reviewCount > 0 ? Icons.priority_high_rounded : Icons.verified_outlined,
       ),
       StatCard(
-        label: tr('Kazanılan süre'),
+        label: tr('Kazandığınız zaman'),
         value: tr('{0} sa {1} dk', [saved.inHours, saved.inMinutes % 60]),
         hint: tr('Kâğıt başına elle ~1,5 dk'),
         icon: Icons.timer_outlined,
@@ -753,7 +753,7 @@ class _QuickActions extends StatelessWidget {
       ),
       (
         Section.compare,
-        tr('Sınıf sınıf analiz'),
+        tr('Şube karşılaştırması'),
         tr('Şubeleri yan yana karşılaştırın'),
         const Color(0xFF0F766E),
         () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CompareScreen())),
@@ -769,7 +769,7 @@ class _QuickActions extends StatelessWidget {
             items[3],
             (
               Section.stats,
-              tr('Genel istatistik'),
+              tr('Genel analiz'),
               '',
               const Color(0xFF0E7490),
               () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const GeneralStatsScreen())),
@@ -905,19 +905,19 @@ class _Insights extends StatelessWidget {
           children: [
             ServiceCard(
               section: Section.compare,
-              title: tr('Sınıf sınıf analiz'),
+              title: tr('Şube karşılaştırması'),
               subtitle: tr('Şubeleri ortalama, yayılım, düzey ve soru soru yan yana görün'),
               onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CompareScreen())),
             ),
             ServiceCard(
               section: Section.stats,
-              title: tr('Genel istatistik'),
+              title: tr('Genel analiz'),
               subtitle: tr('Tüm sınıflar ve sınava giren tüm öğrenciler bir arada'),
               onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const GeneralStatsScreen())),
             ),
             ServiceCard(
               section: Section.term,
-              title: tr('Dönem raporu'),
+              title: tr('Dönem sonu raporu'),
               subtitle: tr('Dönem sonu notu ve öğrenci kazanım karneleri'),
               onTap: () async {
                 if (await requirePro(context, ProFeature.termReport) && context.mounted) {

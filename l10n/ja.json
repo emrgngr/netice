@@ -3042,5 +3042,10 @@
 "{0} harflik ad soyad alanı": "{0} 文字の氏名欄",
 "Öğrenci numarası bu olsun": "これを生徒番号にする",
 "İspanyol alfabesi (Ñ)": "スペイン語アルファベット（Ñ）",
-"Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "用紙に氏名の文字欄や身分証番号などの2つ目の番号欄があれば、それも見つけます。番号が名簿にない場合は、その番号や用紙の氏名から生徒を判別します。文字はアプリの言語に合わせて選ばれます。"
+"Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "用紙に氏名の文字欄や身分証番号などの2つ目の番号欄があれば、それも見つけます。番号が名簿にない場合は、その番号や用紙の氏名から生徒を判別します。文字はアプリの言語に合わせて選ばれます。",
+"Ana ekrandaki \"Dönem sonu raporu\"nu açın; sınıfı ve dönemi seçin.": "ホーム画面で「期末レポート」を開き、クラスと学期を選びます。",
+"Ana ekrandaki \"Genel analiz\" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.": "ホーム画面の「全体分析」では、すべてのクラスと受験したすべての生徒の結果をまとめて表示します。",
+"Dönem sonu raporu": "期末レポート",
+"Genel analiz": "全体分析",
+"Kazandığınız zaman": "節約できた時間"
 }

@@ -9,7 +9,9 @@ import 'package:material_ui/material_ui.dart';
 import 'package:netice/core/campaigns.dart';
 import 'package:netice/core/store.dart';
 import 'package:netice/main.dart';
+import 'package:netice/ui/general_stats_screen.dart';
 import 'package:netice/ui/pro_screen.dart';
+import 'package:netice/ui/term_screen.dart';
 import 'package:netice/ui/theme.dart';
 
 import 'screenshots_test.dart' show loadFonts, shot;
@@ -39,6 +41,11 @@ void main() {
     Campaign.debugNow = null;
 
     store.themeMode = 'light';
+    // Sitedeki diğer iki program görseli (yeni ekran adlarıyla).
+    Widget themed(Widget home) => StoreScope(
+        store: store, child: MaterialApp(debugShowCheckedModeBanner: false, theme: NTheme.light(), home: home));
+    await shot(tester, themed(const GeneralStatsScreen()), const Size(1600, 1000), 'hizmet_site_pc_istatistik');
+    await shot(tester, themed(const TermScreen()), const Size(1600, 1000), 'hizmet_site_pc_donem');
     await shot(tester, app(), const Size(1600, 1000), 'hizmet_site_pc_ana_sayfa');
     await shot(tester, app(), const Size(1440, 1500), 'hizmet_masaustu_gunduz');
     await shot(tester, app(), const Size(390, 2200), 'hizmet_telefon_gunduz');

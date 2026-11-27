@@ -3042,5 +3042,10 @@
 "{0} harflik ad soyad alanı": "поле имени из {0} букв",
 "Öğrenci numarası bu olsun": "Сделать номером ученика",
 "İspanyol alfabesi (Ñ)": "Испанский алфавит (Ñ)",
-"Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "Если на бланке есть буквенная сетка для имени или второе поле номера, например номер удостоверения личности, они тоже находятся. Если номера нет в списке, ученик узнаётся по этому номеру или по имени на бланке; буквы выбираются по языку приложения."
+"Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "Если на бланке есть буквенная сетка для имени или второе поле номера, например номер удостоверения личности, они тоже находятся. Если номера нет в списке, ученик узнаётся по этому номеру или по имени на бланке; буквы выбираются по языку приложения.",
+"Ana ekrandaki \"Dönem sonu raporu\"nu açın; sınıfı ve dönemi seçin.": "Откройте «Итоговый отчёт за период» на главном экране; выберите класс и период.",
+"Ana ekrandaki \"Genel analiz\" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.": "«Общий анализ» на главном экране показывает вместе результаты всех классов и всех учеников, писавших работы.",
+"Dönem sonu raporu": "Итоговый отчёт за период",
+"Genel analiz": "Общий анализ",
+"Kazandığınız zaman": "Сэкономленное время"
 }

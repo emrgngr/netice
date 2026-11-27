@@ -3042,5 +3042,10 @@
 "{0} harflik ad soyad alanı": "حقل اسم من {0} حرفًا",
 "Öğrenci numarası bu olsun": "اجعل هذا رقم الطالب",
 "İspanyol alfabesi (Ñ)": "الأبجدية الإسبانية (Ñ)",
-"Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "إذا كان في النموذج حقل حروف للاسم أو حقل رقم ثانٍ مثل رقم الهوية الوطنية فسيُعثر عليهما أيضًا. وإذا لم يكن الرقم في القائمة يُتعرَّف على الطالب من رقم الهوية أو من الاسم على الورقة؛ وتُختار الحروف حسب لغة التطبيق."
+"Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "إذا كان في النموذج حقل حروف للاسم أو حقل رقم ثانٍ مثل رقم الهوية الوطنية فسيُعثر عليهما أيضًا. وإذا لم يكن الرقم في القائمة يُتعرَّف على الطالب من رقم الهوية أو من الاسم على الورقة؛ وتُختار الحروف حسب لغة التطبيق.",
+"Ana ekrandaki \"Dönem sonu raporu\"nu açın; sınıfı ve dönemi seçin.": "افتح «تقرير نهاية الفصل» في الشاشة الرئيسية؛ اختر الصف والفصل.",
+"Ana ekrandaki \"Genel analiz\" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.": "تعرض \"التحليل العام\" في الشاشة الرئيسية نتائج جميع الصفوف وجميع الطلاب الذين أدوا الاختبارات معا.",
+"Dönem sonu raporu": "تقرير نهاية الفصل",
+"Genel analiz": "التحليل العام",
+"Kazandığınız zaman": "الوقت الذي وفرته"
 }

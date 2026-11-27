@@ -3042,5 +3042,10 @@
 "{0} harflik ad soyad alanı": "{0} hərfli ad soyad sahəsi",
 "Öğrenci numarası bu olsun": "Şagird nömrəsi bu olsun",
 "İspanyol alfabesi (Ñ)": "İspan əlifbası (Ñ)",
-"Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "Formada ad soyad hərf sahəsi və ya FİN kimi ikinci nömrə sahəsi varsa, onları da tapır. Nömrə siyahıda yoxdursa, şagird FİN-dən və ya vərəqdəki adından tanınır; hərflər tətbiqin dilinə görə seçilir."
+"Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "Formada ad soyad hərf sahəsi və ya FİN kimi ikinci nömrə sahəsi varsa, onları da tapır. Nömrə siyahıda yoxdursa, şagird FİN-dən və ya vərəqdəki adından tanınır; hərflər tətbiqin dilinə görə seçilir.",
+"Ana ekrandaki \"Dönem sonu raporu\"nu açın; sınıfı ve dönemi seçin.": "Ana ekranda \"Dövr sonu hesabatı\"nı açın; sinfi və yarımili seçin.",
+"Ana ekrandaki \"Genel analiz\" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.": "Ana ekrandakı \"Ümumi təhlil\" bütün siniflərin və imtahana girən bütün şagirdlərin nəticələrini bir yerdə göstərir.",
+"Dönem sonu raporu": "Dövr sonu hesabatı",
+"Genel analiz": "Ümumi təhlil",
+"Kazandığınız zaman": "Qazandığınız vaxt"
 }

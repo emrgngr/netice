@@ -316,7 +316,7 @@ void main() {
     await scene('43_sinif_analiz', const CompareScreen(), () => {
           'sec': find.byType(FilterChip).first,
           'one': text(tr('Öne çıkanlar')),
-          'genel': tip(tr('Genel istatistik')),
+          'genel': tip(tr('Genel analiz')),
           'pdf': tip(tr('PDF rapor')),
         }, then: () => scrollTo(find.text(tr('Öne çıkanlar')).first, center: 300));
     await scene('44_genel_istatistik', const GeneralStatsScreen(), () => {

@@ -2971,5 +2971,10 @@
 "{0} harflik ad soyad alanı": "kolom nama {0} huruf",
 "Öğrenci numarası bu olsun": "Jadikan nomor siswa",
 "İspanyol alfabesi (Ñ)": "Alfabet Spanyol (Ñ)",
-"Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "Jika lembar memiliki kisi huruf untuk nama atau kolom nomor kedua seperti NIK, keduanya juga ditemukan. Jika nomor tidak ada di daftar, siswa dikenali dari nomor itu atau dari nama di lembar; huruf mengikuti bahasa aplikasi."
+"Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "Jika lembar memiliki kisi huruf untuk nama atau kolom nomor kedua seperti NIK, keduanya juga ditemukan. Jika nomor tidak ada di daftar, siswa dikenali dari nomor itu atau dari nama di lembar; huruf mengikuti bahasa aplikasi.",
+"Ana ekrandaki \"Dönem sonu raporu\"nu açın; sınıfı ve dönemi seçin.": "Buka \"Laporan akhir periode\" di layar beranda; pilih kelas dan semester.",
+"Ana ekrandaki \"Genel analiz\" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.": "\"Analisis keseluruhan\" di layar utama menampilkan hasil semua kelas dan semua siswa yang mengikuti ujian secara bersamaan.",
+"Dönem sonu raporu": "Laporan akhir periode",
+"Genel analiz": "Analisis keseluruhan",
+"Kazandığınız zaman": "Waktu yang Anda hemat"
 }

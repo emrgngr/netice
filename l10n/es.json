@@ -3042,5 +3042,10 @@
 "{0} harflik ad soyad alanı": "campo de nombre de {0} letras",
 "Öğrenci numarası bu olsun": "Usar como número de alumno",
 "İspanyol alfabesi (Ñ)": "Alfabeto español (Ñ)",
-"Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "Si la hoja tiene una cuadrícula de letras para el nombre o un segundo campo de número como el DNI, también los encuentra. Si el número no está en la lista, el alumno se reconoce por el DNI o por el nombre en la hoja; las letras siguen el idioma de la app."
+"Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "Si la hoja tiene una cuadrícula de letras para el nombre o un segundo campo de número como el DNI, también los encuentra. Si el número no está en la lista, el alumno se reconoce por el DNI o por el nombre en la hoja; las letras siguen el idioma de la app.",
+"Ana ekrandaki \"Dönem sonu raporu\"nu açın; sınıfı ve dönemi seçin.": "Abre \"Informe de fin de periodo\" en la pantalla de inicio; elige clase y trimestre.",
+"Ana ekrandaki \"Genel analiz\" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.": "«Análisis general» en la pantalla de inicio muestra juntos los resultados de todas las clases y de todos los alumnos que hicieron exámenes.",
+"Dönem sonu raporu": "Informe de fin de periodo",
+"Genel analiz": "Análisis general",
+"Kazandığınız zaman": "Tiempo ahorrado"
 }

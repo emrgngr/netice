@@ -3042,5 +3042,10 @@
 "{0} harflik ad soyad alanı": "{0}-letter name field",
 "Öğrenci numarası bu olsun": "Make this the student number",
 "İspanyol alfabesi (Ñ)": "Spanish alphabet (Ñ)",
-"Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "If the form has a name letter grid or a second number field such as a national ID number, those are found too. If the number is not in the list, the student is recognized by the ID number or by the name on the sheet; letters follow the app language."
+"Formda ad soyad harf alanı, TC kimlik no gibi ikinci bir numara alanı varsa onları da bulur. Numara listede yoksa öğrenci TC numarasından ya da kâğıttaki adından tanınır; harfler uygulamanın diline göre seçilir.": "If the form has a name letter grid or a second number field such as a national ID number, those are found too. If the number is not in the list, the student is recognized by the ID number or by the name on the sheet; letters follow the app language.",
+"Ana ekrandaki \"Dönem sonu raporu\"nu açın; sınıfı ve dönemi seçin.": "Open \"End-of-term report\" on the home screen; choose the class and term.",
+"Ana ekrandaki \"Genel analiz\" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.": "\"Overall analysis\" on the home screen shows the results of all classes and all students who took exams together.",
+"Dönem sonu raporu": "End-of-term report",
+"Genel analiz": "Overall analysis",
+"Kazandığınız zaman": "Time you saved"
 }
