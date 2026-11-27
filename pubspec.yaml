@@ -159,10 +159,12 @@ flutter:
   # see https://flutter.dev/to/font-from-package
 
 # Microsoft Store paketi (MSIX). Kimlik bilgileri (identity_name, publisher,
-# publisher_display_name) Partner Center > Ürün kimliği sayfasındadır ve
-# CI'da GitHub değişkenlerinden verilir (.github/workflows/build.yml).
+# publisher_display_name) Partner Center > Ürün kimliği sayfasındadır.
 msix_config:
   display_name: Netice
+  identity_name: EmineEbruGNGR.Netice
+  publisher: "CN=24886F96-74DD-4160-8580-4BED93BD0503"
+  publisher_display_name: "Emine Ebru GÜNGÖR"
   msix_version: 1.0.0.0
   logo_path: assets/icon/netice_icon_1024.png
   capabilities: internetClient
