@@ -3055,9 +3055,9 @@
 "{0} seçenekten biri okunur.": "Eine von {0} Optionen wird gelesen.",
 "{0} sütun; her sütundan bir karakter okunur ({1}).": "{0} Spalten; aus jeder Spalte wird ein Zeichen gelesen ({1}).",
 "Örn. Kadın, Erkek": "z. B. Weiblich, Männlich",
-"Ana ekrandaki \"Dönem sonu raporu\"nu açın; sınıfı ve dönemi seçin.": "Öffnen Sie auf dem Startbildschirm „Abschlussbericht“; wählen Sie Klasse und Halbjahr.",
+"Ana ekrandaki \"Dönem sonu raporu\"nu açın; sınıfı ve dönemi seçin.": "Öffnen Sie auf dem Startbildschirm „Halbjahres-Abschlussbericht“; wählen Sie Klasse und Halbjahr.",
 "Ana ekrandaki \"Genel analiz\" tüm sınıfların ve sınava giren tüm öğrencilerin sonuçlarını bir arada gösterir.": "„Gesamtanalyse“ auf dem Startbildschirm zeigt die Ergebnisse aller Klassen und aller Schüler, die an Prüfungen teilgenommen haben, zusammen.",
-"Dönem sonu raporu": "Abschlussbericht",
+"Dönem sonu raporu": "Halbjahres-Abschlussbericht",
 "Genel analiz": "Gesamtanalyse",
 "Kazandığınız zaman": "Gesparte Zeit"
 }
