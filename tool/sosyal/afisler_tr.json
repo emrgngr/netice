@@ -1,0 +1,98 @@
+{
+ "_not": "Sosyal medya gönderi afişleri (1080x1350, tool/sosyal/afisler.py). 'vurgu' başlıkta yeşil yazılacak kısım; 'sayi'+'sayi_alt' büyük rakam rozeti; 'ekran' telefon karesi (build/video/frames/<dil>/<ad>.png) ya da 'masaustu:<ad>'.",
+ "alt": "Kâğıttan sonuca, saniyeler içinde.",
+ "site": "neticeoptik.com",
+ "afisler": [
+  {
+   "id": "01_saatler",
+   "ust": "Öğretmenin zamanı değerlidir",
+   "baslik": "Bir sınavın saatlerce süren işi artık dakikalar",
+   "vurgu": "dakikalar",
+   "faydalar": ["Soru yazma ve kitapçık", "Kâğıt okuma ve puanlama", "Analiz ve resmî rapor"],
+   "sayi": "4 adım", "sayi_alt": "tek uygulama",
+   "ekran": "02_ana"
+  },
+  {
+   "id": "02_okut",
+   "ust": "Okut",
+   "baslik": "Kâğıdı kameraya tutun, sonuç hazır",
+   "vurgu": "sonuç hazır",
+   "faydalar": ["Her optik form: kendi formunuz ya da yayınevi formu", "Kimlik no, ad soyad, doğum tarihi alanları", "Taranmış PDF'leri toplu okuma"],
+   "sayi": "Saniyeler", "sayi_alt": "kâğıt başına",
+   "ekran": "07_okut_ekrani"
+  },
+  {
+   "id": "03_soru",
+   "ust": "Hazırla",
+   "baslik": "Ders notunuzdan dakikalar içinde soru",
+   "vurgu": "dakikalar içinde",
+   "faydalar": ["PDF, Word, Excel ya da fotoğraf", "Çoktan seçmeli, boşluk doldurma, eşleştirme", "Kolay, orta ve zor düzeyde"],
+   "ekran": "k_yz_soru"
+  },
+  {
+   "id": "04_kitapcik",
+   "ust": "Hazırla",
+   "baslik": "Kitapçık, cevap anahtarı ve optik form birlikte",
+   "vurgu": "birlikte",
+   "faydalar": ["A'dan H'ye karışık kitapçık türleri", "Okuma parçalı ve görselli sorular", "Word ya da PDF olarak alın"],
+   "sayi": "A–H", "sayi_alt": "8 kitapçık türü",
+   "ekran": "k_kitapcik_turu"
+  },
+  {
+   "id": "05_analiz",
+   "ust": "Analiz et",
+   "baslik": "Uluslararası ölçme ölçütleriyle analiz",
+   "vurgu": "Uluslararası",
+   "faydalar": ["Güçlük, ayırt edicilik, madde-toplam korelasyonu", "KR-20 güvenirlik ve çeldirici analizi", "Bloom düzeyleri, konu ve kazanım başarısı"],
+   "ekran": "masaustu:analiz"
+  },
+  {
+   "id": "06_deneme",
+   "ust": "Deneme sınavı",
+   "baslik": "Çok dersli denemede ders ders net ve puan",
+   "vurgu": "ders ders",
+   "faydalar": ["TYT ve LGS düzeni hazır", "Katsayılı puan ve sıralama", "Öğrenci karnesinde ders tablosu"],
+   "ekran": "masaustu:sonuclar"
+  },
+  {
+   "id": "07_rapor",
+   "ust": "Raporla",
+   "baslik": "Resmî rapor tek dokunuşla hazır",
+   "vurgu": "tek dokunuşla",
+   "faydalar": ["Resmî yazı başlığı ve imza alanı", "PDF, Word ve Excel olarak", "Veliye WhatsApp, Classroom ve Moodle"],
+   "ekran": "masaustu:donem"
+  },
+  {
+   "id": "08_prova",
+   "ust": "Sınava hazırlananlar için",
+   "baslik": "Evde gerçek sınav provası yapın",
+   "vurgu": "gerçek sınav",
+   "faydalar": ["Notlarınızdan kendi denemenizi hazırlayın", "Kitapçığı ve formu yazdırın, süreyi tutun", "Telefonla okutun, eksiklerinizi görün"],
+   "ekran": "masaustu:kitapcik"
+  },
+  {
+   "id": "09_kitle",
+   "ust": "Kimler için?",
+   "baslik": "İlkokuldan üniversiteye herkes için",
+   "vurgu": "herkes için",
+   "gruplar": ["İlkokul", "Ortaokul", "Lise", "Meslek yüksekokulu", "Üniversite", "Polis Akademisi", "Askerî okullar", "Kurs ve dershaneler", "Sınava hazırlanan öğrenciler"],
+   "sayi": "15 dil", "sayi_alt": "her ülkenin not sistemi"
+  },
+  {
+   "id": "10_guven",
+   "ust": "Güven",
+   "baslik": "Öğrenci verileri sizde kalır",
+   "vurgu": "sizde kalır",
+   "faydalar": ["İnternet olmadan çalışır", "Hesap açmak gerekmez", "Üçüncü taraf reklam ağı yok"],
+   "kilit": true
+  },
+  {
+   "id": "11_indir",
+   "ust": "Hemen deneyin",
+   "baslik": "Okumak her zaman ücretsiz",
+   "vurgu": "ücretsiz",
+   "faydalar": ["Pro'yu 14 gün ücretsiz deneyin", "Telefon, tablet ve bilgisayarda"],
+   "indir": true
+  }
+ ]
+}
