@@ -206,10 +206,18 @@ class ProService {
     }
   }
 
+  /// Bugünkü kampanya indirimi mağazada gerçekten alınabiliyor mu?
+  /// Google Play'de kampanya teklifi bulunursa, iPhone'da teklif koduyla
+  /// alınır. Mağaza fiyatı okunamazsa ya da teklif yoksa indirim gösterilmez;
+  /// böylece uygulama, sitedeki ve mağazadaki fiyattan farklı bir fiyat yazmaz.
+  bool campaignDiscountLive = false;
+
   Future<List<ProPlan>> plans() async {
     final invite = inviteApplied;
     final camp = campaign;
-    final fallback = plansFor(DateTime.now(), invite: invite, campaign: camp);
+    campaignDiscountLive = false;
+    // Mağaza okunamazsa kampanya indirimi gösterilmez (normal fiyat).
+    final fallback = plansFor(DateTime.now(), invite: invite);
     final normal = plansFor(DateTime.now());
     if (!storeSupported) return fallback;
     if (_msStore) return _msPlans(normal);
@@ -238,8 +246,12 @@ class ProService {
         return null;
       }
 
+      final campPlans = camp != null && camp.hasDiscount ? plansFor(DateTime.now(), invite: invite, campaign: camp) : fallback;
+      campaignDiscountLive = camp != null &&
+          camp.hasDiscount &&
+          (Platform.isIOS || proYearlyIds.any((id) => offers[(id, camp.playOfferId)] != null));
       return [
-        for (final f in fallback)
+        for (final f in campPlans)
           if (base[f.id] != null && offerFor(f.id) != null)
             ProPlan(f.id, f.title, '${offerFor(f.id)!.price} / ${per(f.id)}', f.note, offerFor(f.id),
                 '${base[f.id]!.price} / ${per(f.id)}')
@@ -247,7 +259,7 @@ class ProService {
             // Teklif mağazada yoksa normal fiyat ve normal not gösterilir.
             ProPlan(f.id, f.title, '${base[f.id]!.price} / ${per(f.id)}', normal.firstWhere((n) => n.id == f.id).note, base[f.id])
           else
-            f,
+            fallback.firstWhere((n) => n.id == f.id),
       ];
     } catch (_) {
       return fallback;
