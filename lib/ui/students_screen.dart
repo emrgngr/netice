@@ -22,14 +22,17 @@ import 'ad_slot.dart';
 /// Sınıflar ve öğrenciler; Excel/CSV'den aktarma.
 class StudentsScreen extends StatefulWidget {
   final bool embedded;
-  const StudentsScreen({super.key, this.embedded = false});
+
+  /// Açılışta seçili sınıf (arama sonucundan gelince).
+  final String? initialClass;
+  const StudentsScreen({super.key, this.embedded = false, this.initialClass});
 
   @override
   State<StudentsScreen> createState() => _StudentsScreenState();
 }
 
 class _StudentsScreenState extends State<StudentsScreen> {
-  String? _class;
+  late String? _class = widget.initialClass;
   String _query = '';
 
   Future<void> _import() async {
