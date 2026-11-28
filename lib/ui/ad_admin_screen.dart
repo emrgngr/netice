@@ -8,6 +8,7 @@ import '../l10n/l10n.dart';
 import 'ad_admin_panels.dart';
 import 'ad_device_preview.dart';
 import 'ad_slot.dart';
+import 'social_links.dart';
 import 'ad_stats_screen.dart';
 import 'service_cards.dart';
 import 'theme.dart';
@@ -709,6 +710,17 @@ class _AdAdminScreenState extends State<AdAdminScreen> {
 
   // ------------------------------------------------------------ Ayarlar
 
+  AdSettings _withSocial(AdSettings s, SocialNetwork n, String raw) {
+    final m = Map<String, String>.of(s.social);
+    final u = SocialNetwork.normalize(n, raw);
+    if (u == null) {
+      m.remove(n.key);
+    } else {
+      m[n.key] = u;
+    }
+    return s.copyWith(social: m);
+  }
+
   void _setSettings(AdSettings s) {
     _admin.setSettings(s);
     _refreshPreview();
@@ -795,6 +807,34 @@ class _AdAdminScreenState extends State<AdAdminScreen> {
                     }
                   },
                 ),
+                const SizedBox(height: 18),
+                const Text('Sosyal medya hesapları', style: bold),
+                const SizedBox(height: 2),
+                Text('Kullanıcı adını ya da tam adresi yazın. Uygulamada Ayarlar\'ın en altında, '
+                    'bilgisayar programında ve sitenin alt kısmında simge olarak çıkar. Boş bırakılan gösterilmez.',
+                    style: sub()),
+                const SizedBox(height: 8),
+                for (final n in SocialNetwork.values) ...[
+                  TextFormField(
+                    key: ValueKey('sosyal-${n.key}-${s.social[n.key] ?? ''}'),
+                    initialValue: s.social[n.key] ?? '',
+                    keyboardType: TextInputType.url,
+                    decoration: InputDecoration(
+                      labelText: n.label,
+                      hintText: n == SocialNetwork.youtube ? '@neticeoptik' : 'neticeoptik',
+                      prefixIcon: Padding(padding: const EdgeInsets.all(10), child: SocialIcon(n, size: 24)),
+                      border: const OutlineInputBorder(),
+                      helperText: (s.social[n.key] ?? '').isEmpty ? null : s.social[n.key],
+                    ),
+                    onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
+                    onFieldSubmitted: (v) => _setSettings(_withSocial(_admin.settings, n, v)),
+                    onChanged: (v) {
+                      final next = _withSocial(_admin.settings, n, v);
+                      if (next.social[n.key] != _admin.settings.social[n.key]) _admin.setSettings(next);
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                ],
                 const SizedBox(height: 14),
                 const Text('Önizleme', style: bold),
                 const SizedBox(height: 8),

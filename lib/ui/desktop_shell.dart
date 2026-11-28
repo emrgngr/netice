@@ -11,6 +11,7 @@ import 'illustrations.dart';
 import 'new_exam_screen.dart';
 import 'pro_screen.dart';
 import 'section_icons.dart';
+import 'social_links.dart';
 import 'theme.dart';
 import 'widgets.dart';
 
@@ -109,6 +110,12 @@ class DesktopSidebar extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: compact ? 8 : 14),
                 child: _Tile(item: it, compact: compact),
+              ),
+            // Sosyal medya hesapları (adres girilmemişse yer kaplamaz).
+            if (!compact)
+              const Padding(
+                padding: EdgeInsets.only(top: 10),
+                child: SocialLinks(showTitle: false, size: 30, onDark: true),
               ),
             const SizedBox(height: 12),
           ],

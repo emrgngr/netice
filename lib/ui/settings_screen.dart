@@ -26,6 +26,7 @@ import '../l10n/l10n.dart';
 import '../core/ads.dart';
 import 'ad_slot.dart';
 import 'ad_admin_screen.dart';
+import 'social_links.dart';
 
 /// Ayarlar: okul bilgileri, yedekleme, gizlilik metinleri, rehber, geri bildirim.
 class SettingsScreen extends StatefulWidget {
@@ -500,6 +501,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ]),
           ),
           const SizedBox(height: 20),
+          // Sosyal medya hesapları (adres girilmemişse hiçbir şey çıkmaz).
+          const Padding(padding: EdgeInsets.only(bottom: 20), child: Center(child: SocialLinks())),
           // Yönetici girişi: logoya 4 saniye içinde 5 kez dokunmak (görünür bir iz bırakmaz), ardından PIN.
           GestureDetector(
             behavior: HitTestBehavior.opaque,

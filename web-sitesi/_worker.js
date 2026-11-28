@@ -1,3 +1,27 @@
+// /sosyal.json: uygulamanın Reklam yönetimi > Ayarlar'da girilen sosyal medya
+// adresleri (reklamlar dalındaki reklam/reklamlar.json → ayarlar.sosyal). Sunucu
+// tarafında okunur; ziyaretçinin tarayıcısı GitHub'a bağlanmaz. 10 dk önbellek.
+const SOSYAL_KAYNAK = 'https://raw.githubusercontent.com/emrgngr/netice/reklamlar/reklam/reklamlar.json';
+const SOSYAL_ALAN = {
+  instagram: /^https:\/\/(www\.)?instagram\.com\//,
+  facebook: /^https:\/\/((www|m)\.)?(facebook|fb)\.com\//,
+  youtube: /^https:\/\/((www|m)\.)?(youtube\.com|youtu\.be)\//,
+  x: /^https:\/\/(www\.)?(x|twitter)\.com\//,
+};
+async function sosyal() {
+  let out = {};
+  try {
+    const r = await fetch(SOSYAL_KAYNAK, { cf: { cacheTtl: 600, cacheEverything: true } });
+    if (r.ok) {
+      const s = ((await r.json()).ayarlar || {}).sosyal || {};
+      for (const [k, re] of Object.entries(SOSYAL_ALAN)) if (typeof s[k] === 'string' && re.test(s[k])) out[k] = s[k];
+    }
+  } catch (e) { out = {}; }
+  return new Response(JSON.stringify(out), {
+    headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=600' },
+  });
+}
+
 // Videolarda ileri/geri sarma: tarayıcı videonun bir parçasını (Range) ister;
 // sunucu 206 ile yalnız o parçayı vermezse video sarılamaz. Yalnız /video/* için
 // çalışır (_routes.json); diğer her şey doğrudan statik dosyadır.
@@ -6,6 +30,7 @@ export default {
     // Google Search Console doğrulama dosyası: Pages "/x.html"i "/x"e
     // yönlendirir; Google dosyayı yönlendirmesiz, tam adıyla görmek ister.
     const url = new URL(request.url);
+    if (url.pathname === '/sosyal.json') return sosyal();
     if (/^\/google[0-9a-f]+\.html$/.test(url.pathname)) {
       const r = await env.ASSETS.fetch(new Request(new URL(url.pathname.slice(0, -5), url), request));
       return new Response(r.status === 200 ? r.body : null, {

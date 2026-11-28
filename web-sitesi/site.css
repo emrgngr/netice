@@ -428,3 +428,14 @@ dialog.buyut .kapat {
   position: sticky; top: 8px; float: right; margin: 8px; width: 44px; height: 44px; border-radius: 50%; border: 0;
   background: #fff; color: #0F1B3D; font-size: 28px; line-height: 1; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,.3);
 }
+
+/* Sosyal medya hesapları: adresler /sosyal.json'dan (_worker.js), boşsa gizli. */
+footer .sosyal { display: flex; gap: 10px; margin-top: 6px; }
+footer .sosyal[hidden], footer .sosyal a[hidden] { display: none; }
+footer .sosyal a { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; transition: transform .15s; }
+footer .sosyal a:hover { transform: translateY(-2px); text-decoration: none; }
+footer .sosyal a:focus-visible { outline: 2px solid var(--band-fg); outline-offset: 3px; }
+footer .sosyal .s-instagram { background: linear-gradient(45deg, #FEDA75, #FA7E1E 30%, #D62976 55%, #962FBF 80%, #4F5BD5); }
+footer .sosyal .s-facebook { background: #1877F2; }
+footer .sosyal .s-youtube { background: #FF0000; }
+footer .sosyal .s-x { background: #000; box-shadow: inset 0 0 0 1px rgba(255,255,255,.35); }

@@ -400,6 +400,10 @@ class AdSettings {
   /// Ana sayfadaki ürün öneri kartı (mağaza ürünleri) gösterilsin mi.
   final bool promoCard;
 
+  /// Netice'nin sosyal medya hesapları (anahtar: [SocialNetwork.key], değer:
+  /// tam adres). Boş olanlar uygulamada ve sitede gösterilmez.
+  final Map<String, String> social;
+
   const AdSettings({
     this.emptySlotCard = false,
     this.contactEmail = 'info@neticeoptik.com',
@@ -407,6 +411,7 @@ class AdSettings {
     this.emptyEvery = 1,
     this.whatsapp = '',
     this.promoCard = true,
+    this.social = const {},
   });
 
   AdSettings copyWith({
@@ -416,6 +421,7 @@ class AdSettings {
     int? emptyEvery,
     String? whatsapp,
     bool? promoCard,
+    Map<String, String>? social,
   }) => AdSettings(
     emptySlotCard: emptySlotCard ?? this.emptySlotCard,
     contactEmail: contactEmail ?? this.contactEmail,
@@ -423,6 +429,7 @@ class AdSettings {
     emptyEvery: emptyEvery ?? this.emptyEvery,
     whatsapp: whatsapp ?? this.whatsapp,
     promoCard: promoCard ?? this.promoCard,
+    social: social ?? this.social,
   );
 
   Map<String, dynamic> toJson() => {
@@ -432,6 +439,7 @@ class AdSettings {
     'bosAlanSiklik': emptyEvery,
     if (whatsapp.isNotEmpty) 'whatsapp': whatsapp,
     'oneriKarti': promoCard,
+    if (social.isNotEmpty) 'sosyal': social,
   };
 
   factory AdSettings.fromJson(Object? j) {
@@ -445,7 +453,50 @@ class AdSettings {
       emptyEvery: every.clamp(1, 5),
       whatsapp: '${j['whatsapp'] ?? ''}'.replaceAll(RegExp(r'[^0-9]'), ''),
       promoCard: j['oneriKarti'] != false,
+      social: {
+        if (j['sosyal'] is Map)
+          for (final n in SocialNetwork.values)
+            n.key: ?SocialNetwork.normalize(n, '${(j['sosyal'] as Map)[n.key] ?? ''}'),
+      },
     );
+  }
+}
+
+/// Netice'nin sosyal medya hesapları. Adresler Reklam yönetimi > Ayarlar'dan
+/// girilir ve reklam listesiyle birlikte yayınlanır; uygulama güncellemesi gerekmez.
+enum SocialNetwork {
+  instagram('instagram', 'Instagram', 'https://www.instagram.com/', 0xFFE1306C),
+  facebook('facebook', 'Facebook', 'https://www.facebook.com/', 0xFF1877F2),
+  youtube('youtube', 'YouTube', 'https://www.youtube.com/@', 0xFFFF0000),
+  x('x', 'X', 'https://x.com/', 0xFF000000);
+
+  final String key;
+  final String label;
+  final String base;
+  final int color;
+  const SocialNetwork(this.key, this.label, this.base, this.color);
+
+  /// Kullanıcının yazdığını tam adrese çevirir: "neticeoptik", "@neticeoptik"
+  /// ya da tam adres olabilir. Boşsa ya da başka bir siteyse null.
+  static String? normalize(SocialNetwork n, String raw) {
+    var v = raw.trim();
+    if (v.isEmpty) return null;
+    if (!v.contains('/') && !v.contains('.')) {
+      v = v.replaceFirst(RegExp(r'^@+'), '');
+      if (!RegExp(r'^[\w.\-]+$').hasMatch(v)) return null;
+      return '${n.base}$v';
+    }
+    if (!v.startsWith('http')) v = 'https://$v';
+    final u = Uri.tryParse(v);
+    if (u == null || u.host.isEmpty) return null;
+    final host = u.host.toLowerCase().replaceFirst(RegExp(r'^(www|m)\.'), '');
+    final ok = switch (n) {
+      SocialNetwork.instagram => host == 'instagram.com',
+      SocialNetwork.facebook => host == 'facebook.com' || host == 'fb.com',
+      SocialNetwork.youtube => host == 'youtube.com' || host == 'youtu.be',
+      SocialNetwork.x => host == 'x.com' || host == 'twitter.com',
+    };
+    return ok ? u.replace(scheme: 'https').toString() : null;
   }
 }
 
