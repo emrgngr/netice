@@ -89,8 +89,12 @@ class ProScreen extends StatefulWidget {
 
 class _ProScreenState extends State<ProScreen> {
   final Campaign? _campaign = ProService.campaign;
-  late List<ProPlan> _plans =
-      ProService.plansFor(DateTime.now(), invite: ProService.instance.inviteApplied, campaign: _campaign);
+  late List<ProPlan> _plans = ProService.plansFor(DateTime.now(), invite: ProService.instance.inviteApplied);
+
+  /// İndirimli kampanya yalnız mağazada gerçekten alınabiliyorsa gösterilir.
+  bool get _campaignShown =>
+      _campaign != null && (!_campaign.hasDiscount || ProService.instance.campaignDiscountLive);
+  bool get _discountShown => _campaign != null && _campaign.hasDiscount && ProService.instance.campaignDiscountLive;
   late String _selected = _campaign?.highlightTermPass == true ? proTermPassId : proYearlyId;
   ProPlan _pack = ProService.aiPackFallback();
   bool _busy = false;
@@ -135,7 +139,7 @@ class _ProScreenState extends State<ProScreen> {
   Future<void> _openInvite() async {
     await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const InviteScreen()));
     if (!mounted) return;
-    setState(() => _plans = ProService.plansFor(DateTime.now(), invite: ProService.instance.inviteApplied, campaign: _campaign));
+    setState(() => _plans = ProService.plansFor(DateTime.now(), invite: ProService.instance.inviteApplied));
     _loadPlans();
   }
 
@@ -244,12 +248,12 @@ class _ProScreenState extends State<ProScreen> {
                       textAlign: TextAlign.center,
                       style: const TextStyle(color: Color(0xFF7BE0B4), fontWeight: FontWeight.w600, fontSize: 13)),
                 ),
-              if (_campaign != null)
+              if (_campaignShown)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 12),
-                  child: _CampaignBanner(_campaign),
+                  child: _CampaignBanner(_campaign!),
                 ),
-              if (_campaign != null && _campaign.hasDiscount && Platform.isIOS)
+              if (_discountShown && Platform.isIOS)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: OutlinedButton.icon(
@@ -259,17 +263,17 @@ class _ProScreenState extends State<ProScreen> {
                       await ProService.instance.redeemOfferCodeOnAppStore();
                     },
                     icon: const Icon(Icons.local_offer_outlined),
-                    label: Text(tr('İndirimi App Store\'da kullan (kod: {0})', [_campaign.appStoreOfferCode])),
+                    label: Text(tr('İndirimi App Store\'da kullan (kod: {0})', [_campaign!.appStoreOfferCode])),
                   ),
                 ),
-              if (ProService.instance.inviteApplied && !(_campaign?.hasDiscount ?? false))
+              if (ProService.instance.inviteApplied && !_discountShown)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: Text(tr('Davet kodu uygulandı: {0} · yıllık abonelik ilk yıl %15 indirimli', [store.appliedInvite!]),
                       textAlign: TextAlign.center,
                       style: const TextStyle(color: Color(0xFF7BE0B4), fontWeight: FontWeight.w700, fontSize: 13)),
                 ),
-              if (ProService.instance.inviteApplied && Platform.isIOS && !(_campaign?.hasDiscount ?? false))
+              if (ProService.instance.inviteApplied && Platform.isIOS && !_discountShown)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: OutlinedButton.icon(
