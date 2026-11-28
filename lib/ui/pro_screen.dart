@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../bank/ai_questions.dart';
 import '../core/campaigns.dart';
+import '../core/device_limit.dart';
 import '../core/legal.dart';
 import '../core/pro.dart';
 import '../core/referral.dart';
@@ -230,6 +231,8 @@ class _ProScreenState extends State<ProScreen> {
               ),
             if (store.hasLicense)
               _LicenseActiveCard(store.license!.institution, store.license!.daysLeft(DateTime.now()))
+            else if (store.subscriptionOnOtherDevice)
+              const _OtherDeviceCard()
             else if (store.hasSubscription)
               _ActiveCard(product: store.proProduct)
             else if (ProService.salesDisabled)
@@ -307,6 +310,7 @@ class _ProScreenState extends State<ProScreen> {
                     onTap: () => setState(() => _selected = p.id),
                   ),
               const _PriceLock(),
+              const _OneLicenseLine(),
               const SizedBox(height: 14),
               Center(
                 child: SizedBox(
@@ -691,6 +695,137 @@ class _ActiveCard extends StatelessWidget {
                     : 'https://play.google.com/store/account/subscriptions?package=$androidPackage'),
                 mode: LaunchMode.externalApplication),
             child: Text(tr('Aboneliği yönet')),
+          ),
+          const SizedBox(height: 4),
+          Text(tr('Bir öğretmen, bir lisans: Pro aynı anda 1 telefon ya da tablet ve 1 bilgisayarda açık olur.'),
+              textAlign: TextAlign.center, style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 12, height: 1.4)),
+          TextButton.icon(
+            style: TextButton.styleFrom(foregroundColor: Colors.white70),
+            icon: const Icon(Icons.logout_rounded, size: 18),
+            label: Text(tr('Bu cihazdan çıkış')),
+            onPressed: () => _signOut(context),
+          ),
+        ]),
+      );
+
+  Future<void> _signOut(BuildContext context) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (c) => AlertDialog(
+        title: Text(tr('Bu cihazdan çıkılsın mı?')),
+        content: Text(tr('Pro bu cihazda kapanır; verileriniz silinmez. Pro\'yu öbür cihazınızda açabilirsiniz. Geri dönmek için bu ekrandan "Bu cihazda kullan" düğmesine dokunun.')),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(c, false), child: Text(tr('Vazgeç'))),
+          FilledButton(onPressed: () => Navigator.pop(c, true), child: Text(tr('Çıkış yap'))),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    final err = await ProService.instance.signOutThisDevice();
+    if (context.mounted) toast(context, err ?? tr('Bu cihazdan çıkış yapıldı. Pro artık öbür cihazınızda açılabilir.'));
+  }
+}
+
+/// Pro aboneliği başka bir cihazda açık ("Bir öğretmen, bir lisans").
+class _OtherDeviceCard extends StatefulWidget {
+  const _OtherDeviceCard();
+
+  @override
+  State<_OtherDeviceCard> createState() => _OtherDeviceCardState();
+}
+
+class _OtherDeviceCardState extends State<_OtherDeviceCard> {
+  bool _busy = false;
+
+  Future<void> _useHere() async {
+    setState(() => _busy = true);
+    final err = await ProService.instance.useOnThisDevice();
+    if (!mounted) return;
+    setState(() => _busy = false);
+    if (err != null) toast(context, err);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final d = DeviceLimit.instance;
+    final other = d.otherKind;
+    final String text;
+    if (d.released) {
+      text = tr('Bu cihazdan çıkış yaptınız. Pro\'yu yeniden bu cihazda açabilirsiniz.');
+    } else if (other != null && d.otherSeen != null) {
+      text = tr('Pro\'nuz şu an başka bir cihazda açık: {0} (son kullanım {1}).', [DeviceLimit.kindName(other), L10n.date(d.otherSeen!)]);
+    } else {
+      text = tr('Pro\'nuz şu an başka bir cihazda açık.');
+    }
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE9C46A).withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE9C46A)),
+      ),
+      child: Column(children: [
+        const Icon(Icons.devices_other_rounded, color: Color(0xFFE9C46A), size: 36),
+        const SizedBox(height: 8),
+        Text(tr('Bir öğretmen, bir lisans'),
+            textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 16)),
+        const SizedBox(height: 6),
+        Text(text, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontSize: 13.5, height: 1.4)),
+        const SizedBox(height: 6),
+        Text(
+            tr('Pro aynı anda 1 telefon ya da tablet ve 1 bilgisayarda açık olur. Öbür cihazda Profil > Netice Pro > "Bu cihazdan çıkış" diyebilir ya da Pro\'yu buraya alabilirsiniz.'),
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.white.withValues(alpha: 0.72), fontSize: 12.5, height: 1.4)),
+        const SizedBox(height: 14),
+        SizedBox(
+          height: 50,
+          width: double.infinity,
+          child: FilledButton.icon(
+            style: FilledButton.styleFrom(backgroundColor: NColors.deepEmerald, foregroundColor: Colors.white, shape: const StadiumBorder()),
+            onPressed: _busy ? null : _useHere,
+            icon: _busy
+                ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2.2, color: Colors.white))
+                : const Icon(Icons.phonelink_ring_rounded),
+            label: Text(tr('Bu cihazda kullan'), style: const TextStyle(fontWeight: FontWeight.w800)),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+            d.released
+                ? tr('Öbür cihazda Pro açıksa kapanır.')
+                : d.transfersLeft > 0
+                    ? tr('Öbür cihazda Pro kapanır. Bu ay {0} cihaz değiştirme hakkınız var.', [d.transfersLeft])
+                    : d.nextTransfer != null
+                        ? tr('Bu ay cihaz değiştirme hakkınız doldu. {0} tarihinden sonra yeniden deneyebilirsiniz.', [L10n.date(d.nextTransfer!)])
+                        : tr('Bu ay cihaz değiştirme hakkınız doldu.'),
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 12, height: 1.4)),
+        const SizedBox(height: 6),
+        TextButton(
+          onPressed: () => SchoolOfferScreen.open(context),
+          child: Text(tr('Birden çok öğretmen mi kullanacak? Okul paketine bakın'),
+              textAlign: TextAlign.center, style: const TextStyle(color: Color(0xFF7BE0B4), fontWeight: FontWeight.w700)),
+        ),
+      ]),
+    );
+  }
+}
+
+/// "Bir öğretmen, bir lisans" notu (satın alma bölümünde).
+class _OneLicenseLine extends StatelessWidget {
+  const _OneLicenseLine();
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          const Icon(Icons.devices_rounded, color: Color(0xFF7BE0B4), size: 18),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              tr('Bir öğretmen, bir lisans: Pro aynı anda 1 telefon ya da tablet ve 1 bilgisayarda açık olur. Okulunuz için okul paketi daha uygun.'),
+              style: const TextStyle(color: Color(0xFF7BE0B4), fontSize: 12.5, fontWeight: FontWeight.w600, height: 1.35),
+            ),
           ),
         ]),
       );

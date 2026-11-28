@@ -7,6 +7,7 @@ import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
 
 import '../bank/ai_questions.dart';
 import 'campaigns.dart';
+import 'device_limit.dart';
 import 'price_increase.dart';
 import 'legal.dart';
 import 'ms_store.dart';
@@ -189,6 +190,9 @@ class ProService {
 
   Future<void> attach(AppStore store) async {
     _store = store;
+    await DeviceLimit.instance.load();
+    DeviceLimit.instance.addListener(store.deviceLimitChanged);
+    if (DeviceLimit.instance.blocked) store.deviceLimitChanged();
     if (Platform.isWindows && !salesDisabled) {
       _msStore = await MsStore.packaged();
       if (_msStore) await _syncMsLicenses();
@@ -415,6 +419,7 @@ class ProService {
     try {
       final list = await MsStore.licenses().timeout(const Duration(seconds: 12));
       var pro = false;
+      final receipts = <String, String>{};
       for (final l in list) {
         if (!l.active || !proProductIds.contains(l.token)) continue;
         _msIds[l.token] = l.storeId;
@@ -424,9 +429,11 @@ class ProService {
         } else {
           _store?.confirmPro(l.token);
           pro = true;
+          receipts[l.token] = 'msstore:${l.storeId}|${l.expires?.millisecondsSinceEpoch ?? 0}';
         }
       }
-      if (pro && purchased) _events.add(tr('Netice Pro etkinleştirildi. Teşekkürler!'));
+      await _checkDevice(receipts);
+      if (pro && purchased && !DeviceLimit.instance.blocked) _events.add(tr('Netice Pro etkinleştirildi. Teşekkürler!'));
       return null;
     } catch (e) {
       return tr('Geri yüklenemedi: {0}', [e]);
@@ -434,6 +441,7 @@ class ProService {
   }
 
   Future<void> _onPurchases(List<PurchaseDetails> list) async {
+    final receipts = <String, String>{};
     for (final p in list) {
       if (!proProductIds.contains(p.productID)) continue;
       switch (p.status) {
@@ -451,9 +459,11 @@ class ProService {
         case PurchaseStatus.purchased:
         case PurchaseStatus.restored:
           _store?.confirmPro(p.productID);
+          final r = receiptOf(p);
+          if (r != null) receipts[p.productID] = r;
           // Davet koduyla alındıysa davet edene gönderilecek teşekkür kodu.
           if (p.status == PurchaseStatus.purchased && proYearlyIds.contains(p.productID)) _store?.onInvitePurchase();
-          if (p.status == PurchaseStatus.purchased) _events.add(tr('Netice Pro etkinleştirildi. Teşekkürler!'));
+          if (p.status == PurchaseStatus.purchased) _welcome = true;
         case PurchaseStatus.error:
           _events.add(tr('Satın alma tamamlanamadı.'));
         case PurchaseStatus.canceled:
@@ -466,5 +476,55 @@ class ProService {
         } catch (_) {}
       }
     }
+    await _checkDevice(receipts);
+    if (_welcome && !DeviceLimit.instance.blocked) _events.add(tr('Netice Pro etkinleştirildi. Teşekkürler!'));
+    _welcome = false;
   }
+
+  bool _welcome = false;
+
+  // ---------------------------------------------------------------------
+  // Cihaz sınırı: "Bir öğretmen, bir lisans" (device_limit.dart)
+  // ---------------------------------------------------------------------
+
+  /// Satın almanın cihazlar arasında aynı kalan kimliği: Google Play satın
+  /// alma jetonu, App Store ilk işlem numarası. Sunucuya yalnız özeti gider.
+  static String? receiptOf(PurchaseDetails p) {
+    if (p is SK2PurchaseDetails) {
+      final id = p.sk2Transaction?.originalId;
+      if (id != null && id.isNotEmpty) return 'apple:$id';
+    }
+    if (p is AppStorePurchaseDetails) {
+      final t = p.skPaymentTransaction;
+      final id = t.originalTransaction?.transactionIdentifier ?? t.transactionIdentifier;
+      if (id != null && id.isNotEmpty) return 'apple:$id';
+    }
+    if (Platform.isAndroid) {
+      final token = p.verificationData.serverVerificationData;
+      if (token.isNotEmpty) return 'play:$token';
+    }
+    return null;
+  }
+
+  /// Etkin aboneliği cihaz sınırı sunucusunda bu cihaza kaydeder. Pro +
+  /// Yapay Zekâ ve yıllık Pro birlikte varsa üst plan esas alınır.
+  Future<void> _checkDevice(Map<String, String> receipts) async {
+    if (receipts.isEmpty) return;
+    final r = receipts[proAiYearlyId] ?? receipts[proYearlyId] ?? receipts.values.first;
+    final wasBlocked = DeviceLimit.instance.blocked;
+    final ok = await DeviceLimit.instance.check(r);
+    if (!ok && !wasBlocked && !DeviceLimit.instance.released) {
+      _events.add(tr('Netice Pro başka bir cihazda açık. Bu cihazda kullanmak için Pro ekranındaki "Bu cihazda kullan" düğmesine dokunun.'));
+    }
+  }
+
+  /// "Bu cihazda kullan": öbür cihazdaki Pro kapanır. Hata varsa metni döner.
+  Future<String?> useOnThisDevice() async {
+    final err = await DeviceLimit.instance.useHere();
+    if (err == null) _events.add(tr('Netice Pro bu cihazda açıldı.'));
+    return err;
+  }
+
+  /// "Bu cihazdan çıkış": Pro bu cihazda kapanır, öbür cihazda açılabilir.
+  Future<String?> signOutThisDevice() => DeviceLimit.instance.signOut();
 }

@@ -1,0 +1,26 @@
+# Netice cihaz sınırı (Cloudflare Worker): "Bir öğretmen, bir lisans".
+# Yayın: .github/workflows/lisans-cihaz.yml (GitHub Actions) yapar.
+#
+# Hesap yoktur. Uygulama, mağaza fişinin (Google Play satın alma jetonu,
+# App Store ilk işlem numarası, Microsoft Store lisansı) cihazda alınmış
+# SHA-256 özetini ve isimsiz, rastgele bir cihaz kodunu gönderir. Ad, e-posta,
+# IP adresi ya da mağaza fişinin kendisi saklanmaz.
+name = "netice-lisans"
+main = "src/index.js"
+compatibility_date = "2026-11-01"
+
+[vars]
+# Bir lisans aynı anda en fazla 1 telefon/tablet ve 1 bilgisayarda açık olabilir.
+# Öbür cihazı çıkarıp lisansı bu cihaza almak için 30 günde en fazla hak.
+TRANSFER_LIMIT = "3"
+# Bu kadar gün hiç görülmeyen cihazın yeri kendiliğinden boşalır
+# (kaybolan ya da sıfırlanan telefon için).
+STALE_DAYS = "45"
+
+[[durable_objects.bindings]]
+name = "LISANS"
+class_name = "Lisans"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Lisans"]

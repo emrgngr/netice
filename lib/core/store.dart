@@ -12,6 +12,7 @@ import '../omr/omr_reader.dart';
 import '../omr/sheet_reader.dart';
 import '../omr/template.dart';
 import 'campaigns.dart';
+import 'device_limit.dart';
 import 'grade_scale.dart';
 import 'license.dart';
 import 'referral.dart';
@@ -217,18 +218,29 @@ class AppStore extends ChangeNotifier {
       hasTermPass ||
       hasBonusPro ||
       hasLicense ||
-      (proConfirmedAt != null && DateTime.now().difference(proConfirmedAt!) < proGrace);
+      hasSubscription;
 
   /// Ücretli Pro (abonelik, Windows/kurum lisans kodu, dönem paketi, davet ödülü):
   /// reklam gösterilmez. Deneme süresinde tanıtımlar görünür.
   bool get adFree => hasSubscription || hasLicense || hasTermPass || hasBonusPro;
 
   /// Abonelik var mı (bilgisayar istisnası hariç)?
-  bool get hasSubscription => proConfirmedAt != null && DateTime.now().difference(proConfirmedAt!) < proGrace;
+  /// Pro aynı lisansla başka bir cihazda açıksa ("Bir öğretmen, bir lisans",
+  /// bkz. device_limit.dart) bu cihazda abonelik sayılmaz.
+  bool get hasSubscription => _subscriptionValid && !DeviceLimit.instance.blocked;
+
+  bool get _subscriptionValid => proConfirmedAt != null && DateTime.now().difference(proConfirmedAt!) < proGrace;
+
+  /// Abonelik geçerli ama başka bir cihazda açık (ya da bu cihazdan çıkış yapıldı).
+  bool get subscriptionOnOtherDevice => _subscriptionValid && DeviceLimit.instance.blocked;
+
+  /// Cihaz sınırı durumu değişti: ekranlar yeniden çizilsin.
+  void deviceLimitChanged() => notifyListeners();
 
   /// Pro + Yapay Zekâ aboneliğinin son doğrulanma zamanı (ayda 300 soru).
   DateTime? aiPlanConfirmedAt;
-  bool get hasAiPlan => aiPlanConfirmedAt != null && DateTime.now().difference(aiPlanConfirmedAt!) < proGrace;
+  bool get hasAiPlan =>
+      aiPlanConfirmedAt != null && DateTime.now().difference(aiPlanConfirmedAt!) < proGrace && !DeviceLimit.instance.blocked;
 
   void confirmPro(String product) {
     // Pro + Yapay Zekâ, sıradan Pro doğrulamasıyla ezilmesin.
