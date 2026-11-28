@@ -8,7 +8,9 @@ beliren fayda maddeleri; sağda uygulamanın gerçek ekranı (telefon ya da
 dizüstü çerçevesinde), işaret halkası ve yavaş yakınlaşma; altta alt yazı ve
 ilerleme çubuğu.
 
-Kullanım: python3 tool/video/egitim.py <dil> [--sessiz]
+Kullanım: python3 tool/video/egitim.py <dil> [--sessiz] [--dikey]
+  --dikey: 9:16 (1080x1920) sürüm; metin üstte, ekran altta. Uygulamanın Yardım
+           bölümü, Instagram Reels ve YouTube Shorts için. Çıktı egitim_<dil>_dikey.mp4
 Girdi:
   tool/video/egitim_<dil>.json                         sahneler ve anlatım
   build/video/frames/<dil>/*.png, hedefler.json         flutter test tool/video_test.dart
@@ -29,7 +31,8 @@ from PIL import Image, ImageDraw, ImageFilter
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from compose import draw_mark, ease_back, ease_out, clamp, duration, font, wrap  # noqa: E402
 
-W, H, FPS = 1920, 1080, 30
+VERT = '--dikey' in sys.argv
+W, H, FPS = (1080, 1920, 30) if VERT else (1920, 1080, 30)
 NAVY = (15, 27, 61)
 NAVY_DARK = (6, 11, 28)
 EMERALD = (16, 185, 129)
@@ -205,13 +208,18 @@ def check_icon(frame, x, y, r, a):
 
 
 # ---------------------------------------------------------------- sahneler
-TEXT_X = 150 if not RTL else W - 150
-COL_W = 760
+TEXT_X = (80 if not RTL else W - 80) if VERT else (150 if not RTL else W - 150)
+COL_W = W - 160 if VERT else 760
+# Dikeyde cihaz metnin altında, ortada.
+DEV_CX = W / 2 if VERT else (1390 if not RTL else 530)
+DEV_CY = 1180 if VERT else 505
 
 
-def left_column(frame, sc, t, top=230, col_w=COL_W):
+def left_column(frame, sc, t, top=None, col_w=COL_W):
     """Adım etiketi, başlık ve fayda maddeleri (sırayla belirir)."""
-    y = top
+    if VERT:
+        col_w = COL_W
+    y = top if top is not None else (190 if VERT else 230)
     lab_f = F(26, True)
     if sc.get('adim'):
         a = ease_out((t - 0.1) / 0.5)
@@ -226,6 +234,9 @@ def left_column(frame, sc, t, top=230, col_w=COL_W):
     big = F(70, True)
     d = ImageDraw.Draw(frame)
     lines = wrap(d, sc['baslik'], big, col_w, LANG)
+    if VERT and len(lines) > 2:
+        big = F(60, True)
+        lines = wrap(d, sc['baslik'], big, col_w, LANG)
     a = ease_out((t - 0.25) / 0.6)
     for i, ln in enumerate(lines):
         text(frame, (TEXT_X, y + i * 86 + 30 * (1 - a)), ln, big, (255, 255, 255), a, anchor='ra' if RTL else 'la')
@@ -257,13 +268,14 @@ def left_column(frame, sc, t, top=230, col_w=COL_W):
 def scene_step(frame, sc, t, dur):
     name = sc['ekran']
     left_column(frame, sc, t, col_w=620 if name.startswith('masaustu:') else COL_W)
-    cx = 1390 if not RTL else 530
+    cx = DEV_CX
     if name.startswith('masaustu:'):
-        info = laptop_layer(name.split(':', 1)[1], 840)
-        sx, sy, s = place_device(frame, info, cx + 10 * (-1 if RTL else 1), 480, t, dur, appear=0.15, zoom=0.03)
+        info = laptop_layer(name.split(':', 1)[1], 880 if VERT else 840)
+        sx, sy, s = place_device(frame, info, cx + 10 * (-1 if RTL else 1), DEV_CY - 60 if VERT else 480, t, dur,
+                                 appear=0.15, zoom=0.03)
     else:
-        info = phone_layer(name, 790)
-        sx, sy, s = place_device(frame, info, cx, 505, t, dur, appear=0.15)
+        info = phone_layer(name, 760 if VERT else 790)
+        sx, sy, s = place_device(frame, info, cx, DEV_CY, t, dur, appear=0.15)
         tg = HEDEF.get(name) or []
         if tg and sc.get('hedef', 0) is not None:
             x, y, w, h = tg[min(sc.get('hedef', 0), len(tg) - 1)]
@@ -287,13 +299,15 @@ def badges(frame, sc, t, cx, info, laptop):
         for i, it in enumerate(items):
             a = clamp(ease_out((t - 1.8 - i * 0.7) / 0.5))
             if a > 0:
-                pill(frame, x + (ws[i] if RTL else 0), 820 + 16 * (1 - a), it, fnt,
+                pill(frame, x + (ws[i] if RTL else 0), (DEV_CY + 280 if VERT else 820) + 16 * (1 - a), it, fnt,
                      BADGE_COLORS[i % len(BADGE_COLORS)] + (255,), a=a, pad=(22, 13))
             x += ws[i] + 20
         return
     half_w = (info['sw'] * 1.0) / 2
     # Telefonun sol ve sağ kenarına sırayla, hafif salınımla.
     spots = [(-1, 250), (1, 420), (-1, 640), (1, 180)] if not laptop else [(-1, 200), (1, 760), (-1, 760)]
+    if VERT:
+        spots = [(side, y - 505 + DEV_CY) for side, y in spots]
     for i, it in enumerate(items[:len(spots)]):
         side, y = spots[i]
         if RTL:
@@ -307,6 +321,8 @@ def badges(frame, sc, t, cx, info, laptop):
         tw = d.textlength(it, font=fnt, direction=DIR) + 44
         edge = cx + side * (half_w + 10)
         x = edge - tw * 0.55 if side < 0 else edge - tw * 0.45
+        if VERT:  # ekranın dışına taşmasın
+            x = min(max(x, 24), W - 24 - tw)
         x += side * 30 * (1 - a)
         if RTL:
             x += tw
@@ -314,6 +330,8 @@ def badges(frame, sc, t, cx, info, laptop):
 
 
 def scene_hook(frame, sc, t, dur):
+    if VERT:
+        return scene_hook_v(frame, sc, t, dur)
     cx = W / 2
     a = ease_out((t - 0.1) / 0.6)
     text(frame, (cx, 300 - 20 * (1 - a)), sc['ust'], F(40, True), GOLD, a, anchor='mm')
@@ -347,9 +365,99 @@ def scene_hook(frame, sc, t, dur):
         text(frame, (cx, 700 + i * 52), ln, F(38), SOFT, a3, anchor='mm')
 
 
+def scene_hook_v(frame, sc, t, dur):
+    """Dikey kanca: eski süre üstte (üstü çizilir), aşağı ok, yeni süre altta."""
+    cx = W / 2
+    a = ease_out((t - 0.1) / 0.6)
+    d = ImageDraw.Draw(frame)
+    for i, ln in enumerate(wrap(d, sc['ust'], F(44, True), W - 140, LANG)):
+        text(frame, (cx, 470 + i * 58 - 20 * (1 - a)), ln, F(44, True), GOLD, a, anchor='mm')
+    size = 170
+    while size > 90 and max(d.textlength(sc['eski'], font=F(size, True)), d.textlength(sc['yeni'], font=F(size, True))) > W - 120:
+        size -= 6
+    big = F(size, True)
+    w_old = d.textlength(sc['eski'], font=big)
+    y_old, y_new = 760, 1100
+    a1 = ease_out((t - 0.5) / 0.6)
+    strike = ease_out((t - 2.6) / 0.6)
+    text(frame, (cx, y_old), sc['eski'], big, (255, 255, 255), a1 * (1 - 0.55 * strike), anchor='mm')
+    if strike > 0:
+        d = ImageDraw.Draw(frame)
+        x0 = cx - w_old / 2 - 10
+        d.line([(x0, y_old + 8), (x0 + (w_old + 20) * strike, y_old - 6)], fill=CORAL + (255,), width=12)
+    a2 = ease_back((t - 3.2) / 0.6)
+    if a2 > 0:
+        al = clamp(a2)
+        d = ImageDraw.Draw(frame)
+        ay = (y_old + y_new) / 2
+        d.line([(cx, ay - 50), (cx, ay + 30)], fill=(255, 255, 255, int(220 * al)), width=9)
+        d.polygon([(cx - 24, ay + 26), (cx, ay + 58), (cx + 24, ay + 26)], fill=(255, 255, 255, int(220 * al)))
+        text(frame, (cx, y_new + 30 * (1 - al)), sc['yeni'], big, EMERALD, al, anchor='mm')
+    a3 = ease_out((t - 1.2) / 0.6)
+    for i, ln in enumerate(wrap(ImageDraw.Draw(frame), sc['alt'], F(40), W - 160, LANG)):
+        text(frame, (cx, 1330 + i * 56), ln, F(40), SOFT, a3, anchor='mm')
+
+
+def scene_cta_v(frame, sc, t, dur):
+    """Dikey kapanış: logo, ad, slogan, maddeler alt alta, karekod, adres, rozetler."""
+    cx = W / 2
+    mark, _ = draw_mark(190, t)
+    frame.alpha_composite(mark, (int(cx - 95), 230))
+    a = ease_out((t - 1.3) / 0.6)
+    text(frame, (cx, 520 + 20 * (1 - a)), 'Netice', F(110, True), (255, 255, 255), a, anchor='mm')
+    a = ease_out((t - 1.7) / 0.6)
+    d = ImageDraw.Draw(frame)
+    sl = wrap(d, sc['baslik'], F(52, True), W - 140, LANG)
+    for i, ln in enumerate(sl):
+        text(frame, (cx, 640 + i * 66), ln, F(52, True), EMERALD, a, anchor='mm')
+    fy = 640 + len(sl) * 66 + 40
+    fw = max(d.textlength(f, font=F(36)) for f in sc['faydalar']) + 66
+    for i, f in enumerate(sc['faydalar']):
+        k = ease_out((t - 2.2 - i * 0.3) / 0.5)
+        if k > 0:
+            x = cx - fw / 2
+            check_icon(frame, x + 22, fy + 24, 22, k)
+            text(frame, (x + 66, fy + 24), f, F(36), (235, 240, 252), k, anchor='lm')
+        fy += 66
+    assets = cta_assets()
+    y0 = fy + 30
+    qs = 260
+    k = clamp(ease_back((t - 3.0) / 0.6))
+    if assets['qr'] is not None and k > 0:
+        card = Image.new('RGBA', (qs + 36, qs + 36), (0, 0, 0, 0))
+        ImageDraw.Draw(card).rounded_rectangle([0, 0, qs + 35, qs + 35], 30, fill=(255, 255, 255, 255))
+        card.paste(assets['qr'].resize((qs, qs), Image.NEAREST), (18, 18))
+        sc_k = 0.85 + 0.15 * k
+        card = card.resize((int(card.width * sc_k), int(card.height * sc_k)), Image.LANCZOS)
+        card.putalpha(card.getchannel('A').point(lambda v: int(v * k)))
+        frame.alpha_composite(card, (int(cx - card.width / 2), int(y0 + (qs + 36 - card.height) / 2)))
+    if assets['qr'] is not None:
+        y0 += qs + 36 + 30
+    ka = clamp(ease_out((t - 3.3) / 0.5))
+    if ka > 0:
+        aw = d.textlength(sc['adres'], font=F(42, True)) + 88
+        pill(frame, cx - aw / 2 if not RTL else cx + aw / 2, y0, sc['adres'], F(42, True), EMERALD_D + (255,), a=ka, pad=(44, 18))
+    yy = y0 + 110
+    bh = 70
+    badges = [b.resize((round(b.width * bh / b.height), bh), Image.LANCZOS) for b in assets['badges']]
+    for ri, row in enumerate((badges[:2], badges[2:])):
+        rw = sum(b.width for b in row) + 20 * (len(row) - 1)
+        bx = cx - rw / 2
+        for bi, b in enumerate(row):
+            kb = clamp(ease_out((t - 3.6 - (ri * 2 + bi) * 0.25) / 0.5))
+            if kb > 0:
+                im = b.copy()
+                im.putalpha(im.getchannel('A').point(lambda v: int(v * kb)))
+                frame.alpha_composite(im, (int(bx), int(yy + 14 * (1 - kb))))
+            bx += b.width + 20
+        yy += bh + 18
+    if not badges:
+        text(frame, (cx, yy + 40), sc['magazalar'], F(30, True), SOFT, ka, anchor='mm')
+
+
 def scene_trust(frame, sc, t, dur):
     left_column(frame, sc, t)
-    cx, cy = (1390 if not RTL else 530), 540
+    cx, cy = DEV_CX, (DEV_CY if VERT else 540)
     a = ease_out((t - 0.2) / 0.7)
     # Kalkan: yuvarlak zemin, kilit ve dönen halka.
     r = 250 * (0.9 + 0.1 * a)
@@ -402,6 +510,8 @@ def cta_assets():
 
 
 def scene_cta(frame, sc, t, dur):
+    if VERT:
+        return scene_cta_v(frame, sc, t, dur)
     cx = W / 2
     mark, tc = draw_mark(170, t)
     frame.alpha_composite(mark, (int(cx - 85), 90))
@@ -463,6 +573,12 @@ def scene_cta(frame, sc, t, dur):
 
 def scene_promise(frame, sc, t, dur):
     left_column(frame, sc, t, col_w=680)
+    if VERT:
+        lap = laptop_layer('ana_sayfa', 860)
+        place_device(frame, lap, W / 2 + 60, DEV_CY - 120, t, dur, appear=0.15, zoom=0.02)
+        ph = phone_layer(sc['ekran'], 560)
+        place_device(frame, ph, W / 2 - 250, DEV_CY + 90, t, dur, appear=0.55, zoom=0.03)
+        return
     cx = 1390 if not RTL else 530
     lap = laptop_layer('ana_sayfa', 900)
     place_device(frame, lap, cx - 40, 470, t, dur, appear=0.15, zoom=0.02)
@@ -475,15 +591,23 @@ def scene_cycle(frame, sc, t, dur):
     cx = W / 2
     a = ease_out((t - 0.1) / 0.5)
     uw = ImageDraw.Draw(frame).textlength(sc['ust'], font=F(26, True)) + 44
-    pill(frame, cx - uw / 2 if not RTL else cx + uw / 2, 190, sc['ust'], F(26, True), (255, 255, 255, 34), a=a)
+    top = 330 if VERT else 190
+    pill(frame, cx - uw / 2 if not RTL else cx + uw / 2, top, sc['ust'], F(26, True), (255, 255, 255, 34), a=a)
     a = ease_out((t - 0.3) / 0.6)
-    text(frame, (cx, 330 + 24 * (1 - a)), sc['baslik'], F(66, True), (255, 255, 255), a, anchor='mm')
+    tl = wrap(ImageDraw.Draw(frame), sc['baslik'], F(66, True), W - 140, LANG)
+    for li, ln in enumerate(tl):
+        text(frame, (cx, top + 140 + li * 82 + 24 * (1 - a)), ln, F(66, True), (255, 255, 255), a, anchor='mm')
     cards = sc['kartlar']
     n = len(cards)
     cw, ch, gap = 360, 360, 70
+    if VERT:
+        cw, gap = 430, 40
     total = n * cw + (n - 1) * gap
     x0 = cx - total / 2
     y0 = 450
+    if VERT:
+        x0 = cx - (2 * cw + gap) / 2
+        y0 = top + 140 + len(tl) * 82 + 60
     colors = [EMERALD_D, (76, 99, 210), (200, 120, 40), (150, 80, 190)]
     step = max(0.6, min(1.3, (dur - 3.0) / max(n, 1)))
     for i, (title, sub) in enumerate(cards):
@@ -494,6 +618,10 @@ def scene_cycle(frame, sc, t, dur):
             continue
         x = x0 + j * (cw + gap)
         y = y0 + 40 * (1 - a)
+        if VERT:  # 2x2 ızgara
+            jj = (1 - i % 2) if RTL else i % 2
+            x = x0 + jj * (cw + gap)
+            y = y0 + (i // 2) * (ch + gap) + 40 * (1 - a)
         ov = Image.new('RGBA', frame.size, (0, 0, 0, 0))
         od = ImageDraw.Draw(ov)
         od.rounded_rectangle([x, y, x + cw, y + ch], 34, fill=(255, 255, 255, int(20 * a)), outline=(255, 255, 255, int(46 * a)), width=2)
@@ -512,8 +640,8 @@ def scene_cycle(frame, sc, t, dur):
         lines = wrap(ImageDraw.Draw(frame), sub, F(28), cw - 50, LANG)
         for li, ln in enumerate(lines[:3]):
             text(frame, (ccx, y + 262 + li * 38), ln, F(28), SOFT, a, anchor='mm')
-        # Bir sonraki karta ok.
-        if i < n - 1:
+        # Bir sonraki karta ok (dikeyde ızgarada ok yok; sıra numarası yeter).
+        if i < n - 1 and not VERT:
             ka = clamp(ease_out((t - 1.0 - (i + 0.6) * step) / 0.4))
             if ka > 0:
                 d = ImageDraw.Draw(frame)
@@ -533,16 +661,19 @@ def scene_audience(frame, sc, t, dur):
     a = ease_out((t - 0.1) / 0.5)
     d = ImageDraw.Draw(frame)
     uw = d.textlength(sc['ust'], font=F(26, True)) + 44
-    pill(frame, cx - uw / 2 if not RTL else cx + uw / 2, 170, sc['ust'], F(26, True), (255, 255, 255, 34), a=a)
+    top = 420 if VERT else 170
+    pill(frame, cx - uw / 2 if not RTL else cx + uw / 2, top, sc['ust'], F(26, True), (255, 255, 255, 34), a=a)
     a = ease_out((t - 0.3) / 0.6)
-    text(frame, (cx, 310 + 24 * (1 - a)), sc['baslik'], F(70, True), (255, 255, 255), a, anchor='mm')
+    tl = wrap(d, sc['baslik'], F(70, True), W - 140, LANG)
+    for li, ln in enumerate(tl):
+        text(frame, (cx, top + 140 + li * 86 + 24 * (1 - a)), ln, F(70, True), (255, 255, 255), a, anchor='mm')
     groups = sc['gruplar']
     fnt = F(36, True)
     pad = (34, 20)
     widths = [d.textlength(g, font=fnt, direction=DIR) + pad[0] * 2 for g in groups]
     rows, cur, cw = [], [], 0
     for i, w in enumerate(widths):
-        if cur and cw + w + 24 > 1500:
+        if cur and cw + w + 24 > (W - 120 if VERT else 1500):
             rows.append(cur)
             cur, cw = [], 0
         cur.append(i)
@@ -551,7 +682,7 @@ def scene_audience(frame, sc, t, dur):
         rows.append(cur)
     colors = [EMERALD_D, (76, 99, 210), (200, 120, 40), (150, 80, 190)]
     step = max(0.3, min(0.8, (dur - 4.0) / max(len(groups), 1)))
-    y = 440
+    y = top + 140 + len(tl) * 86 + 40 if VERT else 440
     for row in rows:
         rw = sum(widths[i] for i in row) + 24 * (len(row) - 1)
         x = cx - rw / 2
@@ -565,7 +696,8 @@ def scene_audience(frame, sc, t, dur):
             x += widths[i] + 24
         y += 110
     k = ease_out((t - 1.4 - len(groups) * step) / 0.6)
-    text(frame, (cx, y + 70), sc.get('alt', ''), F(36, True), GOLD, k, anchor='mm')
+    for li, ln in enumerate(wrap(d, sc.get('alt', ''), F(36, True), W - 140, LANG)):
+        text(frame, (cx, y + 70 + li * 50), ln, F(36, True), GOLD, k, anchor='mm')
 
 
 RENDER = {'adim': scene_step, 'masaustu': scene_step, 'kanca': scene_hook, 'vaat': scene_promise,
@@ -577,8 +709,9 @@ def chrome(frame, sc, idx, t, total_t, steps_total):
     if sc['tur'] not in ('kanca', 'kapanis', 'dongu', 'kitle'):
         mk, _ = draw_mark(46)
         x = 70 if not RTL else W - 116
-        frame.alpha_composite(mk, (x, 50))
-        text(frame, (x + 62 if not RTL else x - 16, 73), 'Netice', F(30, True), (255, 255, 255), 1, anchor='rm' if RTL else 'lm')
+        top = 70 if VERT else 50
+        frame.alpha_composite(mk, (x, top))
+        text(frame, (x + 62 if not RTL else x - 16, top + 23), 'Netice', F(30, True), (255, 255, 255), 1, anchor='rm' if RTL else 'lm')
         # Adım noktaları.
         n = steps_total
         cur = sc.get('adim', 0)
@@ -587,10 +720,11 @@ def chrome(frame, sc, idx, t, total_t, steps_total):
         for i in range(1, n + 1):
             on = i <= cur
             cx = x0 + (i - 1) * 38 + 12
+            dy = top - 50
             if i == cur:
-                d.rounded_rectangle([cx - 12, 64, cx + 30, 82], 9, fill=EMERALD)
+                d.rounded_rectangle([cx - 12, 64 + dy, cx + 30, 82 + dy], 9, fill=EMERALD)
             else:
-                d.ellipse([cx - 9, 64, cx + 9, 82], fill=(EMERALD_D if on else (255, 255, 255, 50)))
+                d.ellipse([cx - 9, 64 + dy, cx + 9, 82 + dy], fill=(EMERALD_D if on else (255, 255, 255, 50)))
     # İlerleme çubuğu.
     d = ImageDraw.Draw(frame)
     d.rectangle([0, H - 8, W, H], fill=(255, 255, 255, 22))
@@ -611,12 +745,13 @@ def subtitle(frame, sc, t, dur):
         if t < talk * acc / tot:
             cur = p
             break
-    fnt = F(32)
+    fnt = F(34 if VERT else 32)
     d = ImageDraw.Draw(frame)
-    lines = wrap(d, cur, fnt, 1400, LANG)[:2]
-    lh = 44
+    lines = wrap(d, cur, fnt, W - 140 if VERT else 1400, LANG)[:3 if VERT else 2]
+    lh = 46 if VERT else 44
     bh = len(lines) * lh + 28
-    y0 = H - 34 - bh
+    # Dikeyde Reels/Shorts düğmeleri alt kısmı kapattığı için biraz yukarıda.
+    y0 = H - (150 if VERT else 34) - bh
     widths = [d.textlength(ln, font=fnt, direction=DIR) for ln in lines]
     bw = max(widths) + 60
     a = clamp(t / 0.3) * clamp((dur - t) / 0.3)
@@ -674,7 +809,8 @@ def main():
     print(f'toplam {total:.1f} sn, {len(scenes)} sahne')
 
     os.makedirs(f'{ROOT}/build/video', exist_ok=True)
-    silent_mp4 = f'{ROOT}/build/video/egitim_{LANG}_goruntu.mp4'
+    SUF = '_dikey' if VERT else ''
+    silent_mp4 = f'{ROOT}/build/video/egitim_{LANG}{SUF}_goruntu.mp4'
     ff = subprocess.Popen(['ffmpeg', '-y', '-loglevel', 'error', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-s', f'{W}x{H}',
                            '-r', str(FPS), '-i', '-', '-c:v', 'libx264', '-preset', 'medium', '-crf', '19',
                            '-pix_fmt', 'yuv420p', silent_mp4], stdin=subprocess.PIPE)
@@ -707,7 +843,7 @@ def main():
     ff.wait()
 
     # Ses: anlatımlar kendi başlangıçlarında, altta kısık müzik.
-    out = f'{ROOT}/build/video/egitim_{LANG}.mp4'
+    out = f'{ROOT}/build/video/egitim_{LANG}{SUF}.mp4'
     inputs, filters, labels = ['-i', silent_mp4], [], []
     n = 1
     for seg in timeline:

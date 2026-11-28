@@ -23,9 +23,17 @@ class VideoGuide {
   /// Kılavuzun bölüm videoları (GuideSection.icon ile aynı adlar).
   static const sections = ['start', 'exam', 'print', 'scan', 'report', 'library', 'fix', 'data', 'pro'];
 
+  /// Dikey (9:16) genel tanıtım videosu: tool/video/egitim.py --dikey,
+  /// "egitim-videolari" sürümünde. Instagram Reels / YouTube Shorts için de uygun.
+  static const promo = 'tanitim';
+  static const promoUrl = 'https://github.com/emrgngr/netice/releases/download/egitim-videolari';
+
   /// [section] verilmezse tüm uygulamayı anlatan rehber videosu.
-  static String urlFor(String lang, [String? section]) =>
-      section == null ? '$baseUrl/rehber_$lang.mp4' : '$baseUrl/kilavuz_${section}_$lang.mp4';
+  static String urlFor(String lang, [String? section]) => section == null
+      ? '$baseUrl/rehber_$lang.mp4'
+      : section == promo
+          ? '$promoUrl/egitim_${lang}_dikey.mp4'
+          : '$baseUrl/kilavuz_${section}_$lang.mp4';
 
   /// Videoyu telefonun paylaşım menüsüyle gönderir (WhatsApp, e-posta…).
   /// Önce video dosyası indirilir; olmazsa bağlantısı paylaşılır.
@@ -114,15 +122,18 @@ class VideoGuide {
 
 /// Yardım ekranındaki "Video rehber" kartı.
 class VideoGuideCard extends StatelessWidget {
-  const VideoGuideCard({super.key});
+  /// [VideoGuide.promo] verilirse genel tanıtım videosu kartı.
+  final String? section;
+  const VideoGuideCard({super.key, this.section});
 
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context);
+    final promo = section == VideoGuide.promo;
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () => VideoGuideScreen.open(context),
+        onTap: () => VideoGuideScreen.open(context, section: section, title: promo ? tr('Tanıtım videosu') : null),
         child: Padding(
           padding: const EdgeInsets.all(14),
           child: Row(children: [
@@ -130,17 +141,25 @@ class VideoGuideCard extends StatelessWidget {
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [NColors.ink, Color(0xFF1C2E63)]),
+                gradient: promo
+                    ? const LinearGradient(colors: [Color(0xFF059669), Color(0xFF10B981)])
+                    : const LinearGradient(colors: [NColors.ink, Color(0xFF1C2E63)]),
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: const Icon(Icons.play_arrow_rounded, color: NColors.emerald, size: 34),
+              // Yeşil zeminde simge beyaz.
+              child: Icon(promo ? Icons.movie_rounded : Icons.play_arrow_rounded,
+                  color: promo ? Colors.white : NColors.emerald, size: promo ? 30 : 34),
             ),
             const SizedBox(width: 14),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(tr('Video rehber'), style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+                Text(promo ? tr('Tanıtım videosu') : tr('Video rehber'),
+                    style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
                 const SizedBox(height: 2),
-                Text(tr('Açılıştan raporlara kadar, sesli anlatımla adım adım.'),
+                Text(
+                    promo
+                        ? tr('Netice\'yi 3 dakikada tanıyın. İndirip Instagram, YouTube ya da WhatsApp\'ta paylaşabilirsiniz.')
+                        : tr('Açılıştan raporlara kadar, sesli anlatımla adım adım.'),
                     style: t.textTheme.bodySmall),
               ]),
             ),
@@ -148,7 +167,10 @@ class VideoGuideCard extends StatelessWidget {
               builder: (ctx) => IconButton(
                 tooltip: tr('Videoyu paylaş'),
                 icon: const Icon(Icons.share_rounded),
-                onPressed: () => VideoGuide.share(ctx, lang: VideoGuide.defaultLang(), title: tr('Video rehber')),
+                onPressed: () => VideoGuide.share(ctx,
+                    lang: VideoGuide.defaultLang(),
+                    section: section,
+                    title: promo ? tr('Tanıtım videosu') : tr('Video rehber')),
               ),
             ),
             const Icon(Icons.chevron_right_rounded),

@@ -80,10 +80,14 @@ jobs:
           curl -sSf --retry 3 -o build/video/muzik.mp3 "$B/$(python3 -c "import json;print(json.load(open('tool/video/muzik.json'))['muzik'])")"
           python3 tool/video/seslendir.py $lang --egitim
           python3 tool/video/egitim.py $lang
+          # Dikey (9:16) sürüm: uygulamanın Yardım bölümü, Reels ve Shorts için (aynı sesler).
+          python3 tool/video/egitim.py $lang --dikey
       - uses: actions/upload-artifact@v5
         with:
           name: egitim_${{ env.lang }}
-          path: build/video/egitim_${{ env.lang }}.mp4
+          path: |
+            build/video/egitim_${{ env.lang }}.mp4
+            build/video/egitim_${{ env.lang }}_dikey.mp4
           compression-level: 0
       - name: Sürüme yükle (önizleme ve paylaşım için)
         env:
@@ -92,4 +96,4 @@ jobs:
           gh release view egitim-videolari >/dev/null 2>&1 || \
             gh release create egitim-videolari --title "Netice eğitim ve tanıtım videoları" \
               --notes "Pazarlama ve eğitim videoları (16:9). Uygulamanın rehber videolarından ayrıdır." --prerelease --target "${{ github.sha }}"
-          gh release upload egitim-videolari build/video/egitim_${lang}.mp4 --clobber
+          gh release upload egitim-videolari build/video/egitim_${lang}.mp4 build/video/egitim_${lang}_dikey.mp4 --clobber
