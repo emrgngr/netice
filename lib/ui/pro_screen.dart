@@ -259,11 +259,11 @@ class _ProScreenState extends State<ProScreen> {
                   child: OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(foregroundColor: Colors.white, side: const BorderSide(color: Colors.white38)),
                     onPressed: () async {
-                      await Clipboard.setData(ClipboardData(text: _campaign?.appStoreOfferCode ?? ''));
+                      await Clipboard.setData(ClipboardData(text: _campaign.appStoreOfferCode));
                       await ProService.instance.redeemOfferCodeOnAppStore();
                     },
                     icon: const Icon(Icons.local_offer_outlined),
-                    label: Text(tr('İndirimi App Store\'da kullan (kod: {0})', [_campaign?.appStoreOfferCode ?? ''])),
+                    label: Text(tr('İndirimi App Store\'da kullan (kod: {0})', [_campaign!.appStoreOfferCode])),
                   ),
                 ),
               if (ProService.instance.inviteApplied && !_discountShown)
