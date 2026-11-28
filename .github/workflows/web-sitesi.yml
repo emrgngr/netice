@@ -79,6 +79,7 @@ jobs:
           for f in build/_e/egitim_*.mp4; do
             [ -e "$f" ] || continue
             dil=$(basename "$f" .mp4); dil=${dil#egitim_}
+            case "$dil" in *_dikey) continue ;; esac  # dikey sürüm uygulama içindir
             if [ "$dil" = tr ]; then hedef=build/site/video/netice_egitim; else mkdir -p "build/site/video/$dil"; hedef="build/site/video/$dil/egitim"; fi
             ffmpeg -v error -y -i "$f" -vf scale=1280:-2 -c:v libx264 -preset veryfast -crf 26 -c:a aac -b:a 128k -movflags +faststart "$hedef.mp4" \
               && ffmpeg -v error -y -ss 5 -i "$f" -frames:v 1 -vf scale=1280:-2 -q:v 4 "$hedef.jpg" \
