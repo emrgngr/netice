@@ -40,6 +40,7 @@ import '../l10n/l10n.dart';
 import '../core/ads.dart';
 import 'ad_slot.dart';
 import 'sample_reports_screen.dart';
+import 'search_ui.dart';
 
 /// Ana sayfa / pano. Geniş ekranda (masaüstü) yan menülü pano,
 /// dar ekranda (telefon) büyük "Okut" düğmeli mobil düzen.
@@ -51,6 +52,15 @@ class HomeScreen extends StatefulWidget {
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
+}
+
+/// Arama sonucundan ana ekranın bir sekmesine geçer (Sınıflar, Kütüphane…).
+void homeGoTab(BuildContext context, int tab) {
+  final st = context.findAncestorStateOfType<_HomeScreenState>();
+  if (st == null) return;
+  Navigator.of(context).popUntil((r) => r.isFirst);
+  // ignore: invalid_use_of_protected_member
+  st.setState(() => st._tab = tab);
 }
 
 class _HomeScreenState extends State<HomeScreen> {
@@ -157,9 +167,10 @@ class _HomeScreenState extends State<HomeScreen> {
           ]),
         ],
       );
-      // Masaüstü kısayolları: Ctrl+N yeni sınav, Ctrl+K şube karşılaştırması.
+      // Masaüstü kısayolları: Ctrl+F arama, Ctrl+N yeni sınav, Ctrl+K şube karşılaştırması.
       return CallbackShortcuts(
         bindings: {
+          const SingleActivator(LogicalKeyboardKey.keyF, control: true): () => openSearch(context, onTab: go),
           const SingleActivator(LogicalKeyboardKey.keyN, control: true): () => push(const NewExamScreen()),
           const SingleActivator(LogicalKeyboardKey.keyK, control: true): () => push(const CompareScreen()),
         },
@@ -626,17 +637,28 @@ class _DashboardState extends State<_Dashboard> {
                 ),
               ),
             ),
+            // Bilgisayarda arama kutusu üstte, her zaman açık: tıklayıp yazmak yeter.
             SliverPadding(
-              padding: const EdgeInsets.fromLTRB(28, 20, 28, 0),
+              padding: const EdgeInsets.fromLTRB(28, 18, 28, 0),
+              sliver: SliverToBoxAdapter(child: SearchBox(onTab: (i) => homeGoTab(context, i))),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(28, 16, 28, 0),
               sliver: SliverToBoxAdapter(
                 child: _QuickActions(onScan: () => startScanFlow(context), onNewExam: newExam),
               ),
             ),
-          ] else
+          ] else ...[
+            // Arama kutusu her zaman ana sayfanın en üstünde.
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              sliver: SliverToBoxAdapter(child: SearchBox(onTab: (i) => homeGoTab(context, i))),
+            ),
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
               sliver: SliverToBoxAdapter(child: hero),
             ),
+          ],
           if (!wide)
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
