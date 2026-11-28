@@ -64,14 +64,16 @@
     <div class="wrap">
       <div class="head">
         <span class="eyebrow">Tanıtım videosu</span>
-        <h2>Netice'yi bir dakikada tanıyın</h2>
+        <h2>Netice'yi kısa bir videoyla tanıyın</h2>
       </div>
       <div class="vtabs" role="tablist">
-        <button type="button" role="tab" aria-selected="true" data-video="tel">Telefonda</button>
+        <button type="button" role="tab" aria-selected="true" data-video="egitim">Genel tanıtım</button>
+        <button type="button" role="tab" aria-selected="false" data-video="tel">Telefonda</button>
         <button type="button" role="tab" aria-selected="false" data-video="pc">Bilgisayarda</button>
       </div>
       <div class="vframe">
-        <video data-video-panel="tel" controls playsinline preload="none" poster="video/netice_tanitim.jpg"><source src="video/netice_tanitim.mp4" type="video/mp4"></video>
+        <video data-video-panel="egitim" controls playsinline preload="none" poster="video/netice_egitim.jpg"><source src="video/netice_egitim.mp4" type="video/mp4"></video>
+        <video data-video-panel="tel" controls playsinline preload="none" poster="video/netice_tanitim.jpg" hidden><source src="video/netice_tanitim.mp4" type="video/mp4"></video>
         <video data-video-panel="pc" controls playsinline preload="none" poster="video/netice_bilgisayar.jpg" hidden><source src="video/netice_bilgisayar.mp4" type="video/mp4"></video>
       </div>
     </div>
