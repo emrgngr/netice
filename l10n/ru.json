@@ -3376,5 +3376,12 @@
 "Öğrenci adı ya da numarası": "Имя или номер ученика",
 "Öğrenci ekleyin, listeyi Excel ya da e-Okul'dan aktarın": "Добавьте учеников или импортируйте список из Excel или школьной системы",
 "Öğrenci karneleri": "Табели учеников",
-"Öğrenci, sınav, soru ya da özellik arayın": "Искать учеников, контрольные, вопросы или функции"
+"Öğrenci, sınav, soru ya da özellik arayın": "Искать учеников, контрольные, вопросы или функции",
+"Kılavuz açılamadı. İnternet bağlantınızı kontrol edin.": "Не удалось открыть руководство. Проверьте подключение к интернету.",
+"Netice kullanım kılavuzu": "Руководство пользователя Netice",
+"{0} (PDF)\n\nİndir: {1}": "{0} (PDF)\n\nСкачать: {1}",
+"Kılavuz paylaşıma hazırlanıyor…": "Готовим руководство к отправке…",
+"Kılavuzu PDF olarak indir": "Скачать руководство в PDF",
+"Resimli kılavuzun tamamı, yazdırmaya hazır. İnternet gerekir.": "Полное руководство с иллюстрациями, готово к печати. Нужен интернет.",
+"Kılavuzu paylaş": "Поделиться руководством"
 }

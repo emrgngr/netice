@@ -3305,5 +3305,12 @@
 "Öğrenci adı ya da numarası": "छात्र का नाम या क्रमांक",
 "Öğrenci ekleyin, listeyi Excel ya da e-Okul'dan aktarın": "छात्र जोड़ें या Excel या स्कूल प्रणाली से सूची आयात करें",
 "Öğrenci karneleri": "छात्र रिपोर्ट कार्ड",
-"Öğrenci, sınav, soru ya da özellik arayın": "छात्र, परीक्षा, प्रश्न या सुविधा खोजें"
+"Öğrenci, sınav, soru ya da özellik arayın": "छात्र, परीक्षा, प्रश्न या सुविधा खोजें",
+"Kılavuz açılamadı. İnternet bağlantınızı kontrol edin.": "गाइड नहीं खुल सकी। अपना इंटरनेट कनेक्शन जाँचें।",
+"Netice kullanım kılavuzu": "Netice उपयोगकर्ता गाइड",
+"{0} (PDF)\n\nİndir: {1}": "{0} (PDF)\n\nडाउनलोड करें: {1}",
+"Kılavuz paylaşıma hazırlanıyor…": "गाइड को साझा करने के लिए तैयार किया जा रहा है…",
+"Kılavuzu PDF olarak indir": "गाइड PDF के रूप में डाउनलोड करें",
+"Resimli kılavuzun tamamı, yazdırmaya hazır. İnternet gerekir.": "पूरी सचित्र गाइड, प्रिंट के लिए तैयार। इंटरनेट आवश्यक है।",
+"Kılavuzu paylaş": "गाइड साझा करें"
 }

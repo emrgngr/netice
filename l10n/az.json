@@ -3376,5 +3376,12 @@
 "Öğrenci adı ya da numarası": "Şagirdin adı və ya nömrəsi",
 "Öğrenci ekleyin, listeyi Excel ya da e-Okul'dan aktarın": "Şagird əlavə edin və ya siyahını Excel ya da məktəb sistemindən köçürün",
 "Öğrenci karneleri": "Şagird karneləri",
-"Öğrenci, sınav, soru ya da özellik arayın": "Şagird, imtahan, sual və ya funksiya axtarın"
+"Öğrenci, sınav, soru ya da özellik arayın": "Şagird, imtahan, sual və ya funksiya axtarın",
+"Kılavuz açılamadı. İnternet bağlantınızı kontrol edin.": "Təlimat açılmadı. İnternet bağlantınızı yoxlayın.",
+"Netice kullanım kılavuzu": "Netice istifadə təlimatı",
+"{0} (PDF)\n\nİndir: {1}": "{0} (PDF)\n\nYüklə: {1}",
+"Kılavuz paylaşıma hazırlanıyor…": "Təlimat paylaşım üçün hazırlanır…",
+"Kılavuzu PDF olarak indir": "Təlimatı PDF kimi yüklə",
+"Resimli kılavuzun tamamı, yazdırmaya hazır. İnternet gerekir.": "Şəkilli təlimatın tamamı, çapa hazır. İnternet lazımdır.",
+"Kılavuzu paylaş": "Təlimatı paylaş"
 }

@@ -180,7 +180,7 @@ List<SearchEntry> featureEntries() => [
       _Target(tab: 4, section: Section.settings)),
   _feature(tr('Dil'), tr('Uygulamanın dilini değiştirin'), 'dil language english turkce',
       _Target(action: pickLanguage, icon: Icons.translate_rounded)),
-  _feature(tr('Kullanma kılavuzu'), tr('Adım adım anlatım'), 'yardim kilavuz nasil help guide',
+  _feature(tr('Kullanma kılavuzu'), tr('Adım adım anlatım'), 'yardim kilavuz nasil help guide pdf indir',
       _Target(page: () => const HelpScreen(), section: Section.help)),
   _feature(tr('Sık sorulan sorular'), tr('Aranabilir cevaplar'), 'sss soru cevap faq',
       _Target(page: () => const HelpScreen(initialTab: 1), icon: Icons.quiz_outlined)),

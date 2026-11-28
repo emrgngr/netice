@@ -3376,5 +3376,12 @@
 "Öğrenci adı ya da numarası": "Student name or number",
 "Öğrenci ekleyin, listeyi Excel ya da e-Okul'dan aktarın": "Add students or import the list from Excel or your school system",
 "Öğrenci karneleri": "Student report cards",
-"Öğrenci, sınav, soru ya da özellik arayın": "Search students, exams, questions or features"
+"Öğrenci, sınav, soru ya da özellik arayın": "Search students, exams, questions or features",
+"Kılavuz açılamadı. İnternet bağlantınızı kontrol edin.": "Couldn't open the guide. Check your internet connection.",
+"Netice kullanım kılavuzu": "Netice user guide",
+"{0} (PDF)\n\nİndir: {1}": "{0} (PDF)\n\nDownload: {1}",
+"Kılavuz paylaşıma hazırlanıyor…": "Preparing the guide to share…",
+"Kılavuzu PDF olarak indir": "Download the guide as PDF",
+"Resimli kılavuzun tamamı, yazdırmaya hazır. İnternet gerekir.": "The full illustrated guide, ready to print. Internet required.",
+"Kılavuzu paylaş": "Share the guide"
 }

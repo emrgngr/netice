@@ -3305,5 +3305,12 @@
 "Öğrenci adı ya da numarası": "Nama atau nomor siswa",
 "Öğrenci ekleyin, listeyi Excel ya da e-Okul'dan aktarın": "Tambahkan siswa atau impor daftar dari Excel atau sistem sekolah",
 "Öğrenci karneleri": "Rapor siswa",
-"Öğrenci, sınav, soru ya da özellik arayın": "Cari siswa, ujian, soal, atau fitur"
+"Öğrenci, sınav, soru ya da özellik arayın": "Cari siswa, ujian, soal, atau fitur",
+"Kılavuz açılamadı. İnternet bağlantınızı kontrol edin.": "Panduan tidak dapat dibuka. Periksa koneksi internet Anda.",
+"Netice kullanım kılavuzu": "Panduan pengguna Netice",
+"{0} (PDF)\n\nİndir: {1}": "{0} (PDF)\n\nUnduh: {1}",
+"Kılavuz paylaşıma hazırlanıyor…": "Menyiapkan panduan untuk dibagikan…",
+"Kılavuzu PDF olarak indir": "Unduh panduan sebagai PDF",
+"Resimli kılavuzun tamamı, yazdırmaya hazır. İnternet gerekir.": "Panduan bergambar lengkap, siap dicetak. Memerlukan internet.",
+"Kılavuzu paylaş": "Bagikan panduan"
 }
