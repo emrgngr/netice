@@ -19,7 +19,7 @@ Sitenin asıl metni Türkçedir (web-sitesi/*.html). Bu betik:
 o dilin sayfası onları gösterir (tool/site/ornek_raporlar.sh); yoksa Türkçeleri kalır.
 Kılavuz: <çıktı>/kilavuz/Netice_Kullanim_Kilavuzu_<dil>.pdf (kilavuz-pdf.yml sürümünden).
 
-Videolar: <çıktı>/video/<dil>/telefon.mp4 ve bilgisayar.mp4 (ve .jpg kapakları)
+Videolar: <çıktı>/video/<dil>/egitim.mp4, telefon.mp4 ve bilgisayar.mp4 (ve .jpg kapakları)
 varsa o dilin sayfası onları gösterir; yoksa Türkçe videolar kalır.
 """
 import concurrent.futures as cf
@@ -364,7 +364,7 @@ def sayfa_yaz(kaynak_html, sayfa, dil, bellek, cikti):
                     el[a] = kok + v
         # O dilin videoları varsa onları göster.
         for v in soup.find_all('video'):
-            ad = {'tel': 'telefon', 'pc': 'bilgisayar'}.get(v.get('data-video-panel'))
+            ad = {'tel': 'telefon', 'pc': 'bilgisayar', 'egitim': 'egitim'}.get(v.get('data-video-panel'))
             if ad and os.path.exists(os.path.join(cikti, 'video', dil, ad + '.mp4')):
                 v['poster'] = f'../video/{dil}/{ad}.jpg' if os.path.exists(os.path.join(cikti, 'video', dil, ad + '.jpg')) else v.get('poster')
                 for s in v.find_all('source'):

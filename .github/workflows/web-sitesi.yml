@@ -66,6 +66,26 @@ jobs:
           done
           ls -R build/site/video | head -50
 
+      # Genel tanıtım videosu (egitim-video.yml üretir): her dil kendi videosunu gösterir.
+      # Site için 720p'ye sıkıştırılır (hızlı açılış); kapak 5. saniyeden alınır.
+      - name: Genel tanıtım videoları (egitim-videolari sürümü, 15 dil)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+          for i in 1 2 3; do command -v ffmpeg >/dev/null && break; sudo apt-get update -qq && sudo apt-get install -y -qq -o Acquire::Retries=5 ffmpeg >/dev/null && break; sleep 10; done
+          mkdir -p build/_e
+          gh release download egitim-videolari -p 'egitim_*.mp4' -D build/_e --clobber || echo "Henüz tanıtım videosu yok."
+          for f in build/_e/egitim_*.mp4; do
+            [ -e "$f" ] || continue
+            dil=$(basename "$f" .mp4); dil=${dil#egitim_}
+            if [ "$dil" = tr ]; then hedef=build/site/video/netice_egitim; else mkdir -p "build/site/video/$dil"; hedef="build/site/video/$dil/egitim"; fi
+            ffmpeg -v error -y -i "$f" -vf scale=1280:-2 -c:v libx264 -preset veryfast -crf 26 -c:a aac -b:a 128k -movflags +faststart "$hedef.mp4" \
+              && ffmpeg -v error -y -ss 5 -i "$f" -frames:v 1 -vf scale=1280:-2 -q:v 4 "$hedef.jpg" \
+              || echo "::warning::$dil tanıtım videosu hazırlanamadı"
+          done
+          ls -la build/site/video/netice_egitim.* build/site/video/*/egitim.mp4 2>/dev/null | head -40 || true
+
       # Örnek raporlar sayfasının görselleri her dilde, uygulamanın kendi PDF'lerinden.
       # Bu adım başarısız olursa site Türkçe görsellerle (web-sitesi/img/raporlar) yayınlanır.
       - uses: subosito/flutter-action@v2
