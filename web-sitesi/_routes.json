@@ -1,5 +1,5 @@
 {
   "version": 1,
-  "include": ["/video/*", "/google*"],
+  "include": ["/video/*", "/google*", "/sosyal.json"],
   "exclude": []
 }

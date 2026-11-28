@@ -82,3 +82,17 @@
     });
   });
 })();
+
+// Sosyal medya hesapları: Reklam yönetimi > Ayarlar'da girilen adresler (/sosyal.json).
+(function () {
+  var kutu = document.querySelector('[data-sosyal]');
+  if (!kutu || !window.fetch) return;
+  fetch('/sosyal.json').then(function (r) { return r.ok ? r.json() : {}; }).then(function (j) {
+    var var_ = false;
+    kutu.querySelectorAll('[data-sosyal-ag]').forEach(function (a) {
+      var u = j && j[a.getAttribute('data-sosyal-ag')];
+      if (typeof u === 'string' && /^https:\/\//.test(u)) { a.href = u; a.hidden = false; var_ = true; }
+    });
+    kutu.hidden = !var_;
+  }).catch(function () {});
+})();
