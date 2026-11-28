@@ -3376,5 +3376,12 @@
 "Öğrenci adı ya da numarası": "اسم الطالب أو رقمه",
 "Öğrenci ekleyin, listeyi Excel ya da e-Okul'dan aktarın": "أضف الطلاب أو استورد القائمة من Excel أو نظام المدرسة",
 "Öğrenci karneleri": "شهادات الطلاب",
-"Öğrenci, sınav, soru ya da özellik arayın": "ابحث عن طلاب أو اختبارات أو أسئلة أو ميزات"
+"Öğrenci, sınav, soru ya da özellik arayın": "ابحث عن طلاب أو اختبارات أو أسئلة أو ميزات",
+"Kılavuz açılamadı. İnternet bağlantınızı kontrol edin.": "تعذر فتح الدليل. تحقق من اتصالك بالإنترنت.",
+"Netice kullanım kılavuzu": "دليل استخدام Netice",
+"{0} (PDF)\n\nİndir: {1}": "{0} (PDF)\n\nتنزيل: {1}",
+"Kılavuz paylaşıma hazırlanıyor…": "جارٍ تجهيز الدليل للمشاركة",
+"Kılavuzu PDF olarak indir": "تنزيل الدليل بصيغة PDF",
+"Resimli kılavuzun tamamı, yazdırmaya hazır. İnternet gerekir.": "الدليل المصور كاملًا وجاهز للطباعة. يتطلب الإنترنت.",
+"Kılavuzu paylaş": "مشاركة الدليل"
 }

@@ -93,6 +93,7 @@ class _HelpScreenState extends State<HelpScreen> {
       ),
       const Padding(padding: EdgeInsets.fromLTRB(16, 12, 16, 0), child: VideoGuideCard(section: VideoGuide.promo)),
       const Padding(padding: EdgeInsets.fromLTRB(16, 8, 16, 0), child: VideoGuideCard()),
+      const Padding(padding: EdgeInsets.fromLTRB(16, 8, 16, 0), child: GuidePdfCard()),
       const Padding(padding: EdgeInsets.fromLTRB(16, 10, 16, 0), child: SampleReportsCard()),
       const AdSlot.card(AdPage.help, padding: EdgeInsets.fromLTRB(16, 12, 16, 0)),
       search(tr('Kılavuzda ara (ör. yedek, kitapçık)')),

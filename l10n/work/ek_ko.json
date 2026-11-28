@@ -1293,5 +1293,12 @@
  "Örn. Yağmur ormanları": "예: 열대 우림",
  "Öğrenci doğru olan bütün şıkları işaretler; hepsini ve yalnız onları işaretlerse doğru sayılır. Kitapçıkta yönergesi yazılır.": "학생은 옳은 선택지를 모두 표시합니다. 정확히 그것들만 표시해야 정답으로 인정됩니다. 안내문이 시험지에 인쇄됩니다.",
  "Şıkka görsel ekle": "선택지에 이미지 추가",
- "Reklam başvuru formu\nBoş tanıtım alanlarında \"Burada reklamınız olsun\" kartı çıkabilir. Bu karttaki formu doldurmak isteğe bağlıdır ve yalnızca reklam vermek isteyenler içindir. Formu gönderirseniz yazdığınız ad, firma, telefon, e-posta ve mesaj ile uygulama dili ve ülke kodu, size dönüş yapabilmek için Netice'nin sunucusuna iletilir. Bu bilgiler başka bir amaçla kullanılmaz, kimseyle paylaşılmaz, IP adresi saklanmaz ve en geç bir yıl içinde silinir; daha önce silinmesini istediğinizde bize yazabilirsiniz.": "광고 신청 양식\n비어 있는 홍보 공간에는 \"여기에 광고하세요\" 카드가 표시될 수 있습니다. 이 카드의 양식 작성은 선택 사항이며 광고를 원하는 분만을 위한 것입니다. 양식을 보내면 입력한 이름, 회사, 전화번호, 이메일, 메시지와 함께 앱 언어 및 국가 코드가 회신을 위해 Netice 서버로 전송됩니다. 이 정보는 다른 용도로 사용되지 않고 누구와도 공유되지 않으며, IP 주소는 저장되지 않고 늦어도 1년 이내에 삭제됩니다. 더 일찍 삭제를 원하시면 연락해 주세요."
+ "Reklam başvuru formu\nBoş tanıtım alanlarında \"Burada reklamınız olsun\" kartı çıkabilir. Bu karttaki formu doldurmak isteğe bağlıdır ve yalnızca reklam vermek isteyenler içindir. Formu gönderirseniz yazdığınız ad, firma, telefon, e-posta ve mesaj ile uygulama dili ve ülke kodu, size dönüş yapabilmek için Netice'nin sunucusuna iletilir. Bu bilgiler başka bir amaçla kullanılmaz, kimseyle paylaşılmaz, IP adresi saklanmaz ve en geç bir yıl içinde silinir; daha önce silinmesini istediğinizde bize yazabilirsiniz.": "광고 신청 양식\n비어 있는 홍보 공간에는 \"여기에 광고하세요\" 카드가 표시될 수 있습니다. 이 카드의 양식 작성은 선택 사항이며 광고를 원하는 분만을 위한 것입니다. 양식을 보내면 입력한 이름, 회사, 전화번호, 이메일, 메시지와 함께 앱 언어 및 국가 코드가 회신을 위해 Netice 서버로 전송됩니다. 이 정보는 다른 용도로 사용되지 않고 누구와도 공유되지 않으며, IP 주소는 저장되지 않고 늦어도 1년 이내에 삭제됩니다. 더 일찍 삭제를 원하시면 연락해 주세요.",
+ "Kılavuz açılamadı. İnternet bağlantınızı kontrol edin.": "가이드를 열 수 없습니다. 인터넷 연결을 확인하세요.",
+ "Netice kullanım kılavuzu": "Netice 사용 가이드",
+ "{0} (PDF)\n\nİndir: {1}": "{0} (PDF)\n\n다운로드: {1}",
+ "Kılavuz paylaşıma hazırlanıyor…": "가이드를 공유할 준비 중…",
+ "Kılavuzu PDF olarak indir": "가이드를 PDF로 다운로드",
+ "Resimli kılavuzun tamamı, yazdırmaya hazır. İnternet gerekir.": "그림이 포함된 전체 가이드, 바로 인쇄할 수 있습니다. 인터넷이 필요합니다.",
+ "Kılavuzu paylaş": "가이드 공유"
 }

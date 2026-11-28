@@ -3376,5 +3376,12 @@
 "Öğrenci adı ya da numarası": "Schülername oder -nummer",
 "Öğrenci ekleyin, listeyi Excel ya da e-Okul'dan aktarın": "Schüler hinzufügen oder Liste aus Excel bzw. dem Schulsystem importieren",
 "Öğrenci karneleri": "Schülerzeugnisse",
-"Öğrenci, sınav, soru ya da özellik arayın": "Schüler, Prüfungen, Fragen oder Funktionen suchen"
+"Öğrenci, sınav, soru ya da özellik arayın": "Schüler, Prüfungen, Fragen oder Funktionen suchen",
+"Kılavuz açılamadı. İnternet bağlantınızı kontrol edin.": "Das Handbuch konnte nicht geöffnet werden. Prüfen Sie Ihre Internetverbindung.",
+"Netice kullanım kılavuzu": "Netice-Benutzerhandbuch",
+"{0} (PDF)\n\nİndir: {1}": "{0} (PDF)\n\nHerunterladen: {1}",
+"Kılavuz paylaşıma hazırlanıyor…": "Handbuch wird zum Teilen vorbereitet…",
+"Kılavuzu PDF olarak indir": "Handbuch als PDF herunterladen",
+"Resimli kılavuzun tamamı, yazdırmaya hazır. İnternet gerekir.": "Das komplette bebilderte Handbuch, druckfertig. Internet erforderlich.",
+"Kılavuzu paylaş": "Handbuch teilen"
 }

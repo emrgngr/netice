@@ -366,3 +366,92 @@ class _VideoGuideScreenState extends State<VideoGuideScreen> {
     );
   }
 }
+
+/// Kullanım kılavuzunun PDF'i (her uygulama dili için ayrı). PDF'ler web
+/// sitesinde durur (kilavuz-pdf.yml üretir); uygulamanın boyutunu büyütmez.
+class GuidePdf {
+  static String fileName(String lang) => 'Netice_Kullanim_Kilavuzu_$lang.pdf';
+  static String urlFor(String lang) => '$websiteUrl/kilavuz/${fileName(lang)}';
+
+  /// PDF'i tarayıcıda açar; oradan kaydedilip yazdırılabilir.
+  static Future<void> open(BuildContext context) async {
+    final ok = await launchUrl(Uri.parse(urlFor(VideoGuide.defaultLang())), mode: LaunchMode.externalApplication);
+    if (!ok && context.mounted) toast(context, tr('Kılavuz açılamadı. İnternet bağlantınızı kontrol edin.'));
+  }
+
+  /// PDF dosyasını paylaşım menüsüyle gönderir; olmazsa bağlantısı paylaşılır.
+  static Future<void> share(BuildContext context) async {
+    final lang = VideoGuide.defaultLang();
+    final url = urlFor(lang);
+    final title = tr('Netice kullanım kılavuzu');
+    final text = tr('{0} (PDF)\n\nİndir: {1}', [title, downloadUrl]);
+    final box = context.findRenderObject() as RenderBox?;
+    final origin = box == null ? null : box.localToGlobal(Offset.zero) & box.size;
+    toast(context, tr('Kılavuz paylaşıma hazırlanıyor…'));
+    try {
+      final r = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 90));
+      if (r.statusCode != 200) throw Exception(r.statusCode);
+      final dir = await getTemporaryDirectory();
+      final f = File('${dir.path}/${fileName(lang)}');
+      await f.writeAsBytes(r.bodyBytes);
+      await SharePlus.instance.share(ShareParams(
+        files: [XFile(f.path, mimeType: 'application/pdf')],
+        text: text,
+        subject: title,
+        sharePositionOrigin: origin,
+      ));
+    } catch (_) {
+      try {
+        await SharePlus.instance.share(ShareParams(text: '$text\n\n$url', subject: title, sharePositionOrigin: origin));
+      } catch (_) {
+        if (context.mounted) toast(context, tr('Paylaşım açılamadı.'));
+      }
+    }
+  }
+}
+
+/// Kılavuz ekranındaki "Kılavuzu PDF olarak indir" kartı.
+class GuidePdfCard extends StatelessWidget {
+  const GuidePdfCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context);
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => GuidePdf.open(context),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Row(children: [
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(colors: [Color(0xFF6366F1), Color(0xFF4338CA)]),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Icon(Icons.picture_as_pdf_rounded, color: Colors.white, size: 30),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(tr('Kılavuzu PDF olarak indir'), style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+                const SizedBox(height: 2),
+                Text(tr('Resimli kılavuzun tamamı, yazdırmaya hazır. İnternet gerekir.'), style: t.textTheme.bodySmall),
+              ]),
+            ),
+            Builder(
+              builder: (ctx) => IconButton(
+                tooltip: tr('Kılavuzu paylaş'),
+                icon: const Icon(Icons.share_rounded),
+                onPressed: () => GuidePdf.share(ctx),
+              ),
+            ),
+            const Icon(Icons.download_rounded),
+          ]),
+        ),
+      ),
+    );
+  }
+}

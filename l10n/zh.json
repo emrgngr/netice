@@ -3376,5 +3376,12 @@
 "Öğrenci adı ya da numarası": "学生姓名或学号",
 "Öğrenci ekleyin, listeyi Excel ya da e-Okul'dan aktarın": "添加学生，或从 Excel 或学校系统导入名单",
 "Öğrenci karneleri": "学生成绩单",
-"Öğrenci, sınav, soru ya da özellik arayın": "搜索学生、考试、题目或功能"
+"Öğrenci, sınav, soru ya da özellik arayın": "搜索学生、考试、题目或功能",
+"Kılavuz açılamadı. İnternet bağlantınızı kontrol edin.": "无法打开使用指南。请检查网络连接。",
+"Netice kullanım kılavuzu": "Netice 使用指南",
+"{0} (PDF)\n\nİndir: {1}": "{0}（PDF）\n\n下载：{1}",
+"Kılavuz paylaşıma hazırlanıyor…": "正在准备分享指南…",
+"Kılavuzu PDF olarak indir": "下载 PDF 版指南",
+"Resimli kılavuzun tamamı, yazdırmaya hazır. İnternet gerekir.": "完整的图文指南，可直接打印。需要联网。",
+"Kılavuzu paylaş": "分享指南"
 }
