@@ -1,0 +1,88 @@
+# Cihaz sınırı sunucusunu (Cloudflare Worker) yayınlar: Pro aynı anda
+# 1 telefon/tablet + 1 bilgisayarda açık olur ("Bir öğretmen, bir lisans").
+# Hesap yok; mağaza fişinin özeti ve isimsiz cihaz kodu eşleştirilir.
+#
+# Soru sunucusuyla aynı GitHub secret'larını kullanır:
+#   CLOUDFLARE_API_TOKEN   Cloudflare "Edit Cloudflare Workers" şablonlu API token
+#   CLOUDFLARE_ACCOUNT_ID  Cloudflare hesap kimliği
+# Secret'lar eklenmemişse iş hata vermeden atlanır.
+name: Cihaz sınırı sunucusu
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, ilk-surum]
+    paths:
+      - 'sunucu/lisans-cihaz/**'
+      - '.github/workflows/lisans-cihaz.yml'
+  pull_request:
+    paths:
+      - 'sunucu/lisans-cihaz/**'
+
+concurrency:
+  group: lisans-cihaz-${{ github.event_name }}
+  cancel-in-progress: false
+
+jobs:
+  yayinla:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sunucu/lisans-cihaz
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm test
+      - name: Derleme denemesi
+        run: npx wrangler deploy --dry-run --outdir dist
+
+      - name: Secret'lar var mı?
+        id: hazir
+        if: github.event_name != 'pull_request'
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::warning::CLOUDFLARE_API_TOKEN ve CLOUDFLARE_ACCOUNT_ID secret'ları eklenmemiş; yayın atlandı."
+            echo "tamam=0" >> "$GITHUB_OUTPUT"
+          else
+            echo "tamam=1" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Yayınla
+        if: steps.hazir.outputs.tamam == '1'
+        run: |
+          set -euo pipefail
+          npx wrangler deploy | tee yayin.log
+          ADRES=$(grep -oE 'https://[a-zA-Z0-9.-]+\.workers\.dev' yayin.log | head -n1 || true)
+          echo "### Cihaz sınırı sunucusu yayında" >> "$GITHUB_STEP_SUMMARY"
+          echo "Adres: \`$ADRES\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "ADRES=$ADRES" >> "$GITHUB_ENV"
+
+      - name: Sunucuyu dene
+        if: steps.hazir.outputs.tamam == '1' && env.ADRES != ''
+        run: |
+          for i in $(seq 1 20); do
+            if curl -fsS -m 20 "$ADRES/"; then echo; break; fi
+            echo "Adres henüz hazır değil, 30 sn sonra yeniden denenecek ($i/20)"
+            sleep 30
+          done
+          sleep 10
+          # Deneme anahtarı (gerçek bir satın almaya ait değil).
+          ANAHTAR=$(printf 'netice-ci-deneme-%s' "$GITHUB_RUN_ID" | sha256sum | cut -c1-64)
+          istek() {
+            curl -sS -m 30 -X POST "$ADRES/$1" -H 'content-type: application/json' -H 'x-netice-app: netice-app-1' --data "$2"
+          }
+          istek kayit "{\"anahtar\":\"$ANAHTAR\",\"cihaz\":\"ci-telefon-1\",\"tur\":\"telefon\",\"ad\":\"android\"}" | tee a.json; echo
+          grep -q '"durum":"tamam"' a.json
+          istek kayit "{\"anahtar\":\"$ANAHTAR\",\"cihaz\":\"ci-telefon-2\",\"tur\":\"telefon\",\"ad\":\"iphone\"}" | tee b.json; echo
+          grep -q '"durum":"dolu"' b.json
+          istek birak "{\"anahtar\":\"$ANAHTAR\",\"cihaz\":\"ci-telefon-1\",\"tur\":\"telefon\"}" | tee c.json; echo
+          grep -q '"durum":"tamam"' c.json
+          # Uygulama anahtarı olmadan reddedilmeli.
+          KOD=$(curl -sS -m 30 -o /dev/null -w '%{http_code}' -X POST "$ADRES/kayit" --data '{}')
+          test "$KOD" = "403"

@@ -1,0 +1,13 @@
+{
+  "name": "netice-lisans",
+  "private": true,
+  "type": "module",
+  "description": "Netice: Pro lisansını aynı anda 1 telefon + 1 bilgisayarla sınırlayan, hesapsız küçük sunucu (Cloudflare Worker).",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "test": "node --test test/*.test.js"
+  },
+  "devDependencies": {
+    "wrangler": "^4.167.0"
+  }
+}

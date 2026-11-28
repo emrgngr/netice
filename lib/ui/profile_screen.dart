@@ -80,6 +80,8 @@ class ProfileScreen extends StatelessWidget {
         ? tr('Kurum lisansıyla etkin: {0}', [store.license!.institution])
         : store.hasSubscription
             ? tr('Aboneliğiniz etkin. Teşekkürler!')
+            : store.subscriptionOnOtherDevice
+            ? tr('Pro başka bir cihazda açık · buraya almak için dokunun')
             : store.inTrial
                 ? tr('Ücretsiz deneme: {0} gün kaldı', [store.trialDaysLeft])
                 : tr('Dönem raporu, karne, veliye gönderme ve daha fazlası');
@@ -144,6 +146,8 @@ class ProfileScreen extends StatelessWidget {
                 ? tr('Kurum lisansıyla etkin: {0}', [store.license!.institution])
                 : store.hasSubscription
                 ? tr('Aboneliğiniz etkin. Teşekkürler!')
+                : store.subscriptionOnOtherDevice
+                ? tr('Pro başka bir cihazda açık · buraya almak için dokunun')
                 : store.hasBonusPro
                 ? tr('Davet ödülü Pro: {0} tarihine kadar', [L10n.date(store.bonusProUntil!)])
                 : store.hasTermPass

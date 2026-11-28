@@ -47,8 +47,11 @@ String get shareText => tr('Optik kâğıtları telefonla okutup puan, analiz ve
 String _contact(String prefix) => contactEmail.isEmpty ? '' : '\n\n$prefix $contactEmail';
 
 /// Uygulama içi gizlilik politikası (mağazadaki metnin kısa hâli).
-String get privacyPolicy => [_privacy, _privacyPromo, _privacyAdForm, _privacy2, _privacyNot, _privacy3, _privacyAi].map(tr).join('\n\n') +
+String get privacyPolicy => [_privacy, _privacyPromo, _privacyAdForm, _privacy2, _privacyDevice, _privacyNot, _privacy3, _privacyAi].map(tr).join('\n\n') +
     _contact(tr('İletişim:'));
+
+const _privacyDevice = '''Cihaz sınırı (Netice Pro)
+Bir öğretmen, bir lisans: Pro aboneliği aynı anda en fazla 1 telefon ya da tablet ve 1 bilgisayarda açık olur. Bunu denetlemek için, abonelik etkinken Netice'nin lisans sunucusuna yalnızca mağaza fişinin geri çevrilemez özeti, cihaza özel rastgele bir kimlik ve cihaz türü (Android, iPhone, Windows ya da Mac) gönderilir; sunucu son kullanım zamanını tutar. Ad, e-posta, mağaza hesabı ya da öğrenci bilgisi gönderilmez, IP adresi saklanmaz. Bir yıl kullanılmayan kayıtlar kendiliğinden silinir.''';
 
 const _privacyAi = '''Nottan soru üretme (isteğe bağlı)
 Kütüphanede "Bu nottan soru üret" dediğinizde ve onay verdiğinizde, yalnızca o notun metni ve görselleri Netice'nin soru sunucusu üzerinden yapay zekâ hizmetine (Anthropic Claude) gönderilir. Netice notu ve üretilen soruları saklamaz; sunucuda yalnızca kota için cihaza özel rastgele bir kimlik ve aylık soru sayısı tutulur. Anthropic bu içeriği yapay zekâ eğitiminde kullanmaz. Öğrenci bilgisi içeren notları göndermeyin. Bu özelliği kullanmazsanız hiçbir içerik gönderilmez.''';
